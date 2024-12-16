@@ -16,14 +16,14 @@
   - [ ] **Four multiple-choice options** (A, B, C, D).
   - [ ] The **correct answer** (key stored for validation).
   - [ ] An **optional explanation** for the correct answer (used for feedback).
-- [ ] Questions are stored in an **external JSON file** to allow easy modification and reuse.
+- [x] Questions are stored in an **external JSON file** to allow easy modification and reuse.
 
 ### 3. Gameplay Flow
 - [ ] Display a **welcome message** and a menu of quiz categories.
 - [ ] After a category is selected:
-  - [ ] Present one question at a time.
-  - [ ] Display the **question text** and the **multiple-choice options**.
-  - [ ] Allow the user to **input their answer** (case-insensitive).
+  - [x] Present one question at a time.
+  - [x] Display the **question text** and the **multiple-choice options**.
+  - [x] Allow the user to **input their answer** (case-insensitive).
 - [ ] Provide **immediate feedback** for each answer.
   - [ ] "Correct!" or "Incorrect. The correct answer is...".
 - [ ] After completing all questions:
