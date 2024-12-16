@@ -1,0 +1,24 @@
+{
+    "General Knowledge": [
+        {
+            "question": "Dummy Data",
+            "options": ["Dummy1", "Dummy2", "Dummy3", "Dummy4"],
+            "answer": "A",
+            "explanation": "Dummy Data!"
+        }
+    ],
+    "Movies": [
+        {
+            "question": "What is the name of the wizarding school in Harry Potter?",
+            "options": ["Hogwarts", "Beauxbatons", "Durmstrang", "Ilvermorny"],
+            "answer": "A",
+            "explanation": "The school is called Hogwarts."
+        },
+        {
+            "question": "Which movie features a famous theme park attraction where dinosaurs are cloned?",
+            "options": ["Jurassic Park", "The Lost World", "Dinosaur", "King Kong"],
+            "answer": "A",
+            "explanation": "Jurassic Park features cloned dinosaurs."
+        }
+    ]
+}
