@@ -29,16 +29,18 @@ def movies_quiz():
 
         while True:
             try:
-                answer = input("Pick your answer: ").upper()
+                answer = input("\nPick your answer: ").upper()
 
                 if answer not in valid_answer:
                     raise ValueError("\nInvalid input! Please enter A, B, C, or D.")
 
                 if answer == question["answer"]:
                     print("Correct!")
+                    print(question["explanation"])
                     break
                 else:
                     print("Incorrect!")
+                    print(question["explanation"])
                     break
 
             except ValueError as e:
