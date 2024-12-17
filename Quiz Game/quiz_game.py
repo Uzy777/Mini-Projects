@@ -40,7 +40,7 @@ def movies_quiz():
                     break
                 else:
                     print("Incorrect!")
-                    print(question["explanation"])
+                    print(f"The answer is {question['answer']} - {question['explanation']}")
                     break
 
             except ValueError as e:
@@ -77,7 +77,7 @@ def select_category_menu():
         print("1. General Knowledge")
         print("2. Movies")
         print("3. Maths")
-        select_category = int(input("Select a category: (1 - 3)"))
+        select_category = int(input("Select a category: (1 - 3) "))
     
         if select_category == 1:
             general_knowledge_quiz()
