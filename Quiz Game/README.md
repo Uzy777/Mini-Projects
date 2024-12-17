@@ -7,7 +7,7 @@
   - **Science**
   - **Movies**
   - **General Knowledge**
-- [ ] Each category contains a minimum of **10 multiple-choice questions**.
+- [x] Each category contains a minimum of **10 multiple-choice questions**.
 - [x] Users can **select their desired category** at the start of the quiz.
 
 ### 2. Question Structure
@@ -43,7 +43,7 @@
 ## Additional Features (Bonus Marks)
 
 ### 1. Randomization
-- [x] Randomize the order of questions within each category to keep the quiz fresh.
+- [ ] Randomize the order of questions within each category to keep the quiz fresh.
 
 ### 2. Timer for Each Question
 - [ ] Add a **time limit** (e.g., 15 seconds) for each question.
