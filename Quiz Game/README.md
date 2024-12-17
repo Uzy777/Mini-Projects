@@ -20,22 +20,22 @@
 
 ### 3. Gameplay Flow
 - [ ] Display a **welcome message** and a menu of quiz categories.
-- [ ] After a category is selected:
-  - [x] Present one question at a time.
-  - [x] Display the **question text** and the **multiple-choice options**.
-  - [x] Allow the user to **input their answer** (case-insensitive).
-- [ ] Provide **immediate feedback** for each answer.
-  - [ ] "Correct!" or "Incorrect. The correct answer is...".
+- [x] After a category is selected:
+  - Present one question at a time.
+  - Display the **question text** and the **multiple-choice options**.
+  - Allow the user to **input their answer** (case-insensitive).
+- [x] Provide **immediate feedback** for each answer.
+  - "Correct!" or "Incorrect. The correct answer is...".
 - [ ] After completing all questions:
-  - [ ] Display the **final score**.
+  - [x] Display the **final score**.
   - [ ] Show a **summary of incorrect answers** with correct answers and explanations.
 
 ### 4. Scoring System
-- [ ] Award **1 point** for each correct answer.
-- [ ] Track the **total number of questions answered correctly**.
+- [x] Award **1 point** for each correct answer.
+- [x] Track the **total number of questions answered correctly**.
 
 ### 5. Error Handling
-- [ ] Handle **invalid user inputs** gracefully.
+- [x] Handle **invalid user inputs** gracefully.
 - [ ] Allow the user to **restart the quiz** or **return to the main menu** after finishing a category.
 
 ---
