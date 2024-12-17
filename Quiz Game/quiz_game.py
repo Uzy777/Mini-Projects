@@ -1,4 +1,5 @@
 import json
+import random
 
 # Open and read the JSON file
 with open("quiz_questions.json", "r") as file:
@@ -22,10 +23,14 @@ def general_knowledge_quiz():
 def movies_quiz():
     score = 0
     running = 1
+    question_number = 0
+
     quiz_questions = quiz_data["Movies"]
     
-    for question in quiz_questions:
-        print("\n")
+    for _ in quiz_questions:
+        question = random.choice(quiz_questions)
+        question_number += 1
+        print(f"\nQuestion: {question_number}")
         print(question["question"])
 
         for index, option_text in enumerate(question["options"]):
@@ -62,8 +67,6 @@ def movies_quiz():
                     score += 0
                     break
 
-
-
             # Catch ValueError as answer
             except ValueError as e:
                 print(e)
@@ -89,16 +92,21 @@ def select_category_menu():
         print("1. General Knowledge")
         print("2. Movies")
         print("3. Maths")
-        select_category = int(input("Select a category: (1 - 3) "))
+        print("Q: Quit")
+        select_category = input("Select a category: (1 - 3) or Q(uit)").upper()
     
-        if select_category == 1:
+        if select_category == "1":
             general_knowledge_quiz()
 
-        elif select_category == 2:
+        elif select_category == "2":
             movies_quiz()
 
-        elif select_category == 3:
+        elif select_category == "3":
             maths_quiz()
+
+        elif select_category == "Q":
+            print("\nYou have decided to leave. Goodbye!")
+            quit()
 
         else:
             print("\nPlease type a valid number!")
