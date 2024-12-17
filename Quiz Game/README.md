@@ -11,15 +11,15 @@
 - [x] Users can **select their desired category** at the start of the quiz.
 
 ### 2. Question Structure
-- [ ] Questions include:
-  - [ ] The **question text**.
-  - [ ] **Four multiple-choice options** (A, B, C, D).
-  - [ ] The **correct answer** (key stored for validation).
-  - [ ] An **optional explanation** for the correct answer (used for feedback).
+- [x] Questions include:
+  - The **question text**.
+  - **Four multiple-choice options** (A, B, C, D).
+  - The **correct answer** (key stored for validation).
+  - An **optional explanation** for the correct answer (used for feedback).
 - [x] Questions are stored in an **external JSON file** to allow easy modification and reuse.
 
 ### 3. Gameplay Flow
-- [ ] Display a **welcome message** and a menu of quiz categories.
+- [x] Display a **welcome message** and a menu of quiz categories.
 - [x] After a category is selected:
   - Present one question at a time.
   - Display the **question text** and the **multiple-choice options**.
