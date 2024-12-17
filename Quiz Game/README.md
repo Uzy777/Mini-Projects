@@ -43,7 +43,7 @@
 ## Additional Features (Bonus Marks)
 
 ### 1. Randomization
-- [ ] Randomize the order of questions within each category to keep the quiz fresh.
+- [x] Randomize the order of questions within each category to keep the quiz fresh.
 
 ### 2. Timer for Each Question
 - [ ] Add a **time limit** (e.g., 15 seconds) for each question.
