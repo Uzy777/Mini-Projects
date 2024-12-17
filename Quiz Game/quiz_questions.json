@@ -33,12 +33,6 @@
             "explanation": "To add!"
         },
         {
-            "question": "Which movie features a boy named Elliott who befriends an alien?",
-            "options": ["E.T. the Extra-Terrestrial", "Close Encounters", "Alien", "Men in Black"],
-            "answer": "A",
-            "explanation": "To add!"
-        },
-        {
             "question": "In 'Frozen', what is the name of the snowman brought to life by Elsa's powers?",
             "options": ["Kristoff", "Sven", "Olaf", "Hans"],
             "answer": "C",
