@@ -1,6 +1,8 @@
 import json
 
 
+
+
 # Open and read the JSON file
 with open("quiz_questions.json", "r") as file:
     quiz_data = json.load(file) 
@@ -10,12 +12,10 @@ def general_knowledge_quiz():
     pass
 
 
-
-
 # Movies Quiz
 def movies_quiz():
+    score = 0
     movies_quiz_questions = quiz_data["Movies"]
-    # print(movies_quiz_questions)
     
     for question in movies_quiz_questions:
         print("\n")
@@ -31,37 +31,30 @@ def movies_quiz():
             try:
                 answer = input("\nPick your answer: ").upper()
 
+                # Invalid answer
                 if answer not in valid_answer:
                     raise ValueError("\nInvalid input! Please enter A, B, C, or D.")
 
+                # Correct answer
                 if answer == question["answer"]:
                     print("Correct!")
                     print(question["explanation"])
+                    score += 1
                     break
+
+                # Incorrect answer
                 else:
                     print("Incorrect!")
                     print(f"The answer is {question['answer']} - {question['explanation']}")
+                    score += 0
                     break
 
+            # Catch ValueError as answer
             except ValueError as e:
                 print(e)
 
-
-
-
-
-    #     answer = input("Pick you answer: ").upper()
-
-    # # try:
-    #     if answer == question["answer"]:
-    #         print("Correct!")
-    #     else:
-    #         print("Incorrect!")
-    # # except ValueError:
-    # #     print("Please enter a valid answer!")
-
-
-
+    # Display final score     
+    print(f"\nYour final score is {score}/10")
 
 
 # Maths Quiz
@@ -90,6 +83,7 @@ def select_category_menu():
 
         else:
             print("\nPlease type a valid number!")
+
 
 
 
