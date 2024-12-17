@@ -1,11 +1,17 @@
 import json
 
-
-
-
 # Open and read the JSON file
 with open("quiz_questions.json", "r") as file:
     quiz_data = json.load(file) 
+
+
+
+# NOT IMPLEMENTED YET!
+def breakdown_quiz():
+    # print("This is your full breakdown of the quiz:")
+    # print(question["question"])
+    pass
+
 
 # General Knowledge Quiz
 def general_knowledge_quiz():
@@ -15,9 +21,10 @@ def general_knowledge_quiz():
 # Movies Quiz
 def movies_quiz():
     score = 0
-    movies_quiz_questions = quiz_data["Movies"]
+    running = 1
+    quiz_questions = quiz_data["Movies"]
     
-    for question in movies_quiz_questions:
+    for question in quiz_questions:
         print("\n")
         print(question["question"])
 
@@ -25,7 +32,7 @@ def movies_quiz():
             option_letter = chr(65 + index)  # Convert index to a letter (A, B, C, D)
             print(f"{option_letter}) {option_text}")
 
-        valid_answer = ["A", "B", "C", "D"]
+        valid_answer = ["A", "B", "C", "D", "Q"]
 
         while True:
             try:
@@ -33,7 +40,7 @@ def movies_quiz():
 
                 # Invalid answer
                 if answer not in valid_answer:
-                    raise ValueError("\nInvalid input! Please enter A, B, C, or D.")
+                    raise ValueError("\nInvalid input! Please enter A, B, C, D or Q(uit).")
 
                 # Correct answer
                 if answer == question["answer"]:
@@ -42,12 +49,20 @@ def movies_quiz():
                     score += 1
                     break
 
+                # Quit the program - Return to Main Menu - NOT IMPLEMENTED YET
+                elif answer == "Q":
+                    print("Thanks for playing!")
+                    # running = 0
+                    quit()
+
                 # Incorrect answer
                 else:
                     print("Incorrect!")
                     print(f"The answer is {question['answer']} - {question['explanation']}")
                     score += 0
                     break
+
+
 
             # Catch ValueError as answer
             except ValueError as e:
@@ -56,6 +71,9 @@ def movies_quiz():
     # Display final score     
     print(f"\nYour final score is {score}/10")
 
+
+    # Breakdown report - questions, user answer, real answer, explanation - NOT IMPLEMENTED YET!
+    breakdown_quiz()
 
 # Maths Quiz
 def maths_quiz():
@@ -66,6 +84,7 @@ def maths_quiz():
 # Categories - General Knowledge, Maths, Movies
 def select_category_menu():
     while True:
+        print("Welcome to the Quiz Game!")
         print("\nPick a category you would like to be quizzed on!")
         print("1. General Knowledge")
         print("2. Movies")
