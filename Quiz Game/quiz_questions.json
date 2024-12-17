@@ -1,10 +1,64 @@
 {
     "General Knowledge": [
         {
-            "question": "Dummy Data",
-            "options": ["Dummy1", "Dummy2", "Dummy3", "Dummy4"],
+            "question": "What is the capital city of Australia?",
+            "options": ["Brisbane", "Sydney", "Melbourne", "Canberra"],
+            "answer": "D",
+            "explanation": "Canberra is the capital city of Australia, chosen as a compromise between Sydney and Melbourne, the two largest cities in the country."
+        },
+        {
+            "question": "Who wrote the play 'Romeo and Juliet'?",
+            "options": ["William Shakespeare", "Leo Tolstoy", "Charles Dickens", "Mark Twain"],
             "answer": "A",
-            "explanation": "Dummy Data!"
+            "explanation": "William Shakespeare wrote 'Romeo and Juliet', one of the most famous love stories in literature."
+        },
+        {
+            "question": "What is the largest planet in our Solar System?",
+            "options": ["Saturn", "Jupiter", "Mars", "Earth"],
+            "answer": "B",
+            "explanation": "Jupiter is the largest planet in our Solar System, known for its Great Red Spot and many moons."
+        },
+        {
+            "question": "Which element has the chemical symbol 'Au'?",
+            "options": ["Oxygen", "Gold", "Osmium", "Silver"],
+            "answer": "B",
+            "explanation": "The chemical symbol 'Au' stands for Gold, derived from the Latin word 'Aurum', meaning 'shining dawn'."
+        },
+        {
+            "question": "In which year did World War II end?",
+            "options": ["1918", "1945", "1965", "1939"],
+            "answer": "B",
+            "explanation": "World War II ended in 1945 with the surrender of Nazi Germany in May and Japan in September."
+        },
+        {
+            "question": "What is the smallest prime number?",
+            "options": ["3", "2", "1", "0"],
+            "answer": "B",
+            "explanation": "The smallest prime number is 2, as it is divisible only by 1 and itself."
+        },
+        {
+            "question": "Which organ is responsible for pumping blood in the human body?",
+            "options": ["Brain", "Liver", "Heart", "Lungs"],
+            "answer": "C",
+            "explanation": "The heart is the organ responsible for pumping blood throughout the human body, supplying oxygen and nutrients."
+        },
+        {
+            "question": "What is the process by which plants make their food?",
+            "options": ["Respiration", "Photosynthesis", "Transpiration", "Digestion"],
+            "answer": "B",
+            "explanation": "Photosynthesis is the process by which plants convert sunlight into energy, producing food from carbon dioxide and water."
+        },
+        {
+            "question": "Which language is the most widely spoken worldwide?",
+            "options": ["Spanish", "Hindi", "English", "Mandarin Chinese"],
+            "answer": "D",
+            "explanation": "Mandarin Chinese is the most widely spoken language in the world due to China's large population."
+        },
+        {
+            "question": "What is the freezing point of water in degrees Celsius?",
+            "options": ["32", "-10", "100", "0"],
+            "answer": "D",
+            "explanation": "The freezing point of water is 0 degrees Celsius, where it transitions from liquid to solid."
         }
     ],
     "Movies": [
@@ -12,61 +66,123 @@
             "question": "In the movie 'Finding Nemo', what type of animal is Nemo?",
             "options": ["Clownfish", "Dolphin", "Shark", "Turtle"],
             "answer": "A",
-            "explanation": "To add!"
+            "explanation": "Nemo is a Clownfish, a small, brightly colored fish known for their vibrant appearance and symbiotic relationship with sea anemones."
         },
         {
             "question": "What is the main setting of the 'Harry Potter' series?",
             "options": ["Wizarding World", "Middle-earth", "Narnia", "Star Wars Galaxy"],
             "answer": "A",
-            "explanation": "To add!"
+            "explanation": "The main setting of the 'Harry Potter' series is the Wizarding World, a magical universe hidden from non-magical people (Muggles)."
         },
         {
             "question": "In 'The Lion King', what is the name of Simba's father?",
             "options": ["Scar", "Mufasa", "Timon", "Pumbaa"],
             "answer": "B",
-            "explanation": "To add!"
+            "explanation": "Simba's father is Mufasa, the noble king of the Pride Lands and a pivotal character in the storyline."
         },
         {
             "question": "Which movie features a boy named Elliott who befriends an alien?",
             "options": ["E.T. the Extra-Terrestrial", "Close Encounters", "Alien", "Men in Black"],
             "answer": "A",
-            "explanation": "To add!"
+            "explanation": "The movie is 'E.T. the Extra-Terrestrial', a beloved film directed by Steven Spielberg about a young boy's friendship with an extraterrestrial being."
         },
         {
             "question": "In 'Frozen', what is the name of the snowman brought to life by Elsa's powers?",
             "options": ["Kristoff", "Sven", "Olaf", "Hans"],
             "answer": "C",
-            "explanation": "To add!"
+            "explanation": "Olaf is the snowman who comes to life through Elsa's magic, providing comic relief and helping the sisters on their journey."
         },
         {
             "question": "What is the secret identity of Batman?",
             "options": ["Clark Kent", "Peter Parker", "Bruce Wayne", "Tony Stark"],
             "answer": "C",
-            "explanation": "To add!"
+            "explanation": "Batman's secret identity is Bruce Wayne, a billionaire playboy and philanthropist by day who fights crime in Gotham City by night."
         },
         {
             "question": "In 'Toy Story', what is the name of the space ranger action figure?",
             "options": ["Woody", "Buzz Lightyear", "Jessie", "Bullseye"],
             "answer": "B",
-            "explanation": "To add!"
+            "explanation": "Buzz Lightyear is the space ranger action figure with a mission to explore the galaxy and be a hero to Andy's toys."
         },
         {
             "question": "What is the name of the kingdom where the 2013 animated movie 'Frozen' is set?",
             "options": ["Hogwarts", "Atlantis", "Narnia", "Arendelle"],
             "answer": "D",
-            "explanation": "To add!"
+            "explanation": "The kingdom is Arendelle, a fictional Scandinavian-inspired setting where Elsa, Anna, and the other characters live."
         },
         {
             "question": "In 'The Matrix', what color pill does Neo take to learn the truth?",
             "options": ["Blue", "Red", "Yellow", "Green"],
             "answer": "B",
-            "explanation": "To add!"
+            "explanation": "Neo takes the Red pill, which leads him to discover the harsh reality of the Matrix and the true nature of the world."
         },
         {
             "question": "Which animated movie features a fish named Dory who has short-term memory loss?",
             "options": ["Cars", "The Little Mermaid", "Finding Nemo", "Monsters, Inc."],
             "answer": "C",
-            "explanation": "To add!"
+            "explanation": "'Finding Nemo' features Dory, a regal blue tang fish with a memorable inability to remember things for long periods."
+        }
+    ],
+    "Maths": [
+        {
+            "question": "What is 52 + 74?",
+            "options": ["126", "147", "160", "175"],
+            "answer": "A",
+            "explanation": "Adding 52 and 74 gives 126."
+        },
+        {
+            "question": "What is 325 - 215?",
+            "options": ["100", "110", "110", "120"],
+            "answer": "C",
+            "explanation": "Subtracting 215 from 325 gives 110."
+        },
+        {
+            "question": "What is 11 × 13?",
+            "options": ["120", "121", "130", "143"],
+            "answer": "B",
+            "explanation": "Multiplying 11 by 13 gives 121."
+        },
+        {
+            "question": "What is 144 ÷ 12?",
+            "options": ["10", "11", "12", "14"],
+            "answer": "C",
+            "explanation": "Dividing 144 by 12 gives 12."
+        },
+        {
+            "question": "What is 63 + 85?",
+            "options": ["145", "148", "150", "160"],
+            "answer": "A",
+            "explanation": "Adding 63 and 85 gives 145."
+        },
+        {
+            "question": "What is 450 - 137?",
+            "options": ["300", "310", "320", "330"],
+            "answer": "B",
+            "explanation": "Subtracting 137 from 450 gives 310."
+        },
+        {
+            "question": "What is 14 × 17?",
+            "options": ["230", "238", "246", "255"],
+            "answer": "B",
+            "explanation": "Multiplying 14 by 17 gives 238."
+        },
+        {
+            "question": "What is 180 ÷ 15?",
+            "options": ["10", "11", "12", "13"],
+            "answer": "C",
+            "explanation": "Dividing 180 by 15 gives 12."
+        },
+        {
+            "question": "What is 93 + 67?",
+            "options": ["155", "160", "165", "170"],
+            "answer": "A",
+            "explanation": "Adding 93 and 67 gives 155."
+        },
+        {
+            "question": "What is 700 - 278?",
+            "options": ["420", "440", "450", "460"],
+            "answer": "C",
+            "explanation": "Subtracting 278 from 700 gives 450."
         }
     ]
 }
