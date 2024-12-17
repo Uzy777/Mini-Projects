@@ -1,10 +1,22 @@
 import json
 import random
+import time
 
 # Open and read the JSON file
 with open("quiz_questions.json", "r") as file:
     quiz_data = json.load(file) 
 
+
+
+def countdown_timer():
+    # while t:
+    #     mins, secs = divmod(t, 60)
+    #     timer = "{:02d}:{:02d}".format(mins, secs)
+    #     print(timer, end="\r")
+    #     time.sleep(1)
+    #     t -= 1
+    
+    print("Uh oh! You ran out of time!")
 
 
 # NOT IMPLEMENTED YET!
@@ -14,21 +26,16 @@ def breakdown_quiz():
     pass
 
 
-# General Knowledge Quiz
-def general_knowledge_quiz():
-    pass
 
-
-# Movies Quiz
-def movies_quiz():
+def structure_quiz(quiz_questions):
     score = 0
     running = 1
     question_number = 0
+    t = 15
 
-    quiz_questions = quiz_data["Movies"]
-    
-    for _ in quiz_questions:
-        question = random.choice(quiz_questions)
+    for question in quiz_questions:
+        # Random feature for questions BROKEN - repeating the same question.
+        # question = random.choice(quiz_questions)      
         question_number += 1
         print(f"\nQuestion: {question_number}")
         print(question["question"])
@@ -45,7 +52,7 @@ def movies_quiz():
 
                 # Invalid answer
                 if answer not in valid_answer:
-                    raise ValueError("\nInvalid input! Please enter A, B, C, D or Q(uit).")
+                    raise ValueError("\nInvalid input! Please enter A, B, C, D or Q(uit). ")
 
                 # Correct answer
                 if answer == question["answer"]:
@@ -78,9 +85,27 @@ def movies_quiz():
     # Breakdown report - questions, user answer, real answer, explanation - NOT IMPLEMENTED YET!
     breakdown_quiz()
 
+
+
+# General Knowledge Quiz
+def general_knowledge_quiz():
+    quiz_questions = quiz_data["General Knowledge"]
+    
+    structure_quiz(quiz_questions)
+
+
+# Movies Quiz
+def movies_quiz():
+    quiz_questions = quiz_data["Movies"]
+    
+    structure_quiz(quiz_questions)
+
+
 # Maths Quiz
 def maths_quiz():
-    pass
+    quiz_questions = quiz_data["Maths"]
+    
+    structure_quiz(quiz_questions)
 
 
 
