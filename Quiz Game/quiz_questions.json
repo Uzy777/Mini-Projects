@@ -9,16 +9,70 @@
     ],
     "Movies": [
         {
-            "question": "What is the name of the wizarding school in Harry Potter?",
-            "options": ["Hogwarts", "Beauxbatons", "Durmstrang", "Ilvermorny"],
+            "question": "In the movie 'Finding Nemo', what type of animal is Nemo?",
+            "options": ["Clownfish", "Dolphin", "Shark", "Turtle"],
             "answer": "A",
-            "explanation": "The school is called Hogwarts."
+            "explanation": "To add!"
         },
         {
-            "question": "Which movie features a famous theme park attraction where dinosaurs are cloned?",
-            "options": ["Jurassic Park", "The Lost World", "Dinosaur", "King Kong"],
+            "question": "What is the main setting of the 'Harry Potter' series?",
+            "options": ["Wizarding World", "Middle-earth", "Narnia", "Star Wars Galaxy"],
             "answer": "A",
-            "explanation": "Jurassic Park features cloned dinosaurs."
+            "explanation": "To add!"
+        },
+        {
+            "question": "In 'The Lion King', what is the name of Simba's father?",
+            "options": ["Scar", "Mufasa", "Timon", "Pumbaa"],
+            "answer": "B",
+            "explanation": "To add!"
+        },
+        {
+            "question": "Which movie features a boy named Elliott who befriends an alien?",
+            "options": ["E.T. the Extra-Terrestrial", "Close Encounters", "Alien", "Men in Black"],
+            "answer": "A",
+            "explanation": "To add!"
+        },
+        {
+            "question": "Which movie features a boy named Elliott who befriends an alien?",
+            "options": ["E.T. the Extra-Terrestrial", "Close Encounters", "Alien", "Men in Black"],
+            "answer": "A",
+            "explanation": "To add!"
+        },
+        {
+            "question": "In 'Frozen', what is the name of the snowman brought to life by Elsa's powers?",
+            "options": ["Kristoff", "Sven", "Olaf", "Hans"],
+            "answer": "C",
+            "explanation": "To add!"
+        },
+        {
+            "question": "What is the secret identity of Batman?",
+            "options": ["Clark Kent", "Peter Parker", "Bruce Wayne", "Tony Stark"],
+            "answer": "C",
+            "explanation": "To add!"
+        },
+        {
+            "question": "In 'Toy Story', what is the name of the space ranger action figure?",
+            "options": ["Woody", "Buzz Lightyear", "Jessie", "Bullseye"],
+            "answer": "B",
+            "explanation": "To add!"
+        },
+        {
+            "question": "What is the name of the kingdom where the 2013 animated movie 'Frozen' is set?",
+            "options": ["Hogwarts", "Atlantis", "Narnia", "Arendelle"],
+            "answer": "D",
+            "explanation": "To add!"
+        },
+        {
+            "question": "In 'The Matrix', what color pill does Neo take to learn the truth?",
+            "options": ["Blue", "Red", "Yellow", "Green"],
+            "answer": "B",
+            "explanation": "To add!"
+        },
+        {
+            "question": "Which animated movie features a fish named Dory who has short-term memory loss?",
+            "options": ["Cars", "The Little Mermaid", "Finding Nemo", "Monsters, Inc."],
+            "answer": "C",
+            "explanation": "To add!"
         }
     ]
 }
