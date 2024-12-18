@@ -7,8 +7,8 @@ The Pig Game is a classic dice game where players take turns rolling a die. The 
 
 ### Must-Have Features
 - **Game Setup:**
-  - [ ] Initialize game with a set number of players (default is 2).
-  - [ ] Input player names.
+  - [x] Initialize game with a set number of players (default is 2).
+  - [x] Input player names.
   - [ ] Display the number of players and their initial scores.
 
 - **Player Turns:**
