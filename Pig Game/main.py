@@ -78,7 +78,7 @@ def player_name(total_players):
 
             # Name Validation Checking
             if name.isalpha():
-                names["player{0}".format(x + 1)] = name
+                names[f"player{x + 1}"] = {"name": name, "score": 0}
             else:
                 print("This is an invalid name. Try again!")
                 continue
@@ -105,29 +105,47 @@ def roll_die():
     max_value = 6
     roll = random.randint(min_value, max_value)
 
-    print(roll)
+    return roll
 
 
 def start_game(names, total_players):
-    # Adding Each Name to a List for Greeting Message
-    name_list = []
-    for name in names.values():
-        name_list.append(name)
-
-    # Joining Each Name Separated by a ','
+    name_list = [name_info["name"] for name_info in names.values()]
     greeting = ", ".join(name_list)
     print(f"Hello {greeting} have fun with this game! All the best!")
 
-    # Determine Who Starts First
+    # # Adding Each Name to a List for Greeting Message
+    # name_list = []
+    # for name in names.values():
+    #     name_list.append(name)
+
+    # # Joining Each Name Separated by a ','
+    # greeting = ", ".join(name_list)
+    # print(f"Hello {greeting} have fun with this game! All the best!")
+
+    # TODO Determine Who Starts First -
+    # for x in range(total_players):
+    #     while True:
+    #         print("\nHighest roll starts the game first!")
+    #         game_position = input(f"Roll the Die {name_list[x]} (y): ")
+    #         if game_position == "y":
+    #             roll_die()
+    #             break
+    #         else:
+    #             print("You must roll the die!")
+
     for x in range(total_players):
         while True:
-            print("\nHighest roll starts the game first!")
-            game_position = input(f"Roll the Die {name_list[x]} (y): ")
-            if game_position == "y":
-                roll_die()
+            roll_choice = input(f"Roll the Die {names[f'player{x + 1}']['name']} (y/n): ").lower()
+            if roll_choice == "y":
+                roll_result = roll_die()
+                print(f"You just rolled {roll_result}")
+                names[f"player{x + 1}"]["score"] += roll_result
+                print(f"{names[f'player{x + 1}']['name']} has a score of {names[f'player{x + 1}']['score']}")
+                break
+            elif roll_choice == "n":
                 break
             else:
-                print("You must roll the die!")
+                print("You must type (y/n)!")
 
 
 main_menu()
