@@ -1,2 +1,5 @@
 testing/
 __pycache__
+venv/
+.python-version
+.vscode
