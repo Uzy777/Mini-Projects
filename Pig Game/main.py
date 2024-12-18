@@ -19,7 +19,6 @@ def main_menu():
         print("S: Sound Effect Toggle (on) (Not Available)")
         print("T: TTS Audio Toggle (off) (Not Available)")
 
-
         option = input("Type an option: ").lower()
 
         # Single Player Mode
@@ -30,7 +29,7 @@ def main_menu():
         elif option == "2":
             total_players = 2
             player_name(total_players)
-        
+
         # Three Players Mode
         elif option == "3":
             total_players = 3
@@ -109,17 +108,15 @@ def roll_die():
     print(roll)
 
 
-
 def start_game(names, total_players):
     # Adding Each Name to a List for Greeting Message
     name_list = []
     for name in names.values():
         name_list.append(name)
-    
+
     # Joining Each Name Separated by a ','
     greeting = ", ".join(name_list)
     print(f"Hello {greeting} have fun with this game! All the best!")
-
 
     # Determine Who Starts First
     for x in range(total_players):
