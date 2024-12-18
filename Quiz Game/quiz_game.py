@@ -1,11 +1,11 @@
+from playsound import playsound
 import json
-import random
-import time
+# import random
+# import time
 
 # Open and read the JSON file
 with open("quiz_questions.json", "r") as file:
-    quiz_data = json.load(file) 
-
+    quiz_data = json.load(file)
 
 
 def countdown_timer():
@@ -15,7 +15,7 @@ def countdown_timer():
     #     print(timer, end="\r")
     #     time.sleep(1)
     #     t -= 1
-    
+
     print("Uh oh! You ran out of time!")
 
 
@@ -26,16 +26,15 @@ def breakdown_quiz():
     pass
 
 
-
 def structure_quiz(quiz_questions):
     score = 0
-    running = 1
+    # running = 1
     question_number = 0
-    t = 15
+    # t = 15
 
     for question in quiz_questions:
         # Random feature for questions BROKEN - repeating the same question.
-        # question = random.choice(quiz_questions)      
+        # question = random.choice(quiz_questions)
         question_number += 1
         print(f"\nQuestion: {question_number}")
         print(question["question"])
@@ -59,6 +58,7 @@ def structure_quiz(quiz_questions):
                     print("Correct!")
                     print(question["explanation"])
                     score += 1
+                    playsound("sounds/correct.mp3")
                     break
 
                 # Quit the program - Return to Main Menu - NOT IMPLEMENTED YET
@@ -72,41 +72,39 @@ def structure_quiz(quiz_questions):
                     print("Incorrect!")
                     print(f"The answer is {question['answer']} - {question['explanation']}")
                     score += 0
+                    playsound("sounds/incorrect.mp3")
                     break
 
             # Catch ValueError as answer
             except ValueError as e:
                 print(e)
 
-    # Display final score     
+    # Display final score
     print(f"\nYour final score is {score}/10")
-
 
     # Breakdown report - questions, user answer, real answer, explanation - NOT IMPLEMENTED YET!
     breakdown_quiz()
 
 
-
 # General Knowledge Quiz
 def general_knowledge_quiz():
     quiz_questions = quiz_data["General Knowledge"]
-    
+
     structure_quiz(quiz_questions)
 
 
 # Movies Quiz
 def movies_quiz():
     quiz_questions = quiz_data["Movies"]
-    
+
     structure_quiz(quiz_questions)
 
 
 # Maths Quiz
 def maths_quiz():
     quiz_questions = quiz_data["Maths"]
-    
-    structure_quiz(quiz_questions)
 
+    structure_quiz(quiz_questions)
 
 
 # Categories - General Knowledge, Maths, Movies
@@ -118,8 +116,8 @@ def select_category_menu():
         print("2. Movies")
         print("3. Maths")
         print("Q: Quit")
-        select_category = input("Select a category: (1 - 3) or Q(uit)").upper()
-    
+        select_category = input("Select a category: (1 - 3) or Q(uit) ").upper()
+
         if select_category == "1":
             general_knowledge_quiz()
 
@@ -135,8 +133,6 @@ def select_category_menu():
 
         else:
             print("\nPlease type a valid number!")
-
-
 
 
 select_category_menu()
