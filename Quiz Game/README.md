@@ -1,5 +1,10 @@
 # Interactive Quiz App Specification
 
+## Prerequisites
+
+- Python 3.9.7 (Recommended)
+- Install `.requirements` to pyenv if using.
+
 ## Core Features
 
 ### 1. Quiz Categories
@@ -119,5 +124,5 @@
 - [ ] Build a web-based version using **Flask** or **Django**.
 
 ### 3. Audio Integration
-- [ ] Add **sound effects** for correct/incorrect answers.
+- [x] Add **sound effects** for correct/incorrect answers.
 - [ ] Include a **text-to-speech** option to read questions aloud.
