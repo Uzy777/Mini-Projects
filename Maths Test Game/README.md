@@ -1,0 +1,6 @@
+- answer number of questions as fast as you can, final time for how long it took you at the end.
+- easy, medium, hard
+- number of questions, 3, 5, 10
+- random similar in difficulty maths questions
+- play again after completion of game to repeat same questions (multiplayer?)
+- fixed questions allowing for user names for high scores
