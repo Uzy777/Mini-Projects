@@ -12,13 +12,13 @@ The Pig Game is a classic dice game where players take turns rolling a die. The 
   - [ ] Display the number of players and their initial scores.
 
 - **Player Turns:**
-  - [ ] Implement turn-based system for multiple players.
-  - [ ] Display current player's name and total score.
-  - [ ] Indicate whose turn it is and prompt for the player's action.
+  - [x] Implement turn-based system for multiple players.
+  - [x] Display current player's name and total score.
+  - [x] Indicate whose turn it is and prompt for the player's action.
 
 - **Rolling the Die:**
-  - [ ] Simulate rolling a single six-sided die.
-  - [ ] Display the result of each roll.
+  - [x] Simulate rolling a single six-sided die.
+  - [x] Display the result of each roll.
   - [ ] Add the rolled value to the player's turn score if it's not a 1.
 
 - **Turn Score Accumulation:**
@@ -53,7 +53,7 @@ The Pig Game is a classic dice game where players take turns rolling a die. The 
 
 - **Single-Player Mode:**
   - [ ] Implement an AI opponent with basic decision-making.
-  - [ ] Allow the player to choose between single-player and multiplayer modes.
+  - [x] Allow the player to choose between single-player and multiplayer modes.
 
 - **Advanced AI:**
   - [ ] Develop an advanced AI with improved strategies for higher difficulty.
@@ -65,8 +65,8 @@ The Pig Game is a classic dice game where players take turns rolling a die. The 
   - [ ] Ensure the game resumes accurately from the saved state.
 
 - **Variable Number of Players:**
-  - [ ] Allow customization of the number of players (more than two).
-  - [ ] Ensure the game adapts dynamically to different numbers of players.
+  - [x] Allow customization of the number of players (more than two).
+  - [x] Ensure the game adapts dynamically to different numbers of players.
 
 - **Customizable Winning Score:**
   - [ ] Allow players to set a different winning score before the game starts.
