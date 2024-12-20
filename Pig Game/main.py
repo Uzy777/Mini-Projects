@@ -65,27 +65,12 @@ def main_menu():
             time.sleep(1)
 
 
-# Number of Players
-def number_of_players():
-    pass
-
-
 # Player Name
 def player_name(total_players):
     names = {}
 
     for x in range(total_players):
         while True:
-            # for x in range(total_players):
-            #     name = input("\nPlease input your name: ").title()
-            #     if name.isalpha():
-            #         names["player{0}".format(x)] = name
-            #         break
-            #     else:
-            #         print("Wrong try again!")
-
-            # print(names)
-
             name = input(f"\nPlease input the name for Player {x+1}: ").title()
 
             # Name Validation Checking
@@ -109,7 +94,6 @@ def player_name(total_players):
         if total_players == len(names):
             print("Game will now start!")
             start_game(names, total_players)
-        # print(names)
 
 
 def roll_die():
@@ -121,20 +105,10 @@ def roll_die():
 
 
 def start_game(names, total_players):
-    turn_score = 0
-
+    
     name_list = [name_info["name"] for name_info in names.values()]
     greeting = ", ".join(name_list)
     print(f"Hello {greeting} have fun with this game! All the best!")
-
-    # # Adding Each Name to a List for Greeting Message
-    # name_list = []
-    # for name in names.values():
-    #     name_list.append(name)
-
-    # # Joining Each Name Separated by a ','
-    # greeting = ", ".join(name_list)
-    # print(f"Hello {greeting} have fun with this game! All the best!")
 
     # TODO Determine Who Starts First -
     # for x in range(total_players):
@@ -148,6 +122,7 @@ def start_game(names, total_players):
     #             print("You must roll the die!")
 
     for x in range(total_players):
+        turn_score = 0
         while True:
             roll_choice = input(f"\nRoll the Die {names[f'player{x + 1}']['name']} (y/n): ").lower()
             if roll_choice == "y":
@@ -169,6 +144,7 @@ def start_game(names, total_players):
                 else:
                     # turn_score += roll_result
                     print("Your turn ends and your score for this turn is 0!")
+                    print(f"TESTING: {turn_score}")
                     names[f"player{x + 1}"]["score"] -= turn_score
                     print(f"{names[f'player{x + 1}']['name']} has a score of {names[f'player{x + 1}']['score']}")
                     break
@@ -181,4 +157,3 @@ def start_game(names, total_players):
 
 
 main_menu()
-# roll_die()
