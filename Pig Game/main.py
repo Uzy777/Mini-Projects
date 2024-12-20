@@ -11,7 +11,7 @@ def main_menu():
         print("2: Two Players")
         print("3: Three Players (Not Available)")
         print("4: Four Players (Not Available)")
-        print("5: Five or More Players (Not Available)")
+        print("5: Five or More Players (Max = 10) (Not Available)")
         print("------ Gameplay Settings ------")
         print("A: Auto Roll (off) (Not Available)")
         print("D: Extra Die (off) (Not Available)")
@@ -42,7 +42,19 @@ def main_menu():
 
         # Five or More Players Mode
         elif option == "5":
-            pass
+            while True:
+                try:
+                    total_players = input("\nInput how many players: ")
+                    total_players = int(total_players)
+                    if total_players in range(2, 11):
+                        player_name(total_players)
+                        break
+                    else:
+                        print("Please type your desired number of players (2 - 10)")
+                        continue
+
+                except ValueError:
+                    print("This is an invalid number!")
 
         # Sound Toggle
         elif option == "s":
