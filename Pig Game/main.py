@@ -50,7 +50,7 @@ def main_menu():
 
         else:
             print("\nPlease type a valid option!")
-            time.sleep(3)
+            time.sleep(1)
 
 
 # Number of Players
@@ -109,6 +109,8 @@ def roll_die():
 
 
 def start_game(names, total_players):
+    turn_score = 0
+
     name_list = [name_info["name"] for name_info in names.values()]
     greeting = ", ".join(name_list)
     print(f"Hello {greeting} have fun with this game! All the best!")
@@ -135,14 +137,32 @@ def start_game(names, total_players):
 
     for x in range(total_players):
         while True:
-            roll_choice = input(f"Roll the Die {names[f'player{x + 1}']['name']} (y/n): ").lower()
+            roll_choice = input(f"\nRoll the Die {names[f'player{x + 1}']['name']} (y/n): ").lower()
             if roll_choice == "y":
                 roll_result = roll_die()
                 print(f"You just rolled {roll_result}")
-                names[f"player{x + 1}"]["score"] += roll_result
-                print(f"{names[f'player{x + 1}']['name']} has a score of {names[f'player{x + 1}']['score']}")
-                break
+                # print(f"{names[f'player{x + 1}']['name']} has a score of {names[f'player{x + 1}']['score']}")
+                if roll_result > 1:
+                    turn_score += roll_result
+                    names[f"player{x + 1}"]["score"] += roll_result
+                    print(f"{names[f'player{x + 1}']['name']} has a score of {names[f'player{x + 1}']['score']}")
+
+                    # TODO Implement logic to determine which player has the highest score for that round and they are the actual winner!
+                    # THIS IS TEMPORARY TO DECLARE A WINNER!
+                    if names[f"player{x + 1}"]["score"] >= 100:
+                        print("Congrats you won the game!")
+                        break
+                    continue
+
+                else:
+                    # turn_score += roll_result
+                    print("Your turn ends and your score for this turn is 0!")
+                    names[f"player{x + 1}"]["score"] -= turn_score
+                    print(f"{names[f'player{x + 1}']['name']} has a score of {names[f'player{x + 1}']['score']}")
+                    break
+
             elif roll_choice == "n":
+                print(f"{names[f'player{x + 1}']['name']} has a score of {names[f'player{x + 1}']['score']}")
                 break
             else:
                 print("You must type (y/n)!")
