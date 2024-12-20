@@ -98,14 +98,16 @@ def player_name(total_players):
 
 def roll_die():
     min_value = 1
-    max_value = 6
+    max_value = 99
     roll = random.randint(min_value, max_value)
 
     return roll
 
 
 def start_game(names, total_players):
-    
+    game_session = True
+
+
     name_list = [name_info["name"] for name_info in names.values()]
     greeting = ", ".join(name_list)
     print(f"Hello {greeting} have fun with this game! All the best!")
@@ -121,7 +123,7 @@ def start_game(names, total_players):
     #         else:
     #             print("You must roll the die!")
 
-    while True:
+    while game_session:
         for x in range(total_players):
             turn_score = 0
             while True:
@@ -139,6 +141,7 @@ def start_game(names, total_players):
                         # THIS IS TEMPORARY TO DECLARE A WINNER!
                         if names[f"player{x + 1}"]["score"] >= 100:
                             print("Congrats you won the game!")
+                            game_session = False
                             break
                         continue
 
@@ -155,6 +158,9 @@ def start_game(names, total_players):
                     break
                 else:
                     print("You must type (y/n)!")
+
+    time.sleep(1)
+    print("\nThank you for playing! xxxx Is your winner!")
 
 
 main_menu()
