@@ -1,5 +1,7 @@
 import time
 import random
+from playsound import playsound
+
 
 
 # Main Menu
@@ -83,7 +85,8 @@ def player_name(total_players):
             # Name Confirmation Check (yes/no) with Validation
             name_confirmation = input(f"You have selected {name} as your name. Is this correct? (yes/no): ").lower()
             if name_confirmation in ["yes", "y"]:
-                print("xxxxx")
+                print(f"{name} is now a player!")
+                playsound("sounds/effects/player_register.mp3", block=False)
                 break
             elif name_confirmation in ["no", "n"]:
                 pass
@@ -92,15 +95,17 @@ def player_name(total_players):
                 print("Please enter 'yes' or 'no'")
 
         if total_players == len(names):
-            print("Game will now start!")
+            print("\nGame will now start!")
             start_game(names, total_players)
 
 
 def roll_die():
     min_value = 1
-    max_value = 99
+    max_value = 6
     roll = random.randint(min_value, max_value)
 
+    # UNCOMMENT FOR ACTUAL GAME - WORKS FINE
+    # playsound("sounds/effects/dice_roll.mp3")
     return roll
 
 
