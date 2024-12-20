@@ -19,24 +19,24 @@ The Pig Game is a classic dice game where players take turns rolling a die. The 
 - **Rolling the Die:**
   - [x] Simulate rolling a single six-sided die.
   - [x] Display the result of each roll.
-  - [ ] Add the rolled value to the player's turn score if it's not a 1.
+  - [x] Add the rolled value to the player's turn score if it's not a 1.
 
 - **Turn Score Accumulation:**
-  - [ ] Add rolled values to the player's turn score.
-  - [ ] Display the accumulated turn score during the player's turn.
+  - [x] Add rolled values to the player's turn score.
+  - [x] Display the accumulated turn score during the player's turn.
 
 - **Turn End Conditions:**
-  - [ ] End turn if the player rolls a 1 (turn score resets to 0).
-  - [ ] Allow the player to choose to hold, adding the turn score to their total score.
+  - [x] End turn if the player rolls a 1 (turn score resets to 0).
+  - [x] Allow the player to choose to hold, adding the turn score to their total score.
   - [ ] Display updated total scores after holding or rolling a 1.
 
 - **Winning Condition:**
-  - [ ] Check if a player’s total score reaches or exceeds the winning score (default 100).
+  - [x] Check if a player’s total score reaches or exceeds the winning score (default 100).
   - [ ] Announce the winner and end the game.
   - [ ] Display a summary of the game with player scores.
 
 - **User Interface:**
-  - [ ] Create a console-based interface.
+  - [x] Create a console-based interface.
   - [ ] Display player scores and turn options (roll or hold) clearly.
   - [ ] Provide feedback for invalid inputs or actions.
 
