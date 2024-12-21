@@ -145,6 +145,7 @@ def start_game(names, total_players):
                         # TODO Implement logic to determine which player has the highest score for that round and they are the actual winner!
                         # THIS IS TEMPORARY TO DECLARE A WINNER!
                         if names[f"player{x + 1}"]["score"] >= 100:
+                            playsound("sounds/effects/win.mp3")
                             print("Congrats you won the game!")
                             game_session = False
                             break
@@ -152,8 +153,9 @@ def start_game(names, total_players):
 
                     else:
                         # turn_score += roll_result
-                        print("Your turn ends and your score for this turn is 0!")
-                        print(f"TESTING: {turn_score}")
+                        playsound("sounds/effects/fail.mp3")
+                        print("\nYour turn ends and your score for this turn does not count!")
+                        # print(f"TESTING: {turn_score}")
                         names[f"player{x + 1}"]["score"] -= turn_score
                         print(f"{names[f'player{x + 1}']['name']} has a score of {names[f'player{x + 1}']['score']}")
                         break
