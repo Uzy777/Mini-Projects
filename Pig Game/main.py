@@ -7,7 +7,6 @@ from playsound import playsound
 sound_effects = True
 
 
-
 # Main Menu
 def main_menu():
     while True:
@@ -72,21 +71,17 @@ def main_menu():
             time.sleep(2)
 
 
-
-
 # Sound
 def toggle_sound_effects():
     global sound_effects
 
     # TODO - ADD SECTION TO PLAY OR NOT PLAY SOUND EFFECTS BASED ON TOGGLE!
-    
+
     sound_effects = not sound_effects
     if sound_effects:
         print("Sound effects on.")
     else:
         print("Sound effects off.")
-
-
 
 
 # Player Name
@@ -131,7 +126,6 @@ def roll_die():
     max_value = 6
     roll = random.randint(min_value, max_value)
 
-
     if sound_effects:
         playsound("sounds/effects/dice_roll.mp3")
     else:
@@ -141,7 +135,6 @@ def roll_die():
 
 def start_game(names, total_players):
     game_session = True
-
 
     name_list = [name_info["name"] for name_info in names.values()]
     greeting = ", ".join(name_list)
