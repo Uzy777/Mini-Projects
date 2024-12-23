@@ -3,6 +3,10 @@ import random
 from playsound import playsound
 
 
+# Variables Defined
+sound_effects = True
+
+
 
 # Main Menu
 def main_menu():
@@ -18,7 +22,7 @@ def main_menu():
         print("A: Auto Roll (off) (Not Available)")
         print("D: Extra Die (off) (Not Available)")
         print("------ Sound Settings ------")
-        print("S: Sound Effect Toggle (on) (Not Available)")
+        print("S: Sound Effect Toggle ({}) (Not Available)".format("on" if sound_effects else "off"))
         print("T: TTS Audio Toggle (off) (Not Available)")
 
         option = input("Type an option: ").lower()
@@ -60,11 +64,29 @@ def main_menu():
 
         # Sound Toggle
         elif option == "s":
-            pass
+            toggle_sound_effects()
+            time.sleep(1)
 
         else:
             print("\nPlease type a valid option!")
-            time.sleep(1)
+            time.sleep(2)
+
+
+
+
+# Sound
+def toggle_sound_effects():
+    global sound_effects
+
+    # TODO - ADD SECTION TO PLAY OR NOT PLAY SOUND EFFECTS BASED ON TOGGLE!
+    
+    sound_effects = not sound_effects
+    if sound_effects:
+        print("Sound effects on.")
+    else:
+        print("Sound effects off.")
+
+
 
 
 # Player Name
@@ -86,8 +108,13 @@ def player_name(total_players):
             name_confirmation = input(f"You have selected {name} as your name. Is this correct? (yes/no): ").lower()
             if name_confirmation in ["yes", "y"]:
                 print(f"{name} is now a player!")
-                playsound("sounds/effects/player_register.mp3", block=False)
+                # TEMPORARY FOR NOW UNTIL CAN BE IMPLEMENTED INTO FUNCTION. SAME FOR OTHER PLAYSOUND MODULES
+                if sound_effects:
+                    playsound("sounds/effects/player_register.mp3", block=False)
+                else:
+                    pass
                 break
+                #########################
             elif name_confirmation in ["no", "n"]:
                 pass
             # BUG - Goes back to the top of the loop instead of Is this correct?
@@ -104,8 +131,11 @@ def roll_die():
     max_value = 6
     roll = random.randint(min_value, max_value)
 
-    # UNCOMMENT FOR ACTUAL GAME - WORKS FINE
-    # playsound("sounds/effects/dice_roll.mp3")
+
+    if sound_effects:
+        playsound("sounds/effects/dice_roll.mp3")
+    else:
+        pass
     return roll
 
 
@@ -145,7 +175,10 @@ def start_game(names, total_players):
                         # TODO Implement logic to determine which player has the highest score for that round and they are the actual winner!
                         # THIS IS TEMPORARY TO DECLARE A WINNER!
                         if names[f"player{x + 1}"]["score"] >= 100:
-                            playsound("sounds/effects/win.mp3")
+                            if sound_effects:
+                                playsound("sounds/effects/win.mp3")
+                            else:
+                                pass
                             print("Congrats you won the game!")
                             game_session = False
                             break
@@ -153,7 +186,10 @@ def start_game(names, total_players):
 
                     else:
                         # turn_score += roll_result
-                        playsound("sounds/effects/fail.mp3")
+                        if sound_effects:
+                            playsound("sounds/effects/fail.mp3")
+                        else:
+                            pass
                         print("\nYour turn ends and your score for this turn does not count!")
                         # print(f"TESTING: {turn_score}")
                         names[f"player{x + 1}"]["score"] -= turn_score
