@@ -26,6 +26,7 @@ def main_menu():
 
         option = input("Type an option: ").lower()
 
+        # Game Modes #
         # Single Player Mode
         if option == "1":
             pass
@@ -61,7 +62,17 @@ def main_menu():
                 except ValueError:
                     print("This is an invalid number!")
 
-        # Sound Toggle
+        # Gameplay Settings #
+        # Auto Roll Toggle
+        elif option == "a":
+            pass
+
+        # Extra Die Toggle
+        elif option == "d":
+            pass
+
+        # Sound Settings #
+        # Sound Effects Toggle
         elif option == "s":
             toggle_sound_effects()
             time.sleep(1)
@@ -84,6 +95,13 @@ def toggle_sound_effects():
         print("Sound effects off.")
 
 
+def play_sound_effect(file_path, block=True):
+    if sound_effects:
+        playsound(file_path, block=block)
+    else:
+        pass
+
+
 # Player Name
 def player_name(total_players):
     names = {}
@@ -104,10 +122,7 @@ def player_name(total_players):
             if name_confirmation in ["yes", "y"]:
                 print(f"{name} is now a player!")
                 # TEMPORARY FOR NOW UNTIL CAN BE IMPLEMENTED INTO FUNCTION. SAME FOR OTHER PLAYSOUND MODULES
-                if sound_effects:
-                    playsound("sounds/effects/player_register.mp3", block=False)
-                else:
-                    pass
+                play_sound_effect("sounds/effects/player_register.mp3", block=False)
                 break
                 #########################
             elif name_confirmation in ["no", "n"]:
@@ -126,10 +141,8 @@ def roll_die():
     max_value = 6
     roll = random.randint(min_value, max_value)
 
-    if sound_effects:
-        playsound("sounds/effects/dice_roll.mp3")
-    else:
-        pass
+    play_sound_effect("sounds/effects/dice_roll.mp3")
+    pass
     return roll
 
 
@@ -168,10 +181,8 @@ def start_game(names, total_players):
                         # TODO Implement logic to determine which player has the highest score for that round and they are the actual winner!
                         # THIS IS TEMPORARY TO DECLARE A WINNER!
                         if names[f"player{x + 1}"]["score"] >= 100:
-                            if sound_effects:
-                                playsound("sounds/effects/win.mp3")
-                            else:
-                                pass
+                            play_sound_effect("sounds/effects/win.mp3")
+                            pass
                             print("Congrats you won the game!")
                             game_session = False
                             break
@@ -179,10 +190,8 @@ def start_game(names, total_players):
 
                     else:
                         # turn_score += roll_result
-                        if sound_effects:
-                            playsound("sounds/effects/fail.mp3")
-                        else:
-                            pass
+                        play_sound_effect("sounds/effects/fail.mp3")
+                        pass
                         print("\nYour turn ends and your score for this turn does not count!")
                         # print(f"TESTING: {turn_score}")
                         names[f"player{x + 1}"]["score"] -= turn_score
