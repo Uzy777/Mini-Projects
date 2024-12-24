@@ -20,8 +20,9 @@ def main_menu():
         print("------ Gameplay Settings ------")
         print("A: Auto Roll (off) (Not Available)")
         print("D: Extra Die (off) (Not Available)")
+        print("W: Score to Win (Default = 100) (Not Available)")
         print("------ Sound Settings ------")
-        print("S: Sound Effect Toggle ({}) (Not Available)".format("on" if sound_effects else "off"))
+        print("S: Sound Effect Toggle ({})".format("on" if sound_effects else "off"))
         print("T: TTS Audio Toggle (off) (Not Available)")
 
         option = input("Type an option: ").lower()
@@ -62,6 +63,7 @@ def main_menu():
                 except ValueError:
                     print("This is an invalid number!")
 
+
         # Gameplay Settings #
         # Auto Roll Toggle
         elif option == "a":
@@ -71,12 +73,26 @@ def main_menu():
         elif option == "d":
             pass
 
+        # Score to Win
+        elif option == "w":
+            while True:
+                score_to_win = input("\nPlease enter your desired score to win: ")
+
+                if score_to_win.isdigit():
+                    print(f"Score to win set to {score_to_win}.")
+                    time.sleep(1)
+                    break
+                else:
+                    score_to_win = 100
+                    print("Please enter a valid number!")
+
+
+
         # Sound Settings #
         # Sound Effects Toggle
         elif option == "s":
             toggle_sound_effects()
             time.sleep(1)
-
         else:
             print("\nPlease type a valid option!")
             time.sleep(2)
@@ -85,8 +101,6 @@ def main_menu():
 # Sound
 def toggle_sound_effects():
     global sound_effects
-
-    # TODO - ADD SECTION TO PLAY OR NOT PLAY SOUND EFFECTS BASED ON TOGGLE!
 
     sound_effects = not sound_effects
     if sound_effects:
@@ -121,15 +135,14 @@ def player_name(total_players):
             name_confirmation = input(f"You have selected {name} as your name. Is this correct? (yes/no): ").lower()
             if name_confirmation in ["yes", "y"]:
                 print(f"{name} is now a player!")
-                # TEMPORARY FOR NOW UNTIL CAN BE IMPLEMENTED INTO FUNCTION. SAME FOR OTHER PLAYSOUND MODULES
                 play_sound_effect("sounds/effects/player_register.mp3", block=False)
                 break
-                #########################
             elif name_confirmation in ["no", "n"]:
                 pass
             # BUG - Goes back to the top of the loop instead of Is this correct?
             else:
                 print("Please enter 'yes' or 'no'")
+                continue
 
         if total_players == len(names):
             print("\nGame will now start!")
