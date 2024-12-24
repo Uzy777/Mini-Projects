@@ -12,6 +12,7 @@ score_to_win = 100
 def main_menu():
     # Should be using local variable names this is temporary
     global score_to_win
+    ai_voice = "amelia"
 
     while True:
         print("\nWelcome .. . . . .. . ")
@@ -28,6 +29,7 @@ def main_menu():
         print("------ Sound Settings ------")
         print("S: Sound Effect Toggle ({})".format("on" if sound_effects else "off"))
         print("T: TTS Audio Toggle (off) (Not Available)")
+        print(f"P: AI Player Voice ({ai_voice}) (single player)")
 
         option = input("Type an option: ").lower()
 
@@ -94,6 +96,37 @@ def main_menu():
         elif option == "s":
             toggle_sound_effects()
             time.sleep(1)
+
+        elif option == "t":
+            pass
+
+        elif option == "p":
+            while True:
+                print("\nSingle player only!")
+                print("------ Voices ------")
+                print("A: Amelia (female)")
+                print("B: Brian (male)")
+                ai_voice = input("\nSelect your AI voice: ").lower()
+
+                if ai_voice in ["a", "amelia"]:
+                    ai_voice = "amelia"
+                    print(
+                        "Hi there! I'm Amelia, your sharp-witted and charming AI opponent.I'm always up\nfor a challenge and ready to show off my skills. With a knack for strategy and a\nbit of flair, I'll make sure every game is a thrilling experience. Let's see if you can\nkeep up with me!"
+                    )
+                    playsound("sounds/ai_voice/amelia/amelia_intro.wav", block=True)
+                    break
+
+                elif ai_voice in ["b", "brian"]:
+                    ai_voice = "brian"
+                    print(
+                        "Hello, I'm Brian. Known for my unmatched skills and unbeatable strategies,\nI'm the one to watch in any game. With a natural talent for competition and a sharp\nmind for tactics, I bring my A-game every time. People say I'm a bit cocky, but\nthat's only because I know I'm the best. Ready to take me on? Prepare to be\noutplayed and outsmarted!"
+                    )
+                    playsound("sounds/ai_voice/brian/brian_intro.wav", block=True)
+                    break
+
+                else:
+                    print("\nPlease select a valid voice!")
+
         else:
             print("\nPlease type a valid option!")
             time.sleep(2)
@@ -148,9 +181,6 @@ def player_name(total_players):
         if total_players == len(names):
             print("\nGame will now start!")
             start_game(names, total_players)
-
-
-
 
 
 def roll_die():
