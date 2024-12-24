@@ -1,5 +1,7 @@
 import time
 import random
+import os
+import sys
 from playsound import playsound
 
 
@@ -12,12 +14,13 @@ score_to_win = 100
 def main_menu():
     # Should be using local variable names this is temporary
     global score_to_win
+    global ai_voice
     ai_voice = "amelia"
 
     while True:
         print("\nWelcome .. . . . .. . ")
         print("------ Game Modes ------")
-        print("1: Single Player (Not Available)")
+        print("1: Single Player")
         print("2: Two Players")
         print("3: Three Players")
         print("4: Four Players")
@@ -114,7 +117,7 @@ def main_menu():
                     print(
                         "Hi there! I'm Amelia, your sharp-witted and charming AI opponent.I'm always up\nfor a challenge and ready to show off my skills. With a knack for strategy and a\nbit of flair, I'll make sure every game is a thrilling experience. Let's see if you can\nkeep up with me!"
                     )
-                    playsound("sounds/ai_voice/amelia/amelia_intro.wav", block=True)
+                    playsound("sounds/ai_voice/amelia_intro.wav", block=True)
                     break
 
                 elif ai_voice in ["b", "brian"]:
@@ -122,7 +125,7 @@ def main_menu():
                     print(
                         "Hello, I'm Brian. Known for my unmatched skills and unbeatable strategies,\nI'm the one to watch in any game. With a natural talent for competition and a sharp\nmind for tactics, I bring my A-game every time. People say I'm a bit cocky, but\nthat's only because I know I'm the best. Ready to take me on? Prepare to be\noutplayed and outsmarted!"
                     )
-                    playsound("sounds/ai_voice/brian/brian_intro.wav", block=True)
+                    playsound("sounds/ai_voice/brian_intro.wav", block=True)
                     break
 
                 else:
@@ -197,6 +200,8 @@ def roll_die():
 
 
 def start_game(names, total_players):
+    global ai_voice
+
     game_session = True
 
     name_list = [name_info["name"] for name_info in names.values()]
@@ -232,14 +237,32 @@ def ai_decision():
     return random.choice(["y", "y", "n"])
 
 
+def play_ai_phrase(ai_voice="amelia"):
+    if ai_voice == "amelia":
+        path = "sounds/ai_voice/amelia/"
+    elif ai_voice == "brian":
+        path = "sounds/ai_voice/brian/"
+    files = os.listdir(path)
+    ai_phrase = random.choice(files)
+
+    playsound(os.path.join(path, ai_phrase))
+
+
 def ai_turn(names, turn_score, score_to_win):
+    thinking_message = "Thinking...\n"
+
+    play_ai_phrase(ai_voice)
     while True:
-        print("\nRoll the Die AI")
+        print("\nRoll the Die AI (y/n)")
+        # for char in thinking_message:
+        #     sys.stdout.write(char)
+        #     sys.stdout.flush()
+        #     time.sleep(0.2)
         roll_choice = ai_decision()
 
         if roll_choice == "y":
             roll_result = roll_die()
-            print(f"You just rolled {roll_result}")
+            print(f"AI just rolled {roll_result}")
 
             if roll_result > 1:
                 turn_score += roll_result
