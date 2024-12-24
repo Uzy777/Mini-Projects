@@ -24,7 +24,7 @@ def main_menu():
         print("------ Gameplay Settings ------")
         print("A: Auto Roll (off) (Not Available)")
         print("D: Extra Die (off) (Not Available)")
-        print(f"W: Score to Win ({score_to_win}) (Not Available)")
+        print(f"W: Score to Win ({score_to_win})")
         print("------ Sound Settings ------")
         print("S: Sound Effect Toggle ({})".format("on" if sound_effects else "off"))
         print("T: TTS Audio Toggle (off) (Not Available)")
@@ -148,6 +148,9 @@ def player_name(total_players):
         if total_players == len(names):
             print("\nGame will now start!")
             start_game(names, total_players)
+
+
+
 
 
 def roll_die():
