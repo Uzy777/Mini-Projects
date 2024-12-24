@@ -247,6 +247,7 @@ def start_game(names, total_players):
 
                 elif roll_choice == "n":
                     print(f"{names[f'player{x + 1}']['name']} has a score of {names[f'player{x + 1}']['score']}")
+                    play_sound_effect("sounds/effects/end_turn.mp3", block=False)
                     break
                 else:
                     print("You must type (y/n)!")
