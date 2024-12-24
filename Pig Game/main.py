@@ -5,10 +5,14 @@ from playsound import playsound
 
 # Variables Defined
 sound_effects = True
+score_to_win = 100
 
 
 # Main Menu
 def main_menu():
+    # Should be using local variable names this is temporary
+    global score_to_win
+
     while True:
         print("\nWelcome .. . . . .. . ")
         print("------ Game Modes ------")
@@ -20,7 +24,7 @@ def main_menu():
         print("------ Gameplay Settings ------")
         print("A: Auto Roll (off) (Not Available)")
         print("D: Extra Die (off) (Not Available)")
-        print("W: Score to Win (Default = 100) (Not Available)")
+        print(f"W: Score to Win ({score_to_win}) (Not Available)")
         print("------ Sound Settings ------")
         print("S: Sound Effect Toggle ({})".format("on" if sound_effects else "off"))
         print("T: TTS Audio Toggle (off) (Not Available)")
@@ -63,7 +67,6 @@ def main_menu():
                 except ValueError:
                     print("This is an invalid number!")
 
-
         # Gameplay Settings #
         # Auto Roll Toggle
         elif option == "a":
@@ -76,17 +79,15 @@ def main_menu():
         # Score to Win
         elif option == "w":
             while True:
-                score_to_win = input("\nPlease enter your desired score to win: ")
+                score_to_win = int(input("\nPlease enter your desired score to win: "))
 
-                if score_to_win.isdigit():
+                if score_to_win:
                     print(f"Score to win set to {score_to_win}.")
                     time.sleep(1)
                     break
                 else:
                     score_to_win = 100
                     print("Please enter a valid number!")
-
-
 
         # Sound Settings #
         # Sound Effects Toggle
@@ -193,7 +194,7 @@ def start_game(names, total_players):
 
                         # TODO Implement logic to determine which player has the highest score for that round and they are the actual winner!
                         # THIS IS TEMPORARY TO DECLARE A WINNER!
-                        if names[f"player{x + 1}"]["score"] >= 100:
+                        if names[f"player{x + 1}"]["score"] >= score_to_win:
                             play_sound_effect("sounds/effects/win.mp3")
                             pass
                             print("Congrats you won the game!")
