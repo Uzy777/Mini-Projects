@@ -36,7 +36,8 @@ def main_menu():
         # Game Modes #
         # Single Player Mode
         if option == "1":
-            pass
+            total_players = 1
+            player_name(total_players)
 
         # Two Players Mode
         elif option == "2":
@@ -179,6 +180,8 @@ def player_name(total_players):
                 continue
 
         if total_players == len(names):
+            if total_players == 1:
+                names["AI"] = {"name": "AI", "score": 0}
             print("\nGame will now start!")
             start_game(names, total_players)
 
@@ -212,48 +215,105 @@ def start_game(names, total_players):
     #             print("You must roll the die!")
 
     while game_session:
-        for x in range(total_players):
+        for player_key in names.keys():
             turn_score = 0
-            while True:
-                roll_choice = input(f"\nRoll the Die {names[f'player{x + 1}']['name']} (y/n): ").lower()
-                if roll_choice == "y":
-                    roll_result = roll_die()
-                    print(f"You just rolled {roll_result}")
-                    # print(f"{names[f'player{x + 1}']['name']} has a score of {names[f'player{x + 1}']['score']}")
-                    if roll_result > 1:
-                        turn_score += roll_result
-                        names[f"player{x + 1}"]["score"] += roll_result
-                        print(f"{names[f'player{x + 1}']['name']} has a score of {names[f'player{x + 1}']['score']}")
-
-                        # TODO Implement logic to determine which player has the highest score for that round and they are the actual winner!
-                        # THIS IS TEMPORARY TO DECLARE A WINNER!
-                        if names[f"player{x + 1}"]["score"] >= score_to_win:
-                            play_sound_effect("sounds/effects/win.mp3")
-                            pass
-                            print("Congrats you won the game!")
-                            game_session = False
-                            break
-                        continue
-
-                    else:
-                        # turn_score += roll_result
-                        play_sound_effect("sounds/effects/fail.mp3")
-                        pass
-                        print("\nYour turn ends and your score for this turn does not count!")
-                        # print(f"TESTING: {turn_score}")
-                        names[f"player{x + 1}"]["score"] -= turn_score
-                        print(f"{names[f'player{x + 1}']['name']} has a score of {names[f'player{x + 1}']['score']}")
-                        break
-
-                elif roll_choice == "n":
-                    print(f"{names[f'player{x + 1}']['name']} has a score of {names[f'player{x + 1}']['score']}")
-                    play_sound_effect("sounds/effects/end_turn.mp3", block=False)
-                    break
-                else:
-                    print("You must type (y/n)!")
+            if player_key == "AI":
+                game_session = ai_turn(names, turn_score, score_to_win)
+            else:
+                game_session = player_turn(player_key, names, turn_score, score_to_win)
+            if not game_session:
+                break
 
     time.sleep(1)
     print("\nThank you for playing! xxxx Is your winner!")
+
+
+def ai_decision():
+    return random.choice(["y", "y", "n"])
+
+
+def ai_turn(names, turn_score, score_to_win):
+    while True:
+        print("\nRoll the Die AI")
+        roll_choice = ai_decision()
+
+        if roll_choice == "y":
+            roll_result = roll_die()
+            print(f"You just rolled {roll_result}")
+
+            if roll_result > 1:
+                turn_score += roll_result
+                names["AI"]["score"] += roll_result
+                print(f"AI has a score of {names['AI']['score']}")
+
+                # TODO Implement logic to determine which player has the highest score for that round and they are the actual winner!
+                # THIS IS TEMPORARY TO DECLARE A WINNER!
+                if names["AI"]["score"] >= score_to_win:
+                    play_sound_effect("sounds/effects/win.mp3")
+                    pass
+                    print("Congrats you won the game!")
+                    return False  # Ends the game session
+
+                continue
+
+            else:
+                # turn_score += roll_result
+                play_sound_effect("sounds/effects/fail.mp3")
+                pass
+                print("\nYour turn ends and your score for this turn does not count!")
+                # print(f"TESTING: {turn_score}")
+                names["AI"]["score"] -= turn_score
+                print(f"AI has a score of {names['AI']['score']}")
+                break
+
+        elif roll_choice == "n":
+            print(f"AI has a score of {names['AI']['score']}")
+            play_sound_effect("sounds/effects/end_turn.mp3", block=False)
+            break
+        else:
+            print("You must type (y/n)!")
+    return True  # Continues the game session
+
+
+def player_turn(player_key, names, turn_score, score_to_win):
+    while True:
+        roll_choice = input(f"\nRoll the Die {names[player_key]['name']} (y/n): ").lower()
+        if roll_choice == "y":
+            roll_result = roll_die()
+            print(f"You just rolled {roll_result}")
+            # print(f"{names[f'player{x + 1}']['name']} has a score of {names[f'player{x + 1}']['score']}")
+            if roll_result > 1:
+                turn_score += roll_result
+                names[player_key]["score"] += roll_result
+                print(f"{names[player_key]['name']} has a score of {names[player_key]['score']}")
+
+                # TODO Implement logic to determine which player has the highest score for that round and they are the actual winner!
+                # THIS IS TEMPORARY TO DECLARE A WINNER!
+                if names[player_key]["score"] >= score_to_win:
+                    play_sound_effect("sounds/effects/win.mp3")
+                    pass
+                    print("Congrats you won the game!")
+                    return False  # Ends the game session
+
+                continue
+
+            else:
+                # turn_score += roll_result
+                play_sound_effect("sounds/effects/fail.mp3")
+                pass
+                print("\nYour turn ends and your score for this turn does not count!")
+                # print(f"TESTING: {turn_score}")
+                names[player_key]["score"] -= turn_score
+                print(f"{names[player_key]['name']} has a score of {names[player_key]['score']}")
+                break
+
+        elif roll_choice == "n":
+            print(f"{names[player_key]['name']} has a score of {names[player_key]['score']}")
+            play_sound_effect("sounds/effects/end_turn.mp3", block=False)
+            break
+        else:
+            print("You must type (y/n)!")
+    return True  # Continues the game session
 
 
 main_menu()
