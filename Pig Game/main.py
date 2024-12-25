@@ -1,7 +1,7 @@
 import time
 import random
 import os
-import sys
+# import sys
 from playsound import playsound
 
 
@@ -128,8 +128,24 @@ def main_menu():
                     playsound("sounds/ai_voice/brian_intro.wav", block=True)
                     break
 
+                elif ai_voice == "back":
+                    print("\nGoing back...")
+                    time.sleep(1)
+                    break
+
+                elif ai_voice == "quit":
+                    print("\nGoodbye see you again!")
+                    time.sleep(1)
+                    quit()
+
                 else:
                     print("\nPlease select a valid voice!")
+
+        # Quit the program
+        elif option == "quit":
+            print("\nGoodbye see you again!")
+            time.sleep(1)
+            quit()
 
         else:
             print("\nPlease type a valid option!")
@@ -165,6 +181,17 @@ def player_name(total_players):
             # Name Validation Checking
             if name.isalpha():
                 names[f"player{x + 1}"] = {"name": name, "score": 0}
+
+            # if name == "Back":
+            #     print("\nGoing back...")
+            #     time.sleep(1)
+            #     break
+
+            # elif name == "Quit":
+            #     print("\nGoodbye see you again!")
+            #     time.sleep(1)
+            #     quit()
+
             else:
                 print("This is an invalid name. Try again!")
                 continue
@@ -175,8 +202,20 @@ def player_name(total_players):
                 print(f"{name} is now a player!")
                 play_sound_effect("sounds/effects/player_register.mp3", block=False)
                 break
+
             elif name_confirmation in ["no", "n"]:
                 pass
+
+            elif name_confirmation == "back":
+                print("\nGoing back...")
+                time.sleep(1)
+                break
+
+            elif name_confirmation == "quit":
+                print("\nGoodbye see you again!")
+                time.sleep(1)
+                quit()
+
             # BUG - Goes back to the top of the loop instead of Is this correct?
             else:
                 print("Please enter 'yes' or 'no'")
@@ -249,7 +288,7 @@ def play_ai_phrase(ai_voice="amelia"):
 
 
 def ai_turn(names, turn_score, score_to_win):
-    thinking_message = "Thinking...\n"
+    # thinking_message = "Thinking...\n"
 
     play_ai_phrase(ai_voice)
     while True:
@@ -334,6 +373,12 @@ def player_turn(player_key, names, turn_score, score_to_win):
             print(f"{names[player_key]['name']} has a score of {names[player_key]['score']}")
             play_sound_effect("sounds/effects/end_turn.mp3", block=False)
             break
+
+        elif roll_choice == "quit":
+            print("\nGoodbye see you again!")
+            time.sleep(1)
+            quit()
+
         else:
             print("You must type (y/n)!")
     return True  # Continues the game session
