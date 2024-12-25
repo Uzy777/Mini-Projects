@@ -1,6 +1,7 @@
 import time
 import random
 import os
+
 # import sys
 from playsound import playsound
 
@@ -62,6 +63,17 @@ def main_menu():
             while True:
                 try:
                     total_players = input("\nInput how many players: ")
+
+                    if total_players == "back":
+                        print("\nGoing back...")
+                        time.sleep(1)
+                        break
+
+                    elif total_players == "quit":
+                        print("\nGoodbye see you again!")
+                        time.sleep(1)
+                        quit()
+
                     total_players = int(total_players)
                     if total_players in range(2, 11):
                         player_name(total_players)
@@ -86,6 +98,16 @@ def main_menu():
         elif option == "w":
             while True:
                 score_to_win = int(input("\nPlease enter your desired score to win: "))
+
+                # if score_to_win == "back":
+                #     print("\nGoing back...")
+                #     time.sleep(1)
+                #     break
+
+                # elif score_to_win == "quit":
+                #     print("\nGoodbye see you again!")
+                #     time.sleep(1)
+                #     quit()
 
                 if score_to_win:
                     print(f"Score to win set to {score_to_win}.")
