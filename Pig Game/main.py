@@ -230,7 +230,7 @@ def start_game(names, total_players):
                 break
 
     time.sleep(1)
-    print("\nThank you for playing! xxxx Is your winner!")
+    print("\nThank you for playing!")
 
 
 def ai_decision():
@@ -274,7 +274,7 @@ def ai_turn(names, turn_score, score_to_win):
                 if names["AI"]["score"] >= score_to_win:
                     play_sound_effect("sounds/effects/win.mp3")
                     pass
-                    print("Congrats you won the game!")
+                    print("Congrats AI you won the game!")
                     return False  # Ends the game session
 
                 continue
@@ -315,7 +315,7 @@ def player_turn(player_key, names, turn_score, score_to_win):
                 if names[player_key]["score"] >= score_to_win:
                     play_sound_effect("sounds/effects/win.mp3")
                     pass
-                    print("Congrats you won the game!")
+                    print(f"Congrats {names[player_key]['name']} you won the game!")
                     return False  # Ends the game session
 
                 continue
