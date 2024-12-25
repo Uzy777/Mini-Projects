@@ -97,24 +97,29 @@ def main_menu():
         # Score to Win
         elif option == "w":
             while True:
-                score_to_win = int(input("\nPlease enter your desired score to win: "))
+                try:
+                    score_to_win = int(input("\nPlease enter your desired score to win: "))
 
-                # if score_to_win == "back":
-                #     print("\nGoing back...")
-                #     time.sleep(1)
-                #     break
+                    # if score_to_win == "back":
+                    #     print("\nGoing back...")
+                    #     time.sleep(1)
+                    #     break
 
-                # elif score_to_win == "quit":
-                #     print("\nGoodbye see you again!")
-                #     time.sleep(1)
-                #     quit()
+                    # elif score_to_win == "quit":
+                    #     print("\nGoodbye see you again!")
+                    #     time.sleep(1)
+                    #     quit()
 
-                if score_to_win:
-                    print(f"Score to win set to {score_to_win}.")
-                    time.sleep(1)
-                    break
-                else:
-                    score_to_win = 100
+                    if score_to_win:
+                        print(f"Score to win set to {score_to_win}.")
+                        time.sleep(1)
+                        break
+                    
+                    else:
+                        score_to_win = 100
+                        print("Please enter a valid number!")
+
+                except ValueError:
                     print("Please enter a valid number!")
 
         # Sound Settings #
