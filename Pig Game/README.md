@@ -9,7 +9,7 @@ The Pig Game is a classic dice game where players take turns rolling a die. The 
 - **Game Setup:**
   - [x] Initialize game with a set number of players (default is 2).
   - [x] Input player names.
-  - [ ] Display the number of players and their initial scores.
+  - [x] Display the number of players and their initial scores.
 
 - **Player Turns:**
   - [x] Implement turn-based system for multiple players.
@@ -28,16 +28,16 @@ The Pig Game is a classic dice game where players take turns rolling a die. The 
 - **Turn End Conditions:**
   - [x] End turn if the player rolls a 1 (turn score resets to 0).
   - [x] Allow the player to choose to hold, adding the turn score to their total score.
-  - [ ] Display updated total scores after holding or rolling a 1.
+  - [x] Display updated total scores after holding or rolling a 1.
 
 - **Winning Condition:**
   - [x] Check if a player’s total score reaches or exceeds the winning score (default 100).
-  - [ ] Announce the winner and end the game.
-  - [ ] Display a summary of the game with player scores.
+  - [x] Announce the winner and end the game.
+  - [x] Display a summary of the game with player scores.
 
 - **User Interface:**
   - [x] Create a console-based interface.
-  - [ ] Display player scores and turn options (roll or hold) clearly.
+  - [x] Display player scores and turn options (roll or hold) clearly.
   - [ ] Provide feedback for invalid inputs or actions.
 
 ### Bonus Features
