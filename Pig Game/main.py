@@ -114,7 +114,7 @@ def main_menu():
                         print(f"Score to win set to {score_to_win}.")
                         time.sleep(1)
                         break
-                    
+
                     else:
                         score_to_win = 100
                         print("Please enter a valid number!")
@@ -294,6 +294,10 @@ def start_game(names, total_players):
                 game_session = player_turn(player_key, names, turn_score, score_to_win)
             if not game_session:
                 break
+
+    print("\n------ Summary of Game ------")
+    for player_key in names.keys():
+        print(f"{names[player_key]['name']} had a score of {names[player_key]['score']}")
 
     time.sleep(1)
     print("\nThank you for playing!")
