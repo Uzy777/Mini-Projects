@@ -243,9 +243,8 @@ def player_name(total_players):
                 time.sleep(1)
                 quit()
 
-            # BUG - Goes back to the top of the loop instead of Is this correct?
             else:
-                print("Please enter 'yes' or 'no'")
+                print("Please try again!")
                 continue
 
         if total_players == len(names):
