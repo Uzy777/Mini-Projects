@@ -306,11 +306,19 @@ def ai_decision():
     return random.choice(["y", "y", "n"])
 
 
-def play_ai_phrase(ai_voice="amelia"):
+def play_ai_phrase(ai_voice="amelia", roll_result=None):
     if ai_voice == "amelia":
         path = "sounds/ai_voice/amelia/"
+
+        if roll_result == 1:
+            path = "sounds/ai_voice/amelia/bad_roll/"
+
     elif ai_voice == "brian":
         path = "sounds/ai_voice/brian/"
+
+        # if roll_result == 1:
+        #     path = "sounds/ai_voice/brian/bad_roll/"
+
     files = os.listdir(path)
     ai_phrase = random.choice(files)
 
@@ -356,6 +364,7 @@ def ai_turn(names, turn_score, score_to_win):
                 # print(f"TESTING: {turn_score}")
                 names["AI"]["score"] -= turn_score
                 print(f"AI has a score of {names['AI']['score']}")
+                play_ai_phrase(ai_voice, roll_result)
                 break
 
         elif roll_choice == "n":
