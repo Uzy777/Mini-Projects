@@ -4,6 +4,11 @@ import os
 
 # import sys
 from playsound import playsound
+import pygame
+
+
+pygame.init()
+pygame.mixer.init()
 
 
 # Variables Defined
@@ -144,7 +149,8 @@ def main_menu():
                     print(
                         "Hi there! I'm Amelia, your sharp-witted and charming AI opponent.I'm always up\nfor a challenge and ready to show off my skills. With a knack for strategy and a\nbit of flair, I'll make sure every game is a thrilling experience. Let's see if you can\nkeep up with me!"
                     )
-                    playsound("sounds/ai_voice/amelia_intro.wav", block=True)
+                    # playsound("sounds/ai_voice/amelia_intro.wav", block=True)
+                    pygame.mixer.Sound("sounds/ai_voice/amelia_intro.wav").play()
                     break
 
                 elif ai_voice in ["b", "brian"]:
@@ -152,7 +158,8 @@ def main_menu():
                     print(
                         "Hello, I'm Brian. Known for my unmatched skills and unbeatable strategies,\nI'm the one to watch in any game. With a natural talent for competition and a sharp\nmind for tactics, I bring my A-game every time. People say I'm a bit cocky, but\nthat's only because I know I'm the best. Ready to take me on? Prepare to be\noutplayed and outsmarted!"
                     )
-                    playsound("sounds/ai_voice/brian_intro.wav", block=True)
+                    # playsound("sounds/ai_voice/brian_intro.wav", block=True)
+                    pygame.mixer.Sound("sounds/ai_voice/brian_intro.wav").play()
                     break
 
                 elif ai_voice == "back":
@@ -203,7 +210,7 @@ def player_name(total_players):
 
     for x in range(total_players):
         while True:
-            name = input(f"\nPlease input the name for Player {x+1}: ").title()
+            name = input(f"\nPlease input the name for Player {x + 1}: ").title()
 
             # Name Validation Checking
             if name.isalpha():
@@ -227,7 +234,8 @@ def player_name(total_players):
             name_confirmation = input(f"You have selected {name} as your name. Is this correct? (yes/no): ").lower()
             if name_confirmation in ["yes", "y"]:
                 print(f"{name} is now a player!")
-                play_sound_effect("sounds/effects/player_register.mp3", block=False)
+                # play_sound_effect("sounds/effects/player_register.mp3", block=False)
+                pygame.mixer.Sound("sounds/effects/player_register.mp3").play()
                 break
 
             elif name_confirmation in ["no", "n"]:
@@ -259,7 +267,9 @@ def roll_die():
     max_value = 6
     roll = random.randint(min_value, max_value)
 
-    play_sound_effect("sounds/effects/dice_roll.mp3")
+    # play_sound_effect("sounds/effects/dice_roll.mp3")
+    pygame.mixer.Sound("sounds/effects/dice_roll.mp3").play()
+
     pass
     return roll
 
@@ -322,7 +332,8 @@ def play_ai_phrase(ai_voice="amelia", roll_result=None):
     files = os.listdir(path)
     ai_phrase = random.choice(files)
 
-    playsound(os.path.join(path, ai_phrase))
+    # playsound(os.path.join(path, ai_phrase))
+    pygame.mixer.Sound(os.path.join(path, ai_phrase)).play()
 
 
 def ai_turn(names, turn_score, score_to_win):
@@ -349,7 +360,8 @@ def ai_turn(names, turn_score, score_to_win):
                 # TODO Implement logic to determine which player has the highest score for that round and they are the actual winner!
                 # THIS IS TEMPORARY TO DECLARE A WINNER!
                 if names["AI"]["score"] >= score_to_win:
-                    play_sound_effect("sounds/effects/win.mp3")
+                    # play_sound_effect("sounds/effects/win.mp3")
+                    pygame.mixer.Sound("sounds/effects/win.mp3").play()
                     pass
                     print("Congrats AI you won the game!")
                     return False  # Ends the game session
@@ -358,7 +370,8 @@ def ai_turn(names, turn_score, score_to_win):
 
             else:
                 # turn_score += roll_result
-                play_sound_effect("sounds/effects/fail.mp3")
+                # play_sound_effect("sounds/effects/fail.mp3")
+                pygame.mixer.Sound("sounds/effects/fail.mp3").play()
                 pass
                 print("\nYour turn ends and your score for this turn does not count!")
                 # print(f"TESTING: {turn_score}")
@@ -369,7 +382,8 @@ def ai_turn(names, turn_score, score_to_win):
 
         elif roll_choice == "n":
             print(f"AI has a score of {names['AI']['score']}")
-            play_sound_effect("sounds/effects/end_turn.mp3", block=False)
+            # play_sound_effect("sounds/effects/end_turn.mp3", block=False)
+            pygame.mixer.Sound("sounds/effects/end_turn.mp3").play()
             break
         else:
             print("You must type (y/n)!")
@@ -391,7 +405,8 @@ def player_turn(player_key, names, turn_score, score_to_win):
                 # TODO Implement logic to determine which player has the highest score for that round and they are the actual winner!
                 # THIS IS TEMPORARY TO DECLARE A WINNER!
                 if names[player_key]["score"] >= score_to_win:
-                    play_sound_effect("sounds/effects/win.mp3")
+                    # play_sound_effect("sounds/effects/win.mp3")
+                    pygame.mixer.Sound("sounds/effects/win.mp3").play()
                     pass
                     print(f"Congrats {names[player_key]['name']} you won the game!")
                     return False  # Ends the game session
@@ -400,7 +415,8 @@ def player_turn(player_key, names, turn_score, score_to_win):
 
             else:
                 # turn_score += roll_result
-                play_sound_effect("sounds/effects/fail.mp3")
+                # play_sound_effect("sounds/effects/fail.mp3")
+                pygame.mixer.Sound("sounds/effects/fail.mp3").play()
                 pass
                 print("\nYour turn ends and your score for this turn does not count!")
                 # print(f"TESTING: {turn_score}")
@@ -410,7 +426,8 @@ def player_turn(player_key, names, turn_score, score_to_win):
 
         elif roll_choice == "n":
             print(f"{names[player_key]['name']} has a score of {names[player_key]['score']}")
-            play_sound_effect("sounds/effects/end_turn.mp3", block=False)
+            # play_sound_effect("sounds/effects/end_turn.mp3", block=False)
+            pygame.mixer.Sound("sounds/effects/end_turn.mp3").play()
             break
 
         elif roll_choice == "quit":
