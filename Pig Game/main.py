@@ -13,6 +13,7 @@ pygame.mixer.init()
 
 # Variables Defined
 sound_effects = True
+music = False
 score_to_win = 100
 
 
@@ -39,6 +40,7 @@ def main_menu():
         print("S: Sound Effect Toggle ({})".format("on" if sound_effects else "off"))
         print("T: TTS Audio Toggle (off) (Not Available)")
         print(f"P: AI Player Voice ({ai_voice}) (single player)")
+        print("M: Music Toggle ({})".format("on" if music else "off"))
 
         option = input("Type an option: ").lower()
 
@@ -175,6 +177,10 @@ def main_menu():
                 else:
                     print("\nPlease select a valid voice!")
 
+        elif option == "m":
+            toggle_music()
+            time.sleep(1)
+
         # Quit the program
         elif option == "quit":
             print("\nGoodbye see you again!")
@@ -202,6 +208,18 @@ def play_sound_effect(file_path, block=True):
         playsound(file_path, block=block)
     else:
         pass
+
+
+def toggle_music():
+    global music
+
+    music = not music
+    if music:
+        print("Music on.")
+        pygame.mixer.Sound("sounds/effects/music.mp3").play(-1).set_volume(0.7)
+    else:
+        print("Music off.")
+        pygame.mixer.pause()
 
 
 # Player Name
