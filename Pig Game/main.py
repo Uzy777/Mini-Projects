@@ -25,7 +25,7 @@ def main_menu():
     ai_voice = "amelia"
 
     while True:
-        print("\nWelcome .. . . . .. . ")
+        print("\nWelcome to the Pig Dice Game!")
         print("------ Game Modes ------")
         print("1: Single Player")
         print("2: Two Players")
@@ -289,7 +289,7 @@ def roll_die():
     pygame.mixer.Sound("sounds/effects/dice_roll.mp3").play()
     # Wait for the sound to finish
     while pygame.mixer.get_busy():
-        pygame.time.delay(100) 
+        pygame.time.delay(100)
 
     pass
     return roll
@@ -357,7 +357,8 @@ def play_ai_phrase(ai_voice="amelia", roll_result=None):
     pygame.mixer.Sound(os.path.join(path, ai_phrase)).play()
     # Delay by 100 ms
     while pygame.mixer.get_busy():
-        pygame.time.delay(100) 
+        pygame.time.delay(100)
+
 
 def ai_turn(names, turn_score, score_to_win):
     # thinking_message = "Thinking...\n"
@@ -386,7 +387,7 @@ def ai_turn(names, turn_score, score_to_win):
                     # play_sound_effect("sounds/effects/win.mp3")
                     pygame.mixer.Sound("sounds/effects/win.mp3").play()
                     while pygame.mixer.get_busy():
-                        pygame.time.delay(100) 
+                        pygame.time.delay(100)
                     pass
                     print("Congrats AI you won the game!")
                     return False  # Ends the game session
@@ -398,7 +399,7 @@ def ai_turn(names, turn_score, score_to_win):
                 # play_sound_effect("sounds/effects/fail.mp3")
                 pygame.mixer.Sound("sounds/effects/fail.mp3").play()
                 while pygame.mixer.get_busy():
-                    pygame.time.delay(100) 
+                    pygame.time.delay(100)
                 pass
                 print("\nYour turn ends and your score for this turn does not count!")
                 # print(f"TESTING: {turn_score}")
@@ -412,7 +413,7 @@ def ai_turn(names, turn_score, score_to_win):
             # play_sound_effect("sounds/effects/end_turn.mp3", block=False)
             pygame.mixer.Sound("sounds/effects/end_turn.mp3").play()
             while pygame.mixer.get_busy():
-                pygame.time.delay(100) 
+                pygame.time.delay(100)
             break
         else:
             print("You must type (y/n)!")
@@ -437,7 +438,7 @@ def player_turn(player_key, names, turn_score, score_to_win):
                     # play_sound_effect("sounds/effects/win.mp3")
                     pygame.mixer.Sound("sounds/effects/win.mp3").play()
                     while pygame.mixer.get_busy():
-                        pygame.time.delay(100) 
+                        pygame.time.delay(100)
                     pass
                     print(f"Congrats {names[player_key]['name']} you won the game!")
                     return False  # Ends the game session
@@ -449,7 +450,7 @@ def player_turn(player_key, names, turn_score, score_to_win):
                 # play_sound_effect("sounds/effects/fail.mp3")
                 pygame.mixer.Sound("sounds/effects/fail.mp3").play()
                 while pygame.mixer.get_busy():
-                    pygame.time.delay(100) 
+                    pygame.time.delay(100)
                 pass
                 print("\nYour turn ends and your score for this turn does not count!")
                 # print(f"TESTING: {turn_score}")
@@ -462,7 +463,7 @@ def player_turn(player_key, names, turn_score, score_to_win):
             # play_sound_effect("sounds/effects/end_turn.mp3", block=False)
             pygame.mixer.Sound("sounds/effects/end_turn.mp3").play()
             while pygame.mixer.get_busy():
-                pygame.time.delay(100) 
+                pygame.time.delay(100)
             break
 
         elif roll_choice == "quit":
