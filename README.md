@@ -9,7 +9,7 @@ A number of Python projects I have worked on!
 |---------------|-------------------------|---------------------|-----------------------|----------------------------------------------------------------------------------------------------|
 | ⭐            | Adventure Story 🌋      | Completed (ish) ⏳  | 🔴                    | [CLICK ME!](https://github.com/Uzy777/Python-Projects/tree/main/Adventure%20Story)                 |
 |               | Fifty Fifty 🪜          | Not Started ❌      | N/A                   | [CLICK ME!](https://github.com/Uzy777/Python-Projects/tree/main/Fifty%20Fifty)                     |
-|               | Jump Scare 👹           | Not Started ❌      | N/A                   | [CLICK ME!](https://github.com/Uzy777/Python-Projects/tree/main/Jump%20Scare)                      |
+|               | Jump Scare 👹           | Completed ✅        | 🟢                    | [CLICK ME!](https://github.com/Uzy777/Python-Projects/tree/main/Jump%20Scare)                      |
 |               | Maths Test Game 7️⃣      | Not Started ❌      | N/A                   | [CLICK ME!](https://github.com/Uzy777/Python-Projects/tree/main/Maths%20Test%20Game)               |
 |               | Maze Game 👣            | Not Started ❌      | N/A                   | [CLICK ME!](https://github.com/Uzy777/Python-Projects/tree/main/Maze%20Game)                       |
 |               | Number Guessing Game 🍀 | Completed ✅        | 🟢                    | [CLICK ME!](https://github.com/Uzy777/Python-Projects/tree/main/Number%20Guessing%20Game)          |
