@@ -4,3 +4,6 @@ Wait x seconds. Then jumpscare pop up with sound out of the screen full screen.
 
 
 could use pygame to play the video.
+
+
+pip install pyvidplayer2
