@@ -41,6 +41,9 @@ def main_menu():
         print("T: TTS Audio Toggle (off) (Not Available)")
         print(f"P: AI Player Voice ({ai_voice}) (single player)")
         print("M: Music Toggle ({})".format("on" if music else "off"))
+        print("------ Navigation ------")
+        print("quit: Exit the game")
+        print("---------------")
 
         option = input("Type an option: ").lower()
 
@@ -69,6 +72,10 @@ def main_menu():
         elif option == "5":
             while True:
                 try:
+                    print("\n------ Navigation ------")
+                    print("back: Go back")
+                    print("quit: Exit the game")
+
                     total_players = input("\nInput how many players: ")
 
                     if total_players == "back":
@@ -87,10 +94,12 @@ def main_menu():
                         break
                     else:
                         print("Please type your desired number of players (2 - 10)")
+                        time.sleep(1)
                         continue
 
                 except ValueError:
                     print("This is an invalid number!")
+                    time.sleep(1)
 
         # Gameplay Settings #
         # Auto Roll Toggle
@@ -105,19 +114,24 @@ def main_menu():
         elif option == "w":
             while True:
                 try:
-                    score_to_win = int(input("\nPlease enter your desired score to win: "))
+                    print("\n------ Navigation ------")
+                    print("back: Go back")
+                    print("quit: Exit the game")
 
-                    # if score_to_win == "back":
-                    #     print("\nGoing back...")
-                    #     time.sleep(1)
-                    #     break
+                    user_input = input("\nPlease enter your desired score to win: ")
 
-                    # elif score_to_win == "quit":
-                    #     print("\nGoodbye see you again!")
-                    #     time.sleep(1)
-                    #     quit()
+                    if user_input == "back":
+                        print("\nGoing back...")
+                        time.sleep(1)
+                        break
 
-                    if score_to_win:
+                    elif user_input == "quit":
+                        print("\nGoodbye see you again!")
+                        time.sleep(1)
+                        quit()
+
+                    elif user_input.isdigit():
+                        score_to_win = int(user_input)
                         print(f"Score to win set to {score_to_win}.")
                         time.sleep(1)
                         break
@@ -125,6 +139,7 @@ def main_menu():
                     else:
                         score_to_win = 100
                         print("Please enter a valid number!")
+                        time.sleep(1)
 
                 except ValueError:
                     print("Please enter a valid number!")
@@ -144,6 +159,10 @@ def main_menu():
                 print("------ Voices ------")
                 print("A: Amelia (female)")
                 print("B: Brian (male)")
+                print("------ Navigation ------")
+                print("back: Go back")
+                print("quit: Exit the game")
+
                 ai_voice = input("\nSelect your AI voice: ").lower()
 
                 if ai_voice in ["a", "amelia"]:
@@ -260,15 +279,15 @@ def player_name(total_players):
             elif name_confirmation in ["no", "n"]:
                 pass
 
-            elif name_confirmation == "back":
-                print("\nGoing back...")
-                time.sleep(1)
-                break
+            # elif name_confirmation == "back":
+            #     print("\nGoing back...")
+            #     time.sleep(1)
+            #     break
 
-            elif name_confirmation == "quit":
-                print("\nGoodbye see you again!")
-                time.sleep(1)
-                quit()
+            # elif name_confirmation == "quit":
+            #     print("\nGoodbye see you again!")
+            #     time.sleep(1)
+            #     quit()
 
             else:
                 print("Please try again!")
