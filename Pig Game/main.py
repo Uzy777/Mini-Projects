@@ -216,10 +216,14 @@ def toggle_music():
     music = not music
     if music:
         print("Music on.")
-        pygame.mixer.Sound("sounds/effects/music.mp3").play(-1).set_volume(0.7)
+        pygame.mixer.music.load("sounds/effects/music.mp3")
+        pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_volume(0.7)
     else:
         print("Music off.")
-        pygame.mixer.pause()
+        pygame.mixer.music.pause()
+
+    
 
 
 # Player Name
