@@ -7,3 +7,6 @@ could use pygame to play the video.
 
 
 pip install pyvidplayer2
+
+
+Feature could implement random number when first starting game.
