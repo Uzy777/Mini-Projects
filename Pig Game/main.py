@@ -18,6 +18,15 @@ score_to_win = 100
 
 # Main Menu
 def main_menu():
+    """
+    Display the main menu of the Pig Dice Game and handle user input.
+
+    This function presents the user with various game modes and settings,
+    processes the user's selection, and calls the appropriate functions
+    based on the user's choice. The menu also includes options to toggle
+    game and sound settings, as well as navigation options to exit the game.
+    """
+
     # Should be using local variable names this is temporary
     global score_to_win
     global ai_voice
@@ -212,6 +221,14 @@ def main_menu():
 
 # Sound
 def toggle_sound_effects():
+    """
+    Toggle the state of sound effects in the game.
+
+    This function switches the global variable 'sound_effects' between True and False,
+    turning the sound effects on or off accordingly. It also prints a message to
+    indicate the current state of the sound effects.
+    """
+
     global sound_effects
 
     sound_effects = not sound_effects
@@ -222,6 +239,16 @@ def toggle_sound_effects():
 
 
 def play_sound_effect(file_path):
+    """
+    Play a sound effect if sound effects are enabled.
+
+    This function plays a sound effect from the specified file path using
+    the pygame mixer, but only if the global 'sound_effects' variable is True.
+
+    Parameters:
+    file_path (str): The path to the sound effect file.
+    """
+
     if sound_effects:
         pygame.mixer.Sound(file_path).play()
     else:
@@ -229,6 +256,15 @@ def play_sound_effect(file_path):
 
 
 def toggle_music():
+    """
+    Toggle the background music on and off.
+
+    This function switches the global 'music' variable between True and False,
+    turning the background music on or off accordingly. When music is turned on,
+    it loads and plays the specified music file on a loop and sets the volume.
+    When music is turned off, it pauses the music playback.
+    """
+
     global music
 
     music = not music
@@ -244,6 +280,19 @@ def toggle_music():
 
 # Player Name
 def player_name(total_players):
+    """
+    Collect and validate player names for the specified number of players.
+
+    This function prompts the user to input names for each player, validates the input
+    to ensure it contains only alphabetic characters, and confirms the selection with
+    the user. If there is only one player, an AI player is added. The function stores
+    the player names and scores in a dictionary and calls the start_game function
+    once all names have been confirmed.
+
+    Parameters:
+    total_players (int): The total number of players in the game.
+    """
+
     names = {}
 
     for x in range(total_players):
@@ -300,6 +349,18 @@ def player_name(total_players):
 
 
 def roll_die():
+    """
+    Simulate rolling a die and play a sound effect.
+
+    This function generates a random integer between the specified minimum and
+    maximum values (inclusive) to simulate rolling a die. It plays a sound effect
+    of a dice roll, waits for the sound to finish, and then returns the result of
+    the roll.
+
+    Returns:
+    int: The result of the die roll.
+    """
+
     min_value = 1
     max_value = 6
     roll = random.randint(min_value, max_value)
@@ -314,6 +375,20 @@ def roll_die():
 
 
 def start_game(names, total_players):
+    """
+    Start the Pig Dice Game with the provided player names and total number of players.
+
+    This function initializes the game session, greets the players, and manages the
+    gameplay loop. It handles each player's turn, including the AI player's turn if present,
+    and continues the game until a game-ending condition is met. The function then
+    displays a summary of the game results and thanks the players for participating.
+
+    Parameters:
+    names (dict): A dictionary containing player names and their scores.
+    total_players (int): The total number of players in the game.
+
+    """
+
     global ai_voice
 
     game_session = True
@@ -352,10 +427,34 @@ def start_game(names, total_players):
 
 
 def ai_decision():
+    """
+    Determine the AI player's decision to roll or hold.
+
+    This function randomly selects a decision for the AI player, with a higher
+    probability of choosing to roll ("y") compared to holding ("n").
+
+    Returns:
+    str: 'y' for roll or 'n' for hold.
+    """
+
     return random.choice(["y", "y", "n"])
 
 
 def play_ai_phrase(ai_voice="amelia", roll_result=None):
+    """
+    Play a random AI phrase based on the AI player's voice and roll result.
+
+    This function selects a random sound file from the directory corresponding to
+    the specified AI player's voice (default is "amelia"). If the roll result is 1,
+    it plays a phrase from the "bad roll" directory for Amelia. The function then
+    plays the selected sound file and waits for the sound to finish before proceeding.
+
+    Parameters:
+    ai_voice (str): The voice of the AI player ("amelia" or "brian").
+    roll_result (int, optional): The result of the dice roll, used to determine
+                                 the phrase directory for certain voices.
+    """
+
     if ai_voice == "amelia":
         path = "sounds/ai_voice/amelia/"
 
@@ -379,6 +478,24 @@ def play_ai_phrase(ai_voice="amelia", roll_result=None):
 
 
 def ai_turn(names, turn_score, score_to_win):
+    """
+    Manage the AI player's turn in the Pig Dice Game.
+
+    This function controls the AI player's actions, including rolling the die,
+    updating the turn score, and checking for a winning condition. It plays
+    appropriate sound effects and AI phrases based on the roll result and
+    decisions made. The function continues the AI's turn until a game-ending
+    condition is met or the AI decides to hold.
+
+    Parameters:
+    names (dict): A dictionary containing player names and their scores.
+    turn_score (int): The score accumulated during the AI's current turn.
+    score_to_win (int): The target score required to win the game.
+
+    Returns:
+    bool: True if the game session continues, False if the AI wins and the game ends.
+    """
+
     # thinking_message = "Thinking...\n"
 
     play_ai_phrase(ai_voice)
@@ -436,6 +553,24 @@ def ai_turn(names, turn_score, score_to_win):
 
 
 def player_turn(player_key, names, turn_score, score_to_win):
+    """
+    Manage a player's turn in the Pig Dice Game.
+
+    This function handles a player's actions during their turn, including rolling the die,
+    updating the turn score, and checking for a winning condition. It plays appropriate
+    sound effects based on the roll result and player decisions. The function continues
+    the player's turn until a game-ending condition is met or the player decides to hold.
+
+    Parameters:
+    player_key (str): The key representing the player's data in the names dictionary.
+    names (dict): A dictionary containing player names and their scores.
+    turn_score (int): The score accumulated during the player's current turn.
+    score_to_win (int): The target score required to win the game.
+
+    Returns:
+    bool: True if the game session continues, False if the player wins and the game ends.
+    """
+
     while True:
         roll_choice = input(f"\nRoll the Die {names[player_key]['name']} (y/n): ").lower()
         if roll_choice == "y":
