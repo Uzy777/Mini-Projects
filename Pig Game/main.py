@@ -203,9 +203,9 @@ def toggle_sound_effects():
         print("Sound effects off.")
 
 
-def play_sound_effect(file_path, block=True):
+def play_sound_effect(file_path):
     if sound_effects:
-        playsound(file_path, block=block)
+        pygame.mixer.Sound(file_path).play()
     else:
         pass
 
@@ -222,8 +222,6 @@ def toggle_music():
     else:
         print("Music off.")
         pygame.mixer.music.pause()
-
-    
 
 
 # Player Name
@@ -256,8 +254,7 @@ def player_name(total_players):
             name_confirmation = input(f"You have selected {name} as your name. Is this correct? (yes/no): ").lower()
             if name_confirmation in ["yes", "y"]:
                 print(f"{name} is now a player!")
-                # play_sound_effect("sounds/effects/player_register.mp3", block=False)
-                pygame.mixer.Sound("sounds/effects/player_register.mp3").play()
+                play_sound_effect("sounds/effects/player_register.mp3")
                 break
 
             elif name_confirmation in ["no", "n"]:
@@ -289,8 +286,7 @@ def roll_die():
     max_value = 6
     roll = random.randint(min_value, max_value)
 
-    # play_sound_effect("sounds/effects/dice_roll.mp3")
-    pygame.mixer.Sound("sounds/effects/dice_roll.mp3").play()
+    play_sound_effect("sounds/effects/dice_roll.mp3")
     # Wait for the sound to finish
     while pygame.mixer.get_busy():
         pygame.time.delay(100)
@@ -388,8 +384,7 @@ def ai_turn(names, turn_score, score_to_win):
                 # TODO Implement logic to determine which player has the highest score for that round and they are the actual winner!
                 # THIS IS TEMPORARY TO DECLARE A WINNER!
                 if names["AI"]["score"] >= score_to_win:
-                    # play_sound_effect("sounds/effects/win.mp3")
-                    pygame.mixer.Sound("sounds/effects/win.mp3").play()
+                    play_sound_effect("sounds/effects/win.mp3")
                     while pygame.mixer.get_busy():
                         pygame.time.delay(100)
                     pass
@@ -400,8 +395,7 @@ def ai_turn(names, turn_score, score_to_win):
 
             else:
                 # turn_score += roll_result
-                # play_sound_effect("sounds/effects/fail.mp3")
-                pygame.mixer.Sound("sounds/effects/fail.mp3").play()
+                play_sound_effect("sounds/effects/fail.mp3")
                 while pygame.mixer.get_busy():
                     pygame.time.delay(100)
                 pass
@@ -414,8 +408,7 @@ def ai_turn(names, turn_score, score_to_win):
 
         elif roll_choice == "n":
             print(f"AI has a score of {names['AI']['score']}")
-            # play_sound_effect("sounds/effects/end_turn.mp3", block=False)
-            pygame.mixer.Sound("sounds/effects/end_turn.mp3").play()
+            play_sound_effect("sounds/effects/end_turn.mp3")
             while pygame.mixer.get_busy():
                 pygame.time.delay(100)
             break
@@ -439,8 +432,7 @@ def player_turn(player_key, names, turn_score, score_to_win):
                 # TODO Implement logic to determine which player has the highest score for that round and they are the actual winner!
                 # THIS IS TEMPORARY TO DECLARE A WINNER!
                 if names[player_key]["score"] >= score_to_win:
-                    # play_sound_effect("sounds/effects/win.mp3")
-                    pygame.mixer.Sound("sounds/effects/win.mp3").play()
+                    play_sound_effect("sounds/effects/win.mp3")
                     while pygame.mixer.get_busy():
                         pygame.time.delay(100)
                     pass
@@ -451,8 +443,7 @@ def player_turn(player_key, names, turn_score, score_to_win):
 
             else:
                 # turn_score += roll_result
-                # play_sound_effect("sounds/effects/fail.mp3")
-                pygame.mixer.Sound("sounds/effects/fail.mp3").play()
+                play_sound_effect("sounds/effects/fail.mp3")
                 while pygame.mixer.get_busy():
                     pygame.time.delay(100)
                 pass
@@ -464,8 +455,7 @@ def player_turn(player_key, names, turn_score, score_to_win):
 
         elif roll_choice == "n":
             print(f"{names[player_key]['name']} has a score of {names[player_key]['score']}")
-            # play_sound_effect("sounds/effects/end_turn.mp3", block=False)
-            pygame.mixer.Sound("sounds/effects/end_turn.mp3").play()
+            play_sound_effect("sounds/effects/end_turn.mp3")
             while pygame.mixer.get_busy():
                 pygame.time.delay(100)
             break
