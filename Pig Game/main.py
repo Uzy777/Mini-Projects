@@ -431,9 +431,24 @@ def start_game(names, total_players):
     print("\n------ Summary of Game ------")
     for player_key in names.keys():
         print(f"{names[player_key]['name']} had a score of {names[player_key]['score']}")
+        names[player_key]["score"] = 0  # Reset scores when game ends
 
     time.sleep(1)
-    print("\nThank you for playing!")
+
+    while True:
+        play_again_input = input("\nPlay again? (same players and rules?) y/n: ")
+
+        if play_again_input == "y":
+            start_game(names, total_players)
+            break
+
+        elif play_again_input == "n":
+            print("\nThank you for playing!")
+            break
+
+        else:
+            print("Invalid option! Try again!")
+            continue
 
 
 def ai_decision():
@@ -589,6 +604,7 @@ def player_turn(player_key, names, turn_score, score_to_win):
 
     while True:
         roll_choice = input(f"\nRoll the Die {names[player_key]['name']} (y/n): ").lower()
+
         if roll_choice == "y":
             roll_result = roll_die()
             print(f"You just rolled {roll_result}")
