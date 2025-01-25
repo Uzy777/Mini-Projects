@@ -199,7 +199,7 @@ def main_menu():
                     )
                     # playsound("sounds/ai_voice/brian_intro.wav", block=True)
                     pygame.mixer.Sound("sounds/ai_voice/oxley_intro.wav").play()
-                    break                
+                    break
 
                 elif ai_voice == "back":
                     print("\nGoing back...")
@@ -474,8 +474,8 @@ def play_ai_phrase(ai_voice="amelia", roll_result=None):
     elif ai_voice == "brian":
         path = "sounds/ai_voice/brian/"
 
-        # if roll_result == 1:
-        #     path = "sounds/ai_voice/brian/bad_roll/"
+        if roll_result == 1:
+            path = "sounds/ai_voice/brian/bad_roll/"
 
     elif ai_voice == "oxley":
         path = "sounds/ai_voice/oxley/"
