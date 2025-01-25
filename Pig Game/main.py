@@ -167,6 +167,7 @@ def main_menu():
                 print("------ Voices ------")
                 print("A: Amelia (female)")
                 print("B: Brian (male)")
+                print("O: Oxley (male)")
                 print("------ Navigation ------")
                 print("back: Go back")
                 print("quit: Exit the game")
@@ -190,6 +191,15 @@ def main_menu():
                     # playsound("sounds/ai_voice/brian_intro.wav", block=True)
                     pygame.mixer.Sound("sounds/ai_voice/brian_intro.wav").play()
                     break
+
+                elif ai_voice in ["o", "oxley"]:
+                    ai_voice = "oxley"
+                    print(
+                        "I am Oxley, the shadow that lurks in the corners of your mind. Once a brilliant strategist,\nnow a twisted soul consumed by darkness. In this game, I bring my cunning and cruelty to\nthe fore, challenging all who dare to face me. My voice, a mere whisper of the terror that\nawaits. You think you know fear? Think again. Welcome to my domain."
+                    )
+                    # playsound("sounds/ai_voice/brian_intro.wav", block=True)
+                    pygame.mixer.Sound("sounds/ai_voice/oxley_intro.wav").play()
+                    break                
 
                 elif ai_voice == "back":
                     print("\nGoing back...")
@@ -466,6 +476,12 @@ def play_ai_phrase(ai_voice="amelia", roll_result=None):
 
         # if roll_result == 1:
         #     path = "sounds/ai_voice/brian/bad_roll/"
+
+    elif ai_voice == "oxley":
+        path = "sounds/ai_voice/oxley/"
+
+        if roll_result == 1:
+            path = "sounds/ai_voice/oxley/bad_roll/"
 
     files = os.listdir(path)
     ai_phrase = random.choice(files)
