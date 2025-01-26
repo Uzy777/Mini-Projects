@@ -14,6 +14,7 @@ pygame.mixer.init()
 sound_effects = True
 music = False
 score_to_win = 100
+two_dice_mode = False
 
 
 # Main Menu
@@ -31,6 +32,7 @@ def main_menu():
     global score_to_win
     global ai_voice
     ai_voice = "amelia"
+    # global two_dice_mode
 
     while True:
         print("\nWelcome to the Pig Dice Game!")
@@ -42,7 +44,7 @@ def main_menu():
         print("5: Five or More Players (Max = 10)")
         print("------ Gameplay Settings ------")
         print("A: Auto Roll (off) (Not Available)")
-        print("D: Extra Die (off) (Not Available)")
+        print("D: Extra Die ({})".format("on" if two_dice_mode else "off"))
         print(f"W: Score to Win ({score_to_win})")
         print("------ Sound Settings ------")
         print("S: Sound Effect Toggle ({})".format("on" if sound_effects else "off"))
@@ -116,7 +118,8 @@ def main_menu():
 
         # Extra Die Toggle
         elif option == "d":
-            pass
+            toggle_two_dice_mode()
+            time.sleep(1)
 
         # Score to Win
         elif option == "w":
@@ -227,6 +230,20 @@ def main_menu():
         else:
             print("\nPlease type a valid option!")
             time.sleep(2)
+
+
+def toggle_two_dice_mode():
+    """
+    xxxx
+    """
+
+    global two_dice_mode
+
+    two_dice_mode = not two_dice_mode
+    if two_dice_mode:
+        print("Extra die on.")
+    else:
+        print("Extra die off.")
 
 
 # Sound
@@ -606,10 +623,39 @@ def player_turn(player_key, names, turn_score, score_to_win):
         roll_choice = input(f"\nRoll the Die {names[player_key]['name']} (y/n): ").lower()
 
         if roll_choice == "y":
-            roll_result = roll_die()
-            print(f"You just rolled {roll_result}")
+            if two_dice_mode:
+                roll_result1 = roll_die()
+                roll_result2 = roll_die()
+                roll_result = roll_result1 + roll_result2
+                print(f"You just rolled {roll_result1} and {roll_result2} (Total: {roll_result})")
+
+            else:
+                roll_result = roll_die()
+                print(f"You just rolled {roll_result}")
+
+            if two_dice_mode and roll_result1 == 1 and roll_result2 == 1:
+                print("YOU LOOSE EVERYTHING!!!!!!")
+                names[player_key]["score"] = 0
+                print(f"{names[player_key]['name']} has a score of {names[player_key]['score']}")
+                break
+
+            elif two_dice_mode and (roll_result1 == 1 or roll_result2 == 1):
+                print("You lost your turn !!!!!!!")
+
+                # turn_score += roll_result
+                play_sound_effect("sounds/effects/fail.mp3")
+                while pygame.mixer.get_busy():
+                    pygame.time.delay(100)
+                pass
+                print("\nYour turn ends and your score for this turn does not count!")
+                # print(f"TESTING: {turn_score}")
+                names[player_key]["score"] -= turn_score
+                print(f"{names[player_key]['name']} has a score of {names[player_key]['score']}")
+                break
+                break
+
             # print(f"{names[f'player{x + 1}']['name']} has a score of {names[f'player{x + 1}']['score']}")
-            if roll_result > 1:
+            elif (not two_dice_mode and roll_result > 1) or (two_dice_mode and roll_result > 3):
                 turn_score += roll_result
                 names[player_key]["score"] += roll_result
                 print(f"{names[player_key]['name']} has a score of {names[player_key]['score']}")
