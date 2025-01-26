@@ -556,25 +556,56 @@ def ai_turn(names, turn_score, score_to_win):
         roll_choice = ai_decision()
 
         if roll_choice == "y":
-            roll_result = roll_die()
-            print(f"AI just rolled {roll_result}")
+            if two_dice_mode:
+                roll_result1 = roll_die()
+                roll_result2 = roll_die()
+                roll_result = roll_result1 + roll_result2
+                print(f"AI just rolled {roll_result1} and {roll_result2} (Total: {roll_result})")
 
-            if roll_result > 1:
-                turn_score += roll_result
-                names["AI"]["score"] += roll_result
+            else:
+                roll_result = roll_die()
+                print(f"AI just rolled {roll_result}")
+
+            if two_dice_mode and roll_result1 == 1 and roll_result2 == 1:
+                print("YOU LOOSE EVERYTHING!!!!!!")
+                names["AI"]["score"] = 0
                 print(f"AI has a score of {names['AI']['score']}")
+                break
 
-                # TODO Implement logic to determine which player has the highest score for that round and they are the actual winner!
-                # THIS IS TEMPORARY TO DECLARE A WINNER!
-                if names["AI"]["score"] >= score_to_win:
-                    play_sound_effect("sounds/effects/win.mp3")
-                    while pygame.mixer.get_busy():
-                        pygame.time.delay(100)
-                    pass
-                    print("Congrats AI you won the game!")
-                    return False  # Ends the game session
+            elif two_dice_mode and (roll_result1 == 1 or roll_result2 == 1):
+                print("You lost your turn !!!!!!!")
 
-                continue
+                # turn_score += roll_result
+                play_sound_effect("sounds/effects/fail.mp3")
+                while pygame.mixer.get_busy():
+                    pygame.time.delay(100)
+                pass
+                print("\nYour turn ends and your score for this turn does not count!")
+                # print(f"TESTING: {turn_score}")
+                names["AI"]["score"] -= turn_score
+                print(f"AI has a score of {names['AI']['score']}")
+                play_ai_phrase(ai_voice, roll_result)
+
+                break
+
+            # print(f"{names[f'player{x + 1}']['name']} has a score of {names[f'player{x + 1}']['score']}")
+            elif (not two_dice_mode and roll_result > 1) or (two_dice_mode and roll_result > 3):
+                if roll_result > 1:
+                    turn_score += roll_result
+                    names["AI"]["score"] += roll_result
+                    print(f"AI has a score of {names['AI']['score']}")
+
+                    # TODO Implement logic to determine which player has the highest score for that round and they are the actual winner!
+                    # THIS IS TEMPORARY TO DECLARE A WINNER!
+                    if names["AI"]["score"] >= score_to_win:
+                        play_sound_effect("sounds/effects/win.mp3")
+                        while pygame.mixer.get_busy():
+                            pygame.time.delay(100)
+                        pass
+                        print("Congrats AI you won the game!")
+                        return False  # Ends the game session
+
+                    continue
 
             else:
                 # turn_score += roll_result
@@ -651,7 +682,6 @@ def player_turn(player_key, names, turn_score, score_to_win):
                 # print(f"TESTING: {turn_score}")
                 names[player_key]["score"] -= turn_score
                 print(f"{names[player_key]['name']} has a score of {names[player_key]['score']}")
-                break
                 break
 
             # print(f"{names[f'player{x + 1}']['name']} has a score of {names[f'player{x + 1}']['score']}")
