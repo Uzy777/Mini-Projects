@@ -1,5 +1,7 @@
-# Python-Projects
-A number of Python projects I have worked on!
+# Mini-Projects
+A number of projects I have worked on!
+
+Python, Javascript
 
 
 
