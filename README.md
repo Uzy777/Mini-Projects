@@ -11,7 +11,7 @@ A number of projects I have worked on!
 
 | ⭐ | Project | Language | Status | Difficulty | Link |
 |---|---------|----------|--------|------------|------|
-|   | Adventure Story 🌋 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" width="20" height="20" /> React | Not Started ❌ | N/A | [CLICK ME!](https://github.com/Uzy777/Mini-Projects/tree/main/React/Adventure%20Story) |
+|   | Adventure Story 🌋 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" width="20" height="20" /> React | Not Started ❌ | N/A | [CLICK ME!](https://github.com/Uzy777/Mini-Projects/tree/main/React/adventure-story) |
 |   | Adventure Story 🌋 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="20" height="20" /> Python | Completed (ish) ⏳ | 🔴 | [CLICK ME!](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Adventure%20Story) |
 |   | Fifty Fifty 🪜 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="20" height="20" /> Python | Not Started ❌ | N/A | [CLICK ME!](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Fifty%20Fifty) |
 |   | Jump Scare 👹 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="20" height="20" /> Python | Completed ✅ | 🟢 | [CLICK ME!](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Jump%20Scare) |

@@ -1,12 +1,3 @@
-testing/
-__pycache__
-venv/
-.python-version
-.vscode
-notes.txt
-
-
-# React
 # Logs
 logs
 *.log
