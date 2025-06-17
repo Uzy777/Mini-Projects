@@ -1,5 +1,15 @@
+// IMPORTS //
+// Hooks //
 import { useState, useEffect } from "react";
+import { usePersistentState } from "./hooks/usePersistentState";
+import { useChangeName } from "./hooks/useChangeName";
+import { useMiniGame } from "./hooks/useMiniGame";
 
+// Components //
+import MiniGame from "./components/MiniGame";
+import ChangeName from "./components/ChangeName";
+
+// Story Data //
 const storyData = {
   start: {
     text: "You wake up in a dark forest. Two paths lie ahead.",
@@ -32,103 +42,42 @@ const storyData = {
   },
 };
 
-// Custom Hook - Persistent State
-function usePersistentState(key, initialValue) {
-  const [value, setValue] = useState(() => {
-    const stored = localStorage.getItem(key);
-    try {
-      return stored !== null ? JSON.parse(stored) : initialValue;
-    } catch (e) {
-      return initialValue;
-    }
-  });
-
-  // Update on Value Change
-  useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(value));
-  }, [key, value]);
-
-  return [value, setValue];
-}
-
 function App() {
+  // Persistent State Variables //
   const [playerName, setName] = usePersistentState("playerName", "ABC");
-  // const [health, setHealth] = usePersistentState("health", 100);
+  const [health, setHealth] = usePersistentState("health", 100);
   const [coin, setCoin] = usePersistentState("coin", 50);
   const [miniGameStatus, setMiniGameStatus] = usePersistentState("miniGameStatus", true);
   const [risk, setRisk] = usePersistentState("risk", 5);
+  const [currentScene, setCurrentScene] = usePersistentState("currentScene", "start");
 
+  // HANDLE BUTTONS //
+  // Reset //
   const handleReset = () => {
-    // setHealth(100);
+    setHealth(100);
     setCoin(50);
     setMiniGameStatus(true);
     setRisk(5);
   };
 
-  // Player Stats
-  // const [health, setHealth] = useState(100)
-
-  const [currentScene, setCurrentScene] = useState("start");
-
-  const scene = storyData[currentScene];
-
-  const handleNameChange = (event) => {
-    setName(event.target.value);
-  };
-
-  // Input Name Change
-  const [isEditing, setIsEditing] = useState(false);
-  const [tempName, setTempName] = useState("");
-
-  const handleSave = () => {
-    if (tempName.trim()) {
-      setName(tempName);
-    }
-    setTempName("");
-    setIsEditing(false);
-  };
-
-  // Mini Game Mechanic
-
-  const handleMiniGame = () => {
-    // Calculate Fail Chance
-    const failChance = Math.floor(Math.random() * 100);
-    console.log("fail chance:", failChance);
-
-    // When Mini Game Status = True
-    if (miniGameStatus === true) {
-      setCoin(coin + Math.floor(Math.random() * 10) + 1);
-
-      setRisk((prevRisk) => prevRisk + 5);
-
-      // 1% Chance to earn 1000 coin
-      if (Math.random() < 0.01) {
-        setCoin((prevCoin) => prevCoin + 1000);
-      }
-
-      // Risk to great - loose coin and unable to continue
-      if (risk > failChance) {
-        const lossCoinAmount = Math.floor(coin * 0.75);
-        setCoin((prevCoin) => prevCoin - lossCoinAmount);
-        console.log("coin:", coin);
-
-        console.log("lost:", { lossCoinAmount });
-
-        setMiniGameStatus(false);
-      }
-    }
-  };
-
-  // Sleep Mechanic - Reset traits back to defaults
+  // Sleep Mechanic - Reset traits back to defaults //
   const handleSleep = () => {
     setMiniGameStatus(true);
     setRisk(5);
   };
 
+  const scene = storyData[currentScene];
+
+  // Required for name change
+  const { isEditing, tempName, setTempName, setIsEditing, handleSave } = useChangeName(playerName, setName);
+
+  // Required for mini game
+  const { handleMiniGame } = useMiniGame({ coin, setCoin, risk, setRisk, miniGameStatus, setMiniGameStatus });
+
+  // DISPLAY APPLICATION //
   return (
     <div>
       <h1>Title</h1>
-      <h2>Welcome xxx</h2>
 
       <p>
         Your name is <strong>{playerName}</strong>
@@ -151,25 +100,11 @@ function App() {
 
       {/* <button>Settings</button>
       <button>How to play</button> */}
-      {isEditing ? (
-        <div>
-          <input
-            type="text"
-            value={tempName}
-            placeholder="Enter new name"
-            onChange={(e) => setTempName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSave();
-              }
-            }}
-          />
-          <button onClick={handleSave}>Save</button>
-        </div>
-      ) : (
-        <button onClick={() => setIsEditing(true)}>Change Name ({playerName})</button>
-      )}
+
+      <ChangeName isEditing={isEditing} tempName={tempName} setTempName={setTempName} setIsEditing={setIsEditing} handleSave={handleSave} playerName={playerName} />
       <button onClick={handleReset}>Reset</button>
+      <hr></hr>
+      <MiniGame handleMiniGame={handleMiniGame} coin={coin} risk={risk} />
     </div>
   );
 }
