@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const storyData = {
   start: {
@@ -33,6 +33,9 @@ const storyData = {
 };
 
 function App() {
+  // Player Stats
+  // const [health, setHealth] = useState(100)
+
   const [currentScene, setCurrentScene] = useState("start");
   const [name, setName] = useState("ABC");
 
@@ -54,14 +57,58 @@ function App() {
     setIsEditing(false);
   };
 
+  // Mini Game Mechanic
+  const [coin, setCoin] = useState(50);
+  const [miniGameStatus, setMiniGameStatus] = useState(true);
+  const [risk, setRisk] = useState(5);
+
+  const handleMiniGame = () => {
+    // Calculate Fail Chance
+    const failChance = Math.floor(Math.random() * 100);
+    console.log("fail chance:", failChance);
+
+    // When Mini Game Status = True
+    if (miniGameStatus === true) {
+      setCoin(coin + Math.floor(Math.random() * 10) + 1);
+
+      setRisk((prevRisk) => prevRisk + 5);
+
+      // 1% Chance to earn 1000 coin
+      if (Math.random() < 0.01) {
+        setCoin((prevCoin) => prevCoin + 1000);
+      }
+
+      // Risk to great - loose coin and unable to continue
+      if (risk > failChance) {
+        const lossCoinAmount = Math.floor(coin * 0.75);
+        setCoin((prevCoin) => prevCoin - lossCoinAmount);
+        console.log("coin:", coin);
+
+        console.log("lost:", { lossCoinAmount });
+
+        setMiniGameStatus(false);
+      }
+    }
+  };
+
+  // Sleep Mechanic - Reset traits back to defaults
+  const handleSleep = () => {
+    setMiniGameStatus(true);
+    setRisk(5);
+  };
+
   return (
     <div>
-      <h1>Adventure Game</h1>
+      <h1>Title</h1>
       <h2>Welcome xxx</h2>
 
       <p>
         Your name is <strong>{name}</strong>
       </p>
+      <p>Total Coins: {coin}</p>
+      <p>Mini Game Status: {String(miniGameStatus)}</p>
+      <p>Risk: {risk}%</p>
+
       {/* <p>{scene.text}</p>
       <div>
         {scene.choices.map((choice, index) => (
@@ -70,6 +117,9 @@ function App() {
           </button>
         ))}
       </div> */}
+
+      <button onClick={handleSleep}>Sleep</button>
+      <button onClick={handleMiniGame}>Mini Game</button>
 
       {/* <button>Settings</button>
       <button>How to play</button> */}
