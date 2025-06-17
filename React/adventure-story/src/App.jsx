@@ -32,12 +32,43 @@ const storyData = {
   },
 };
 
+// Custom Hook - Persistent State
+function usePersistentState(key, initialValue) {
+  const [value, setValue] = useState(() => {
+    const stored = localStorage.getItem(key);
+    try {
+      return stored !== null ? JSON.parse(stored) : initialValue;
+    } catch (e) {
+      return initialValue;
+    }
+  });
+
+  // Update on Value Change
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [key, value]);
+
+  return [value, setValue];
+}
+
 function App() {
+  const [playerName, setName] = usePersistentState("playerName", "ABC");
+  // const [health, setHealth] = usePersistentState("health", 100);
+  const [coin, setCoin] = usePersistentState("coin", 50);
+  const [miniGameStatus, setMiniGameStatus] = usePersistentState("miniGameStatus", true);
+  const [risk, setRisk] = usePersistentState("risk", 5);
+
+  const handleReset = () => {
+    // setHealth(100);
+    setCoin(50);
+    setMiniGameStatus(true);
+    setRisk(5);
+  };
+
   // Player Stats
   // const [health, setHealth] = useState(100)
 
   const [currentScene, setCurrentScene] = useState("start");
-  const [name, setName] = useState("ABC");
 
   const scene = storyData[currentScene];
 
@@ -58,9 +89,6 @@ function App() {
   };
 
   // Mini Game Mechanic
-  const [coin, setCoin] = useState(50);
-  const [miniGameStatus, setMiniGameStatus] = useState(true);
-  const [risk, setRisk] = useState(5);
 
   const handleMiniGame = () => {
     // Calculate Fail Chance
@@ -103,7 +131,7 @@ function App() {
       <h2>Welcome xxx</h2>
 
       <p>
-        Your name is <strong>{name}</strong>
+        Your name is <strong>{playerName}</strong>
       </p>
       <p>Total Coins: {coin}</p>
       <p>Mini Game Status: {String(miniGameStatus)}</p>
@@ -139,8 +167,9 @@ function App() {
           <button onClick={handleSave}>Save</button>
         </div>
       ) : (
-        <button onClick={() => setIsEditing(true)}>Change Name ({name})</button>
+        <button onClick={() => setIsEditing(true)}>Change Name ({playerName})</button>
       )}
+      <button onClick={handleReset}>Reset</button>
     </div>
   );
 }
