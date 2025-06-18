@@ -8,6 +8,10 @@ import { useMiniGame } from "./hooks/useMiniGame";
 // Components //
 import MiniGame from "./components/MiniGame";
 import ChangeName from "./components/ChangeName";
+import TopInfoBanner from "./components/StatusBanner";
+
+// CSS //
+import "./index.css";
 
 // Story Data //
 const storyData = {
@@ -82,14 +86,11 @@ function App() {
   // DISPLAY APPLICATION //
   return (
     <div>
-      <h1>Title</h1>
+      <div className=" flex items-center justify-center">
+        <TopInfoBanner health={health} coin={coin} risk={risk} />
+      </div>
 
-      <p>
-        Your name is <strong>{playerName}</strong>
-      </p>
-      <p>Total Coins: {coin}</p>
       <p>Mini Game Status: {String(miniGameStatus)}</p>
-      <p>Risk: {risk}%</p>
       <div>
         <p>
           Status: <strong>{message}</strong>
