@@ -8,7 +8,8 @@ import { useMiniGame } from "./hooks/useMiniGame";
 // Components //
 import MiniGame from "./components/MiniGame";
 import ChangeName from "./components/ChangeName";
-import TopInfoBanner from "./components/StatusBanner";
+import StatusBanner from "./components/StatusBanner";
+import SettingsIcon from "./components/SettingsIcon";
 
 // CSS //
 import "./index.css";
@@ -86,8 +87,8 @@ function App() {
   // DISPLAY APPLICATION //
   return (
     <div>
-      <div className=" flex items-center justify-center">
-        <TopInfoBanner health={health} coin={coin} risk={risk} />
+      <div className="flex items-center justify-center">
+        <StatusBanner health={health} coin={coin} risk={risk} />
       </div>
 
       <p>Mini Game Status: {String(miniGameStatus)}</p>
@@ -116,6 +117,10 @@ function App() {
       <button onClick={handleReset}>Reset</button>
       <hr></hr>
       <MiniGame handleMiniGame={handleMiniGame} coin={coin} risk={risk} />
+
+      <div className="absolute bottom-2 left-2">
+        <SettingsIcon />
+      </div>
     </div>
   );
 }
