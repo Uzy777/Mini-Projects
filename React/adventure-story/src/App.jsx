@@ -51,6 +51,9 @@ function App() {
   const [risk, setRisk] = usePersistentState("risk", 5);
   const [currentScene, setCurrentScene] = usePersistentState("currentScene", "start");
 
+  // State Variables //
+  const [message, setMessage] = useState("");
+
   // HANDLE BUTTONS //
   // Reset //
   const handleReset = () => {
@@ -58,12 +61,14 @@ function App() {
     setCoin(50);
     setMiniGameStatus(true);
     setRisk(5);
+    setMessage("Reset everything!");
   };
 
   // Sleep Mechanic - Reset traits back to defaults //
   const handleSleep = () => {
     setMiniGameStatus(true);
     setRisk(5);
+    setMessage("You go to sleep...");
   };
 
   const scene = storyData[currentScene];
@@ -72,7 +77,7 @@ function App() {
   const { isEditing, tempName, setTempName, setIsEditing, handleSave } = useChangeName(playerName, setName);
 
   // Required for mini game
-  const { handleMiniGame } = useMiniGame({ coin, setCoin, risk, setRisk, miniGameStatus, setMiniGameStatus });
+  const { handleMiniGame } = useMiniGame({ coin, setCoin, risk, setRisk, miniGameStatus, setMiniGameStatus, message, setMessage });
 
   // DISPLAY APPLICATION //
   return (
@@ -85,6 +90,11 @@ function App() {
       <p>Total Coins: {coin}</p>
       <p>Mini Game Status: {String(miniGameStatus)}</p>
       <p>Risk: {risk}%</p>
+      <div>
+        <p>
+          Status: <strong>{message}</strong>
+        </p>
+      </div>
 
       {/* <p>{scene.text}</p>
       <div>
