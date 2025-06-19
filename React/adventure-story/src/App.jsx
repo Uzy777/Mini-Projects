@@ -10,6 +10,7 @@ import MiniGame from "./components/MiniGame";
 import ChangeName from "./components/ChangeName";
 import StatusBanner from "./components/StatusBanner";
 import SettingsIcon from "./components/SettingsIcon";
+import SettingsModal from "./components/SettingsModal";
 
 // CSS //
 import "./index.css";
@@ -58,6 +59,7 @@ function App() {
 
   // State Variables //
   const [message, setMessage] = useState("");
+  const [showSettings, setShowSettings] = useState(false);
 
   // HANDLE BUTTONS //
   // Reset //
@@ -119,7 +121,8 @@ function App() {
       <MiniGame handleMiniGame={handleMiniGame} coin={coin} risk={risk} />
 
       <div className="absolute bottom-2 left-2">
-        <SettingsIcon />
+        <SettingsIcon onClick={() => setShowSettings(true)} />
+        {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
       </div>
     </div>
   );
