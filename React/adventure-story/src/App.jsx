@@ -13,6 +13,7 @@ import SettingsIcon from "./components/SettingsIcon";
 import SettingsModal from "./components/SettingsModal";
 import SceneBox from "./components/SceneBox";
 import MessageBox from "./components/MessageBox";
+import ActionButtons from "./components/ActionButtons";
 
 // CSS //
 import "./index.css";
@@ -120,6 +121,10 @@ function App() {
       <br></br>
       <div className="flex items-center justify-center">
         <MessageBox />
+      </div>
+      <br></br>
+      <div className="flex items-center justify-center">
+        <ActionButtons />
       </div>
 
       <ChangeName isEditing={isEditing} tempName={tempName} setTempName={setTempName} setIsEditing={setIsEditing} handleSave={handleSave} playerName={playerName} />
