@@ -14,6 +14,7 @@ import SettingsModal from "./components/SettingsModal";
 
 // CSS //
 import "./index.css";
+import SceneBox from "./components/SceneBox";
 
 // Story Data //
 const storyData = {
@@ -111,6 +112,10 @@ function App() {
 
       <button onClick={handleSleep}>Sleep</button>
       <button onClick={handleMiniGame}>Mini Game</button>
+
+      <div className="flex items-center justify-center">
+        <SceneBox />
+      </div>
 
       {/* <button>Settings</button>
       <button>How to play</button> */}
