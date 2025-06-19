@@ -11,10 +11,11 @@ import ChangeName from "./components/ChangeName";
 import StatusBanner from "./components/StatusBanner";
 import SettingsIcon from "./components/SettingsIcon";
 import SettingsModal from "./components/SettingsModal";
+import SceneBox from "./components/SceneBox";
+import MessageBox from "./components/MessageBox";
 
 // CSS //
 import "./index.css";
-import SceneBox from "./components/SceneBox";
 
 // Story Data //
 const storyData = {
@@ -116,9 +117,10 @@ function App() {
       <div className="flex items-center justify-center">
         <SceneBox />
       </div>
-
-      {/* <button>Settings</button>
-      <button>How to play</button> */}
+      <br></br>
+      <div className="flex items-center justify-center">
+        <MessageBox />
+      </div>
 
       <ChangeName isEditing={isEditing} tempName={tempName} setTempName={setTempName} setIsEditing={setIsEditing} handleSave={handleSave} playerName={playerName} />
       <button onClick={handleReset}>Reset</button>
