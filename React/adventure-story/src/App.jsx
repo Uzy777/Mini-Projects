@@ -14,6 +14,7 @@ import SettingsModal from "./components/SettingsModal";
 import SceneBox from "./components/SceneBox";
 import MessageBox from "./components/MessageBox";
 import ActionButtons from "./components/ActionButtons";
+import StoryChoices from "./components/StoryChoices";
 
 // CSS //
 import "./index.css";
@@ -121,6 +122,9 @@ function App() {
       <br></br>
       <div className="flex items-center justify-center">
         <MessageBox />
+      </div>
+      <div className="flex items-center justify-center">
+        <StoryChoices />
       </div>
       <br></br>
       <div className="flex items-center justify-center">
