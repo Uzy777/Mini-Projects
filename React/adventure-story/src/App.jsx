@@ -122,7 +122,7 @@ function App() {
 
       <div className="absolute bottom-2 left-2">
         <SettingsIcon onClick={() => setShowSettings(true)} />
-        {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+        {showSettings && <SettingsModal onClose={() => setShowSettings(false)} playerName={playerName} setName={setName} />}
       </div>
     </div>
   );
