@@ -75,20 +75,10 @@ function App() {
     setMessage("Reset everything!");
   };
 
-  // Sleep Mechanic - Reset traits back to defaults //
-  const handleSleep = () => {
-    setMiniGameStatus(true);
-    setRisk(5);
-    setMessage("You go to sleep...");
-  };
-
   const scene = storyData[currentScene];
 
   // Required for name change
   const { isEditing, tempName, setTempName, setIsEditing, handleSave } = useChangeName(playerName, setName);
-
-  // Required for mini game
-  const { handleMiniGame } = useMiniGame({ coin, setCoin, risk, setRisk, miniGameStatus, setMiniGameStatus, message, setMessage });
 
   // DISPLAY APPLICATION //
   return (
@@ -98,11 +88,6 @@ function App() {
       </div>
 
       <p>Mini Game Status: {String(miniGameStatus)}</p>
-      <div>
-        <p>
-          Status: <strong>{message}</strong>
-        </p>
-      </div>
 
       {/* <p>{scene.text}</p>
       <div>
@@ -113,28 +98,33 @@ function App() {
         ))}
       </div> */}
 
-      <button onClick={handleSleep}>Sleep</button>
-      <button onClick={handleMiniGame}>Mini Game</button>
-
       <div className="flex items-center justify-center">
         <SceneBox />
       </div>
       <br></br>
       <div className="flex items-center justify-center">
-        <MessageBox />
+        <MessageBox message={message} />
       </div>
       <div className="flex items-center justify-center">
         <StoryChoices />
       </div>
       <br></br>
       <div className="flex items-center justify-center">
-        <ActionButtons />
+        <ActionButtons
+          setMiniGameStatus={setMiniGameStatus}
+          setRisk={setRisk}
+          setMessage={setMessage}
+          coin={coin}
+          setCoin={setCoin}
+          risk={risk}
+          miniGameStatus={miniGameStatus}
+          message={message}
+        />
       </div>
 
       <ChangeName isEditing={isEditing} tempName={tempName} setTempName={setTempName} setIsEditing={setIsEditing} handleSave={handleSave} playerName={playerName} />
       <button onClick={handleReset}>Reset</button>
       <hr></hr>
-      <MiniGame handleMiniGame={handleMiniGame} coin={coin} risk={risk} />
 
       <div className="absolute bottom-2 left-2">
         <SettingsIcon onClick={() => setShowSettings(true)} />
