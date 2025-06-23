@@ -22,32 +22,37 @@ import "./index.css";
 // Story Data //
 const storyData = {
   start: {
-    text: "You wake up in a dark forest. Two paths lie ahead.",
+    message: "You wake up in a dark forest. Two paths lie ahead.",
+    media: "/assets/scenes/test.jpg", // or a full path: "/assets/scenes/forest.jpg"
     choices: [
       { text: "Take the left path 🌲", next: "leftPath" },
       { text: "Take the right path 🌳", next: "rightPath" },
     ],
   },
   leftPath: {
-    text: "You find a river. It's too wide to cross.",
+    message: "You find a river. It's too wide to cross.",
+    media: "/assets/scenes/river.jpg",
     choices: [
       { text: "Go back 🔙", next: "start" },
       { text: "Follow the river upstream 🐟", next: "upstream" },
     ],
   },
   rightPath: {
-    text: "You encounter a sleeping dragon! 🐉",
+    message: "You encounter a sleeping dragon! 🐉",
+    media: "/assets/scenes/dragon.jpg",
     choices: [
       { text: "Try to sneak past 🕵️", next: "sneak" },
       { text: "Run away! 🏃", next: "start" },
     ],
   },
   upstream: {
-    text: "You find a small boat. You win! 🛶",
+    message: "You find a small boat. You win! 🛶",
+    media: "/assets/scenes/boat.jpg",
     choices: [],
   },
   sneak: {
-    text: "The dragon wakes up and eats you. Game over! ☠️",
+    message: "The dragon wakes up and eats you. Game over! ☠️",
+    media: "/assets/scenes/test.gif",
     choices: [],
   },
 };
@@ -72,6 +77,7 @@ function App() {
     setCoin(50);
     setMiniGameStatus(true);
     setRisk(5);
+    setCurrentScene("start");
     setMessage("Reset everything!");
   };
 
@@ -99,14 +105,14 @@ function App() {
       </div> */}
 
       <div className="flex items-center justify-center">
-        <SceneBox />
+        <SceneBox media={scene.media} />
       </div>
       <br></br>
       <div className="flex items-center justify-center">
-        <MessageBox message={message} />
+        <MessageBox currentScene={scene.message} message={message} />
       </div>
       <div className="flex items-center justify-center">
-        <StoryChoices />
+        <StoryChoices choices={scene.choices} onSelect={setCurrentScene} />
       </div>
       <br></br>
       <div className="flex items-center justify-center">
