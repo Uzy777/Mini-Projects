@@ -86,6 +86,11 @@ function App() {
   // Required for name change
   const { isEditing, tempName, setTempName, setIsEditing, handleSave } = useChangeName(playerName, setName);
 
+  // Clear message box on scene change
+  useEffect(() => {
+    setMessage("");
+  }, [currentScene]);
+
   // DISPLAY APPLICATION //
   return (
     <div>
@@ -109,7 +114,8 @@ function App() {
       </div>
       <br></br>
       <div className="flex items-center justify-center">
-        <MessageBox currentScene={scene.message} message={message} />
+        {/* <MessageBox currentScene={scene.message} message={message} /> */}
+        <MessageBox displayMessage={message || scene.message} />
       </div>
       <div className="flex items-center justify-center">
         <StoryChoices choices={scene.choices} onSelect={setCurrentScene} />
