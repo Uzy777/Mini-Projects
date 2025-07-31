@@ -5,6 +5,10 @@ import SceneDisplay from "./components/SceneDisplay";
 import StoryChoices from "./components/StoryChoices";
 import SceneImage from "./components/SceneImage";
 
+import { weakEnemies, mediumEnemies, strongEnemies } from "./data/enemies";
+
+
+
 const initialPlayer = {
   name: "ABC",
   health: 100,
@@ -52,6 +56,31 @@ function NewApp() {
     }
   }
 
+  const handleEnemy = () => {
+    const random = Math.random();
+
+    let group;
+    let enemyDamage;
+    if (random < 0.7) {
+      group = weakEnemies;    // 70% Chance
+      enemyDamage = Math.floor(Math.random() * 5) + 1;  // 1 - 5 Damage
+    } else if (random < 0.95) {
+      group = mediumEnemies;  // 25% Chance
+      enemyDamage = Math.floor(Math.random() * (15 - 5 + 1)) + 5; // 5 - 15 Damage
+    } else {
+      group = strongEnemies;  // 5% Chance
+      enemyDamage = Math.floor(Math.random() * (30 - 15 + 1)) + 15; // 15 - 30 Damage
+    }
+
+
+    const randomEnemy = group[Math.floor(Math.random() * group.length)];
+    console.log(random);
+    console.log(randomEnemy);
+    console.log(enemyDamage);
+  }
+
+
+  handleEnemy()
   return (
     <div className="max-w-xl mx-auto p-6 font-sans">
       <StatusPanel player={player} />
