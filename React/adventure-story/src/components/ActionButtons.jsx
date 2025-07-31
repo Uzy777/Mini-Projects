@@ -7,7 +7,7 @@ import sleepIcon from "../assets/icons/fc1087.png";
 import treeIcon from "../assets/icons/fc32.png";
 import warIcon from "../assets/icons/fc729.png";
 
-const ActionButtons = ({ coin, setCoin, risk, setRisk, miniGameStatus, setMiniGameStatus, message, setMessage }) => {
+const ActionButtons = ({ coin, setCoin, risk, setRisk, miniGameStatus, setMiniGameStatus, message, setMessage, onBattleClick }) => {
   // Required for mini game
   const { handleMiniGame } = useMiniGame({ coin, setCoin, risk, setRisk, miniGameStatus, setMiniGameStatus, message, setMessage });
 
@@ -28,7 +28,7 @@ const ActionButtons = ({ coin, setCoin, risk, setRisk, miniGameStatus, setMiniGa
         <img src={treeIcon} className="w-6 h-6" alt="Tree Icon" />
         <span className="text-white font-bold text-lg">Work</span>
       </button>
-      <button className="bg-zinc-800 px-6 py-3 rounded-lg font-bold hover:bg-zinc-700 flex items-center gap-2 bg-zinc-800 px-4 py-2 rounded-md">
+      <button onClick={onBattleClick} className="bg-zinc-800 px-6 py-3 rounded-lg font-bold hover:bg-zinc-700 flex items-center gap-2 bg-zinc-800 px-4 py-2 rounded-md">
         <img src={warIcon} className="w-6 h-6" alt="War Icon" />
         <span className="text-white font-bold text-lg">Battle</span>
       </button>{" "}

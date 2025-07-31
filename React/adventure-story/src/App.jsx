@@ -15,6 +15,7 @@ import SceneBox from "./components/SceneBox";
 import MessageBox from "./components/MessageBox";
 import ActionButtons from "./components/ActionButtons";
 import StoryChoices from "./components/StoryChoices";
+import Battle from "./components/Battle";
 
 // CSS //
 import "./index.css";
@@ -91,6 +92,8 @@ function App() {
     setMessage("");
   }, [currentScene]);
 
+  const [showBattle, setShowBattle] = useState(false);
+
   // DISPLAY APPLICATION //
   return (
     <div>
@@ -109,18 +112,25 @@ function App() {
         ))}
       </div> */}
 
+      {/* Scene Image */}
       <div className="flex items-center justify-center">
         <SceneBox media={scene.media} />
       </div>
       <br></br>
+
+      {/* Message Box */}
       <div className="flex items-center justify-center">
         {/* <MessageBox currentScene={scene.message} message={message} /> */}
         <MessageBox displayMessage={message || scene.message} />
       </div>
+
+      {/* Story Choices */}
       <div className="flex items-center justify-center">
         <StoryChoices choices={scene.choices} onSelect={setCurrentScene} />
       </div>
       <br></br>
+
+      {/* Action Buttons */}
       <div className="flex items-center justify-center">
         <ActionButtons
           setMiniGameStatus={setMiniGameStatus}
@@ -131,13 +141,30 @@ function App() {
           risk={risk}
           miniGameStatus={miniGameStatus}
           message={message}
+          onBattleClick={() => setShowBattle(true)} // New prop
         />
       </div>
 
-      <ChangeName isEditing={isEditing} tempName={tempName} setTempName={setTempName} setIsEditing={setIsEditing} handleSave={handleSave} playerName={playerName} />
-      <button onClick={handleReset}>Reset</button>
-      <hr></hr>
+      {/* Conditional Battle UI */}
+      {showBattle && (
+        <Battle
+          onClose={() => setShowBattle(false)}
+          health={health} setHealth={setHealth}
+          setMessage={setMessage}
+          media="/assets/scenes/test.gif"
+        />
+      )}
+      {/* <Battle health={health} setHealth={setHealth} /> */}
 
+      {/* Change Name UI */}
+      <ChangeName isEditing={isEditing} tempName={tempName} setTempName={setTempName} setIsEditing={setIsEditing} handleSave={handleSave} playerName={playerName} />
+
+      {/* Reset Button */}
+      <div className="flex justify-center my-4">
+        <button onClick={handleReset}>Reset</button>
+      </div>
+
+      {/* Settings Icon and Modal */}
       <div className="absolute bottom-2 left-2">
         <SettingsIcon onClick={() => setShowSettings(true)} />
         {showSettings && <SettingsModal onClose={() => setShowSettings(false)} playerName={playerName} setName={setName} />}

@@ -1,15 +1,17 @@
 import React from "react";
 
-const StoryChoices = ({ choices, onSelect }) => {
+export default function StoryChoices({ choices, onSelect }) {
   return (
-    <div className="w-full max-w-3xl mt-4 flex flex-col gap-3">
-      {choices.map((choice, index) => (
-        <button key={index} onClick={() => onSelect(choice.next)} className="w-full bg-zinc-700 hover:bg-zinc-600 text-left p-4 rounded-lg">
-          ➤ {choice.text}
+    <div className="flex flex-col gap-2 w-full max-w-md mx-auto">
+      {choices.map((choice, i) => (
+        <button
+          key={i}
+          onClick={() => onSelect(choice.next)}
+          className="py-3 px-4 rounded-md bg-zinc-700 text-white text-left text-lg hover:bg-zinc-600 transition-colors"
+        >
+          {choice.text}
         </button>
       ))}
     </div>
   );
-};
-
-export default StoryChoices;
+}

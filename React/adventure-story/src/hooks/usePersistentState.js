@@ -1,20 +1,23 @@
 import { useState, useEffect } from "react";
 
-// Custom Hook - Persistent State //
-export function usePersistentState(key, initialValue) {
-  const [value, setValue] = useState(() => {
-    const stored = localStorage.getItem(key);
-    try {
-      return stored !== null ? JSON.parse(stored) : initialValue;
-    } catch (e) {
-      return initialValue;
-    }
-  });
+export function usePersistentState(key, defaultValue) {
+    const [state, setState] = useState(() => {
+        // On init, try to load saved value from localStorage
+        const saved = localStorage.getItem(key);
+        if (saved !== null) {
+            try {
+                return JSON.parse(saved);
+            } catch {
+                return defaultValue;
+            }
+        }
+        return defaultValue;
+    });
 
-  // Update on value change
-  useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(value));
-  }, [key, value]);
+    // Save state to localStorage whenever it changes
+    useEffect(() => {
+        localStorage.setItem(key, JSON.stringify(state));
+    }, [key, state]);
 
-  return [value, setValue];
+    return [state, setState];
 }
