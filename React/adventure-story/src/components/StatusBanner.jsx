@@ -1,9 +1,9 @@
 import React from "react";
 
 // ICONS //
-import heartIcon from "../assets/icons/fc659.png";
-import coinIcon from "../assets/icons/fc136.png";
-import riskIcon from "../assets/icons/fc864.png";
+import heartIcon from "../assets/icons/heart.png";
+import coinIcon from "../assets/icons/gold.png";
+import riskIcon from "../assets/icons/skull-fire.png";
 
 function StatusBanner({ health, coin, risk }) {
   return (

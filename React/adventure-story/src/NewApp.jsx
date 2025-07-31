@@ -3,6 +3,7 @@ import { usePersistentState } from "./hooks/usePersistentState";
 import StatusPanel from "./components/StatusPanel";
 import SceneDisplay from "./components/SceneDisplay";
 import StoryChoices from "./components/StoryChoices";
+import SceneImage from "./components/SceneImage";
 
 const initialPlayer = {
   name: "ABC",
@@ -12,6 +13,7 @@ const initialPlayer = {
 
 const initialScene = {
   message: "You stand at a crossroad. Which way do you go?",
+  image: "/assets/scenes/test.jpg",
   choices: [
     { text: "Go left", next: "left" },
     { text: "Go right", next: "right" },
@@ -53,6 +55,7 @@ function NewApp() {
   return (
     <div className="max-w-xl mx-auto p-6 font-sans">
       <StatusPanel player={player} />
+      <SceneImage src={scene.image} />
       <SceneDisplay message={scene.message} />
       <StoryChoices choices={scene.choices} onSelect={handleChoice} />
 

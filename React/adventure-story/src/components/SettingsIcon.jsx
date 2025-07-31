@@ -1,7 +1,7 @@
 import React from "react";
 
 // ICONS //
-import settingsIcon from "../assets/icons/fc2.png";
+import settingsIcon from "../assets/icons/setting-cog.png";
 
 function SettingsIcon({ onClick }) {
   return (

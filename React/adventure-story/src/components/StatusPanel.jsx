@@ -1,7 +1,7 @@
 import React from "react";
-import heartIcon from "../assets/icons/fc659.png";
-import goldIcon from "../assets/icons/fc136.png";
-import playerIcon from "../assets/icons/fc864.png";
+import heartIcon from "../assets/icons/heart.png";
+import goldIcon from "../assets/icons/gold.png";
+import playerIcon from "../assets/icons/skull-fire.png";
 
 function StatItem({ icon, label }) {
   return (

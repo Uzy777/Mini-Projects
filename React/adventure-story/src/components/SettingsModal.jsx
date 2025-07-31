@@ -1,8 +1,8 @@
 import React from "react";
 
 // ICONS //
-import scrollIcon from "../assets/icons/fc106.png";
-import musicIcon from "../assets/icons/fc947.png";
+import scrollIcon from "../assets/icons/paper-writing.png";
+import musicIcon from "../assets/icons/music-note.png";
 
 function SettingsModal({ onClose }) {
   return (

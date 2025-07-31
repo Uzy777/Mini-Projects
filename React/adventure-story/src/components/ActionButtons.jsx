@@ -3,9 +3,9 @@ import React from "react";
 import { useMiniGame } from "../hooks/useMiniGame";
 
 // ICONS //
-import sleepIcon from "../assets/icons/fc1087.png";
-import treeIcon from "../assets/icons/fc32.png";
-import warIcon from "../assets/icons/fc729.png";
+import sleepIcon from "../assets/icons/snooze.png";
+import treeIcon from "../assets/icons/trees.png";
+import warIcon from "../assets/icons/sword-battle.png";
 
 const ActionButtons = ({ coin, setCoin, risk, setRisk, miniGameStatus, setMiniGameStatus, message, setMessage, onBattleClick }) => {
   // Required for mini game
