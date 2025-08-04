@@ -13,6 +13,16 @@ const initialPlayer = {
   name: "ABC",
   health: 100,
   gold: 50,
+  keys: {
+    bronze: false,
+    silver: false,
+    gold: false,
+    titanium: false,
+    green: false,
+    blue: false,
+    orange: false,
+    purple: false,
+  }
 };
 
 const initialScene = {
@@ -35,6 +45,16 @@ function NewApp() {
         choices: [{ text: "Continue", next: "start" }],
       });
       setPlayer((p) => ({ ...p, gold: p.gold + 10 }));
+
+      // Collect a key
+      setPlayer(prev => ({
+        ...prev,
+        keys: {
+          ...prev.keys,
+          bronze: true // or whichever key was found
+        }
+      }));
+      
     } else if (next === "right") {
       setScene({
         message: "You met a monster and lost some health!",
