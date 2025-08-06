@@ -32,7 +32,7 @@ const initialPlayer = {
 
 const initialScene = {
   message: "You stand at a crossroad. Which way do you go?",
-  image: "/assets/scenes/test.jpg",
+  // image: "/assets/scenes/test.jpg",
   choices: [
     { text: "Go left", next: "left" },
     { text: "Go right", next: "right" },
@@ -49,6 +49,11 @@ function NewApp() {
   const [currentBiomeId, setCurrentBiomeId] = useState(0);
   const currentBiome = biomes[currentBiomeId];
 
+  // const [enemyMessage, setEnemyMessage] = useState(null);
+
+  const enemies = currentBiome.enemies;
+  const [minDamage, maxDamage] = currentBiome.damageRange;
+
   const handleChoice = (next) => {
     if (next === "left") {
       setScene({
@@ -58,18 +63,46 @@ function NewApp() {
       setPlayer((p) => ({ ...p, gold: p.gold + 10 }));
 
       // Collect a key
-      handleKeyFound("bronze")
+      handleKeyFound("bronze");
 
     } else if (next === "right") {
-      setScene({
-        message: "You met a monster and lost some health!",
-        choices: [{ text: "Run back", next: "start" }],
-      });
-      setPlayer((p) => ({ ...p, health: p.health - 20 }));
+      if (enemies.length > 0) {
+        const randomEnemy = enemies[Math.floor(Math.random() * enemies.length)];
+        const damage = Math.floor(Math.random() * (maxDamage - minDamage + 1)) + minDamage;
+
+        console.log(randomEnemy);
+        console.log(damage);
+
+        setScene({
+          message: `You encountered a ${randomEnemy.name}. ${randomEnemy.description} You lost ${damage} health!`,
+          image: randomEnemy.image,
+          choices: [{ text: "Run back", next: "start" }],
+        });
+
+        setPlayer((p) => ({ ...p, health: Math.max(p.health - damage, 0) }));
+      } else {
+        setScene({
+          message: "You went right, but nothing was there. It's eerily quiet...",
+          choices: [{ text: "Run back", next: "start" }],
+        });
+      }
+
     } else {
       setScene(initialScene);
     }
   };
+
+
+  //   } else if (next === "right") {
+  //     setScene({
+  //       message: "You met a monster and lost some health!",
+  //       choices: [{ text: "Run back", next: "start" }],
+  //     });
+  //     setPlayer((p) => ({ ...p, health: p.health - 20 }));
+  //   } else {
+  //     setScene(initialScene);
+  //   }
+  // };
 
   const handleReset = () => {
     const confirmed = window.confirm("Are you sure you want to reset your progress?");
@@ -101,9 +134,9 @@ function NewApp() {
 
 
     const randomEnemy = group[Math.floor(Math.random() * group.length)];
-    console.log(random);
-    console.log(randomEnemy);
-    console.log(enemyDamage);
+    // console.log(random);
+    // console.log(randomEnemy);
+    // console.log(enemyDamage);
   }
 
   const handleKeyFound = (keyName) => {

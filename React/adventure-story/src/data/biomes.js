@@ -6,12 +6,12 @@ export const biomes = [
         keyToFind: "bronze",        // key hidden here
         background: "/assets/biomes/stonefang-village.webp",
         enemies: [
-            { name: "Angry Hen", description: "A farm hen defends its eggs with surprising fury." },
-            { name: "Drunken Villager", description: "A clumsy villager swings a broken bottle." },
-            { name: "Territorial Goose", description: "It hisses and charges beak-first!" },
-            { name: "Thieving Child", description: "A street kid throws a rock before fleeing." },
-            { name: "Feral Cat", description: "It hisses and rakes your leg with sharp claws." },
-            { name: "Rat Swarm", description: "A swarm of rats bursts from a grain sack." }
+            { name: "Angry Hen", description: "A farm hen defends its eggs with surprising fury.", image: "/assets/enemies/stonefang-village/angry-hen.webp"},
+            { name: "Drunken Villager", description: "A clumsy villager swings a broken bottle." , image: "/assets/enemies/stonefang-village/drunken-villager.webp"},
+            { name: "Territorial Goose", description: "It hisses and charges beak-first!" , image: "/assets/enemies/stonefang-village/territorial-goose.webp"},
+            { name: "The Butcher", description: "xxxx" , image: "/assets/enemies/stonefang-village/.webp"},
+            { name: "Feral Cat", description: "It hisses and rakes your leg with sharp claws." , image: "/assets/enemies/stonefang-village/.webp"},
+            { name: "Rat Swarm", description: "A swarm of rats bursts from a grain sack." , image: "/assets/enemies/stonefang-village/.webp"}
         ],
         damageRange: [1, 5],
     },
