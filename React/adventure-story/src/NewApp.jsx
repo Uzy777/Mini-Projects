@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { usePersistentState } from "./hooks/usePersistentState";
 import StatusPanel from "./components/StatusPanel";
 import SceneDisplay from "./components/SceneDisplay";
@@ -7,6 +7,7 @@ import SceneImage from "./components/SceneImage";
 
 import { weakEnemies, mediumEnemies, strongEnemies } from "./data/enemies";
 
+import { biomes } from "./data/biomes";
 
 
 const initialPlayer = {
@@ -18,12 +19,16 @@ const initialPlayer = {
     silver: false,
     gold: false,
     titanium: false,
-    green: false,
-    blue: false,
-    orange: false,
-    purple: false,
+    forest: false,
+    water: false,
+    fire: false,
+    demon: false,
   }
 };
+
+
+
+
 
 const initialScene = {
   message: "You stand at a crossroad. Which way do you go?",
@@ -34,9 +39,15 @@ const initialScene = {
   ],
 };
 
+
+
+
 function NewApp() {
   const [player, setPlayer] = usePersistentState("player", initialPlayer);
   const [scene, setScene] = usePersistentState("scene", initialScene);
+
+  const [currentBiomeId, setCurrentBiomeId] = useState(0);
+  const currentBiome = biomes[currentBiomeId];
 
   const handleChoice = (next) => {
     if (next === "left") {
@@ -47,14 +58,8 @@ function NewApp() {
       setPlayer((p) => ({ ...p, gold: p.gold + 10 }));
 
       // Collect a key
-      setPlayer(prev => ({
-        ...prev,
-        keys: {
-          ...prev.keys,
-          bronze: true // or whichever key was found
-        }
-      }));
-      
+      handleKeyFound("bronze")
+
     } else if (next === "right") {
       setScene({
         message: "You met a monster and lost some health!",
@@ -71,8 +76,10 @@ function NewApp() {
     if (confirmed) {
       setPlayer(initialPlayer);
       setScene(initialScene);
+      setCurrentBiomeId(0)
       localStorage.removeItem("player");
       localStorage.removeItem("scene");
+
     }
   }
 
@@ -99,19 +106,50 @@ function NewApp() {
     console.log(enemyDamage);
   }
 
+  const handleKeyFound = (keyName) => {
+    setPlayer(prev => ({
+      ...prev,
+      keys: {
+        ...prev.keys,
+        [keyName]: true
+      }
+    }));
+
+    // Find next biome where keyRequired === keyName
+    const nextBiome = biomes.find(b => b.keyRequired === keyName);
+    if (nextBiome) {
+      setCurrentBiomeId(nextBiome.id);
+    }
+  };
+
+
 
   handleEnemy()
   return (
-    <div className="max-w-xl mx-auto p-6 font-sans">
-      <StatusPanel player={player} />
-      <SceneImage src={scene.image} />
-      <SceneDisplay message={scene.message} />
-      <StoryChoices choices={scene.choices} onSelect={handleChoice} />
+    <div
+      className="min-h-screen bg-cover bg-center"
+      style={{
+        backgroundImage: `url(${currentBiome.background})`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
+        backgroundColor: 'black',
+      }}
+    >
+      <div className="max-w-xl mx-auto p-6 font-sans bg-black/60 rounded-lg">
+        <StatusPanel player={player} />
+        <SceneImage src={scene.image} />
+        <SceneDisplay message={scene.message} />
+        <StoryChoices choices={scene.choices} onSelect={handleChoice} />
 
-      <div className="mt-6 flex justify-center">
-        <button onClick={handleReset} className="">Reset Progress</button>
+        <div className="mt-6 flex justify-center">
+          <button onClick={handleReset} className="">
+            Reset Progress
+          </button>
+        </div>
       </div>
     </div>
+
   );
 }
 

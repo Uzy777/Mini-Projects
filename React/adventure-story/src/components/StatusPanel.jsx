@@ -8,10 +8,10 @@ import bronzeKeyIcon from "../assets/icons/bronze-key.png";
 import silverKeyIcon from "../assets/icons/silver-key.png";
 import goldKeyIcon from "../assets/icons/gold-key.png";
 import titaniumKeyIcon from "../assets/icons/titanium-key.png";
-import greenKeyIcon from "../assets/icons/green-key.png";
-import blueKeyIcon from "../assets/icons/blue-key.png";
-import orangeKeyIcon from "../assets/icons/orange-key.png";
-import purpleKeyIcon from "../assets/icons/purple-key.png";
+import forestKeyIcon from "../assets/icons/forest-key.png";
+import waterKeyIcon from "../assets/icons/water-key.png";
+import fireKeyIcon from "../assets/icons/fire-key.png";
+import demonKeyIcon from "../assets/icons/demon-key.png";
 
 
 
@@ -21,10 +21,10 @@ const keyIcons = {
   silver: silverKeyIcon,
   gold: goldKeyIcon,
   titanium: titaniumKeyIcon,
-  green: greenKeyIcon,
-  blue: blueKeyIcon,
-  orange: orangeKeyIcon,
-  purple: purpleKeyIcon,
+  forest: forestKeyIcon,
+  water: waterKeyIcon,
+  fire: fireKeyIcon,
+  demon: demonKeyIcon,
 }
 
 function KeysCollected({ keys }) {
