@@ -60,9 +60,9 @@ export const biomes = [
             { name: "Steel Sentinel", description: "A bronze automaton punches like a smith\u2019s hammer.", image: "/assets/enemies/vault-of-titanium/steel-sentinel.webp" },
             { name: "Enraged Blacksmith", description: "He swings a molten hammer with deadly intent.", image: "/assets/enemies/vault-of-titanium/enraged-blacksmith.webp" },
             { name: "Clockwork Hound", description: "Its gears grind as it clamps onto your arm.", image: "/assets/enemies/vault-of-titanium/clockwork-hound.webp" },
-            { name: "Iron-Willed Guard", description: "A relentless defender strikes in practiced arcs.", image: "/assets/enemies/vault-of-titanium/twilight-ghoul.webp" },
-            { name: "Runic Statue", description: "It comes to life, slamming the ground.", image: "/assets/enemies/vault-of-titanium/twilight-ghoul.webp" },
-            { name: "Molten Crawler", description: "This bug-like construct drips burning metal.", image: "/assets/enemies/vault-of-titanium/twilight-ghoul.webp" }
+            { name: "Iron-Willed Guard", description: "A relentless defender strikes in practiced arcs.", image: "/assets/enemies/vault-of-titanium/iron-willed-guard.webp" },
+            { name: "Runic Statue", description: "It comes to life, slamming the ground.", image: "/assets/enemies/vault-of-titanium/runic-statue.webp" },
+            { name: "Molten Crawler", description: "This bug-like construct drips burning metal.", image: "/assets/enemies/vault-of-titanium/molten-crawler.webp" }
         ],
         damageRange: [15, 20],
     },
@@ -74,12 +74,12 @@ export const biomes = [
         keyToFind: "forest",
         background: "/assets/biomes/whispering-forest.webp",
         enemies: [
-            { name: "Wailing Dryad", description: "Her scream shatters your sense of peace." },
-            { name: "Thornfiend", description: "Vines whip at you with razor tips." },
-            { name: "Spirit Stag", description: "Its ghostly antlers impale with grace." },
-            { name: "Ancient Treant", description: "Its fists crush like falling trees." },
-            { name: "Swamp Lurker", description: "It rises silently and bites deep." },
-            { name: "Possessed Owl", description: "It dives and slashes with glowing talons." }
+            { name: "Wailing Dryad", description: "Her scream shatters your sense of peace.", image: "/assets/enemies/whispering-forest/wailing-dryad.webp" },
+            { name: "Thornfiend", description: "Vines whip at you with razor tips.", image: "/assets/enemies/whispering-forest/thornfiend.webp" },
+            { name: "Spirit Stag", description: "Its ghostly antlers impale with grace.", image: "/assets/enemies/whispering-forest/spirit-stag.webp" },
+            { name: "Forest Lady", description: "She smerks and slashes at you.", image: "/assets/enemies/whispering-forest/forest-lady.webp" },
+            { name: "Swamp Lurker", description: "It rises silently and bites deep.", image: "/assets/enemies/whispering-forest/swamp-lurker.webp" },
+            { name: "Possessed Owl", description: "It dives and slashes with glowing talons.", image: "/assets/enemies/whispering-forest/possessed-owl.webp" }
         ],
         damageRange: [15, 25],
     },
