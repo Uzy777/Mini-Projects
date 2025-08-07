@@ -9,9 +9,9 @@ export const biomes = [
             { name: "Angry Hen", description: "A farm hen defends its eggs with surprising fury.", image: "/assets/enemies/stonefang-village/angry-hen.webp"},
             { name: "Drunken Villager", description: "A clumsy villager swings a broken bottle." , image: "/assets/enemies/stonefang-village/drunken-villager.webp"},
             { name: "Territorial Goose", description: "It hisses and charges beak-first!" , image: "/assets/enemies/stonefang-village/territorial-goose.webp"},
-            { name: "The Butcher", description: "xxxx" , image: "/assets/enemies/stonefang-village/.webp"},
-            { name: "Feral Cat", description: "It hisses and rakes your leg with sharp claws." , image: "/assets/enemies/stonefang-village/.webp"},
-            { name: "Rat Swarm", description: "A swarm of rats bursts from a grain sack." , image: "/assets/enemies/stonefang-village/.webp"}
+            { name: "The Butcher", description: "xxxx" , image: "/assets/enemies/stonefang-village/the-butcher.webp"},
+            { name: "Feral Cat", description: "It hisses and rakes your leg with sharp claws." , image: "/assets/enemies/stonefang-village/feral-cat.webp"},
+            { name: "Rat Swarm", description: "A swarm of rats bursts from a grain sack." , image: "/assets/enemies/stonefang-village/rat-swarm.webp"}
         ],
         damageRange: [1, 5],
     },
@@ -23,12 +23,12 @@ export const biomes = [
         keyToFind: "silver",
         background: "/assets/biomes/stonefang-village.webp",
         enemies: [
-            { name: "Forest Wolf", description: "It lunges from the treeline, teeth bared." },
-            { name: "Burly Thug", description: "He clubs at you with a spiked mace." },
-            { name: "Large Boar", description: "It charges headfirst with brutal strength." },
-            { name: "Cave Spider", description: "Its venom stings and blurs your vision." },
-            { name: "Goblin Sneak", description: "It slashes at your back from the shadows." },
-            { name: "Bandit Scout", description: "He flicks a knife at your ribs." }
+            { name: "Grey Wolf", description: "It lunges from the treeline, teeth bared.", image: "/assets/enemies/stonefang-village/grey-wolf.webp" },
+            { name: "Burly Thug", description: "He clubs at you with a spiked mace.", image: "/assets/enemies/stonefang-village/burly-thug.webp" },
+            { name: "Large Boar", description: "It charges headfirst with brutal strength.", image: "/assets/enemies/stonefang-village/large-boar.webp" },
+            { name: "Cave Spider", description: "Its venom stings and blurs your vision.", image: "/assets/enemies/stonefang-village/cave-spider.webp" },
+            { name: "Goblin Sneak", description: "It slashes at your back from the shadows.", image: "/assets/enemies/stonefang-village/goblin-sneak.webp" },
+            { name: "Bandit Scout", description: "She flicks a knife at your ribs.", image: "/assets/enemies/stonefang-village/bandit-scout.webp" }
         ],
         damageRange: [5, 10],
     },
@@ -40,12 +40,12 @@ export const biomes = [
         keyToFind: "gold",
         background: "/assets/biomes/stonefang-village.webp",
         enemies: [
-            { name: "Twilight Ghoul", description: "Its claws tear through cloth and skin." },
-            { name: "Cursed Axeman", description: "He swings wildly in a blood frenzy." },
-            { name: "Dire Wolf", description: "It mauls with relentless ferocity." },
-            { name: "Rogue Sorcerer", description: "Flames burst from his fingertips." },
-            { name: "Berserker Cultist", description: "He attacks in a trance of pain and fury." },
-            { name: "Mutated Boar", description: "It charges twice, not caring what it hits." }
+            { name: "Twilight Ghoul", description: "Her claws tear through cloth and skin.", image: "/assets/enemies/stonefang-village/twilight-ghoul.webp" },
+            { name: "Cursed Axeman", description: "He swings wildly in a blood frenzy.", image: "/assets/enemies/stonefang-village/cursed-axeman.webp" },
+            { name: "Night Stalker", description: "It strikes from the shadows with razor teeth.", image: "/assets/enemies/stonefang-village/night-stalker.webp" },
+            { name: "Rogue Sorcerer", description: "Flames burst from her fingertips.", image: "/assets/enemies/stonefang-village/rogue-sorcerer.webp" },
+            { name: "Berserker Cultist", description: "He attacks in a trance of pain and fury.", image: "/assets/enemies/stonefang-village/berserker-cultist.webp" },
+            { name: "Stone Golem", description: "It crushes foes with its stone fists.", image: "/assets/enemies/stonefang-village/stone-golem.webp" }
         ],
         damageRange: [10, 15],
     },
@@ -57,12 +57,12 @@ export const biomes = [
         keyToFind: "titanium",
         background: "/assets/biomes/vault-of-titanium.webp",
         enemies: [
-            { name: "Steel Sentinel", description: "A bronze automaton punches like a smith\u2019s hammer." },
-            { name: "Enraged Blacksmith", description: "He swings a molten hammer with deadly intent." },
-            { name: "Clockwork Hound", description: "Its gears grind as it clamps onto your arm." },
-            { name: "Iron-Willed Guard", description: "A relentless defender strikes in practiced arcs." },
-            { name: "Runic Statue", description: "It comes to life, slamming the ground." },
-            { name: "Molten Crawler", description: "This bug-like construct drips burning metal." }
+            { name: "Steel Sentinel", description: "A bronze automaton punches like a smith\u2019s hammer.", image: "/assets/enemies/vault-of-titanium/steel-sentinel.webp" },
+            { name: "Enraged Blacksmith", description: "He swings a molten hammer with deadly intent.", image: "/assets/enemies/vault-of-titanium/enraged-blacksmith.webp" },
+            { name: "Clockwork Hound", description: "Its gears grind as it clamps onto your arm.", image: "/assets/enemies/vault-of-titanium/clockwork-hound.webp" },
+            { name: "Iron-Willed Guard", description: "A relentless defender strikes in practiced arcs.", image: "/assets/enemies/vault-of-titanium/twilight-ghoul.webp" },
+            { name: "Runic Statue", description: "It comes to life, slamming the ground.", image: "/assets/enemies/vault-of-titanium/twilight-ghoul.webp" },
+            { name: "Molten Crawler", description: "This bug-like construct drips burning metal.", image: "/assets/enemies/vault-of-titanium/twilight-ghoul.webp" }
         ],
         damageRange: [15, 20],
     },
