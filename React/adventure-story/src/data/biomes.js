@@ -125,11 +125,11 @@ export const biomes = [
         keyToFind: "demon",
         background: "/assets/biomes/demonreach-keep.webp",
         enemies: [
-            { name: "Demon General", description: "He strikes with hellforged weapons and rage.", image: "/assets/enemies/forge-of-the-flameborn/lava-fiend.webp" },
+            { name: "Demon General", description: "He strikes with hellforged weapons and rage.", image: "/assets/enemies/demonreach-keep/demon-general.webp" },
             { name: "Soul Reaver", description: "It drains your essence with every touch." },
             { name: "Cursed Warlock", description: "He casts hexes that rend both mind and body." },
             { name: "Undying Knight", description: "An unholy champion who never falls." },
-            { name: "Bloodchant Temptress", description: "Her voice twists minds and rends flesh from within." },
+            { name: "Bloodchant Temptress", description: "Her voice twists minds and rends flesh from within.", image: "/assets/enemies/demonreach-keep/bloodchant-temptress.webp" },
             { name: "Abyssal Warden", description: "It speaks doom and crushes hope itself." }
         ],
         damageRange: [15, 40],
