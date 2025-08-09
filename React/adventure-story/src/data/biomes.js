@@ -91,12 +91,12 @@ export const biomes = [
         keyToFind: "water",
         background: "/assets/biomes/emple-of-the-tides.webp",
         enemies: [
-            { name: "Tidal Serpent", description: "It coils around you, suffocating and biting." },
-            { name: "Coral Knight", description: "A barnacled blade swings with crushing weight." },
-            { name: "Drowned Priest", description: "Chants send violent waves through the air." },
-            { name: "Kraken Spawn", description: "Tentacles strike from every direction." },
-            { name: "Ghost Sailor", description: "His harpoon strikes with bone-piercing force." },
-            { name: "Water Elemental", description: "It slams like a wall of living sea." }
+            { name: "Tidal Serpent", description: "It coils around you, suffocating and biting.", image: "/assets/enemies/temple-of-the-tides/tidal-serpent.webp" },
+            { name: "Coral Knight", description: "A barnacled blade swings with crushing weight.", image: "/assets/enemies/temple-of-the-tides/coral-knight.webp" },
+            { name: "Temple Siren", description: "Her mournful hymn conjures devastating tidal currents that shatter bone and spirit.", image: "/assets/enemies/temple-of-the-tides/temple-siren.webp" },
+            { name: "Kraken Spawn", description: "Tentacles strike from every direction.", image: "/assets/enemies/temple-of-the-tides/kraken-spawn.webp" },
+            { name: "Ghost Sailor", description: "His harpoon strikes with bone-piercing force.", image: "/assets/enemies/temple-of-the-tides/ghost-sailor.webp" },
+            { name: "Water Elemental", description: "It slams like a wall of living sea.", image: "/assets/enemies/temple-of-the-tides/water-elemental.webp" }
         ],
         damageRange: [15, 30],
     },
@@ -108,12 +108,12 @@ export const biomes = [
         keyToFind: "fire",
         background: "/assets/biomes/forge-of-the-flameborn.webp",
         enemies: [
-            { name: "Lava Fiend", description: "It spits fire and burns everything nearby." },
-            { name: "Fireborn Gladiator", description: "Wielding magma-forged blades, it charges fiercely." },
-            { name: "Ash Wyrm", description: "A serpent of fire coils and lashes." },
-            { name: "Blazing Golem", description: "It smashes the floor, sending flames outward." },
-            { name: "Inferno Hound", description: "It leaps with burning breath and claws." },
-            { name: "Pyromancer Shade", description: "Explosive fire orbs circle and detonate." }
+            { name: "Lava Fiend", description: "It spits fire and burns everything nearby.", image: "/assets/enemies/forge-of-the-flameborn/lava-fiend.webp" },
+            { name: "Fireborn Gladiator", description: "Wielding magma-forged blades, it charges fiercely.", image: "/assets/enemies/forge-of-the-flameborn/fireborn-gladiator.webp" },
+            { name: "Ash Wyrm", description: "A serpent of fire coils and lashes.", image: "/assets/enemies/forge-of-the-flameborn/ash-wyrm.webp" },
+            { name: "Ember Matron", description: "She slams the ground, unleashing waves of flame.", image: "/assets/enemies/forge-of-the-flameborn/ember-matron.webp" },
+            { name: "Cinder Huntress", description: "She leaps with blazing claws and a searing howl.", image: "/assets/enemies/forge-of-the-flameborn/cinder-huntress.webp" },
+            { name: "Pyromancer Shade", description: "Explosive fire orbs circle and detonate.", image: "/assets/enemies/forge-of-the-flameborn/pyromancer-shade.webp" }
         ],
         damageRange: [15, 35],
     },
@@ -125,11 +125,11 @@ export const biomes = [
         keyToFind: "demon",
         background: "/assets/biomes/demonreach-keep.webp",
         enemies: [
-            { name: "Demon General", description: "He strikes with hellforged weapons and rage." },
+            { name: "Demon General", description: "He strikes with hellforged weapons and rage.", image: "/assets/enemies/forge-of-the-flameborn/lava-fiend.webp" },
             { name: "Soul Reaver", description: "It drains your essence with every touch." },
             { name: "Cursed Warlock", description: "He casts hexes that rend both mind and body." },
             { name: "Undying Knight", description: "An unholy champion who never falls." },
-            { name: "Hellbeast", description: "It charges through walls with molten breath." },
+            { name: "Bloodchant Temptress", description: "Her voice twists minds and rends flesh from within." },
             { name: "Abyssal Warden", description: "It speaks doom and crushes hope itself." }
         ],
         damageRange: [15, 40],
