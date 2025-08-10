@@ -126,11 +126,11 @@ export const biomes = [
         background: "/assets/biomes/demonreach-keep.webp",
         enemies: [
             { name: "Demon General", description: "He strikes with hellforged weapons and rage.", image: "/assets/enemies/demonreach-keep/demon-general.webp" },
-            { name: "Soul Reaver", description: "It drains your essence with every touch." },
-            { name: "Cursed Warlock", description: "He casts hexes that rend both mind and body." },
-            { name: "Undying Knight", description: "An unholy champion who never falls." },
+            { name: "The Bloodbound Seer", description: "She sees through flesh, and speaks in tongues carved into bone.", image: "/assets/enemies/demonreach-keep/the-bloodbound-seer.webp" },
+            { name: "The Bleeding Matron", description: "She tends the cursed halls in robes soaked with centuries of suffering.", image: "/assets/enemies/demonreach-keep/the-bleeding-matron.webp" },
+            { name: "Undying Knight", description: "An unholy champion who never falls.", image: "/assets/enemies/demonreach-keep/undying-knight.webp"  },
             { name: "Bloodchant Temptress", description: "Her voice twists minds and rends flesh from within.", image: "/assets/enemies/demonreach-keep/bloodchant-temptress.webp" },
-            { name: "Abyssal Warden", description: "It speaks doom and crushes hope itself." }
+            { name: "The Choirless Nun", description: "She sings no hymns only the silence of slaughter.", image: "/assets/enemies/demonreach-keep/the-choirless-nun.webp" },
         ],
         damageRange: [15, 40],
     },
