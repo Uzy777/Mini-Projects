@@ -63,7 +63,7 @@ function NewApp() {
       setPlayer((p) => ({ ...p, gold: p.gold + 10 }));
 
       // Collect a key
-      handleKeyFound("bronze");
+      handleKeyFound("forest");
 
     } else if (next === "right") {
       if (enemies.length > 0) {

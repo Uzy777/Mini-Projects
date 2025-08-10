@@ -6,12 +6,12 @@ export const biomes = [
         keyToFind: "bronze",        // key hidden here
         background: "/assets/biomes/stonefang-village.webp",
         enemies: [
-            { name: "Angry Hen", description: "A farm hen defends its eggs with surprising fury.", image: "/assets/enemies/stonefang-village/angry-hen.webp"},
-            { name: "Drunken Villager", description: "A clumsy villager swings a broken bottle." , image: "/assets/enemies/stonefang-village/drunken-villager.webp"},
-            { name: "Territorial Goose", description: "It hisses and charges beak-first!" , image: "/assets/enemies/stonefang-village/territorial-goose.webp"},
-            { name: "The Butcher", description: "xxxx" , image: "/assets/enemies/stonefang-village/the-butcher.webp"},
-            { name: "Feral Cat", description: "It hisses and rakes your leg with sharp claws." , image: "/assets/enemies/stonefang-village/feral-cat.webp"},
-            { name: "Rat Swarm", description: "A swarm of rats bursts from a grain sack." , image: "/assets/enemies/stonefang-village/rat-swarm.webp"}
+            { name: "Angry Hen", description: "A farm hen defends its eggs with surprising fury.", image: "/assets/enemies/stonefang-village/angry-hen.webp" },
+            { name: "Drunken Villager", description: "A clumsy villager swings a broken bottle.", image: "/assets/enemies/stonefang-village/drunken-villager.webp" },
+            { name: "Territorial Goose", description: "It hisses and charges beak-first!", image: "/assets/enemies/stonefang-village/territorial-goose.webp" },
+            { name: "The Butcher", description: "xxxx", image: "/assets/enemies/stonefang-village/the-butcher.webp" },
+            { name: "Feral Cat", description: "It hisses and rakes your leg with sharp claws.", image: "/assets/enemies/stonefang-village/feral-cat.webp" },
+            { name: "Rat Swarm", description: "A swarm of rats bursts from a grain sack.", image: "/assets/enemies/stonefang-village/rat-swarm.webp" }
         ],
         damageRange: [1, 5],
     },
@@ -89,7 +89,7 @@ export const biomes = [
         name: "Temple of the Tides",
         keyRequired: "forest",
         keyToFind: "water",
-        background: "/assets/biomes/emple-of-the-tides.webp",
+        background: "/assets/biomes/temple-of-the-tides.webp",
         enemies: [
             { name: "Tidal Serpent", description: "It coils around you, suffocating and biting.", image: "/assets/enemies/temple-of-the-tides/tidal-serpent.webp" },
             { name: "Coral Knight", description: "A barnacled blade swings with crushing weight.", image: "/assets/enemies/temple-of-the-tides/coral-knight.webp" },
@@ -128,7 +128,7 @@ export const biomes = [
             { name: "Demon General", description: "He strikes with hellforged weapons and rage.", image: "/assets/enemies/demonreach-keep/demon-general.webp" },
             { name: "The Bloodbound Seer", description: "She sees through flesh, and speaks in tongues carved into bone.", image: "/assets/enemies/demonreach-keep/the-bloodbound-seer.webp" },
             { name: "The Bleeding Matron", description: "She tends the cursed halls in robes soaked with centuries of suffering.", image: "/assets/enemies/demonreach-keep/the-bleeding-matron.webp" },
-            { name: "Undying Knight", description: "An unholy champion who never falls.", image: "/assets/enemies/demonreach-keep/undying-knight.webp"  },
+            { name: "Undying Knight", description: "An unholy champion who never falls.", image: "/assets/enemies/demonreach-keep/undying-knight.webp" },
             { name: "Bloodchant Temptress", description: "Her voice twists minds and rends flesh from within.", image: "/assets/enemies/demonreach-keep/bloodchant-temptress.webp" },
             { name: "The Choirless Nun", description: "She sings no hymns only the silence of slaughter.", image: "/assets/enemies/demonreach-keep/the-choirless-nun.webp" },
         ],
