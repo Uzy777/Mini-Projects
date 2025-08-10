@@ -5,6 +5,7 @@ export const biomes = [
         keyRequired: null,          // no key needed to enter
         keyToFind: "bronze",        // key hidden here
         background: "/assets/biomes/stonefang-village.webp",
+        backgroundMusic: "/assets/background-music/stonefang-village.mp3",
         enemies: [
             { name: "Angry Hen", description: "A farm hen defends its eggs with surprising fury.", image: "/assets/enemies/stonefang-village/angry-hen.webp" },
             { name: "Drunken Villager", description: "A clumsy villager swings a broken bottle.", image: "/assets/enemies/stonefang-village/drunken-villager.webp" },
@@ -22,6 +23,7 @@ export const biomes = [
         keyRequired: "bronze",
         keyToFind: "silver",
         background: "/assets/biomes/stonefang-village.webp",
+        backgroundMusic: "/assets/background-music/stonefang-village.mp3",
         enemies: [
             { name: "Grey Wolf", description: "It lunges from the treeline, teeth bared.", image: "/assets/enemies/stonefang-village/grey-wolf.webp" },
             { name: "Burly Thug", description: "He clubs at you with a spiked mace.", image: "/assets/enemies/stonefang-village/burly-thug.webp" },
@@ -39,6 +41,7 @@ export const biomes = [
         keyRequired: "silver",
         keyToFind: "gold",
         background: "/assets/biomes/stonefang-village.webp",
+        backgroundMusic: "/assets/background-music/stonefang-village.mp3",
         enemies: [
             { name: "Twilight Ghoul", description: "Her claws tear through cloth and skin.", image: "/assets/enemies/stonefang-village/twilight-ghoul.webp" },
             { name: "Cursed Axeman", description: "He swings wildly in a blood frenzy.", image: "/assets/enemies/stonefang-village/cursed-axeman.webp" },
@@ -56,6 +59,7 @@ export const biomes = [
         keyRequired: "gold",
         keyToFind: "titanium",
         background: "/assets/biomes/vault-of-titanium.webp",
+        backgroundMusic: "/assets/background-music/vault-of-titanium.mp3",
         enemies: [
             { name: "Steel Sentinel", description: "A bronze automaton punches like a smith\u2019s hammer.", image: "/assets/enemies/vault-of-titanium/steel-sentinel.webp" },
             { name: "Enraged Blacksmith", description: "He swings a molten hammer with deadly intent.", image: "/assets/enemies/vault-of-titanium/enraged-blacksmith.webp" },
@@ -73,6 +77,7 @@ export const biomes = [
         keyRequired: "titanium",
         keyToFind: "forest",
         background: "/assets/biomes/whispering-forest.webp",
+        backgroundMusic: "/assets/background-music/whispering-forest.mp3",
         enemies: [
             { name: "Wailing Dryad", description: "Her scream shatters your sense of peace.", image: "/assets/enemies/whispering-forest/wailing-dryad.webp" },
             { name: "Thornfiend", description: "Vines whip at you with razor tips.", image: "/assets/enemies/whispering-forest/thornfiend.webp" },
@@ -90,6 +95,7 @@ export const biomes = [
         keyRequired: "forest",
         keyToFind: "water",
         background: "/assets/biomes/temple-of-the-tides.webp",
+        backgroundMusic: "/assets/background-music/temple-of-the-tides.mp3",
         enemies: [
             { name: "Tidal Serpent", description: "It coils around you, suffocating and biting.", image: "/assets/enemies/temple-of-the-tides/tidal-serpent.webp" },
             { name: "Coral Knight", description: "A barnacled blade swings with crushing weight.", image: "/assets/enemies/temple-of-the-tides/coral-knight.webp" },
@@ -107,6 +113,7 @@ export const biomes = [
         keyRequired: "water",
         keyToFind: "fire",
         background: "/assets/biomes/forge-of-the-flameborn.webp",
+        backgroundMusic: "/assets/background-music/forge-of-the-flameborn.mp3",
         enemies: [
             { name: "Lava Fiend", description: "It spits fire and burns everything nearby.", image: "/assets/enemies/forge-of-the-flameborn/lava-fiend.webp" },
             { name: "Fireborn Gladiator", description: "Wielding magma-forged blades, it charges fiercely.", image: "/assets/enemies/forge-of-the-flameborn/fireborn-gladiator.webp" },
@@ -124,6 +131,7 @@ export const biomes = [
         keyRequired: "fire",
         keyToFind: "demon",
         background: "/assets/biomes/demonreach-keep.webp",
+        backgroundMusic: "/assets/background-music/demonreach-keep.mp3",
         enemies: [
             { name: "Demon General", description: "He strikes with hellforged weapons and rage.", image: "/assets/enemies/demonreach-keep/demon-general.webp" },
             { name: "The Bloodbound Seer", description: "She sees through flesh, and speaks in tongues carved into bone.", image: "/assets/enemies/demonreach-keep/the-bloodbound-seer.webp" },

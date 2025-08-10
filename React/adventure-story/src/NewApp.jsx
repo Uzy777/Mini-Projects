@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { usePersistentState } from "./hooks/usePersistentState";
 import StatusPanel from "./components/StatusPanel";
 import SceneDisplay from "./components/SceneDisplay";
@@ -51,6 +51,34 @@ function NewApp() {
 
   // const [enemyMessage, setEnemyMessage] = useState(null);
 
+  const audioRef = useRef(null);
+
+
+  useEffect(() => {
+    if (!currentBiome.backgroundMusic) return;
+
+    // Stop previous audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+
+    // Start new audio
+    const newAudio = new Audio(currentBiome.backgroundMusic);
+    newAudio.loop = true;
+    newAudio.play();
+    audioRef.current = newAudio;
+
+    // Optional: cleanup on unmount
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    };
+  }, [currentBiomeId]);
+
+
   const enemies = currentBiome.enemies;
   const [minDamage, maxDamage] = currentBiome.damageRange;
 
@@ -63,7 +91,7 @@ function NewApp() {
       setPlayer((p) => ({ ...p, gold: p.gold + 10 }));
 
       // Collect a key
-      handleKeyFound("forest");
+      handleKeyFound("water");
 
     } else if (next === "right") {
       if (enemies.length > 0) {
@@ -146,7 +174,11 @@ function NewApp() {
         ...prev.keys,
         [keyName]: true
       }
-    }));
+    }))
+
+    setCurrentBiomeId(prev => prev + 1); // This triggers the music + background change
+
+    ;
 
     // Find next biome where keyRequired === keyName
     const nextBiome = biomes.find(b => b.keyRequired === keyName);
@@ -158,6 +190,7 @@ function NewApp() {
 
 
   handleEnemy()
+
   return (
     <div
       className="min-h-screen bg-cover bg-center"
@@ -168,6 +201,7 @@ function NewApp() {
         backgroundPosition: 'center',
         backgroundColor: 'black',
       }}
+
     >
       <div className="max-w-xl mx-auto p-6 font-sans bg-black/60 rounded-lg">
         <StatusPanel player={player} />
@@ -179,6 +213,11 @@ function NewApp() {
           <button onClick={handleReset} className="">
             Reset Progress
           </button>
+
+
+
+
+
         </div>
       </div>
     </div>
