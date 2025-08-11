@@ -4,6 +4,7 @@ import StatusPanel from "./components/StatusPanel";
 import SceneDisplay from "./components/SceneDisplay";
 import StoryChoices from "./components/StoryChoices";
 import SceneImage from "./components/SceneImage";
+import Modal from "./components/ModalKeyFound";
 
 import { weakEnemies, mediumEnemies, strongEnemies } from "./data/enemies";
 
@@ -53,6 +54,7 @@ function NewApp() {
 
   const audioRef = useRef(null);
 
+  const [showKeyModal, setShowKeyModal] = useState(false);
 
   useEffect(() => {
     if (!currentBiome.backgroundMusic) return;
@@ -173,7 +175,9 @@ function NewApp() {
 
     console.log(random)
 
-    if (random < 0.05) {
+    if (random < 1) { // CHANGE BACK TO 0.05
+      setShowKeyModal(true);
+      console.log(keyName)
 
       setPlayer(prev => ({
         ...prev,
@@ -183,26 +187,33 @@ function NewApp() {
         }
       }))
 
-      setCurrentBiomeId(prev => prev + 1); // This triggers the music + background change
 
-      ;
+        ;
     } else {
       return;
     }
 
+
+
+  };
+
+  const biomeChange = (keyName) => {
+    setCurrentBiomeId(prev => prev + 1); // This triggers the music + background change
 
     // Find next biome where keyRequired === keyName
     const nextBiome = biomes.find(b => b.keyRequired === keyName);
     if (nextBiome) {
       setCurrentBiomeId(nextBiome.id);
     }
-  };
-
+  }
 
 
   handleEnemy()
 
   return (
+
+
+
     <div
       className="min-h-screen bg-cover bg-center"
       style={{
@@ -225,7 +236,8 @@ function NewApp() {
             Reset Progress
           </button>
 
-
+          <Modal show={showKeyModal} title="Key Found!" onClose={() => (setShowKeyModal(false), biomeChange())}
+          />
 
 
 
