@@ -46,7 +46,7 @@ function NewApp() {
   const [player, setPlayer] = usePersistentState("player", initialPlayer);
   const [scene, setScene] = usePersistentState("scene", initialScene);
 
-  const [currentBiomeId, setCurrentBiomeId] = useState(0);
+  const [currentBiomeId, setCurrentBiomeId] = usePersistentState("currentBiomeId", 0);
   const currentBiome = biomes[currentBiomeId];
 
   // const [enemyMessage, setEnemyMessage] = useState(null);
@@ -168,17 +168,28 @@ function NewApp() {
   }
 
   const handleKeyFound = (keyName) => {
-    setPlayer(prev => ({
-      ...prev,
-      keys: {
-        ...prev.keys,
-        [keyName]: true
-      }
-    }))
 
-    setCurrentBiomeId(prev => prev + 1); // This triggers the music + background change
+    const random = Math.random();
 
-    ;
+    console.log(random)
+
+    if (random < 0.05) {
+
+      setPlayer(prev => ({
+        ...prev,
+        keys: {
+          ...prev.keys,
+          [keyName]: true
+        }
+      }))
+
+      setCurrentBiomeId(prev => prev + 1); // This triggers the music + background change
+
+      ;
+    } else {
+      return;
+    }
+
 
     // Find next biome where keyRequired === keyName
     const nextBiome = biomes.find(b => b.keyRequired === keyName);
