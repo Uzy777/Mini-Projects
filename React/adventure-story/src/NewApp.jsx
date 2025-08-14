@@ -50,6 +50,8 @@ function NewApp() {
   const [currentBiomeId, setCurrentBiomeId] = usePersistentState("currentBiomeId", 0);
   const currentBiome = biomes[currentBiomeId];
 
+  const foundKey = currentBiome.keyToFind;
+
   // const [enemyMessage, setEnemyMessage] = useState(null);
 
   const audioRef = useRef(null);
@@ -93,7 +95,7 @@ function NewApp() {
       setPlayer((p) => ({ ...p, gold: p.gold + 10 }));
 
       // Collect a key
-      handleKeyFound("water");
+      handleKeyFound();
 
     } else if (next === "right") {
       if (enemies.length > 0) {
@@ -169,7 +171,7 @@ function NewApp() {
     // console.log(enemyDamage);
   }
 
-  const handleKeyFound = (keyName) => {
+  const handleKeyFound = () => {
 
     const random = Math.random();
 
@@ -177,13 +179,13 @@ function NewApp() {
 
     if (random < 1) { // CHANGE BACK TO 0.05
       setShowKeyModal(true);
-      console.log(keyName)
+      console.log(foundKey)
 
       setPlayer(prev => ({
         ...prev,
         keys: {
           ...prev.keys,
-          [keyName]: true
+          [foundKey]: true
         }
       }))
 
@@ -236,7 +238,7 @@ function NewApp() {
             Reset Progress
           </button>
 
-          <Modal show={showKeyModal} title="Key Found!" onClose={() => (setShowKeyModal(false), biomeChange())}
+          <Modal show={showKeyModal} title="Key Found!" foundKey={foundKey} onClose={() => (setShowKeyModal(false), biomeChange())}
           />
 
 

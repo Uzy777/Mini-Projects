@@ -4,28 +4,8 @@ import heartIcon from "../assets/icons/heart.png";
 import goldIcon from "../assets/icons/gold.png";
 import playerIcon from "../assets/icons/skull-fire.png";
 
-import bronzeKeyIcon from "../assets/icons/bronze-key.png";
-import silverKeyIcon from "../assets/icons/silver-key.png";
-import goldKeyIcon from "../assets/icons/gold-key.png";
-import titaniumKeyIcon from "../assets/icons/titanium-key.png";
-import forestKeyIcon from "../assets/icons/forest-key.png";
-import waterKeyIcon from "../assets/icons/water-key.png";
-import fireKeyIcon from "../assets/icons/fire-key.png";
-import demonKeyIcon from "../assets/icons/demon-key.png";
+import { keyIcons } from "../data/keyIcons";
 
-
-
-
-const keyIcons = {
-  bronze: bronzeKeyIcon,
-  silver: silverKeyIcon,
-  gold: goldKeyIcon,
-  titanium: titaniumKeyIcon,
-  forest: forestKeyIcon,
-  water: waterKeyIcon,
-  fire: fireKeyIcon,
-  demon: demonKeyIcon,
-}
 
 function KeysCollected({ keys }) {
   if (!keys) return null; // safeguard
