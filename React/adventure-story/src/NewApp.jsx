@@ -51,6 +51,7 @@ function NewApp() {
   const currentBiome = biomes[currentBiomeId];
 
   const foundKey = currentBiome.keyToFind;
+  const activeBiome = currentBiome.name;
 
   // const [enemyMessage, setEnemyMessage] = useState(null);
 
@@ -228,7 +229,7 @@ function NewApp() {
 
     >
       <div className="max-w-xl mx-auto p-6 font-sans bg-black/60 rounded-lg">
-        <StatusPanel player={player} />
+        <StatusPanel player={player} activeBiome={activeBiome} />
         <SceneImage src={scene.image} />
         <SceneDisplay message={scene.message} />
         <StoryChoices choices={scene.choices} onSelect={handleChoice} />
