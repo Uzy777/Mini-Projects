@@ -1,9 +1,10 @@
 # Mini-Projects
 A number of projects I have worked on!
 
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="20" height="20" /> Python  
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" width="20" height="20" /> JavaScript  
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" width="20" height="20" /> React  
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="20" height="20" /> Python <br>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" width="20" height="20" /> JavaScript <br>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" width="20" height="20" /> React <br>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/bash/bash-original.svg" width="20" height="20" /> Script <br>
 
 ---
 
@@ -24,6 +25,7 @@ A number of projects I have worked on!
 |   | Quiz Game ❓ | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="20" height="20" /> Python | Completed (ish) ⏳ | 🟡 | [CLICK ME!](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Quiz%20Game) |
 |   | Snake Game 🐍 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="20" height="20" /> Python | Not Started ❌ | N/A | [CLICK ME!](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Snake%20Game) |
 |   | Task Tracker 📝 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="20" height="20" /> Python | Not Started ❌ | N/A | [CLICK ME!](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Task%20Tracker) |
+|   | Wallhaven Scraper 🖼️ | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/bash/bash-original.svg" width="20" height="20" /> Script | In Progress 👨‍💻 | 🟡 | [CLICK ME!](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Task%20Tracker) |
 
 ---
 
