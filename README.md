@@ -25,7 +25,7 @@ A number of projects I have worked on!
 |   | Quiz Game ❓ | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="20" height="20" /> Python | Completed (ish) ⏳ | 🟡 | [CLICK ME!](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Quiz%20Game) |
 |   | Snake Game 🐍 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="20" height="20" /> Python | Not Started ❌ | N/A | [CLICK ME!](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Snake%20Game) |
 |   | Task Tracker 📝 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="20" height="20" /> Python | Not Started ❌ | N/A | [CLICK ME!](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Task%20Tracker) |
-|   | Wallhaven Scraper 🖼️ | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg" width="20" height="20" /> Script | In Progress 👨‍💻 | 🟡 | [CLICK ME!](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Task%20Tracker) |
+|   | Wallhaven Scraper 🖼️ | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg" width="20" height="20" /> Script | Completed ✅ | 🟡 | [CLICK ME!](https://github.com/Uzy777/Mini-Projects/tree/main/Scripts/wallhaven-scraper) |
 
 ---
 
