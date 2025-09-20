@@ -5,7 +5,7 @@ import json
 # -------------------------
 # SETTINGS
 # -------------------------
-api_key = "olGtAnR5DZhAh8YF7QsgfYKtVRMA2Yq"  # Optional: API key for NSFW access
+api_key = ""  # Optional: API key for NSFW access
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE = os.path.join(SCRIPT_DIR, "wallhaven_config.json")
 
