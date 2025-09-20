@@ -5,7 +5,7 @@ import json
 # -------------------------
 # SETTINGS
 # -------------------------
-api_key = ""  # Optional: API key for NSFW access
+api_key = "olGtAnR5DZhAh8YF7QsgfYKtVRMA2Yq"  # Optional: API key for NSFW access
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE = os.path.join(SCRIPT_DIR, "wallhaven_config.json")
 
@@ -133,7 +133,7 @@ def download_wallpapers(
             response.raise_for_status()
             data = response.json().get("data", [])
         except Exception as e:
-            print(f"❌ Error accessing API: {e}")
+            print(f"❌ Error accessing API - NO NSFW for you 😈: {e}")
             break
 
         if not data:
