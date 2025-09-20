@@ -66,17 +66,8 @@ python3 wallhaven_scraper.py
 
 
 ## Example
-Fetch **latest SFW wallpapers**, 2 pages:
-```vbnet
-📂 Select an option:
-1. Latest wallpapers
-2. Toplist wallpapers
-3. Random wallpapers
-4. Manual search
-Enter number: 1
-🌶️ Purity level (100=SFW | 010=Sketchy | 111=NSFW) [default 100]: 100
-📄 How many pages to scrape? (1 page ≈ 24 wallpapers) [default 1]: 2
-```
+Here’s a quick demo of the Wallhaven scraper in action:
 
+![Wallhaven Scraper Demo](screengif.gif)
 
 ---
