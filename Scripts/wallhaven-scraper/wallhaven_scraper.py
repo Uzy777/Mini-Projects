@@ -25,6 +25,7 @@ def load_config():
         "topRange": "1M",
         "atleast": "1920x1080",
         "resolutions": "",
+        "ratios": "",
         "pages": 1,
     }
 
@@ -97,6 +98,7 @@ def download_wallpapers(
     topRange=None,
     atleast=None,
     resolutions=None,
+    ratios=None,
 ):
     api_url = "https://wallhaven.cc/api/v1/search"
     website_url = "https://wallhaven.cc/search"
@@ -120,6 +122,8 @@ def download_wallpapers(
             params["resolutions"] = resolutions
         else:
             params["atleast"] = atleast
+        if ratios:
+            params["ratios"] = ratios
         if search_purity[2] == "1" and api_key:  # Only include API key if NSFW enabled
             params["apikey"] = api_key
 
@@ -217,6 +221,7 @@ def configure_parameters(config):
         update_field(config, "topRange", "📊 Top range (1d | 1w | 1M | 3M | 6M | 1y)")
     update_field(config, "atleast", "🖥️ Minimum resolution (e.g., 1920x1080)")
     update_field(config, "resolutions", "🖥️ Exact resolutions (comma-separated, e.g., 1920x1080,2560x1440)")
+    update_field(config, "ratios", "📐 Aspect ratios (comma-separated, e.g., 16x9,21x9,4x3,32x9, landscape | portrait)")
     update_field(config, "pages", "📄 Pages", int)
 
     save_config(config)
@@ -274,6 +279,7 @@ if __name__ == "__main__":
             topRange=config.get("topRange"),
             atleast=config.get("atleast"),
             resolutions=config.get("resolutions"),
+            ratios=config.get("ratios"),
         )
 
         # Rerun prompt
