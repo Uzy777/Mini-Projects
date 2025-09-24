@@ -240,16 +240,16 @@ def configure_parameters(config):
         "📊 Sorting method\n"
         "   - Controls how results are ordered\n"
         "   - Options: relevance | random | date_added | views | favorites | toplist\n"
-        "   👉 Example: toplist"
+        "   👉 Example: toplist",
     )
     print()
     if config["sorting"] == "toplist":
         update_field(
             config,
-        "topRange",
-        "📅 Toplist time range (only used if sorting=toplist)\n"
-        "   - Options: 1d | 3d | 1w | 1M | 3M | 6M | 1y\n"
-        "   👉 Example: 1M (top wallpapers from last month)"
+            "topRange",
+            "📅 Toplist time range (only used if sorting=toplist)\n"
+            "   - Options: 1d | 3d | 1w | 1M | 3M | 6M | 1y\n"
+            "   👉 Example: 1M (top wallpapers from last month)",
         )
         print()
     update_field(
@@ -261,7 +261,7 @@ def configure_parameters(config):
         "       • 1920x1080 → Full HD\n"
         "       • 2560x1440 → 2K / QHD\n"
         "       • 3840x2160 → 4K / UHD\n"
-        "   👉 Example: 1920x1080"
+        "   👉 Example: 1920x1080",
     )
     print()
     update_field(
@@ -272,7 +272,7 @@ def configure_parameters(config):
         "   - Examples:\n"
         "       • 1920x1080 → Full HD\n"
         "       • 2560x1440,3840x2160 → 2K and 4K\n"
-        "   👉 Leave blank for any resolution"
+        "   👉 Leave blank for any resolution",
     )
     print()
     update_field(
@@ -285,23 +285,19 @@ def configure_parameters(config):
         "       • 4x3  → classic monitors/tablets\n"
         "       • 32x9 → super ultrawide\n"
         "   - Orientation options: landscape | portrait | square\n"
-        "   👉 Enter multiple values separated by commas (e.g., 16x9,landscape)"
+        "   👉 Enter multiple values separated by commas (e.g., 16x9,landscape)",
     )
     print()
     update_field(
         config,
         "pages",
-        "📄 Number of pages to fetch\n"
-        "   - Each page contains ~24 wallpapers\n"
-        "   - Example: 3 → fetches ~72 wallpapers\n"
-        "   👉 Enter a number",
+        "📄 Number of pages to fetch\n   - Each page contains ~24 wallpapers\n   - Example: 3 → fetches ~72 wallpapers\n   👉 Enter a number",
         int,
     )
 
     save_config(config)
     print()
     print("✅ Parameters saved!")
-
 
 
 # -------------------------
