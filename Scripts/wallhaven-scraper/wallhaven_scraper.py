@@ -197,35 +197,111 @@ def update_field(config, field, prompt, cast=str, letters_mapping=None, to_lette
 # -------------------------
 # CONFIGURE PARAMETERS MENU
 # -------------------------
+# -------------------------
+# CONFIGURE PARAMETERS MENU
+# -------------------------
 def configure_parameters(config):
     print("\n⚙️ Configure important parameters (required before running 1/2/3/4)")
 
+    print()
     update_field(
         config,
         "categories",
-        "📂 Categories: g = General | a = Anime | p = People (combine e.g., 'ga')",
+        "📂 Categories\n"
+        "   - Each digit enables/disables: [General | Anime | People]\n"
+        "   - Examples:\n"
+        "       • 100 → General only\n"
+        "       • 010 → Anime only\n"
+        "       • 111 → All categories\n"
+        "   👉 Enter a 3-digit code",
         letters_mapping=CATEGORY_MAPPING,
         to_letters=categories_to_letters,
         to_values=letters_to_categories,
     )
+    print()
     update_field(
         config,
         "purity",
-        "🌶️ Purity: s = SFW | k = Sketchy | n = NSFW (combine e.g., 'sn')",
+        "🧹 Purity (content rating)\n"
+        "   - Each digit enables/disables: [SFW | Sketchy | NSFW]\n"
+        "   - Examples:\n"
+        "       • 100 → Only Safe For Work ✅\n"
+        "       • 110 → SFW + Sketchy\n"
+        "       • 111 → Everything (⚠️ includes NSFW)\n"
+        "   👉 Enter a 3-digit code",
         letters_mapping=PURITY_MAPPING,
         to_letters=purity_to_letters,
         to_values=letters_to_purity,
     )
-    update_field(config, "sorting", "💡 Sorting (date_added | relevance | random | views | favorites | toplist)")
+    print()
+    update_field(
+        config,
+        "sorting",
+        "📊 Sorting method\n"
+        "   - Controls how results are ordered\n"
+        "   - Options: relevance | random | date_added | views | favorites | toplist\n"
+        "   👉 Example: toplist"
+    )
+    print()
     if config["sorting"] == "toplist":
-        update_field(config, "topRange", "📊 Top range (1d | 1w | 1M | 3M | 6M | 1y)")
-    update_field(config, "atleast", "🖥️ Minimum resolution (e.g., 1920x1080)")
-    update_field(config, "resolutions", "🖥️ Exact resolutions (comma-separated, e.g., 1920x1080,2560x1440)")
-    update_field(config, "ratios", "📐 Aspect ratios (comma-separated, e.g., 16x9,21x9,4x3,32x9, landscape | portrait)")
-    update_field(config, "pages", "📄 Pages", int)
+        update_field(
+            config,
+        "topRange",
+        "📅 Toplist time range (only used if sorting=toplist)\n"
+        "   - Options: 1d | 3d | 1w | 1M | 3M | 6M | 1y\n"
+        "   👉 Example: 1M (top wallpapers from last month)"
+        )
+        print()
+    update_field(
+        config,
+        "atleast",
+        "📏 Minimum resolution\n"
+        "   - Ensures wallpapers are at least this big\n"
+        "   - Examples:\n"
+        "       • 1920x1080 → Full HD\n"
+        "       • 2560x1440 → 2K / QHD\n"
+        "       • 3840x2160 → 4K / UHD\n"
+        "   👉 Example: 1920x1080"
+    )
+    print()
+    update_field(
+        config,
+        "resolutions",
+        "💻 Exact resolutions (comma-separated)\n"
+        "   - Only download wallpapers that match these resolutions exactly\n"
+        "   - Examples:\n"
+        "       • 1920x1080 → Full HD\n"
+        "       • 2560x1440,3840x2160 → 2K and 4K\n"
+        "   👉 Leave blank for any resolution"
+    )
+    print()
+    update_field(
+        config,
+        "ratios",
+        "📐 Aspect ratios or orientation\n"
+        "   - Ratios control the shape of the wallpaper, e.g.:\n"
+        "       • 16x9 → widescreen (most monitors)\n"
+        "       • 21x9 → ultrawide\n"
+        "       • 4x3  → classic monitors/tablets\n"
+        "       • 32x9 → super ultrawide\n"
+        "   - Orientation options: landscape | portrait | square\n"
+        "   👉 Enter multiple values separated by commas (e.g., 16x9,landscape)"
+    )
+    print()
+    update_field(
+        config,
+        "pages",
+        "📄 Number of pages to fetch\n"
+        "   - Each page contains ~24 wallpapers\n"
+        "   - Example: 3 → fetches ~72 wallpapers\n"
+        "   👉 Enter a number",
+        int,
+    )
 
     save_config(config)
+    print()
     print("✅ Parameters saved!")
+
 
 
 # -------------------------
