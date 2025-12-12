@@ -32,8 +32,8 @@ const countries = [
 function App() {
     return (
         <>
-            <h1>Country Explorer</h1>
-            <h2>Browse and learn about countries around the world!</h2>
+            <h1 className="text-4xl text-center font-bold mt-8">Country Explorer</h1>
+            <h2 className="text-xl text-center text-gray-700">Browse and learn about countries around the world!</h2>
             <div>
                 {countries.map((country) => (
                     <CountryCard
