@@ -16,9 +16,10 @@ A collection of small projects built while learning and experimenting with diffe
 # 🟦 React Projects
 
 | Project | Status | Difficulty | Link |
-|--------|---------|------------|------|
-| Adventure Story 🌋 | Abandoned 💀 | 🔴 Hard | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/React/adventure-story) |
-| Typing Game ⌨️ | In Progress 👨‍💻 | 🔴 Hard | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/React/typing-game) |
+|--------|--------|------------|------|
+| **Adventure Story 🌋**<br/>A choice-based story, fight enemies, explore biomes, get keys. | Abandoned 💀 | 🔴 Hard | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/React/adventure-story) |
+| **Country Explorer 🇬🇧**<br/>Browse countries using an external API with filters and dynamic views. | In Progress 👨‍💻 | 🔴 Hard | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/React/country-explorer) |
+| **Typing Game ⌨️**<br/>A speed and accuracy typing game with live feedback and scoring. | In Progress 👨‍💻 | 🔴 Hard | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/React/typing-game) |
 
 ---
 
@@ -26,7 +27,7 @@ A collection of small projects built while learning and experimenting with diffe
 
 | Project | Status | Difficulty | Link |
 |--------|---------|------------|------|
-| Adventure Story 🌋 | Completed (ish) ⏳ | 🔴 Hard | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Adventure%20Story) |
+| **Adventure Story 🌋**<br/>A choice-based story with multiple scenarios. | Completed (ish) ⏳ | 🔴 Hard | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Adventure%20Story) |
 | Fifty Fifty 🪜 | Not Started ❌ | ⚪ N/A | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Fifty%20Fifty) |
 | Jump Scare 👹 | Completed ✅ | 🟢 Easy | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Jump%20Scare) |
 | Maths Test Game 7️⃣ | Not Started ❌ | ⚪ N/A | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Maths%20Test%20Game) |
