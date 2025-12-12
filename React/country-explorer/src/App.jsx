@@ -34,7 +34,7 @@ function App() {
         <>
             <h1 className="text-4xl text-center font-bold mt-8">Country Explorer</h1>
             <h2 className="text-xl text-center text-gray-700">Browse and learn about countries around the world!</h2>
-            <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
                 {countries.map((country) => (
                     <CountryCard
                         key={country.name}
