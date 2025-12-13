@@ -6,8 +6,17 @@ import CountryCard from "./components/CountryCard";
 function App() {
     const [countries, setCountries] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
+    const [regionFilter, setRegionFilter] = useState("All");
 
-    const filteredCountries = countries.filter((country) => country.name.common.toLowerCase().includes(searchQuery.toLowerCase()));
+    // const filteredCountries = countries.filter((country) => country.name.common.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const filteredCountries = countries.filter((country) => {
+        const matchesRegion = regionFilter === "All" || country.region === regionFilter;
+
+        const matchesSearch = country.name.common.toLowerCase().includes(searchQuery.toLowerCase());
+
+        return matchesRegion && matchesSearch;
+    });
 
     useEffect(() => {
         fetch("https://restcountries.com/v3.1/all?fields=name,flags,capital,population,region")
@@ -19,6 +28,8 @@ function App() {
                 console.error("Error fetching data:", error);
             });
     }, []);
+
+    console.log(regionFilter);
 
     return (
         <>
@@ -33,6 +44,82 @@ function App() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="broder p-2 text-center"
                 ></input>
+            </div>
+
+            <div className="flex space-x-4 justify-center pt-5">
+                <button
+                    className={
+                        regionFilter === "Africa"
+                            ? "bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            : "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    }
+                    onClick={() => {
+                        setRegionFilter("Africa");
+                    }}
+                >
+                    Africa
+                </button>
+
+                <button
+                    className={
+                        regionFilter === "Americas"
+                            ? "bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            : "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    }
+                    onClick={() => {
+                        setRegionFilter("Americas");
+                    }}
+                >
+                    Americas
+                </button>
+                <button
+                    className={
+                        regionFilter === "Asia"
+                            ? "bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            : "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    }
+                    onClick={() => {
+                        setRegionFilter("Asia");
+                    }}
+                >
+                    Asia
+                </button>
+                <button
+                    className={
+                        regionFilter === "Europe"
+                            ? "bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            : "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    }
+                    onClick={() => {
+                        setRegionFilter("Europe");
+                    }}
+                >
+                    Europe
+                </button>
+                <button
+                    className={
+                        regionFilter === "Oceania"
+                            ? "bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            : "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    }
+                    onClick={() => {
+                        setRegionFilter("Oceania");
+                    }}
+                >
+                    Oceania
+                </button>
+                <button
+                    className={
+                        regionFilter === "All"
+                            ? "bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            : "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    }
+                    onClick={() => {
+                        setRegionFilter("All");
+                    }}
+                >
+                    All
+                </button>
             </div>
 
             {countries.length === 0 ? (
