@@ -64,7 +64,7 @@ function App() {
                     placeholder="Search countries"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="broder p-2 text-center"
+                    className="broder p-2 text-cente border border-gray-500"
                 ></input>
             </div>
 
