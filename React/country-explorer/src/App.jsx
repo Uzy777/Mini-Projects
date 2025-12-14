@@ -10,7 +10,7 @@ function App() {
     const [countrySort, setCountrySort] = useState("alphabetical");
     const [countrySortDirection, setCoutnrySortDirection] = useState("asc");
 
-    // const filteredCountries = countries.filter((country) => country.name.common.toLowerCase().includes(searchQuery.toLowerCase()));
+    const regionArray = ["Africa", "Americas", "Asia", "Europe", "Oceania", "All"];
 
     const filteredCountries = countries.filter((country) => {
         const matchesRegion = regionFilter === "All" || country.region === regionFilter;
@@ -22,18 +22,21 @@ function App() {
 
     const sortedCountries = [...filteredCountries];
 
-    if (countrySort === "alphabetical" && countrySortDirection === "asc") {
-        sortedCountries.sort((a, b) => a.name.common.localeCompare(b.name.common));
-    } else if (countrySort === "alphabetical" && countrySortDirection === "desc") {
-        sortedCountries.sort((a, b) => b.name.common.localeCompare(a.name.common));
-    } else if (countrySort === "capital" && countrySortDirection === "asc") {
-        sortedCountries.sort((a, b) => (a.capital?.[0] || "").localeCompare(b.capital?.[0] || ""));
-    } else if (countrySort === "capital" && countrySortDirection === "desc") {
-        sortedCountries.sort((a, b) => (b.capital?.[0] || "").localeCompare(a.capital?.[0] || ""));
-    } else if (countrySort === "population" && countrySortDirection === "asc") {
-        sortedCountries.sort((a, b) => b.population - a.population);
-    } else if (countrySort === "population" && countrySortDirection === "desc") {
-        sortedCountries.sort((a, b) => a.population - b.population);
+    if (countrySort === "alphabetical") {
+        sortedCountries.sort((a, b) => {
+            const result = a.name.common.localeCompare(b.name.common);
+            return countrySortDirection === "asc" ? result : -result;
+        });
+    } else if (countrySort === "capital") {
+        sortedCountries.sort((a, b) => {
+            const result = (a.capital?.[0] || "").localeCompare(b.capital?.[0] || "");
+            return countrySortDirection === "asc" ? result : -result;
+        });
+    } else if (countrySort === "population") {
+        sortedCountries.sort((a, b) => {
+            const result = b.population - a.population;
+            return countrySortDirection === "asc" ? result : -result;
+        });
     }
 
     useEffect(() => {
@@ -48,7 +51,7 @@ function App() {
     }, []);
 
     // console.log(regionFilter);
-    console.log(countrySort);
+    // console.log(countrySort);
 
     return (
         <>
@@ -66,79 +69,19 @@ function App() {
             </div>
 
             <div className="flex space-x-4 justify-center pt-5">
-                <button
-                    className={
-                        regionFilter === "Africa"
-                            ? "bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                            : "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    }
-                    onClick={() => {
-                        setRegionFilter("Africa");
-                    }}
-                >
-                    Africa
-                </button>
-
-                <button
-                    className={
-                        regionFilter === "Americas"
-                            ? "bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                            : "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    }
-                    onClick={() => {
-                        setRegionFilter("Americas");
-                    }}
-                >
-                    Americas
-                </button>
-                <button
-                    className={
-                        regionFilter === "Asia"
-                            ? "bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                            : "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    }
-                    onClick={() => {
-                        setRegionFilter("Asia");
-                    }}
-                >
-                    Asia
-                </button>
-                <button
-                    className={
-                        regionFilter === "Europe"
-                            ? "bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                            : "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    }
-                    onClick={() => {
-                        setRegionFilter("Europe");
-                    }}
-                >
-                    Europe
-                </button>
-                <button
-                    className={
-                        regionFilter === "Oceania"
-                            ? "bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                            : "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    }
-                    onClick={() => {
-                        setRegionFilter("Oceania");
-                    }}
-                >
-                    Oceania
-                </button>
-                <button
-                    className={
-                        regionFilter === "All"
-                            ? "bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                            : "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    }
-                    onClick={() => {
-                        setRegionFilter("All");
-                    }}
-                >
-                    All
-                </button>
+                {regionArray.map((region) => (
+                    <button
+                        key={region}
+                        className={
+                            regionFilter === region
+                                ? "bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                : "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        }
+                        onClick={() => setRegionFilter(region)}
+                    >
+                        {region}
+                    </button>
+                ))}
             </div>
 
             <div className="flex space-x-2 justify-center pt-5">
