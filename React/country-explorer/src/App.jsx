@@ -9,6 +9,7 @@ function App() {
     const [regionFilter, setRegionFilter] = useState("All");
     const [countrySort, setCountrySort] = useState("alphabetical");
     const [countrySortDirection, setCoutnrySortDirection] = useState("asc");
+    const [isDark, setIsDark] = useState(true);
 
     const regionArray = ["Africa", "Americas", "Asia", "Europe", "Oceania", "All"];
 
@@ -52,9 +53,14 @@ function App() {
 
     // console.log(regionFilter);
     // console.log(countrySort);
+    console.log(isDark);
 
     return (
-        <>
+        <div className={isDark ? "dark" : ""}>
+            <button className="bg-gray-800 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-3 ml-3" onClick={() => setIsDark(!isDark)}>
+                Toggle theme
+            </button>
+
             <h1 className="text-4xl text-center font-bold mt-8">Country Explorer</h1>
             <h2 className="text-xl text-center text-gray-700">Browse and learn about countries around the world!</h2>
 
@@ -116,7 +122,7 @@ function App() {
                     ))}
                 </div>
             )}
-        </>
+        </div>
     );
 }
 
