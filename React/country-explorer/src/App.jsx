@@ -10,6 +10,7 @@ function App() {
     const [countrySort, setCountrySort] = useState("alphabetical");
     const [countrySortDirection, setCoutnrySortDirection] = useState("asc");
     const [isDark, setIsDark] = useState(true);
+    const [selectedCountry, setSelectedCountry] = useState(null);
 
     const regionArray = ["Africa", "Americas", "Asia", "Europe", "Oceania", "All"];
 
@@ -41,7 +42,7 @@ function App() {
     }
 
     useEffect(() => {
-        fetch("https://restcountries.com/v3.1/all?fields=name,flags,capital,population,region")
+        fetch("https://restcountries.com/v3.1/all?fields=name,flags,capital,population,region,subregion")
             .then((response) => response.json())
             .then((data) => {
                 setCountries(data);
@@ -53,7 +54,8 @@ function App() {
 
     // console.log(regionFilter);
     // console.log(countrySort);
-    console.log(isDark);
+    // console.log(isDark);
+    console.log(selectedCountry);
 
     return (
         <div className={isDark ? "dark" : ""}>
@@ -113,13 +115,34 @@ function App() {
                     {sortedCountries.map((country) => (
                         <CountryCard
                             key={country.name.common}
+                            country={country}
                             name={country.name.common}
                             flag={country.flags.png}
                             region={country.region}
                             capital={country.capital ? country.capital[0] : "N/A"}
                             population={country.population}
+                            onSelect={setSelectedCountry}
                         />
                     ))}
+                </div>
+            )}
+
+            {selectedCountry && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                        <h2 className="text-2xl font-bold">{selectedCountry.name.common}</h2>
+
+                        <img src={selectedCountry.flags.png} alt={`${selectedCountry.name.common} flag`} className="w-20 h-20" />
+
+                        <p>Region: {selectedCountry.region}</p>
+                        <p>Population: {selectedCountry.population}</p>
+                        <p>Capital: {selectedCountry.capital?.[0] || "N/A"}</p>
+                        <p>Sub-Region: {selectedCountry.subregion}</p>
+
+                        <button onClick={() => setSelectedCountry(null)} className="mt-4 px-4 py-2 bg-red-500 text-white rounded">
+                            Close
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
