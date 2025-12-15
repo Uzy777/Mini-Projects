@@ -42,7 +42,7 @@ function App() {
     }
 
     useEffect(() => {
-        fetch("https://restcountries.com/v3.1/all?fields=name,flags,capital,population,region,subregion")
+        fetch("https://restcountries.com/v3.1/all?fields=name,flags,capital,population,region,subregion,languages")
             .then((response) => response.json())
             .then((data) => {
                 setCountries(data);
@@ -128,20 +128,54 @@ function App() {
             )}
 
             {selectedCountry && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                        <h2 className="text-2xl font-bold">{selectedCountry.name.common}</h2>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+                        {/* Flag Hero */}
+                        <img src={selectedCountry.flags.png} alt={`${selectedCountry.name.common} flag`} className="w-full h-56 object-contain pt-5" />
 
-                        <img src={selectedCountry.flags.png} alt={`${selectedCountry.name.common} flag`} className="w-20 h-20" />
+                        {/* Scrollable Content */}
+                        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                            {/* Country Name */}
+                            <h2 className="text-3xl font-bold text-center">{selectedCountry.name.common}</h2>
 
-                        <p>Region: {selectedCountry.region}</p>
-                        <p>Population: {selectedCountry.population}</p>
-                        <p>Capital: {selectedCountry.capital?.[0] || "N/A"}</p>
-                        <p>Sub-Region: {selectedCountry.subregion}</p>
+                            {/* Meta Info */}
+                            <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+                                {selectedCountry.region}
+                                {selectedCountry.subregion && ` - ${selectedCountry.subregion}`}
+                            </p>
 
-                        <button onClick={() => setSelectedCountry(null)} className="mt-4 px-4 py-2 bg-red-500 text-white rounded">
-                            Close
-                        </button>
+                            {/* Details Grid */}
+                            <div className="grid grid-cols-2 gap-4 pt-4">
+                                <div>
+                                    <p className="text-sm font-semibold">Capital</p>
+                                    <p className="text-sm">{selectedCountry.capital?.[0] || "N/A"}</p>
+                                    {/* <p className="text-sm font-semibold pt-3">Languages</p>
+                                    <p className="text-sm">{selectedCountry.languages}</p> */}
+                                </div>
+
+                                <div>
+                                    <p className="text-sm font-semibold">Population</p>
+                                    <p className="text-sm">{selectedCountry.population.toLocaleString()}</p>
+                                </div>
+                            </div>
+
+                            {/* Divider */}
+                            <hr className="border-gray-200 dark:border-gray-700" />
+
+                            {/* Map Section */}
+                            <h3 className="text-xl font-semibold text-center">Map</h3>
+
+                            <div className="w-full h-64 bg-gray-200 dark:bg-gray-800 rounded-lg flex items-center justify-center text-sm text-gray-500">
+                                Map coming soon
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="border-t border-gray-200 dark:border-gray-700 p-4 flex justify-end">
+                            <button onClick={() => setSelectedCountry(null)} className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md">
+                                Close
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
