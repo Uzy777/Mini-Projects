@@ -42,7 +42,7 @@ function App() {
     }
 
     useEffect(() => {
-        fetch("https://restcountries.com/v3.1/all?fields=name,flags,capital,population,region,subregion,languages")
+        fetch("https://restcountries.com/v3.1/all?fields=name,flags,capital,population,region,subregion,languages,currencies")
             .then((response) => response.json())
             .then((data) => {
                 setCountries(data);
@@ -145,17 +145,32 @@ function App() {
                             </p>
 
                             {/* Details Grid */}
-                            <div className="grid grid-cols-2 gap-4 pt-4">
+                            <div className="grid grid-cols-3 gap-4 pt-4">
                                 <div>
                                     <p className="text-sm font-semibold">Capital</p>
                                     <p className="text-sm">{selectedCountry.capital?.[0] || "N/A"}</p>
-                                    {/* <p className="text-sm font-semibold pt-3">Languages</p>
-                                    <p className="text-sm">{selectedCountry.languages}</p> */}
                                 </div>
 
                                 <div>
                                     <p className="text-sm font-semibold">Population</p>
                                     <p className="text-sm">{selectedCountry.population.toLocaleString()}</p>
+                                </div>
+
+                                <div>
+                                    <p className="text-sm font-semibold">Languages</p>
+
+                                    {Object.entries(selectedCountry.languages).map(([key, value]) => (
+                                        <p className="text-sm" key={key} value={value}>
+                                            {value} ({key})
+                                        </p>
+                                    ))}
+
+                                    <p className="text-sm font-semibold pt-3">Currencies</p>
+                                    {Object.entries(selectedCountry.currencies).map(([key, value]) => (
+                                        <p className="text-sm" key={key} value={value}>
+                                            [{value.symbol}] {value.name} ({key})
+                                        </p>
+                                    ))}
                                 </div>
                             </div>
 
