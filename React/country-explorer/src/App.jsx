@@ -42,7 +42,7 @@ function App() {
     }
 
     useEffect(() => {
-        fetch("https://restcountries.com/v3.1/all?fields=name,flags,capital,population,region,subregion,languages,currencies")
+        fetch("https://restcountries.com/v3.1/all?fields=name,flags,capital,population,region,subregion,languages,currencies,borders,area")
             .then((response) => response.json())
             .then((data) => {
                 setCountries(data);
@@ -55,7 +55,7 @@ function App() {
     // console.log(regionFilter);
     // console.log(countrySort);
     // console.log(isDark);
-    console.log(selectedCountry);
+    // console.log(selectedCountry);
 
     return (
         <div className={isDark ? "dark" : ""}>
@@ -126,50 +126,80 @@ function App() {
                     ))}
                 </div>
             )}
-
             {selectedCountry && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
-                        {/* Flag Hero */}
-                        <img src={selectedCountry.flags.png} alt={`${selectedCountry.name.common} flag`} className="w-full h-56 object-contain pt-5" />
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+                    <div className="flex w-full max-w-3xl max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white text-gray-900 shadow-xl dark:bg-gray-900 dark:text-white">
+                        {/* Flag */}
+                        <div className="flex justify-center bg-gray-100 p-4 dark:bg-gray-800">
+                            <img src={selectedCountry.flags.png} alt={`${selectedCountry.name.common} flag`} className="max-h-44 object-contain" />
+                        </div>
 
-                        {/* Scrollable Content */}
-                        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                            {/* Country Name */}
-                            <h2 className="text-3xl font-bold text-center">{selectedCountry.name.common}</h2>
+                        {/* Content */}
+                        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                            {/* Title */}
+                            <div className="text-center">
+                                <h2 className="text-3xl font-bold">{selectedCountry.name.common}</h2>
+                                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                    {selectedCountry.region}
+                                    {selectedCountry.subregion && ` - ${selectedCountry.subregion}`}
+                                </p>
+                            </div>
 
-                            {/* Meta Info */}
-                            <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-                                {selectedCountry.region}
-                                {selectedCountry.subregion && ` - ${selectedCountry.subregion}`}
-                            </p>
-
-                            {/* Details Grid */}
-                            <div className="grid grid-cols-3 gap-4 pt-4">
+                            {/* Capital */}
+                            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                                 <div>
-                                    <p className="text-sm font-semibold">Capital</p>
+                                    <p className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Capital</p>
                                     <p className="text-sm">{selectedCountry.capital?.[0] || "N/A"}</p>
                                 </div>
 
+                                {/* Population */}
                                 <div>
-                                    <p className="text-sm font-semibold">Population</p>
+                                    <p className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Population</p>
                                     <p className="text-sm">{selectedCountry.population.toLocaleString()}</p>
                                 </div>
 
+                                {/* Area */}
                                 <div>
-                                    <p className="text-sm font-semibold">Languages</p>
+                                    <p className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Area</p>
+                                    <p className="text-sm">{selectedCountry.area.toLocaleString()} km²</p>
+                                </div>
+                            </div>
 
-                                    {Object.entries(selectedCountry.languages).map(([key, value]) => (
-                                        <p className="text-sm" key={key} value={value}>
-                                            {value} ({key})
+                            {/* Divider */}
+                            <hr className="border-gray-200 dark:border-gray-700" />
+
+                            {/* Languages */}
+                            <div>
+                                <p className="mb-2 text-sm font-semibold">Languages</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {Object.entries(selectedCountry.languages).map(([code, name]) => (
+                                        <span key={code} className="rounded bg-gray-200 px-2 py-1 text-xs dark:bg-gray-700">
+                                            {name} ({code})
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Currencies */}
+                            <div>
+                                <p className="mb-2 text-sm font-semibold">Currencies</p>
+                                <div className="space-y-1">
+                                    {Object.entries(selectedCountry.currencies).map(([code, currency]) => (
+                                        <p key={code} className="text-sm">
+                                            {currency.name} ({currency.symbol}) - {code}
                                         </p>
                                     ))}
+                                </div>
+                            </div>
 
-                                    <p className="text-sm font-semibold pt-3">Currencies</p>
-                                    {Object.entries(selectedCountry.currencies).map(([key, value]) => (
-                                        <p className="text-sm" key={key} value={value}>
-                                            [{value.symbol}] {value.name} ({key})
-                                        </p>
+                            {/* Borders */}
+                            <div>
+                                <p className="mb-2 text-sm font-semibold">Bordering Countries</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {selectedCountry.borders.map((border) => (
+                                        <span key={border} className="rounded bg-gray-200 px-2 py-1 text-xs dark:bg-gray-700">
+                                            {border}
+                                        </span>
                                     ))}
                                 </div>
                             </div>
@@ -177,17 +207,16 @@ function App() {
                             {/* Divider */}
                             <hr className="border-gray-200 dark:border-gray-700" />
 
-                            {/* Map Section */}
-                            <h3 className="text-xl font-semibold text-center">Map</h3>
-
-                            <div className="w-full h-64 bg-gray-200 dark:bg-gray-800 rounded-lg flex items-center justify-center text-sm text-gray-500">
+                            {/* Map Placeholder */}
+                            <h3 className="text-center text-lg font-semibold">Map</h3>
+                            <div className="flex h-64 items-center justify-center rounded-lg bg-gray-200 text-sm text-gray-500 dark:bg-gray-800">
                                 Map coming soon
                             </div>
                         </div>
 
                         {/* Footer */}
-                        <div className="border-t border-gray-200 dark:border-gray-700 p-4 flex justify-end">
-                            <button onClick={() => setSelectedCountry(null)} className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md">
+                        <div className="flex justify-end border-t border-gray-200 p-4 dark:border-gray-700">
+                            <button onClick={() => setSelectedCountry(null)} className="rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-600">
                                 Close
                             </button>
                         </div>
