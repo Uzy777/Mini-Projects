@@ -3,7 +3,7 @@ import "./App.css";
 
 import CountryCard from "./components/CountryCard";
 
-import { MapContainer, TileLayer } from "react-leaflet";
+import { MapContainer, TileLayer, Marker } from "react-leaflet";
 
 function App() {
     const [countries, setCountries] = useState([]);
@@ -44,7 +44,7 @@ function App() {
     }
 
     useEffect(() => {
-        fetch("https://restcountries.com/v3.1/all?fields=name,flags,capital,population,region,subregion,languages,currencies,borders,area")
+        fetch("https://restcountries.com/v3.1/all?fields=name,flags,capital,population,region,subregion,languages,currencies,latlng,area")
             .then((response) => response.json())
             .then((data) => {
                 setCountries(data);
@@ -195,7 +195,7 @@ function App() {
                             </div>
 
                             {/* Borders */}
-                            <div>
+                            {/* <div>
                                 <p className="mb-2 text-sm font-semibold">Bordering Countries</p>
                                 <div className="flex flex-wrap gap-2">
                                     {selectedCountry.borders.map((border) => (
@@ -204,25 +204,17 @@ function App() {
                                         </span>
                                     ))}
                                 </div>
-                            </div>
+                            </div> */}
 
                             {/* Divider */}
                             <hr className="border-gray-200 dark:border-gray-700" />
 
                             {/* Map Placeholder */}
-                            {/* <h3 className="text-center text-lg font-semibold">Map</h3>
-                            <div className="flex h-64 items-center justify-center rounded-lg bg-gray-200 text-sm text-gray-500 dark:bg-gray-800">
-                                Map coming soon
-                            </div> */}
-
                             <h3 className="text-center text-lg font-semibold">Map</h3>
                             <div className="w-full h-64 rounded-lg overflow-hidden">
-                                <MapContainer
-                                    center={[51.505, -0.09]} // London (hardcoded test)
-                                    zoom={5}
-                                    className="h-full w-full"
-                                >
+                                <MapContainer center={selectedCountry.latlng} zoom={5} className="h-full w-full">
                                     <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                    <Marker position={selectedCountry.latlng} />
                                 </MapContainer>
                             </div>
                         </div>
