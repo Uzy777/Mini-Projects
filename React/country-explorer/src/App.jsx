@@ -3,6 +3,8 @@ import "./App.css";
 
 import CountryCard from "./components/CountryCard";
 
+import { MapContainer, TileLayer } from "react-leaflet";
+
 function App() {
     const [countries, setCountries] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
@@ -208,9 +210,20 @@ function App() {
                             <hr className="border-gray-200 dark:border-gray-700" />
 
                             {/* Map Placeholder */}
-                            <h3 className="text-center text-lg font-semibold">Map</h3>
+                            {/* <h3 className="text-center text-lg font-semibold">Map</h3>
                             <div className="flex h-64 items-center justify-center rounded-lg bg-gray-200 text-sm text-gray-500 dark:bg-gray-800">
                                 Map coming soon
+                            </div> */}
+
+                            <h3 className="text-center text-lg font-semibold">Map</h3>
+                            <div className="w-full h-64 rounded-lg overflow-hidden">
+                                <MapContainer
+                                    center={[51.505, -0.09]} // London (hardcoded test)
+                                    zoom={5}
+                                    className="h-full w-full"
+                                >
+                                    <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                </MapContainer>
                             </div>
                         </div>
 
