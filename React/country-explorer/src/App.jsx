@@ -3,7 +3,8 @@ import "./App.css";
 
 import CountryCard from "./components/CountryCard";
 
-import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
+import countriesGeoJson from "./data/countries.json";
 
 function App() {
     const [countries, setCountries] = useState([]);
@@ -43,8 +44,10 @@ function App() {
         });
     }
 
+    const matchesGeoJson = selectedCountry ? countriesGeoJson.features.find((feature) => feature.properties.ISO_A3 === selectedCountry.cca3) : null;
+
     useEffect(() => {
-        fetch("https://restcountries.com/v3.1/all?fields=name,flags,capital,population,region,subregion,languages,currencies,latlng,area")
+        fetch("https://restcountries.com/v3.1/all?fields=name,flags,capital,population,region,cca3,languages,currencies,latlng,area")
             .then((response) => response.json())
             .then((data) => {
                 setCountries(data);
@@ -58,6 +61,8 @@ function App() {
     // console.log(countrySort);
     // console.log(isDark);
     // console.log(selectedCountry);
+    // console.log(countriesGeoJson.features.length);
+    // console.log(matchesGeoJson);
 
     return (
         <div className={isDark ? "dark" : ""}>
@@ -214,7 +219,16 @@ function App() {
                             <div className="w-full h-64 rounded-lg overflow-hidden">
                                 <MapContainer center={selectedCountry.latlng} zoom={5} className="h-full w-full">
                                     <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                                    <Marker position={selectedCountry.latlng} />
+                                    <GeoJSON
+                                        data={matchesGeoJson}
+                                        style={{
+                                            color: "blue",
+                                            weight: 2, 
+                                            opacity: 1,
+                                            fillColor: "blue",
+                                            fillOpacity: 0.2, //
+                                        }}
+                                    />
                                 </MapContainer>
                             </div>
                         </div>
