@@ -100,7 +100,7 @@ function App() {
                     placeholder="Search countries"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="broder p-2 text-cente border border-gray-500 dark:bg-gray-900"
+                    className="broder p-2 text-center border border-gray-500 dark:bg-gray-900"
                 ></input>
             </div>
 
@@ -156,7 +156,7 @@ function App() {
             )}
             {selectedCountry && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-                    <div className="flex w-full max-w-3xl max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white text-gray-900 shadow-xl dark:bg-gray-900 dark:text-white">
+                    <div className="flex w-full max-w-3xl max-h-screen flex-col overflow-hidden rounded-xl bg-white text-gray-900 shadow-xl dark:bg-gray-900 dark:text-white">
                         {/* Flag */}
                         <div className="flex justify-center bg-gray-100 p-4 dark:bg-gray-800">
                             <img src={selectedCountry.flags.png} alt={`${selectedCountry.name.common} flag`} className="max-h-44 object-contain" />
@@ -167,7 +167,7 @@ function App() {
                             {/* Title */}
                             <div className="text-center">
                                 <h2 className="text-3xl font-bold">{selectedCountry.name.common}</h2>
-                                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                <p className="mt-1 text-base text-gray-500 dark:text-gray-400">
                                     {selectedCountry.region}
                                     {selectedCountry.subregion && ` - ${selectedCountry.subregion}`}
                                 </p>
@@ -176,20 +176,20 @@ function App() {
                             {/* Capital */}
                             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                                 <div>
-                                    <p className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Capital</p>
-                                    <p className="text-sm">{selectedCountry.capital?.[0] || "N/A"}</p>
+                                    <p className="text-base font-semibold uppercase text-gray-500 dark:text-gray-400">Capital</p>
+                                    <p className="text-base">{selectedCountry.capital?.[0] || "N/A"}</p>
                                 </div>
 
                                 {/* Population */}
                                 <div>
-                                    <p className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Population</p>
-                                    <p className="text-sm">{selectedCountry.population.toLocaleString()}</p>
+                                    <p className="text-base font-semibold uppercase text-gray-500 dark:text-gray-400">Population</p>
+                                    <p className="text-base">{selectedCountry.population.toLocaleString()}</p>
                                 </div>
 
                                 {/* Area */}
                                 <div>
-                                    <p className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Area</p>
-                                    <p className="text-sm">{selectedCountry.area.toLocaleString()} km²</p>
+                                    <p className="text-base font-semibold uppercase text-gray-500 dark:text-gray-400">Area</p>
+                                    <p className="text-base">{selectedCountry.area.toLocaleString()} km²</p>
                                 </div>
                             </div>
 
@@ -198,10 +198,10 @@ function App() {
 
                             {/* Languages */}
                             <div>
-                                <p className="mb-2 text-sm font-semibold">Languages</p>
+                                <p className="mb-2 text-base font-semibold">Languages</p>
                                 <div className="flex flex-wrap gap-2">
                                     {Object.entries(selectedCountry.languages).map(([code, name]) => (
-                                        <span key={code} className="rounded bg-gray-200 px-2 py-1 text-xs dark:bg-gray-700">
+                                        <span key={code} className="rounded bg-gray-200 px-2 py-1 text-base dark:bg-gray-700">
                                             {name} ({code})
                                         </span>
                                     ))}
@@ -210,10 +210,10 @@ function App() {
 
                             {/* Currencies */}
                             <div>
-                                <p className="mb-2 text-sm font-semibold">Currencies</p>
+                                <p className="mb-2 text-base font-semibold">Currencies</p>
                                 <div className="space-y-1">
                                     {Object.entries(selectedCountry.currencies).map(([code, currency]) => (
-                                        <p key={code} className="text-sm">
+                                        <p key={code} className="text-base">
                                             {currency.name} ({currency.symbol}) - {code}
                                         </p>
                                     ))}
@@ -222,10 +222,10 @@ function App() {
 
                             {/* Borders */}
                             {/* <div>
-                                <p className="mb-2 text-sm font-semibold">Bordering Countries</p>
+                                <p className="mb-2 text-base font-semibold">Bordering Countries</p>
                                 <div className="flex flex-wrap gap-2">
                                     {selectedCountry.borders.map((border) => (
-                                        <span key={border} className="rounded bg-gray-200 px-2 py-1 text-xs dark:bg-gray-700">
+                                        <span key={border} className="rounded bg-gray-200 px-2 py-1 text-base dark:bg-gray-700">
                                             {border}
                                         </span>
                                     ))}
@@ -236,7 +236,7 @@ function App() {
                             <hr className="border-gray-200 dark:border-gray-700" />
 
                             {/* Map */}
-                            <h3 className="text-center text-lg font-semibold">Map</h3>
+                            <h3 className="text-center text-xl font-semibold">Map</h3>
                             <div className="w-full h-64 rounded-lg overflow-hidden">
                                 <MapContainer center={selectedCountry.latlng} zoom={5} className="h-full w-full">
                                     <TileLayer

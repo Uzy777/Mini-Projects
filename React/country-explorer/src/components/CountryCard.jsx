@@ -1,7 +1,7 @@
 const CountryCard = ({ country, name, flag, region, capital, population, onSelect }) => {
     return (
         <div
-            className="bg-white rounded-lg shadow-md p-4 w-64 mx-auto my-4 hover:shadow-lg transition-shadow dark:bg-gray-900 dark:text-white"
+            className="bg-gray-100 rounded-lg shadow-md p-4 w-64 mx-auto my-4 hover:shadow-lg transition-shadow dark:bg-gray-900 dark:text-white"
             onClick={() => onSelect(country)}
         >
             <img src={flag} alt={`${name} flag`} className="w-full h-32 object-cover rounded-t-lg" />
