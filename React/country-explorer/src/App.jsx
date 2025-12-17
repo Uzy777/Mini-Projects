@@ -1,10 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "./App.css";
 
 import CountryCard from "./components/CountryCard";
 
-import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, useMap } from "react-leaflet";
 import countriesGeoJson from "./data/countries.json";
+import FullScreen from "leaflet.fullscreen";
+
+function FullscreenControl() {
+    const map = useMap();
+    const hasAddedControl = useRef(false);
+
+    useEffect(() => {
+        if (hasAddedControl.current) return;
+
+        map.addControl(
+            new FullScreen({
+                position: "topright",
+                forceSeparateButton: true,
+            })
+        );
+
+        hasAddedControl.current = true;
+    }, [map]);
+
+    return null;
+}
 
 function App() {
     const [countries, setCountries] = useState([]);
@@ -65,13 +86,13 @@ function App() {
     // console.log(matchesGeoJson);
 
     return (
-        <div className={isDark ? "dark" : ""}>
-            <button className="bg-gray-800 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-3 ml-3" onClick={() => setIsDark(!isDark)}>
+        <div className={isDark ? "dark bg-gray-800" : ""}>
+            <button className="bg-gray-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-3 ml-3" onClick={() => setIsDark(!isDark)}>
                 Toggle theme
             </button>
 
-            <h1 className="text-4xl text-center font-bold mt-8">Country Explorer</h1>
-            <h2 className="text-xl text-center text-gray-700">Browse and learn about countries around the world!</h2>
+            <h1 className="text-4xl text-center font-bold mt-8 dark:text-white">Country Explorer</h1>
+            <h2 className="text-xl text-center text-gray-700 dark:text-white">Browse and learn about countries around the world!</h2>
 
             <div className="flex justify-center pt-5">
                 <input
@@ -79,7 +100,7 @@ function App() {
                     placeholder="Search countries"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="broder p-2 text-cente border border-gray-500"
+                    className="broder p-2 text-cente border border-gray-500 dark:bg-gray-900"
                 ></input>
             </div>
 
@@ -214,21 +235,25 @@ function App() {
                             {/* Divider */}
                             <hr className="border-gray-200 dark:border-gray-700" />
 
-                            {/* Map Placeholder */}
+                            {/* Map */}
                             <h3 className="text-center text-lg font-semibold">Map</h3>
                             <div className="w-full h-64 rounded-lg overflow-hidden">
                                 <MapContainer center={selectedCountry.latlng} zoom={5} className="h-full w-full">
-                                    <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                    <TileLayer
+                                        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                                        attribution="&copy; OpenStreetMap contributors &copy; CARTO"
+                                    />{" "}
                                     <GeoJSON
                                         data={matchesGeoJson}
                                         style={{
                                             color: "blue",
-                                            weight: 2, 
+                                            weight: 2,
                                             opacity: 1,
                                             fillColor: "blue",
-                                            fillOpacity: 0.2, //
+                                            fillOpacity: 0.2,
                                         }}
                                     />
+                                    <FullscreenControl />
                                 </MapContainer>
                             </div>
                         </div>
