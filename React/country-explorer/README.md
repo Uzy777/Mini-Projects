@@ -57,7 +57,7 @@ This project helped me practice and understand:
 ```bash
 npm install
 npm run dev
-
+```
 ---
 
 ## Preview
