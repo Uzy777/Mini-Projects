@@ -1,16 +1,78 @@
-# React + Vite
+# 🌍 Country Explorer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React application that lets users explore countries around the world using real data from the REST Countries API.  
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## React Compiler
+- 🔍 **Search countries** by name
+- 🌎 **Filter by region** (Africa, Americas, Asia, Europe, Oceania, All)
+- 🔃 **Sort countries** by:
+  - Alphabetical order
+  - Capital
+  - Population (ascending / descending)
+- 🌓 **Light & Dark mode** with a toggle
+- 📄 **Detailed country modal** with:
+  - Flag
+  - Capital
+  - Population
+  - Area
+  - Languages
+  - Currencies
+- 🗺️ **Interactive map** using Leaflet:
+  - Centers on the selected country
+  - Displays country borders using GeoJSON
+  - Fullscreen map support
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🛠️ Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **React** (Vite)
+- **Tailwind CSS**
+- **REST Countries API**
+- **React Leaflet / Leaflet**
+- **GeoJSON** (Natural Earth data)
+
+---
+
+## 📚 What I Learned
+
+This project helped me practice and understand:
+
+- Component-based architecture in React
+- Passing data via props vs lifting state
+- Filtering, sorting, and searching derived state
+- Conditional rendering and modals
+- Dark mode handling with Tailwind
+- Working with external APIs and nested data
+- Integrating maps and GeoJSON data
+- Refactoring a large `App.jsx` into reusable components
+
+---
+
+## 🚀 Getting Started
+
+```bash
+npm install
+npm run dev
+
+---
+
+## Preview
+
+### Country Grid
+# ![Country Grid](./screenshots/grid.png)
+
+### Filters & Search
+# ![Filters](./screenshots/filters.png)
+
+### Country Details Modal
+# ![Modal](./screenshots/modal.png)
+
+### Interactive Map
+# ![Map](./screenshots/map.png)
+
+### Dark Mode
+![Dark Mode](./preview/dark-mode.gif)
