@@ -63,16 +63,22 @@ npm run dev
 ## Preview
 
 ### Country Grid
-# ![Country Grid](./screenshots/grid.png)
+![Country Grid](./preview/grid.gif)
 
-### Filters & Search
-# ![Filters](./screenshots/filters.png)
+### Search
+![Search](./preview/search.gif)
+
+### Filters
+![Filters](./preview/filters.gif)
+
+### Sort
+![Sort](./preview/sort.gif)
 
 ### Country Details Modal
-# ![Modal](./screenshots/modal.png)
+![Modal](./preview/modal.gif)
 
 ### Interactive Map
-# ![Map](./screenshots/map.png)
+![Map](./preview/map.gif)
 
 ### Dark Mode
 ![Dark Mode](./preview/dark-mode.gif)
