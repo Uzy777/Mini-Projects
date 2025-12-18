@@ -60,7 +60,7 @@ npm run dev
 ```
 ---
 
-## Preview
+## 🎥 Preview
 
 ### Country Grid
 ![Country Grid](./preview/grid.gif)
