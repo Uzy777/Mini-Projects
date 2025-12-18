@@ -18,7 +18,7 @@ A collection of small projects built while learning and experimenting with diffe
 | Project | Status | Difficulty | Link |
 |--------|--------|------------|------|
 | **Adventure Story 🌋**<br/>A choice-based story, fight enemies, explore biomes, get keys. | Abandoned 💀 | 🔴 Hard | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/React/adventure-story) |
-| **Country Explorer 🇬🇧**<br/>Browse countries using an external API with filters and dynamic views. | In Progress 👨‍💻 | 🔴 Hard | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/React/country-explorer) |
+| **Country Explorer 🌍**<br/>Browse countries using an external API with filters, dynamic views and leaflet maps integration. | Completed ✅ | 🟡 Medium | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/React/country-explorer) |
 | **Typing Game ⌨️**<br/>A speed and accuracy typing game with live feedback and scoring. | In Progress 👨‍💻 | 🔴 Hard | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/React/typing-game) |
 
 ---
