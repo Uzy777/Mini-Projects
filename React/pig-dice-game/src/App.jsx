@@ -23,7 +23,7 @@ function App() {
         setPlayerScore(newScore);
         setTurnScore(0);
 
-        if (newScore >= 100) {
+        if (newScore >= targetScore) {
             setWinner("player");
             setGameStatus("end");
         } else {
@@ -45,7 +45,7 @@ function App() {
         setComputerScore(newScore);
         setTurnScore(0);
 
-        if (newScore >= 100) {
+        if (newScore >= targetScore) {
             setWinner("computer");
             setGameStatus("end");
         } else {
@@ -61,6 +61,7 @@ function App() {
         setDiceValue(null);
         setGameStatus("playing");
         setWinner(null);
+        // setTargetScore(100);
     }
 
     const [playerScore, setPlayerScore] = useState(0);
@@ -70,6 +71,7 @@ function App() {
     const [diceValue, setDiceValue] = useState(null);
     const [gameStatus, setGameStatus] = useState("playing");
     const [winner, setWinner] = useState(null);
+    const [targetScore, setTargetScore] = useState(100);
 
     useEffect(() => {
         if (currentPlayer !== "computer") return;
@@ -82,11 +84,26 @@ function App() {
         return () => clearTimeout(timeout);
     }, [currentPlayer, gameStatus, turnScore]);
 
+    console.log(gameStatus);
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <div className="w-full max-w-sm p-6 bg-white rounded-xl shadow-lg space-y-6">
                 {/* Title */}
                 <h1 className="text-2xl font-bold text-center">\U0001f3b2 Pig Dice Game</h1>
+
+                <label className="block text-sm font-medium">Target Score</label>
+                <input
+                    type="number"
+                    min="25"
+                    step="5"
+                    value={targetScore}
+                    onChange={(e) => {
+                        setTargetScore(Number(e.target.value));
+                        reset();
+                    }}
+                    // disabled={gameStatus === "playing"}
+                />
 
                 {/* Status */}
                 <p className="text-center text-sm text-gray-600">
