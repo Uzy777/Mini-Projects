@@ -53,6 +53,16 @@ function App() {
         }
     }
 
+    function reset() {
+        setPlayerScore(0);
+        setComputerScore(0);
+        setTurnScore(0);
+        setCurrentPlayer("player");
+        setDiceValue(null);
+        setGameStatus("playing");
+        setWinner(null);
+    }
+
     const [playerScore, setPlayerScore] = useState(0);
     const [computerScore, setComputerScore] = useState(0);
     const [turnScore, setTurnScore] = useState(0);
@@ -84,6 +94,7 @@ function App() {
             <p>Current Player: {currentPlayer}</p>
             <p>Winner: {winner}</p>
             <p>Game Status: {gameStatus}</p>
+            <button onClick={reset}>reset</button>
         </>
     );
 }
