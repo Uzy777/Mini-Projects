@@ -17,6 +17,20 @@ function App() {
         }
     }
 
+    function holdDie() {
+        const newScore = playerScore + turnScore;
+
+        setPlayerScore(newScore);
+        setTurnScore(0);
+
+        if (newScore >= 100) {
+            setWinner("player");
+            setGameStatus("end");
+        } else {
+            setCurrentPlayer("computer");
+        }
+    }
+
     const [playerScore, setPlayerScore] = useState(0);
     const [computerScore, setComputerScore] = useState(0);
     const [turnScore, setTurnScore] = useState(0);
@@ -28,10 +42,14 @@ function App() {
     return (
         <>
             <button onClick={rollDie}>roll</button>
+            <button onClick={holdDie}>hold</button>
             <h1 className="text-3xl font-bold underline">Hello world!</h1>
             <p>Dice Value: {diceValue}</p>
             <p>Turn Score: {turnScore}</p>
+            <p>Player Score: {playerScore}</p>
             <p>Current Player: {currentPlayer}</p>
+            <p>Winner: {winner}</p>
+            <p>Game Status: {gameStatus}</p>
         </>
     );
 }
