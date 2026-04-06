@@ -1,16 +1,18 @@
 {
-  "name": "cv-generator",
-  "version": "1.0.0",
-  "main": "generate.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "js-yaml": "^4.1.1",
-    "playwright": "^1.59.1"
-  }
+    "name": "cv-generator",
+    "version": "1.0.0",
+    "main": "generate.js",
+    "scripts": {
+        "generate": "node scripts/generate.js",
+        "pdf": "node scripts/pdf.js",
+        "build": "npm run generate && npm run pdf"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "js-yaml": "^4.1.1",
+        "playwright": "^1.59.1"
+    }
 }

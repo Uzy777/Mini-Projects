@@ -1,8 +1,13 @@
 const fs = require("fs");
+const path = require("path");
 const yaml = require("js-yaml");
 
-const data = yaml.load(fs.readFileSync("cv.yaml", "utf8"));
-let template = fs.readFileSync("template.html", "utf8");
+const dataPath = path.join(__dirname, "..", "data", "cv.yaml");
+const templatePath = path.join(__dirname, "..", "templates", "default.html");
+const outputPath = path.join(__dirname, "..", "output", "preview.html");
+
+const data = yaml.load(fs.readFileSync(dataPath, "utf8"));
+let template = fs.readFileSync(templatePath, "utf8");
 
 const skillsHtml = data.skills.map((skill) => `<li>${skill}</li>`).join("");
 
@@ -26,5 +31,9 @@ template = template
     .replace("{{skills}}", skillsHtml)
     .replace("{{projects}}", projectsHtml);
 
-fs.writeFileSync("preview.html", template);
-console.log("Created preview.html");
+// ensure output folder exists
+fs.mkdirSync(path.join(__dirname, "..", "output"), { recursive: true });
+
+fs.writeFileSync(outputPath, template);
+console.log("Created output/preview.html");
+

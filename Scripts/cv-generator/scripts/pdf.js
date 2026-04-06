@@ -5,11 +5,13 @@ const path = require("path");
     const browser = await chromium.launch();
     const page = await browser.newPage();
 
-    const filePath = "file://" + path.resolve("preview.html");
-    await page.goto(filePath, { waitUntil: "load" });
+    const previewPath = "file://" + path.resolve(__dirname, "..", "output", "preview.html");
+    const pdfPath = path.resolve(__dirname, "..", "output", "cv.pdf");
+
+    await page.goto(previewPath, { waitUntil: "load" });
 
     await page.pdf({
-        path: "cv.pdf",
+        path: pdfPath,
         format: "A4",
         printBackground: true,
         margin: {
@@ -21,5 +23,5 @@ const path = require("path");
     });
 
     await browser.close();
-    console.log("Created cv.pdf");
+    console.log("Created output/cv.pdf");
 })();
