@@ -49,6 +49,7 @@ A collection of small projects built while learning and experimenting with diffe
 
 | Project | Status | Difficulty | Link |
 |--------|---------|------------|------|
+| **CV Generator 📄**<br/>Generate a CV using YAML. | In Progress 👨‍💻 | 🟡 Medium | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/Scripts/cv-generator) |
 | **Wallhaven Scraper 🖼️**<br/>Get a list of wallpapers downloaded. | Completed ✅ | 🟡 Medium | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/Scripts/wallhaven-scraper) |
 
 ---
