@@ -2,38 +2,131 @@ const fs = require("fs");
 const path = require("path");
 const yaml = require("js-yaml");
 
-const dataPath = path.join(__dirname, "..", "data", "cv.yaml");
-const templatePath = path.join(__dirname, "..", "templates", "default.html");
-const outputPath = path.join(__dirname, "..", "output", "preview.html");
+// =========================
+// File paths
+// =========================
+const rootDir = path.join(__dirname, "..");
+const dataPath = path.join(rootDir, "data", "cv.yaml");
+const templatePath = path.join(rootDir, "templates", "default.html");
+const outputDir = path.join(rootDir, "output");
+const outputPath = path.join(outputDir, "preview.html");
 
+// =========================
+// Read input files
+// =========================
 const data = yaml.load(fs.readFileSync(dataPath, "utf8"));
 let template = fs.readFileSync(templatePath, "utf8");
 
-const skillsHtml = data.skills.map((skill) => `<li>${skill}</li>`).join("");
+// Ensure output folder exists
+fs.mkdirSync(outputDir, { recursive: true });
 
-const projectsHtml = data.projects
+// =========================
+// Small helper
+// =========================
+const safe = (value) => value || "";
+
+// =========================
+// Build HTML for skills
+// =========================
+const skillsHtml = (data.skills || []).map((skill) => `<li>${skill}</li>`).join("");
+
+// =========================
+// Build HTML for projects
+// =========================
+const projectsHtml = (data.projects || [])
     .map(
         (project) => `
-      <div style="margin-bottom: 16px;">
-        <strong>${project.name}</strong>
-        <p>${project.description}</p>
+      <div class="job">
+        <div class="job-header">
+          <span>${safe(project.name)}</span>
+        </div>
+        <p>${safe(project.description)}</p>
       </div>
     `,
     )
     .join("");
 
+// =========================
+// Build HTML for experience
+// =========================
+const experienceHtml = (data.experience || [])
+    .map(
+        (job) => `
+      <div class="job">
+        
+        <div class="job-top">
+          <span class="job-role">${safe(job.role)}</span>
+          <span class="job-date">${safe(job.start)} - ${safe(job.end)}</span>
+        </div>
+
+        <div class="job-sub">
+          ${safe(job.company)} - ${safe(job.location)} - ${safe(job.type)}
+        </div>
+
+        <ul>
+          ${(job.bullets || []).map((bullet) => `<li>${bullet}</li>`).join("")}
+        </ul>
+
+      </div>
+    `,
+    )
+    .join("");
+
+// =========================
+// Build HTML for education
+// =========================
+const educationHtml = (data.education || [])
+    .map(
+        (item) => `
+      <div class="job">
+        <div class="job-header">
+          <span>${safe(item.institution)}</span>
+          <span>${safe(item.start)} - ${safe(item.end)}</span>
+        </div>
+        <p>${safe(item.course)}</p>
+      </div>
+    `,
+    )
+    .join("");
+
+// =========================
+// Build HTML for certifications
+// =========================
+const certificationsHtml = (data.certifications || [])
+    .map(
+        (cert) => `
+      <div class="cert">
+        <strong>${cert.title}</strong>
+        <p>${cert.issuer} | ${cert.issued}</p>
+      </div>
+    `,
+    )
+    .join("");
+
+// =========================
+// Replace template placeholders
+// =========================
 template = template
-    .replace("{{name}}", data.name)
-    .replace("{{title}}", data.title)
-    .replace("{{email}}", data.email)
-    .replace("{{location}}", data.location)
-    .replace("{{summary}}", data.summary)
+    .replace("{{name}}", safe(data.name))
+    .replace("{{title}}", safe(data.title))
+    .replace("{{summary}}", safe(data.summary))
+
+    // Contact
+    .replace("{{email}}", safe(data.contact?.email))
+    .replace("{{phone}}", safe(data.contact?.phone))
+    .replace("{{linkedin}}", safe(data.contact?.linkedin))
+    .replace("{{location}}", safe(data.contact?.location))
+    .replace("{{website}}", safe(data.website))
+
+    // Section HTML
     .replace("{{skills}}", skillsHtml)
-    .replace("{{projects}}", projectsHtml);
+    .replace("{{projects}}", projectsHtml)
+    .replace("{{experience}}", experienceHtml)
+    .replace("{{education}}", educationHtml)
+    .replace("{{certifications}}", certificationsHtml);
 
-// ensure output folder exists
-fs.mkdirSync(path.join(__dirname, "..", "output"), { recursive: true });
-
+// =========================
+// Write final preview file
+// =========================
 fs.writeFileSync(outputPath, template);
 console.log("Created output/preview.html");
-

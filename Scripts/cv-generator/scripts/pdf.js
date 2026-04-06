@@ -6,6 +6,7 @@ const path = require("path");
     const page = await browser.newPage();
 
     const previewPath = "file://" + path.resolve(__dirname, "..", "output", "preview.html");
+
     const pdfPath = path.resolve(__dirname, "..", "output", "cv.pdf");
 
     await page.goto(previewPath, { waitUntil: "load" });
