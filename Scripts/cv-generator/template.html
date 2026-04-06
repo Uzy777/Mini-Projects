@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>CV Preview</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 800px;
+                margin: 40px auto;
+                line-height: 1.5;
+                color: #222;
+            }
+
+            h1,
+            h2 {
+                margin-bottom: 0.3rem;
+            }
+
+            .muted {
+                color: #666;
+            }
+
+            ul {
+                padding-left: 20px;
+            }
+
+            section {
+                margin-top: 24px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>{{name}}</h1>
+        <p class="muted">{{title}} · {{email}} · {{location}}</p>
+        <section>
+            <h2>Summary</h2>
+            <p>{{summary}}</p>
+        </section>
+
+        <section>
+            <h2>Skills</h2>
+            <ul>
+                {{skills}}
+            </ul>
+        </section>
+
+        <section>
+            <h2>Projects</h2>
+            {{projects}}
+        </section>
+    </body>
+</html>

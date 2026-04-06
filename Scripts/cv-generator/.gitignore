@@ -1,0 +1,10 @@
+# dependencies
+node_modules/
+
+# generated files
+preview.html
+cv.pdf
+
+# misc
+*.log
+.env
