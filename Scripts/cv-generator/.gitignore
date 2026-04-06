@@ -5,6 +5,7 @@ output/
 # generated files
 preview.html
 cv.pdf
+data/cv.yaml
 
 # misc
 *.log
