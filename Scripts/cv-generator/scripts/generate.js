@@ -63,6 +63,8 @@ const experienceHtml = (data.experience || [])
           ${safe(job.company)} - ${safe(job.location)} - ${safe(job.type)}
         </div>
 
+        <p>${(job.info)}</p>
+
         <ul>
           ${(job.bullets || []).map((bullet) => `<li>${bullet}</li>`).join("")}
         </ul>
