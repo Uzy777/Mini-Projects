@@ -63,7 +63,7 @@ const experienceHtml = (data.experience || [])
           ${safe(job.company)} - ${safe(job.location)} - ${safe(job.type)}
         </div>
 
-        <p>${(job.info)}</p>
+        <p>${job.info}</p>
 
         <ul>
           ${(job.bullets || []).map((bullet) => `<li>${bullet}</li>`).join("")}
@@ -97,10 +97,8 @@ const educationHtml = (data.education || [])
 const certificationsHtml = (data.certifications || [])
     .map(
         (cert) => `
-      <div class="cert">
-        <strong>${cert.title}</strong>
-        <p>${cert.issuer} | ${cert.issued}</p>
-      </div>
+        <span class="qual-title">${cert.title}</span>
+        <p class="qual-meta">${cert.issuer} | ${cert.issued}</p>
     `,
     )
     .join("");

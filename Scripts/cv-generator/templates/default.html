@@ -5,109 +5,229 @@
         <title>CV</title>
 
         <style>
+            @page {
+                size: A4;
+                margin: 14mm;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
             body {
                 font-family: Arial, sans-serif;
-                max-width: 900px;
-                margin: 40px auto;
-                line-height: 1.5;
                 color: #222;
+                line-height: 1.45;
+                font-size: 14px;
+                background: #fff;
+            }
+
+            .page {
+                max-width: 900px;
+                margin: 32px auto;
+                padding: 0 4px;
             }
 
             .header {
-                margin-bottom: 20px;
-                border-bottom: 2px solid #ddd;
-                padding-bottom: 10px;
+                margin-bottom: 24px;
+                border-bottom: 2px solid #d9d9d9;
+                padding-bottom: 12px;
             }
 
             .header h1 {
                 margin: 0;
+                font-size: 30px;
+                line-height: 1.1;
+                letter-spacing: 0.3px;
+                color: #111;
+            }
+
+            .header p {
+                margin: 6px 0 0;
+                font-size: 15px;
+                color: #666;
             }
 
             .main {
                 display: grid;
                 grid-template-columns: 2fr 1fr;
                 gap: 30px;
+                align-items: start;
+            }
+
+            .left,
+            .right {
+                min-width: 0;
+            }
+
+            .right {
+                padding-left: 18px;
+                border-left: 1px solid #dddddd;
             }
 
             .section {
-                margin-bottom: 25px;
+                margin-bottom: 22px;
+                /* page-break-inside: avoid; */
+            }
+
+            .section:last-child {
+                margin-bottom: 0;
             }
 
             .section h2 {
-                font-size: 14px;
+                margin: 0 0 10px;
+                padding-bottom: 5px;
+                font-size: 12px;
+                font-weight: 700;
                 color: #1e73be;
                 text-transform: uppercase;
-                letter-spacing: 1px;
-                border-bottom: 1px solid #ccc;
-                padding-bottom: 5px;
-                margin-bottom: 10px;
-            }
-
-            .job {
-                margin-bottom: 15px;
-            }
-
-            .job-header {
-                display: flex;
-                justify-content: space-between;
-                font-weight: bold;
-            }
-
-            ul {
-                padding-left: 20px;
-                margin: 5px 0;
-            }
-
-            .right p {
-                margin: 5px 0;
+                letter-spacing: 1.1px;
+                border-bottom: 1px solid #d6d6d6;
             }
 
             p {
+                margin: 0;
                 white-space: pre-line;
             }
 
-            .contact-item {
-                margin-bottom: 10px;
+            .left p {
+                color: #333;
             }
 
-            .contact-item strong {
-                display: block;
-                font-size: 12px;
-                text-transform: uppercase;
-                color: #666;
+            ul {
+                margin: 6px 0 0;
+                padding-left: 18px;
             }
 
-            .contact-item p {
-                margin: 2px 0 0;
+            li {
+                margin-bottom: 4px;
+            }
+
+            li:last-child {
+                margin-bottom: 0;
             }
 
             .job {
                 margin-bottom: 18px;
+                page-break-inside: avoid;
+            }
+
+            .job:last-child {
+                margin-bottom: 0;
             }
 
             .job-top {
                 display: flex;
                 justify-content: space-between;
-                font-weight: bold;
+                align-items: baseline;
+                gap: 12px;
+                margin-bottom: 2px;
             }
 
             .job-role {
                 font-size: 15px;
+                font-weight: 700;
+                color: #111;
             }
 
             .job-date {
-                font-size: 13px;
-                color: #555;
+                flex-shrink: 0;
+                font-size: 12px;
+                font-weight: 700;
+                color: #666;
+                white-space: nowrap;
+                text-align: right;
             }
 
             .job-sub {
                 font-size: 13px;
                 color: #666;
-                margin-bottom: 5px;
+                margin-bottom: 6px;
             }
 
             .job ul {
-                margin-top: 5px;
+                margin-top: 4px;
+            }
+
+            .contact-item {
+                margin-bottom: 12px;
+            }
+
+            .contact-item:last-child {
+                margin-bottom: 0;
+            }
+
+            .contact-item strong {
+                display: block;
+                margin-bottom: 2px;
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.7px;
+                color: #666;
+            }
+
+            .contact-item p {
+                margin: 0;
+                font-size: 13px;
+                color: #2c2c2c;
+                word-break: break-word;
+            }
+
+            .qual-item {
+                margin-bottom: 12px;
+            }
+
+            .qual-item:last-child {
+                margin-bottom: 0;
+            }
+
+            .qual-title {
+                display: block;
+                font-size: 13px;
+                font-weight: 600;
+                line-height: 1.35;
+                color: #222;
+            }
+
+            .qual-meta {
+                margin-top: 2px;
+                font-size: 12px;
+                color: #666;
+            }
+
+            .right ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .right ul li {
+                display: inline-block;
+                font-size: 12px;
+                padding: 4px 8px;
+                margin: 3px 4px 3px 0;
+                background: #f2f2f2;
+                border-radius: 4px;
+            }
+
+            @media print {
+                body {
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+
+                .page {
+                    max-width: none;
+                    margin: 0;
+                    padding: 0;
+                }
             }
         </style>
     </head>
@@ -165,11 +285,6 @@
                             <strong>Website</strong>
                             <p>{{website}}</p>
                         </div>
-
-                        <!-- <div class="contact-item">
-                            <strong>Location</strong>
-                            <p>{{location}}</p>
-                        </div> -->
                     </section>
 
                     <section class="section">
@@ -177,22 +292,12 @@
                         {{education}} {{certifications}}
                     </section>
 
-                    <!-- <section class="section">
-                        <h2>Certifications</h2>
-                        {{certifications}}
-                    </section> -->
-
                     <section class="section">
                         <h2>Skills</h2>
                         <ul>
                             {{skills}}
                         </ul>
                     </section>
-
-                    <!-- <section class="section">
-                        <h2>Projects</h2>
-                        {{projects}}
-                    </section> -->
                 </div>
             </main>
         </div>
