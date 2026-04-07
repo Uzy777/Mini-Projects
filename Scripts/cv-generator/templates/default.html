@@ -45,11 +45,21 @@
                 font-size: 30px;
                 line-height: 1.1;
                 letter-spacing: 0.3px;
-                color: #111;
+                color: #1e73be;
             }
 
             .header p {
                 margin: 6px 0 0;
+                font-size: 15px;
+                color: #666;
+            }
+
+            .header-content {
+                text-align: right;
+            }
+
+            .header-title {
+                margin-top: 4px;
                 font-size: 15px;
                 color: #666;
             }
@@ -235,8 +245,10 @@
     <body>
         <div class="page">
             <header class="header">
-                <h1>{{name}}</h1>
-                <p>{{title}}</p>
+                <div class="header-content">
+                    <h1>{{name}}</h1>
+                    <p class="header-title">{{title}}</p>
+                </div>
             </header>
 
             <main class="main">
