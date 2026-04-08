@@ -115,6 +115,7 @@ template = template
     .replace("{{email}}", safe(data.contact?.email))
     .replace("{{phone}}", safe(data.contact?.phone))
     .replace("{{linkedin}}", safe(data.contact?.linkedin))
+    .replace("{{github}}", safe(data.contact?.github))
     .replace("{{location}}", safe(data.contact?.location))
     .replace("{{website}}", safe(data.website))
 

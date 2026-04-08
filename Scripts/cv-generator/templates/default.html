@@ -48,11 +48,11 @@
                 color: #1e73be;
             }
 
-            .header p {
+            /* .header p {
                 margin: 6px 0 0;
                 font-size: 15px;
                 color: #666;
-            }
+            } */
 
             .header-content {
                 text-align: right;
@@ -62,6 +62,12 @@
                 margin-top: 4px;
                 font-size: 15px;
                 color: #666;
+            }
+
+            .header-subtitle {
+                margin-top: 4px;
+                font-size: 12px;
+                color: #777;
             }
 
             .main {
@@ -248,6 +254,7 @@
                 <div class="header-content">
                     <h1>{{name}}</h1>
                     <p class="header-title">{{title}}</p>
+                    <p class="header-subtitle">{{location}}</p>
                 </div>
             </header>
 
@@ -291,6 +298,11 @@
                         <div class="contact-item">
                             <strong>LinkedIn</strong>
                             <p>{{linkedin}}</p>
+                        </div>
+
+                        <div class="contact-item">
+                            <strong>GitHub</strong>
+                            <p>{{github}}</p>
                         </div>
 
                         <div class="contact-item">
