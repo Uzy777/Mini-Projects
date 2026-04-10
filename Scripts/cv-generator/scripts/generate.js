@@ -50,28 +50,30 @@ const projectsHtml = (data.projects || [])
 // Build HTML for experience
 // =========================
 const experienceHtml = (data.experience || [])
-    .map(
-        (job) => `
+    .map((job) => {
+        const techLine = (job.tech || []).join(" · ");
+
+        return `
       <div class="job">
-        
         <div class="job-top">
           <span class="job-role">${safe(job.role)}</span>
           <span class="job-date">${safe(job.start)} - ${safe(job.end)}</span>
         </div>
 
         <div class="job-sub">
-          ${safe(job.company)} - ${safe(job.location)} - ${safe(job.type)}
+          ${safe(job.company)}${job.location ? " - " + job.location : ""}${job.type ? " - " + job.type : ""}
         </div>
 
-        <p>${job.info}</p>
+        <p>${safe(job.info)}</p>
 
         <ul>
           ${(job.bullets || []).map((bullet) => `<li>${bullet}</li>`).join("")}
         </ul>
 
+        ${techLine ? `<p class="job-tech"><strong>Technologies:</strong> ${techLine}</p>` : ""}
       </div>
-    `,
-    )
+    `;
+    })
     .join("");
 
 // =========================
