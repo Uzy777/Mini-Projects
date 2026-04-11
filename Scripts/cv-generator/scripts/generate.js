@@ -34,16 +34,22 @@ const skillsHtml = (data.skills || []).map((skill) => `<li>${skill}</li>`).join(
 // Build HTML for projects
 // =========================
 const projectsHtml = (data.projects || [])
-    .map(
-        (project) => `
+    .map((project) => {
+        const techLine = (project.tech || []).join(" · ");
+
+        return `
       <div class="job">
         <div class="job-header">
-          <span>${safe(project.name)}</span>
+          <span><strong>${safe(project.name)}</strong></span>
         </div>
         <p>${safe(project.description)}</p>
+
+        ${techLine ? `<p class="job-tech"><strong>Technologies:</strong> ${techLine}</p>` : ""}
+
+        <p><a href="https://www.${safe(project.link)}" target="_blank" rel="noopener noreferrer">${safe(project.link)}</a></p>
       </div>
-    `,
-    )
+    `;
+    })
     .join("");
 
 // =========================
