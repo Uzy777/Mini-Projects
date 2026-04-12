@@ -1,16 +1,90 @@
-name: Uzy
-title: Junior Developer
-email: abc@outlook.com
-location: UK
+name: Example Name
+title: Example Job Title
+website: example.dev
 
-summary: Testing
+contact:
+    email: example@example.com
+    phone: "+00 0000 000000"
+    linkedin: linkedin.com/in/example
+    github: github.com/example
+    location: Example City
+
+summary: >
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+
+experience:
+    - role: Example Role
+      company: Example Company
+      location: Example Location
+      type: Full-time
+      start: Jan 2023
+      end: Present
+      info: >
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+      bullets:
+          - Lorem ipsum dolor sit amet, consectetur adipiscing elit
+          - Sed do eiusmod tempor incididunt ut labore et dolore
+          - Ut enim ad minim veniam, quis nostrud exercitation
+
+    - role: Another Role
+      company: Another Company
+      location: Example Location
+      type: Part-time
+      start: Jan 2021
+      end: Dec 2022
+      info: >
+          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+      bullets:
+          - Duis aute irure dolor in reprehenderit
+          - Excepteur sint occaecat cupidatat non proident
+          - Sunt in culpa qui officia deserunt mollit anim
+
+education:
+    - institution: Example University
+      course: Example Degree
+      start: 2019
+      end: 2022
+
+certifications:
+    - title: Example Certification
+      issuer: Example Issuer
+      issued: Jan 2023
+
+    - title: Another Certification
+      issuer: Example Issuer
+      issued: Jun 2022
 
 skills:
-  - Testing
-  - Testing
-  - Testa
+    - Skill One
+    - Skill Two
+    - Skill Three
+    - Skill Four
+    - Skill Five
 
-projects: 
-  - name: xx
-    description: test
+projects:
+    - name: Example Project
+      description: >
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.
+      bullets:
+          - Lorem ipsum dolor sit amet
+          - Sed do eiusmod tempor incididunt
+          - Ut enim ad minim veniam
+      tech:
+          - Tech One
+          - Tech Two
+          - Tech Three
+      link: example.dev/project
 
+    - name: Another Project
+      description: >
+          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+      bullets:
+          - Duis aute irure dolor in reprehenderit
+          - Excepteur sint occaecat cupidatat
+          - Sunt in culpa qui officia deserunt
+      tech:
+          - Tech A
+          - Tech B
+          - Tech C
+      link: example.dev/another
