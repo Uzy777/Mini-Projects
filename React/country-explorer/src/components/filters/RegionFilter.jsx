@@ -1,6 +1,6 @@
 const RegionFilter = ({ value, regions, onChange }) => {
     return (
-        <div className="flex space-x-4 justify-center pt-5">
+        <div className="flex flex-wrap justify-center gap-2 pt-5">
             {regions.map((region) => (
                 <button
                     key={region}
