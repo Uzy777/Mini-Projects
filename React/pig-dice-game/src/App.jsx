@@ -1,14 +1,9 @@
 import { useEffect, useState } from "react";
-import "./App.css";
-
-const TARGET_SCORE = 100;
-const AI_HOLD_AT = 20;
-const AI_DELAY = 800;
 
 function createPlayers() {
     return [
-        { name: "You", score: 0, isAI: false },
-        { name: "Computer", score: 0, isAI: true },
+        { name: "Player 1", score: 0 },
+        { name: "Player 2", score: 0 },
     ];
 }
 
@@ -17,22 +12,34 @@ export default function App() {
     const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
     const [turnScore, setTurnScore] = useState(0);
     const [diceValue, setDiceValue] = useState(null);
-    const [status, setStatus] = useState("idle"); // idle | playing | ended
+    const [status, setStatus] = useState("idle");
     const [winner, setWinner] = useState(null);
+    const [targetScore, setTargetScore] = useState(100);
+    const [darkMode, setDarkMode] = useState(false);
 
     const currentPlayer = players[currentPlayerIndex];
 
-    function resetGame() {
+    useEffect(() => {
+        const savedTheme = localStorage.getItem("pig-dice-theme");
+        setDarkMode(savedTheme === "dark");
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem("pig-dice-theme", darkMode ? "dark" : "light");
+    }, [darkMode]);
+
+    function resetGame(newTargetScore = targetScore) {
         setPlayers(createPlayers());
         setCurrentPlayerIndex(0);
         setTurnScore(0);
         setDiceValue(null);
         setStatus("idle");
         setWinner(null);
+        setTargetScore(newTargetScore);
     }
 
     function switchPlayer() {
-        setCurrentPlayerIndex((prev) => (prev === 0 ? 1 : 0));
+        setCurrentPlayerIndex((prev) => (prev + 1) % players.length);
         setTurnScore(0);
     }
 
@@ -54,9 +61,8 @@ export default function App() {
         setTurnScore((prev) => prev + roll);
     }
 
-    function holdTurn() {
-        if (status === "ended") return;
-        if (turnScore === 0) return;
+    function bankTurn() {
+        if (status === "ended" || turnScore === 0) return;
 
         if (status === "idle") {
             setStatus("playing");
@@ -68,7 +74,7 @@ export default function App() {
 
         setPlayers(updatedPlayers);
 
-        if (updatedCurrentPlayer.score >= TARGET_SCORE) {
+        if (updatedCurrentPlayer.score >= targetScore) {
             setWinner(updatedCurrentPlayer.name);
             setStatus("ended");
             return;
@@ -77,89 +83,137 @@ export default function App() {
         switchPlayer();
     }
 
-    useEffect(() => {
-        if (!currentPlayer) return;
-        if (!currentPlayer.isAI) return;
-        if (status !== "playing") return;
-        if (status === "ended") return;
-
-        const timer = setTimeout(() => {
-            if (turnScore >= AI_HOLD_AT) {
-                holdTurn();
-            } else {
-                rollDie();
-            }
-        }, AI_DELAY);
-
-        return () => clearTimeout(timer);
-    }, [currentPlayer, turnScore, status]);
-
     if (!currentPlayer) return null;
 
     return (
-        <main className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
-            <section className="w-full max-w-xl rounded-2xl bg-white shadow-lg p-6 space-y-6">
-                <header className="text-center space-y-2">
-                    <h1 className="text-3xl font-bold">Pig Dice Game</h1>
-                    <p className="text-sm text-slate-600">First to {TARGET_SCORE} wins</p>
-                </header>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {players.map((player, index) => {
-                        const isActive = index === currentPlayerIndex;
-
-                        return (
-                            <div
-                                key={player.name}
-                                className={`rounded-xl border p-4 transition ${isActive ? "border-blue-500 bg-blue-50" : "border-slate-200 bg-slate-50"}`}
-                            >
-                                <div className="flex items-center justify-between">
-                                    <h2 className="text-lg font-semibold">{player.name}</h2>
-                                    {isActive && status !== "ended" && (
-                                        <span className="text-xs font-medium px-2 py-1 rounded-full bg-blue-100 text-blue-700">Active</span>
-                                    )}
+        <div className={darkMode ? "dark" : ""}>
+            <main className="min-h-screen bg-slate-100 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100">
+                <div className="mx-auto flex min-h-screen w-full max-w-xl items-center justify-center p-4">
+                    <section className="w-full rounded-2xl bg-white p-6 shadow-lg space-y-6 dark:bg-slate-900 dark:shadow-2xl">
+                        <header className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h1 className="text-3xl font-bold">Pig Dice Game</h1>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400">First to {targetScore} wins</p>
                                 </div>
 
-                                <p className="mt-3 text-3xl font-bold text-slate-800">{player.score}</p>
-                                <p className="text-sm text-slate-500">Total score</p>
+                                <button
+                                    onClick={() => setDarkMode((prev) => !prev)}
+                                    className="rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+                                >
+                                    {darkMode ? "☀ Light" : "🌙 Dark"}
+                                </button>
                             </div>
-                        );
-                    })}
+                        </header>
+
+                        <div className="flex justify-center gap-3">
+                            <button
+                                onClick={() => resetGame(50)}
+                                disabled={status === "playing"}
+                                className={`rounded-xl border px-4 py-2 font-medium transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                                    targetScore === 50
+                                        ? "border-blue-600 bg-blue-600 text-white"
+                                        : "border-slate-300 bg-white text-slate-800 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+                                }`}
+                            >
+                                Play to 50
+                            </button>
+
+                            <button
+                                onClick={() => resetGame(100)}
+                                disabled={status === "playing"}
+                                className={`rounded-xl border px-4 py-2 font-medium transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                                    targetScore === 100
+                                        ? "border-blue-600 bg-blue-600 text-white"
+                                        : "border-slate-300 bg-white text-slate-800 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+                                }`}
+                            >
+                                Play to 100
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            {players.map((player, index) => {
+                                const isActive = index === currentPlayerIndex;
+
+                                return (
+                                    <div
+                                        key={player.name}
+                                        className={`rounded-xl border p-4 transition ${
+                                            isActive
+                                                ? "border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-950/40"
+                                                : "border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800"
+                                        }`}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <h2 className="text-lg font-semibold">{player.name}</h2>
+
+                                            {isActive && status !== "ended" && (
+                                                <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-200">
+                                                    Active
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <p className="mt-3 text-3xl font-bold">{player.score}</p>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400">Total score</p>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <div
+                            className={`rounded-2xl border p-6 text-center space-y-3 transition ${
+                                status === "ended"
+                                    ? "border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30"
+                                    : "border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800"
+                            }`}
+                        >
+                            {status === "ended" ? (
+                                <div className="space-y-2">
+                                    <p className="text-sm font-medium uppercase tracking-wide text-emerald-600 dark:text-emerald-400">Game Over</p>
+                                    <p className="text-3xl font-bold">🎉 {winner} wins!</p>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">First to {targetScore} points.</p>
+                                </div>
+                            ) : (
+                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{currentPlayer.name}'s turn</p>
+                            )}
+
+                            <div className="text-6xl font-bold">{diceValue ?? "–"}</div>
+
+                            <div>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">Turn score</p>
+                                <p className="text-2xl font-semibold">{turnScore}</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                            <button
+                                onClick={rollDie}
+                                disabled={status === "ended"}
+                                className="rounded-xl bg-blue-600 px-4 py-3 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                                Roll
+                            </button>
+
+                            <button
+                                onClick={bankTurn}
+                                disabled={status === "ended" || turnScore === 0}
+                                className="rounded-xl bg-emerald-600 px-4 py-3 font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                                Bank
+                            </button>
+
+                            <button
+                                onClick={() => resetGame()}
+                                className="rounded-xl bg-slate-200 px-4 py-3 font-medium text-slate-800 transition hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
+                            >
+                                {status === "ended" ? "Play Again" : "Reset"}
+                            </button>
+                        </div>
+                    </section>
                 </div>
-
-                <div className="rounded-2xl bg-slate-50 border border-slate-200 p-6 text-center space-y-3">
-                    <p className="text-sm font-medium text-slate-500">{status === "ended" ? `Winner: ${winner}` : `${currentPlayer.name}'s turn`}</p>
-
-                    <div className="text-6xl font-bold text-slate-800">{diceValue ?? "–"}</div>
-
-                    <div>
-                        <p className="text-sm text-slate-500">Turn score</p>
-                        <p className="text-2xl font-semibold">{turnScore}</p>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <button
-                        onClick={rollDie}
-                        disabled={currentPlayer.isAI || status === "ended"}
-                        className="rounded-xl bg-blue-600 px-4 py-3 font-medium text-white disabled:opacity-40 disabled:cursor-not-allowed"
-                    >
-                        Roll
-                    </button>
-
-                    <button
-                        onClick={holdTurn}
-                        disabled={currentPlayer.isAI || status === "ended" || turnScore === 0}
-                        className="rounded-xl bg-emerald-600 px-4 py-3 font-medium text-white disabled:opacity-40 disabled:cursor-not-allowed"
-                    >
-                        Hold
-                    </button>
-
-                    <button onClick={resetGame} className="rounded-xl bg-slate-200 px-4 py-3 font-medium text-slate-800">
-                        Reset
-                    </button>
-                </div>
-            </section>
-        </main>
+            </main>
+        </div>
     );
 }
