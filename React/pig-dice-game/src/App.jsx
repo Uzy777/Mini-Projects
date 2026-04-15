@@ -1,215 +1,165 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
+const TARGET_SCORE = 100;
+const AI_HOLD_AT = 20;
+const AI_DELAY = 800;
+
+function createPlayers() {
+    return [
+        { name: "You", score: 0, isAI: false },
+        { name: "Computer", score: 0, isAI: true },
+    ];
+}
+
 export default function App() {
-    /* =====================
-       GAME STATE
-    ====================== */
-    const [gameMode, setGameMode] = useState("human-ai"); // "human-ai" | "human-human"
-    const [playerCount, setPlayerCount] = useState(2);
-    const [targetScore, setTargetScore] = useState(100);
-    const [players, setPlayers] = useState([]);
+    const [players, setPlayers] = useState(createPlayers);
     const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
     const [turnScore, setTurnScore] = useState(0);
     const [diceValue, setDiceValue] = useState(null);
-    const [gameStatus, setGameStatus] = useState("setup"); // playing | end
+    const [status, setStatus] = useState("idle"); // idle | playing | ended
     const [winner, setWinner] = useState(null);
 
     const currentPlayer = players[currentPlayerIndex];
 
-    /* =====================
-       PLAYER LOGIC
-    ====================== */
-    function createPlayers(mode, count) {
-        if (mode === "human-ai") {
-            return [
-                { name: "Player", score: 0, isAI: false },
-                { name: "Computer", score: 0, isAI: true },
-            ];
-        }
-
-        return Array.from({ length: count }, (_, i) => ({
-            name: `Player ${i + 1}`,
-            score: 0,
-            isAI: false,
-        }));
-    }
-
-    /* =====================
-       RESET GAME
-    ====================== */
-    function resetGame(overrides = {}) {
-        const mode = overrides.gameMode ?? gameMode;
-        const count = overrides.playerCount ?? playerCount;
-
-        setPlayers(createPlayers(mode, count));
+    function resetGame() {
+        setPlayers(createPlayers());
         setCurrentPlayerIndex(0);
         setTurnScore(0);
         setDiceValue(null);
+        setStatus("idle");
         setWinner(null);
-        setGameStatus("setup");
     }
 
-    useEffect(() => {
-        resetGame();
-    }, []);
-
-    /* =====================
-       GAME LOGIC
-    ====================== */
-    function nextPlayer() {
-        setCurrentPlayerIndex((prev) => (prev + 1) % players.length);
+    function switchPlayer() {
+        setCurrentPlayerIndex((prev) => (prev === 0 ? 1 : 0));
         setTurnScore(0);
     }
 
     function rollDie() {
-        if (gameStatus === "setup") {
-            setGameStatus("playing");
+        if (status === "ended") return;
+
+        if (status === "idle") {
+            setStatus("playing");
         }
+
         const roll = Math.floor(Math.random() * 6) + 1;
         setDiceValue(roll);
 
         if (roll === 1) {
-            nextPlayer();
-        } else {
-            setTurnScore((prev) => prev + roll);
-        }
-    }
-
-    function holdDie() {
-        const updatedPlayers = [...players];
-        const player = updatedPlayers[currentPlayerIndex];
-
-        player.score += turnScore;
-
-        if (player.score >= targetScore) {
-            setPlayers(updatedPlayers);
-            setWinner(player.name);
-            setGameStatus("end");
+            switchPlayer();
             return;
         }
 
-        setPlayers(updatedPlayers);
-        nextPlayer();
+        setTurnScore((prev) => prev + roll);
     }
 
-    /* =====================
-       AI TURN
-    ====================== */
-    useEffect(() => {
-        if (!currentPlayer || !currentPlayer.isAI) return;
-        if (gameStatus !== "playing") return;
+    function holdTurn() {
+        if (status === "ended") return;
+        if (turnScore === 0) return;
 
-        const timeout = setTimeout(() => {
-            if (turnScore >= 20) {
-                holdDie();
+        if (status === "idle") {
+            setStatus("playing");
+        }
+
+        const updatedPlayers = players.map((player, index) => (index === currentPlayerIndex ? { ...player, score: player.score + turnScore } : player));
+
+        const updatedCurrentPlayer = updatedPlayers[currentPlayerIndex];
+
+        setPlayers(updatedPlayers);
+
+        if (updatedCurrentPlayer.score >= TARGET_SCORE) {
+            setWinner(updatedCurrentPlayer.name);
+            setStatus("ended");
+            return;
+        }
+
+        switchPlayer();
+    }
+
+    useEffect(() => {
+        if (!currentPlayer) return;
+        if (!currentPlayer.isAI) return;
+        if (status !== "playing") return;
+        if (status === "ended") return;
+
+        const timer = setTimeout(() => {
+            if (turnScore >= AI_HOLD_AT) {
+                holdTurn();
             } else {
                 rollDie();
             }
-        }, 800);
+        }, AI_DELAY);
 
-        return () => clearTimeout(timeout);
-    }, [currentPlayerIndex, turnScore, gameStatus]);
+        return () => clearTimeout(timer);
+    }, [currentPlayer, turnScore, status]);
 
     if (!currentPlayer) return null;
 
-    console.log(gameStatus);
-
-    /* =====================
-       UI
-    ====================== */
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="w-full max-w-md p-6 bg-white rounded-xl shadow space-y-5">
-                <h1 className="text-2xl font-bold text-center">🎲 Pig Dice Game</h1>
+        <main className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
+            <section className="w-full max-w-xl rounded-2xl bg-white shadow-lg p-6 space-y-6">
+                <header className="text-center space-y-2">
+                    <h1 className="text-3xl font-bold">Pig Dice Game</h1>
+                    <p className="text-sm text-slate-600">First to {TARGET_SCORE} wins</p>
+                </header>
 
-                {/* SETUP */}
-                <div className="space-y-2">
-                    <label className="block text-sm font-medium">Game Mode</label>
-                    <select
-                        value={gameMode}
-                        onChange={(e) => {
-                            setGameMode(e.target.value);
-                            resetGame();
-                        }}
-                        className="w-full border rounded p-1"
-                        disabled={gameStatus === "playing"}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {players.map((player, index) => {
+                        const isActive = index === currentPlayerIndex;
+
+                        return (
+                            <div
+                                key={player.name}
+                                className={`rounded-xl border p-4 transition ${isActive ? "border-blue-500 bg-blue-50" : "border-slate-200 bg-slate-50"}`}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-lg font-semibold">{player.name}</h2>
+                                    {isActive && status !== "ended" && (
+                                        <span className="text-xs font-medium px-2 py-1 rounded-full bg-blue-100 text-blue-700">Active</span>
+                                    )}
+                                </div>
+
+                                <p className="mt-3 text-3xl font-bold text-slate-800">{player.score}</p>
+                                <p className="text-sm text-slate-500">Total score</p>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                <div className="rounded-2xl bg-slate-50 border border-slate-200 p-6 text-center space-y-3">
+                    <p className="text-sm font-medium text-slate-500">{status === "ended" ? `Winner: ${winner}` : `${currentPlayer.name}'s turn`}</p>
+
+                    <div className="text-6xl font-bold text-slate-800">{diceValue ?? "–"}</div>
+
+                    <div>
+                        <p className="text-sm text-slate-500">Turn score</p>
+                        <p className="text-2xl font-semibold">{turnScore}</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <button
+                        onClick={rollDie}
+                        disabled={currentPlayer.isAI || status === "ended"}
+                        className="rounded-xl bg-blue-600 px-4 py-3 font-medium text-white disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                        <option value="human-ai">Human vs Computer</option>
-                        <option value="human-human">Human vs Human</option>
-                    </select>
-
-                    {gameMode === "human-human" && (
-                        <>
-                            <label className="block text-sm font-medium">Players (2–8)</label>
-                            <input
-                                type="number"
-                                min={2}
-                                max={8}
-                                value={playerCount}
-                                onChange={(e) => {
-                                    const count = Number(e.target.value);
-                                    setPlayerCount(count);
-                                    resetGame({ playerCount: count });
-                                }}
-                                className="w-full border rounded p-1"
-                                disabled={gameStatus === "playing"}
-                            />
-                        </>
-                    )}
-
-                    <label className="block text-sm font-medium">Target Score</label>
-                    <input
-                        type="number"
-                        min={25}
-                        step={5}
-                        value={targetScore}
-                        onChange={(e) => {
-                            setTargetScore(Number(e.target.value));
-                            resetGame();
-                        }}
-                        className="w-full border rounded p-1"
-                        disabled={gameStatus === "playing"}
-                    />
-                </div>
-
-                {/* STATUS */}
-                <p className="text-center text-sm text-gray-600">{gameStatus === "end" ? `🏆 ${winner} wins!` : `${currentPlayer.name}'s turn`}</p>
-
-                {/* PLAYERS */}
-                <div className="space-y-2">
-                    {players.map((p, i) => (
-                        <div key={i} className={`p-2 rounded ${i === currentPlayerIndex ? "bg-blue-200" : "bg-gray-100"}`}>
-                            <p className="font-semibold">{p.name}</p>
-                            <p>Score: {p.score}</p>
-                        </div>
-                    ))}
-                </div>
-
-                {/* DICE */}
-                <div className="text-center">
-                    <p className="text-5xl font-bold">{diceValue ?? "-"}</p>
-                    <p className="text-sm">Turn Score: {turnScore}</p>
-                </div>
-
-                {/* CONTROLS */}
-                <div className="flex gap-3">
-                    <button onClick={rollDie} disabled={currentPlayer.isAI} className="flex-1 py-2 bg-blue-500 text-white rounded disabled:opacity-40">
                         Roll
                     </button>
+
                     <button
-                        onClick={holdDie}
-                        disabled={currentPlayer.isAI || gameStatus !== "playing"}
-                        className="flex-1 py-2 bg-green-500 text-white rounded disabled:opacity-40"
+                        onClick={holdTurn}
+                        disabled={currentPlayer.isAI || status === "ended" || turnScore === 0}
+                        className="rounded-xl bg-emerald-600 px-4 py-3 font-medium text-white disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                         Hold
                     </button>
-                </div>
 
-                <button onClick={resetGame} className="w-full py-2 bg-gray-300 rounded">
-                    Reset Game
-                </button>
-            </div>
-        </div>
+                    <button onClick={resetGame} className="rounded-xl bg-slate-200 px-4 py-3 font-medium text-slate-800">
+                        Reset
+                    </button>
+                </div>
+            </section>
+        </main>
     );
 }
