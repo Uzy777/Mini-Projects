@@ -16,8 +16,15 @@ export default function App() {
     const [winner, setWinner] = useState(null);
     const [targetScore, setTargetScore] = useState(100);
     const [darkMode, setDarkMode] = useState(false);
+    const [sound, setSound] = useState(true);
 
     const currentPlayer = players[currentPlayerIndex];
+
+    // Sounds
+    const dieRollSound = new Audio("./sounds/dice_roll.mp3");
+    const bankRollSound = new Audio("./sounds/bank_roll.mp3");
+    const failRollOneSound = new Audio("./sounds/fail.mp3");
+    const winnerSound = new Audio("./sounds/win.mp3");
 
     useEffect(() => {
         const savedTheme = localStorage.getItem("pig-dice-theme");
@@ -27,6 +34,13 @@ export default function App() {
     useEffect(() => {
         localStorage.setItem("pig-dice-theme", darkMode ? "dark" : "light");
     }, [darkMode]);
+
+    function playSound(audio) {
+        if (!sound) return;
+
+        audio.currentTime = 0;
+        audio.play();
+    }
 
     function resetGame(newTargetScore = targetScore) {
         setPlayers(createPlayers());
@@ -51,10 +65,13 @@ export default function App() {
         }
 
         const roll = Math.floor(Math.random() * 6) + 1;
+        playSound(dieRollSound);
+
         setDiceValue(roll);
 
         if (roll === 1) {
             switchPlayer();
+            playSound(failRollOneSound);
             return;
         }
 
@@ -68,6 +85,8 @@ export default function App() {
             setStatus("playing");
         }
 
+        playSound(bankRollSound);
+
         const updatedPlayers = players.map((player, index) => (index === currentPlayerIndex ? { ...player, score: player.score + turnScore } : player));
 
         const updatedCurrentPlayer = updatedPlayers[currentPlayerIndex];
@@ -75,6 +94,7 @@ export default function App() {
         setPlayers(updatedPlayers);
 
         if (updatedCurrentPlayer.score >= targetScore) {
+            playSound(winnerSound);
             setWinner(updatedCurrentPlayer.name);
             setStatus("ended");
             return;
@@ -97,12 +117,20 @@ export default function App() {
                                     <p className="text-sm text-slate-600 dark:text-slate-400">First to {targetScore} wins</p>
                                 </div>
 
-                                <button
-                                    onClick={() => setDarkMode((prev) => !prev)}
-                                    className="rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
-                                >
-                                    {darkMode ? "☀ Light" : "🌙 Dark"}
-                                </button>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => setDarkMode((prev) => !prev)}
+                                        className="rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+                                    >
+                                        {darkMode ? "☀ Light" : "🌙 Dark"}
+                                    </button>
+                                    <button
+                                        onClick={() => setSound((prev) => !prev)}
+                                        className="rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+                                    >
+                                        {sound ? "🔊 On" : "🔇 Off"}
+                                    </button>
+                                </div>
                             </div>
                         </header>
 
