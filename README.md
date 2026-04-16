@@ -1,9 +1,9 @@
 # Mini Projects
 A collection of small projects built while learning and experimenting with different languages and tools.
 
----
+<!-- --- -->
 
-## 🚀 Tech Stack
+<!-- ## 🚀 Tech Stack
 <p align="left">
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="40" height="40" />
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" width="40" height="40" />
@@ -11,7 +11,7 @@ A collection of small projects built while learning and experimenting with diffe
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitejs/vitejs-original.svg" width="40" height="40" />
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg" width="40" height="40" />
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg" width="40" height="40" />
-</p>
+</p> -->
 
 ---
 
