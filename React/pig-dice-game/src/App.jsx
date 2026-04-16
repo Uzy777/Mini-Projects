@@ -35,6 +35,24 @@ export default function App() {
         localStorage.setItem("pig-dice-theme", darkMode ? "dark" : "light");
     }, [darkMode]);
 
+    useEffect(() => {
+        function handleKeyPress(e) {
+            const key = e.key.toLowerCase();
+
+            if (key === "r") {
+                rollDie();
+            }
+
+            if (key === "b") {
+                bankTurn();
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyPress);
+
+        return () => window.removeEventListener("keydown", handleKeyPress);
+    }, [status, turnScore, currentPlayerIndex, players, targetScore]);
+
     function playSound(audio) {
         if (!sound) return;
 
@@ -221,7 +239,7 @@ export default function App() {
                                 disabled={status === "ended"}
                                 className="rounded-xl bg-blue-600 px-4 py-3 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
                             >
-                                Roll
+                                Roll [r]
                             </button>
 
                             <button
@@ -229,7 +247,7 @@ export default function App() {
                                 disabled={status === "ended" || turnScore === 0}
                                 className="rounded-xl bg-emerald-600 px-4 py-3 font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40"
                             >
-                                Bank
+                                Bank [b]
                             </button>
 
                             <button
