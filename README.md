@@ -29,7 +29,7 @@ A collection of small projects built while learning and experimenting with diffe
 # 🟨 Python Projects
 
 | Project | Status | Link |
-|--------|----------------|------|
+|--------|---------|------|
 | **Adventure Story 🌋**<br/>A choice-based story with multiple scenarios. | Completed ✅ | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Adventure%20Story) |
 | **Fifty Fifty 🪜**<br/>High-risk true/false ladder game completly random. | Not Started ❌ | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Fifty%20Fifty) |
 | **Jump Scare 👹**<br/>A little laugh to scare the sibling. | Completed ✅ | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/Python/Jump%20Scare) |
