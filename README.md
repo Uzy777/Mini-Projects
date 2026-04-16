@@ -18,7 +18,7 @@ A collection of small projects built while learning and experimenting with diffe
 # 🟦 React Projects
 
 | Project | Status | Link |
-|--------|--------|------------|------|
+|--------|--------|------|
 | **Adventure Story 🌋**<br/>A choice-based story, fight enemies, explore biomes, get keys. | Abandoned 💀 | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/React/adventure-story) |
 | **Country Explorer 🌍**<br/>Browse countries using an external API with filters, dynamic views and leaflet maps integration. | Completed ✅ | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/React/country-explorer) |
 | **Pig Dice Game 🐷**<br/>A turn-based dice game where rolling a 1 wipes your turn’s score. | Completed ✅ | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/React/pig-dice-game) |
