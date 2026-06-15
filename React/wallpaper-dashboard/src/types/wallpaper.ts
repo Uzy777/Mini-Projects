@@ -1,9 +1,6 @@
 export type Wallpaper = {
     id: string;
-    title: string;
     imageUrl: string;
-    thumbnailUrl: string;
-    resolution: string;
+    filename: string;
     category: string;
-    tags: string[];
 };

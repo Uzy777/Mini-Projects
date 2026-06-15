@@ -7,7 +7,7 @@ function App() {
             <section className="mx-auto max-w-6xl">
                 <div className="mb-8">
                     <h1 className="text-4xl font-bold">Wallpaper Dashboard</h1>
-                    <p className="mt-3 text-neutral-400">A clean collection of wallpapers ready to preview and download.</p>
+                    <p className="mt-3 text-neutral-400">A collection of wallpapers ready to download.</p>
                 </div>
 
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
