@@ -14,8 +14,6 @@ function WallpaperCard({ wallpaper }: WallpaperCardProps) {
             />
 
             <div className="pointer-events-none absolute inset-0 hidden" />
-
-            <p>{wallpaper.category}</p>
         </a>
     );
 }
