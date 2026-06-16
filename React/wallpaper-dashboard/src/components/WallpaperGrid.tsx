@@ -1,8 +1,8 @@
-import type { Wallpaper } from "../types/wallpaper";
+import type { WallpaperWithDetails } from "../types/wallpaper";
 import WallpaperCard from "./WallpaperCard";
 
 type WallpaperGridProps = {
-    wallpapers: Wallpaper[];
+    wallpapers: WallpaperWithDetails[];
 };
 
 function WallpaperGrid({ wallpapers }: WallpaperGridProps) {

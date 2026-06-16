@@ -4,3 +4,9 @@ export type Wallpaper = {
     filename: string;
     category: string;
 };
+
+export type WallpaperWithDetails = Wallpaper & {
+    width: number;
+    height: number;
+    aspectRatio: string;
+}

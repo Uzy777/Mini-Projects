@@ -1,8 +1,8 @@
 import { useState } from "react";
-import type { Wallpaper } from "../types/wallpaper";
+import type { WallpaperWithDetails } from "../types/wallpaper";
 
 type WallpaperCardProps = {
-    wallpaper: Wallpaper;
+    wallpaper: WallpaperWithDetails;
 };
 
 type ImageSize = {

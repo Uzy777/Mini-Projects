@@ -1,26 +1,68 @@
-import { useState } from "react";
-import CategoryFilter from "./components/CategoryFilter";
+import { useEffect, useState } from "react";
+import FilterGroup from "./components/FilterGroup";
 import WallpaperGrid from "./components/WallpaperGrid";
 import { wallpapers } from "./data/wallpapers";
+import type { WallpaperWithDetails } from "./types/wallpaper";
+import { loadWallpaperDetails } from "./utils/wallpaperDetails";
 
 function App() {
     const [selectedCategory, setSelectedCategory] = useState("all");
+    const [selectedAspectRatio, setSelectedAspectRatio] = useState("all");
+    const [wallpapersWithDetails, setWallpapersWithDetails] = useState<WallpaperWithDetails[]>([]);
 
-    const categories = ["all", ...new Set(wallpapers.map((wallpaper) => wallpaper.category))];
+    useEffect(() => {
+        let isMounted = true;
 
-    const filteredWallpapers = selectedCategory === "all" ? wallpapers : wallpapers.filter((wallpaper) => wallpaper.category === selectedCategory);
+        async function loadDetails() {
+            const detailedWallpapers = await Promise.all(wallpapers.map((wallpaper) => loadWallpaperDetails(wallpaper)));
+
+            if (isMounted) {
+                setWallpapersWithDetails(detailedWallpapers);
+            }
+        }
+
+        loadDetails();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    const categories = ["all", ...Array.from(new Set(wallpapersWithDetails.map((wallpaper) => wallpaper.category))).sort()];
+
+    const aspectRatioOrder = ["16:9", "21:9", "32:9", "3:2", "4:3", "1:1", "Portrait", "Other"];
+
+    const availableAspectRatios = new Set(wallpapersWithDetails.map((wallpaper) => wallpaper.aspectRatio));
+
+    const aspectRatios = ["all", ...aspectRatioOrder.filter((ratio) => availableAspectRatios.has(ratio))];
+
+    const filteredWallpapers = wallpapersWithDetails.filter((wallpaper) => {
+        const matchesCategory = selectedCategory === "all" || wallpaper.category === selectedCategory;
+
+        const matchesAspectRatio = selectedAspectRatio === "all" || wallpaper.aspectRatio === selectedAspectRatio;
+
+        return matchesCategory && matchesAspectRatio;
+    });
 
     return (
         <main className="min-h-screen bg-neutral-950 px-4 py-6 text-white">
             <section className="mx-auto max-w-7xl">
                 <header className="mb-6">
-                    <h1 className="text-3xl font-bold">Wallpaper Dashboard</h1>
+                    <h1 className="text-3xl font-bold">Wallpaper Vault</h1>
                     <p className="mt-2 text-sm text-neutral-400">Click any wallpaper to download it.</p>
                 </header>
 
-                <CategoryFilter categories={categories} selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
+                <div className="mb-6 space-y-4">
+                    <FilterGroup title="Categories" options={categories} selectedOption={selectedCategory} onSelectOption={setSelectedCategory} />
 
-                <WallpaperGrid wallpapers={filteredWallpapers} />
+                    <FilterGroup title="Aspect Ratio" options={aspectRatios} selectedOption={selectedAspectRatio} onSelectOption={setSelectedAspectRatio} />
+                </div>
+
+                {wallpapersWithDetails.length === 0 ? (
+                    <p className="text-neutral-400">Loading wallpapers...</p>
+                ) : (
+                    <WallpaperGrid wallpapers={filteredWallpapers} />
+                )}
             </section>
         </main>
     );
