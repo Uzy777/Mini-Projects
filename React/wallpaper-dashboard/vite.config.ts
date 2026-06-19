@@ -6,10 +6,10 @@ export default defineConfig({
     plugins: [react(), tailwindcss()],
     server: {
         proxy: {
-            "/wallhaven-api": {
+            "/api/wallhaven": {
                 target: "https://wallhaven.cc",
                 changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/wallhaven-api/, "/api/v1"),
+                rewrite: (path) => path.replace(/^\/api\/wallhaven/, "/api/v1/search"),
             },
         },
     },

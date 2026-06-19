@@ -7,14 +7,12 @@ type WallhavenSearchResponse = {
 export async function searchWallhavenWallpapers(query: string) {
     const params = new URLSearchParams({
         q: query,
-        purity: "100",
-        sorting: "relevance",
     });
 
-    const response = await fetch(`/wallhaven-api/search?${params.toString()}`);
+    const response = await fetch(`/api/wallhaven?${params.toString()}`);
 
     if (!response.ok) {
-        throw new Error("Failed to fetch wallpapers form Wallhaven");
+        throw new Error("Failed to fetch wallpapers from Wallhaven");
     }
 
     const result: WallhavenSearchResponse = await response.json();
