@@ -1,13 +1,74 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import WallhavenCard from "./WallhavenCard";
 import { searchWallhavenWallpapers } from "../services/wallhavenApi";
 import type { WallhavenWallpaper } from "../types/wallhaven";
+
+type CategorySelection = {
+    general: boolean;
+    anime: boolean;
+    people: boolean;
+};
+
+const DEFAULT_CATEGORIES: CategorySelection = {
+    general: true,
+    anime: true,
+    people: true,
+};
+
+const CATEGORY_STORAGE_KEY = "wallpaper-dashboard:wallhaven-categories";
+
+function loadCategories(): CategorySelection {
+    const savedCategories = localStorage.getItem(CATEGORY_STORAGE_KEY);
+
+    if (!savedCategories) {
+        return DEFAULT_CATEGORIES;
+    }
+
+    try {
+        const parsedCategories = JSON.parse(savedCategories);
+
+        const isValid =
+            typeof parsedCategories.general === "boolean" &&
+            typeof parsedCategories.anime === "boolean" &&
+            typeof parsedCategories.people === "boolean";
+
+        if (isValid) {
+            return parsedCategories;
+        }
+
+        return DEFAULT_CATEGORIES;
+    } catch {
+        return DEFAULT_CATEGORIES;
+    }
+}
+
+function createCategoryParameter(selection: CategorySelection) {
+    return [selection.general ? "1" : "0", selection.anime ? "1" : "0", selection.people ? "1" : "0"].join("");
+}
 
 function WallhavenSearch() {
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<WallhavenWallpaper[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+    const [categories, setCategories] = useState<CategorySelection>(loadCategories);
+
+    useEffect(() => {
+        localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify(categories));
+    }, [categories]);
+
+    function toggleCategory(category: keyof CategorySelection) {
+        setCategories((currentCategories) => {
+            const updatedCategories = {
+                ...currentCategories,
+                [category]: !currentCategories[category],
+            };
+
+            const hasSelectedCategory = Object.values(updatedCategories).some(Boolean);
+
+            return hasSelectedCategory ? updatedCategories : currentCategories;
+        });
+    }
 
     async function handleSearch(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -20,10 +81,12 @@ function WallhavenSearch() {
         setError("");
 
         try {
-            const wallpapers = await searchWallhavenWallpapers(query);
+            const categoryParameter = createCategoryParameter(categories);
+            const wallpapers = await searchWallhavenWallpapers(query, categoryParameter);
+
             setResults(wallpapers);
         } catch {
-            setError("Could not load wallpapers. The API may be blocked by CORS.");
+            setError("Could not load wallpapers.");
         } finally {
             setIsLoading(false);
         }
@@ -47,6 +110,45 @@ function WallhavenSearch() {
                     {isLoading ? "Searching..." : "Search"}
                 </button>
             </form>
+
+            <div className="mb-6">
+                <p className="mb-2 text-sm font-medium text-neutral-400">Categories</p>
+
+                <div className="flex flex-wrap gap-2">
+                    <button
+                        type="button"
+                        aria-pressed={categories.general}
+                        onClick={() => toggleCategory("general")}
+                        className={`rounded-full px-4 py-2 text-sm transition ${
+                            categories.general ? "bg-white text-neutral-950" : "bg-neutral-900 text-neutral-400 hover:bg-neutral-800"
+                        }`}
+                    >
+                        General
+                    </button>
+
+                    <button
+                        type="button"
+                        aria-pressed={categories.anime}
+                        onClick={() => toggleCategory("anime")}
+                        className={`rounded-full px-4 py-2 text-sm transition ${
+                            categories.anime ? "bg-white text-neutral-950" : "bg-neutral-900 text-neutral-400 hover:bg-neutral-800"
+                        }`}
+                    >
+                        Anime
+                    </button>
+
+                    <button
+                        type="button"
+                        aria-pressed={categories.people}
+                        onClick={() => toggleCategory("people")}
+                        className={`rounded-full px-4 py-2 text-sm transition ${
+                            categories.people ? "bg-white text-neutral-950" : "bg-neutral-900 text-neutral-400 hover:bg-neutral-800"
+                        }`}
+                    >
+                        People
+                    </button>
+                </div>
+            </div>
 
             {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
 

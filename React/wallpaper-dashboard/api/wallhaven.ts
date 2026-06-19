@@ -1,13 +1,22 @@
 export async function GET(request: Request) {
     const url = new URL(request.url);
+
     const query = url.searchParams.get("q");
+    const categories = url.searchParams.get("categories") ?? "111";
 
     if (!query?.trim()) {
         return Response.json({ error: "A search query is required." }, { status: 400 });
     }
 
+    const isValidCategoryParameter = /^[01]{3}$/.test(categories) && categories !== "000";
+
+    if (!isValidCategoryParameter) {
+        return Response.json({ error: "Invalid category selection." }, { status: 400 });
+    }
+
     const params = new URLSearchParams({
         q: query.trim(),
+        categories,
         purity: "100",
         sorting: "relevance",
     });

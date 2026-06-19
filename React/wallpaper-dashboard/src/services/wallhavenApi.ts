@@ -4,9 +4,12 @@ type WallhavenSearchResponse = {
     data: WallhavenWallpaper[];
 };
 
-export async function searchWallhavenWallpapers(query: string) {
+export async function searchWallhavenWallpapers(query: string, categories: string) {
     const params = new URLSearchParams({
         q: query,
+        categories,
+        purity: "100",
+        sorting: "relevance",
     });
 
     const response = await fetch(`/api/wallhaven?${params.toString()}`);

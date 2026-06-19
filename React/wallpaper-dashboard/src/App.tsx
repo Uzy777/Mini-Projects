@@ -6,12 +6,32 @@ import { wallpapers } from "./data/wallpapers";
 import type { WallpaperWithDetails } from "./types/wallpaper";
 import { loadWallpaperDetails } from "./utils/wallpaperDetails";
 
-function App() {
-    const [selectedCategory, setSelectedCategory] = useState("all");
-    const [selectedAspectRatio, setSelectedAspectRatio] = useState("all");
-    const [wallpapersWithDetails, setWallpapersWithDetails] = useState<WallpaperWithDetails[]>([]);
-    const [activeView, setActiveView] = useState<"local" | "wallhaven">("local");
+type ActiveView = "local" | "wallhaven";
 
+function loadActiveView(): ActiveView {
+    const savedView = localStorage.getItem("wallpaper-dashboard:active-view");
+
+    if (savedView === "wallhaven") {
+        return "wallhaven";
+    }
+
+    return "local";
+}
+
+function App() {
+    const [selectedCategory, setSelectedCategory] = useState(() => {
+        return localStorage.getItem("wallpaper-dashboard:selected-category") ?? "all";
+    });
+
+    const [selectedAspectRatio, setSelectedAspectRatio] = useState(() => {
+        return localStorage.getItem("wallpaper-dashboard:aspect-ratio") ?? "all";
+    });
+
+    const [activeView, setActiveView] = useState<ActiveView>(loadActiveView);
+
+    const [wallpapersWithDetails, setWallpapersWithDetails] = useState<WallpaperWithDetails[]>([]);
+
+    // Load the local wallpaper dimensions and aspect ratios once.
     useEffect(() => {
         let isMounted = true;
 
@@ -29,6 +49,21 @@ function App() {
             isMounted = false;
         };
     }, []);
+
+    // Save the selected local category whenever it changes.
+    useEffect(() => {
+        localStorage.setItem("wallpaper-dashboard:selected-category", selectedCategory);
+    }, [selectedCategory]);
+
+    // Save the selected aspect ratio whenever it changes.
+    useEffect(() => {
+        localStorage.setItem("wallpaper-dashboard:aspect-ratio", selectedAspectRatio);
+    }, [selectedAspectRatio]);
+
+    // Save whether the user was viewing the local vault or Wallhaven.
+    useEffect(() => {
+        localStorage.setItem("wallpaper-dashboard:active-view", activeView);
+    }, [activeView]);
 
     const categories = ["all", ...Array.from(new Set(wallpapersWithDetails.map((wallpaper) => wallpaper.category))).sort()];
 
@@ -51,11 +86,13 @@ function App() {
             <section className="mx-auto max-w-7xl">
                 <header className="mb-6">
                     <h1 className="text-3xl font-bold">Wallpaper Vault</h1>
+
                     <p className="mt-2 text-sm text-neutral-400">Click any wallpaper to download it.</p>
                 </header>
 
                 <div className="mb-6 flex gap-2">
                     <button
+                        type="button"
                         onClick={() => setActiveView("local")}
                         className={`rounded-full px-4 py-2 text-sm transition ${
                             activeView === "local" ? "bg-white text-neutral-950" : "bg-neutral-900 text-neutral-300 hover:bg-neutral-800"
@@ -65,6 +102,7 @@ function App() {
                     </button>
 
                     <button
+                        type="button"
                         onClick={() => setActiveView("wallhaven")}
                         className={`rounded-full px-4 py-2 text-sm transition ${
                             activeView === "wallhaven" ? "bg-white text-neutral-950" : "bg-neutral-900 text-neutral-300 hover:bg-neutral-800"
