@@ -9,12 +9,12 @@ const CountryGrid = ({ countries, onSelect }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
             {countries.map((country) => (
                 <CountryCard
-                    key={country.name.common}
+                    key={country.codes.alpha_3}
                     country={country}
-                    name={country.name.common}
-                    flag={country.flags.png}
+                    name={country.names.common}
+                    flag={country.flag.url_png || country.flag.url_svg}
                     region={country.region}
-                    capital={country.capital ? country.capital[0] : "N/A"}
+                    capital={country.capitals?.[0]?.name || "N/A"}
                     population={country.population}
                     onSelect={onSelect}
                 />

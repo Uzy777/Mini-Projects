@@ -1,8 +1,7 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
 // Components
-import CountryCard from "./components/CountryCard";
 import CountryGrid from "./components/CountryGrid";
 import CountryModal from "./components/CountryModal";
 
@@ -14,25 +13,133 @@ import SortControls from "./components/filters/SortControls";
 // Components - UI
 import ThemeToggle from "./components/ui/ThemeToggle";
 
-import { MapContainer, TileLayer, GeoJSON, useMap } from "react-leaflet";
+// Data
 import countriesGeoJson from "./data/countries.json";
-import FullScreen from "leaflet.fullscreen";
+
+const RESPONSE_FIELDS = [
+    "names.common",
+    "flag.url_png",
+    "flag.url_svg",
+    "flag.description",
+    "capitals",
+    "population",
+    "region",
+    "subregion",
+    "codes.alpha_3",
+    "languages",
+    "currencies",
+    "coordinates.lat",
+    "coordinates.lng",
+    "area.kilometers",
+].join(",");
+
+async function fetchCountriesPage(offset) {
+    const searchParams = new URLSearchParams({
+        limit: "100",
+        offset: String(offset),
+        response_fields: RESPONSE_FIELDS,
+    });
+
+    const response = await fetch(`/api/restcountries?${searchParams.toString()}`);
+
+    const result = await response.json();
+
+    if (!response.ok) {
+        const errorMessage = result.errors?.map((error) => error.message).join(", ") || `REST Countries request failed with status ${response.status}`;
+
+        throw new Error(errorMessage);
+    }
+
+    if (!Array.isArray(result.data?.objects)) {
+        throw new Error("REST Countries returned an unexpected response.");
+    }
+
+    return result.data;
+}
+
+async function fetchAllCountries() {
+    const countries = [];
+
+    let offset = 0;
+    let hasMoreCountries = true;
+
+    while (hasMoreCountries) {
+        const page = await fetchCountriesPage(offset);
+
+        countries.push(...page.objects);
+
+        hasMoreCountries = page.meta?.more === true;
+
+        const receivedCount = page.meta?.count ?? page.objects.length;
+
+        if (receivedCount === 0) {
+            break;
+        }
+
+        offset += receivedCount;
+    }
+
+    const validCountries = countries.filter((country) => {
+        const name = country.names?.common?.trim();
+        const code = country.codes?.alpha_3?.trim();
+        const flag = country.flag?.url_png?.trim() || country.flag?.url_svg?.trim();
+
+        return Boolean(name && code && flag);
+    });
+
+    const uniqueCountries = Array.from(new Map(validCountries.map((country) => [country.codes.alpha_3, country])).values());
+
+    return uniqueCountries;
+}
 
 function App() {
     const [countries, setCountries] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [regionFilter, setRegionFilter] = useState("All");
     const [countrySort, setCountrySort] = useState("alphabetical");
-    const [countrySortDirection, setCoutnrySortDirection] = useState("asc");
+    const [countrySortDirection, setCountrySortDirection] = useState("asc");
     const [isDark, setIsDark] = useState(true);
     const [selectedCountry, setSelectedCountry] = useState(null);
+    const [error, setError] = useState("");
+
+    const hasFetchedCountries = useRef(false);
 
     const regionArray = ["Africa", "Americas", "Asia", "Europe", "Oceania", "All"];
+
+    useEffect(() => {
+        if (hasFetchedCountries.current) {
+            return;
+        }
+
+        hasFetchedCountries.current = true;
+
+        const loadCountries = async () => {
+            try {
+                setError("");
+
+                const fetchedCountries = await fetchAllCountries();
+
+                console.log("Countries received:", fetchedCountries.length);
+
+                // console.log("First country:", fetchedCountries[0]);
+
+                setCountries(fetchedCountries);
+            } catch (fetchError) {
+                console.error("Error fetching countries:", fetchError);
+
+                setError(fetchError instanceof Error ? fetchError.message : "Unable to fetch countries.");
+            }
+        };
+
+        loadCountries();
+    }, []);
 
     const filteredCountries = countries.filter((country) => {
         const matchesRegion = regionFilter === "All" || country.region === regionFilter;
 
-        const matchesSearch = country.name.common.toLowerCase().includes(searchQuery.toLowerCase());
+        const countryName = country.names?.common ?? "";
+
+        const matchesSearch = countryName.toLowerCase().includes(searchQuery.trim().toLowerCase());
 
         return matchesRegion && matchesSearch;
     });
@@ -41,50 +148,36 @@ function App() {
 
     if (countrySort === "alphabetical") {
         sortedCountries.sort((a, b) => {
-            const result = a.name.common.localeCompare(b.name.common);
+            const result = (a.names?.common ?? "").localeCompare(b.names?.common ?? "");
+
             return countrySortDirection === "asc" ? result : -result;
         });
     } else if (countrySort === "capital") {
         sortedCountries.sort((a, b) => {
-            const result = (a.capital?.[0] || "").localeCompare(b.capital?.[0] || "");
+            const result = (a.capitals?.[0]?.name ?? "").localeCompare(b.capitals?.[0]?.name ?? "");
+
             return countrySortDirection === "asc" ? result : -result;
         });
     } else if (countrySort === "population") {
         sortedCountries.sort((a, b) => {
-            const result = b.population - a.population;
+            const result = (a.population ?? 0) - (b.population ?? 0);
+
             return countrySortDirection === "asc" ? result : -result;
         });
     }
 
-    const matchesGeoJson = selectedCountry ? countriesGeoJson.features.find((feature) => feature.properties.ISO_A3 === selectedCountry.cca3) : null;
-
-    useEffect(() => {
-        fetch("https://restcountries.com/v3.1/all?fields=name,flags,capital,population,region,cca3,languages,currencies,latlng,area")
-            .then((response) => response.json())
-            .then((data) => {
-                setCountries(data);
-            })
-            .catch((error) => {
-                console.error("Error fetching data:", error);
-            });
-    }, []);
-
-    // console.log(regionFilter);
-    // console.log(countrySort);
-    // console.log(isDark);
-    // console.log(selectedCountry);
-    // console.log(countriesGeoJson.features.length);
-    // console.log(matchesGeoJson);
+    const matchesGeoJson = selectedCountry ? countriesGeoJson.features.find((feature) => feature.properties.ISO_A3 === selectedCountry.codes?.alpha_3) : null;
 
     return (
         <div className={isDark ? "dark" : ""}>
             <div className="min-h-screen bg-gray-100 dark:bg-gray-800">
                 <ThemeToggle onThemeToggle={() => setIsDark(!isDark)} />
 
-                <h1 className="text-4xl text-center font-bold mt-8 dark:text-white">Country Explorer</h1>
-                <h2 className="text-xl text-center text-gray-700 dark:text-white">Browse and learn about countries around the world!</h2>
+                <h1 className="mt-8 text-center text-4xl font-bold dark:text-white">Country Explorer</h1>
 
-                <SearchInput value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                <h2 className="text-center text-xl text-gray-700 dark:text-white">Browse and learn about countries around the world!</h2>
+
+                <SearchInput value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} />
 
                 <RegionFilter value={regionFilter} regions={regionArray} onChange={setRegionFilter} />
 
@@ -92,10 +185,14 @@ function App() {
                     sort={countrySort}
                     direction={countrySortDirection}
                     onSortChange={setCountrySort}
-                    onDirectionToggle={() => setCoutnrySortDirection(countrySortDirection === "asc" ? "desc" : "asc")}
+                    onDirectionToggle={() => setCountrySortDirection(countrySortDirection === "asc" ? "desc" : "asc")}
                 />
 
-                <CountryGrid countries={sortedCountries} onSelect={setSelectedCountry} />
+                {error ? (
+                    <p className="mt-8 text-center text-red-600 dark:text-red-400">{error}</p>
+                ) : (
+                    <CountryGrid countries={sortedCountries} onSelect={setSelectedCountry} />
+                )}
 
                 <CountryModal country={selectedCountry} geoJsonFeature={matchesGeoJson} onClose={() => setSelectedCountry(null)} />
             </div>
