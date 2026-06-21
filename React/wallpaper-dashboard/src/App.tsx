@@ -60,7 +60,7 @@ function App() {
         localStorage.setItem("wallpaper-dashboard:aspect-ratio", selectedAspectRatio);
     }, [selectedAspectRatio]);
 
-    // Save whether the user was viewing the local vault or Wallhaven.
+    // Save whether the user was viewing the local or Wallhaven.
     useEffect(() => {
         localStorage.setItem("wallpaper-dashboard:active-view", activeView);
     }, [activeView]);
@@ -85,7 +85,7 @@ function App() {
         <main className="min-h-screen bg-neutral-950 px-4 py-6 text-white">
             <section className="mx-auto max-w-7xl">
                 <header className="mb-6">
-                    <h1 className="text-3xl font-bold">Wallpaper Vault</h1>
+                    <h1 className="text-3xl font-bold">Wallpaper Dashboard</h1>
 
                     <p className="mt-2 text-sm text-neutral-400">Click any wallpaper to download it.</p>
                 </header>
@@ -98,10 +98,10 @@ function App() {
                             activeView === "local" ? "bg-white text-neutral-950" : "bg-neutral-900 text-neutral-300 hover:bg-neutral-800"
                         }`}
                     >
-                        Local Vault
+                        Local
                     </button>
 
-                    <button
+                    {/* <button
                         type="button"
                         onClick={() => setActiveView("wallhaven")}
                         className={`rounded-full px-4 py-2 text-sm transition ${
@@ -109,7 +109,7 @@ function App() {
                         }`}
                     >
                         Wallhaven Search
-                    </button>
+                    </button> */}
                 </div>
 
                 {activeView === "local" ? (

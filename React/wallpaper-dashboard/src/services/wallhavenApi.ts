@@ -4,7 +4,7 @@ type WallhavenSearchResponse = {
     data: WallhavenWallpaper[];
 };
 
-export async function searchWallhavenWallpapers(query: string, categories: string) {
+export async function searchWallhavenWallpapers(query: string, categories: string, apiKey: string) {
     const params = new URLSearchParams({
         q: query,
         categories,
@@ -12,8 +12,16 @@ export async function searchWallhavenWallpapers(query: string, categories: strin
         sorting: "relevance",
     });
 
-    const response = await fetch(`/api/wallhaven?${params.toString()}`);
+    const headers = new Headers();
 
+    if (apiKey.trim()) {
+        headers.set("X-API-Key", apiKey.trim());
+    }
+
+    const response = await fetch(`/api/wallhaven?${params.toString()}`, {
+        headers,
+    });
+    
     if (!response.ok) {
         throw new Error("Failed to fetch wallpapers from Wallhaven");
     }

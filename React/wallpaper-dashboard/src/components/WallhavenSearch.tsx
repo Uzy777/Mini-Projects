@@ -16,6 +16,11 @@ const DEFAULT_CATEGORIES: CategorySelection = {
 };
 
 const CATEGORY_STORAGE_KEY = "wallpaper-dashboard:wallhaven-categories";
+const API_KEY_STORAGE_KEY = "wallpaper-dashboard:wallhaven-api-key";
+
+function loadApiKey() {
+    return localStorage.getItem(API_KEY_STORAGE_KEY) ?? "";
+}
 
 function loadCategories(): CategorySelection {
     const savedCategories = localStorage.getItem(CATEGORY_STORAGE_KEY);
@@ -28,9 +33,7 @@ function loadCategories(): CategorySelection {
         const parsedCategories = JSON.parse(savedCategories);
 
         const isValid =
-            typeof parsedCategories.general === "boolean" &&
-            typeof parsedCategories.anime === "boolean" &&
-            typeof parsedCategories.people === "boolean";
+            typeof parsedCategories.general === "boolean" && typeof parsedCategories.anime === "boolean" && typeof parsedCategories.people === "boolean";
 
         if (isValid) {
             return parsedCategories;
@@ -52,6 +55,7 @@ function WallhavenSearch() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [categories, setCategories] = useState<CategorySelection>(loadCategories);
+    const [apiKey, setApiKey] = useState(loadApiKey);
 
     useEffect(() => {
         localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify(categories));
@@ -70,6 +74,14 @@ function WallhavenSearch() {
         });
     }
 
+    useEffect(() => {
+        if (apiKey.trim()) {
+            localStorage.setItem(API_KEY_STORAGE_KEY, apiKey.trim());
+        } else {
+            localStorage.removeItem(API_KEY_STORAGE_KEY);
+        }
+    }, [apiKey]);
+
     async function handleSearch(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
@@ -82,7 +94,7 @@ function WallhavenSearch() {
 
         try {
             const categoryParameter = createCategoryParameter(categories);
-            const wallpapers = await searchWallhavenWallpapers(query, categoryParameter);
+            const wallpapers = await searchWallhavenWallpapers(query, categoryParameter, apiKey);
 
             setResults(wallpapers);
         } catch {
@@ -94,6 +106,22 @@ function WallhavenSearch() {
 
     return (
         <section>
+            <div className="mb-6">
+                <label htmlFor="wallhaven-api-key" className="mb-2 block text-sm font-medium text-neutral-400">
+                    Wallhaven API Key
+                </label>
+                <input
+                    id="wallhaven-api-key"
+                    type="password"
+                    value={apiKey}
+                    onChange={(event) => setApiKey(event.target.value)}
+                    placeholder="Enter your Wallhaven API key"
+                    autoComplete="off"
+                    className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3 text-sm text-white outline-none placeholder:text-neutral-500 focus:border-neutral-600"
+                />
+                <p className="mt-2 text-xs text-neutral-500">Stored only in this browser.</p>
+            </div>
+
             <form onSubmit={handleSearch} className="mb-6 flex gap-3">
                 <input
                     value={query}
