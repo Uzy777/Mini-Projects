@@ -1,10 +1,28 @@
 import { useState, type FormEvent } from "react";
 
+function isValidHttpUrl(value: string): boolean {
+    try {
+        const parsedUrl = new URL(value);
+
+        return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+    } catch {
+        return false;
+    }
+}
+
 function UrlToMarkdownForm() {
     const [url, setUrl] = useState("");
+    const [error, setError] = useState("");
 
     function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+
+        const trimmedUrl = url.trim();
+
+        if (!isValidHttpUrl(trimmedUrl)) {
+            setError("Enter a valid URL beginning with http:// or https://");
+            return;
+        }
 
         console.log("Submitted URL:", url);
     }
@@ -21,8 +39,22 @@ function UrlToMarkdownForm() {
                 type="url"
                 placeholder="https://example.com/article"
                 value={url}
-                onChange={(event) => setUrl(event.target.value)}
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? "url-error" : undefined}
+                onChange={(event) => {
+                    setUrl(event.target.value);
+
+                    if (error) {
+                        setError("");
+                    }
+                }}
             />
+
+            {error && (
+                <p id="url-error" className="text-sm font-medium text-red-600">
+                    {error}
+                </p>
+            )}
 
             <button
                 className="mt-2 w-fit rounded-lg bg-slate-900 px-5 py-3 font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
