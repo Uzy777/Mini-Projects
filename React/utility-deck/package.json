@@ -16,7 +16,7 @@
         "@sparticuz/chromium-min": "^149.0.0",
         "@tailwindcss/vite": "^4.3.1",
         "ipaddr.js": "^2.4.0",
-        "jsdom": "^29.1.1",
+        "jsdom": "26.1.0",
         "puppeteer-core": "^25.1.0",
         "react": "^19.2.7",
         "react-dom": "^19.2.7",
