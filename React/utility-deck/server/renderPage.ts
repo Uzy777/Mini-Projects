@@ -1,5 +1,5 @@
 import type { Browser } from "puppeteer-core";
-import { assertPublicUrl } from "./assertPublicUrl";
+import { assertPublicUrl } from "./assertPublicUrl.js";
 
 async function isAllowedPageRequest(value: string, checkedOrigins: Map<string, Promise<boolean>>): Promise<boolean> {
     let parsedUrl: URL;

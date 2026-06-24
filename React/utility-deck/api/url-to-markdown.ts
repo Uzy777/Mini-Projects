@@ -1,7 +1,7 @@
-import { convertHtmlToMarkdown } from "../server/convertHtmlToMarkdown";
-import { renderPage } from "../server/renderPage";
-import { assertPublicUrl } from "../server/assertPublicUrl";
-import { fetchPublicHtml } from "../server/fetchPublicHtml";
+import { convertHtmlToMarkdown } from "../server/convertHtmlToMarkdown.js";
+import { renderPage } from "../server/renderPage.js";
+import { assertPublicUrl } from "../server/assertPublicUrl.js";
+import { fetchPublicHtml } from "../server/fetchPublicHtml.js";
 
 type UrlToMarkdownRequest = {
     url?: string;

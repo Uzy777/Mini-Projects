@@ -1,4 +1,4 @@
-import { assertPublicUrl } from "./assertPublicUrl";
+import { assertPublicUrl } from "./assertPublicUrl.js";
 
 type FetchPublicHtmlResult = {
     html: string;
