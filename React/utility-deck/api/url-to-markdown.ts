@@ -1,9 +1,7 @@
-// import { JSDOM } from "jsdom";
-// import { Readability } from "@mozilla/readability";
-// import TurndownService from "turndown";
-
 import { convertHtmlToMarkdown } from "../server/convertHtmlToMarkdown";
 import { renderPage } from "../server/renderPage";
+import { assertPublicUrl } from "../server/assertPublicUrl";
+import { fetchPublicHtml } from "../server/fetchPublicHtml";
 
 type UrlToMarkdownRequest = {
     url?: string;
@@ -45,66 +43,34 @@ export async function POST(request: Request) {
         );
     }
 
-    const webpageResponse = await fetch(url);
-    const html = await webpageResponse.text();
-    // const dom = new JSDOM(html, {
-    //     url,
-    // });
+    let safeUrlString: string;
 
-    // const document = dom.window.document;
-    // const article = new Readability(document).parse();
+    try {
+        const safeUrl = await assertPublicUrl(url);
+        safeUrlString = safeUrl.toString();
+    } catch (error) {
+        const message = error instanceof Error ? error.message : "The supplied URL is not allowed.";
 
-    // if (!article) {
-    //     return Response.json(
-    //         {
-    //             error: "No readable content could be extracted from this page.",
-    //         },
-    //         {
-    //             status: 422,
-    //         },
-    //     );
-    // }
+        return Response.json(
+            {
+                error: message,
+            },
+            {
+                status: 400,
+            },
+        );
+    }
 
-    // const textContent = article.textContent?.trim();
+    const { html, finalUrl } = await fetchPublicHtml(safeUrlString);
 
-    // if (!textContent) {
-    //     return Response.json(
-    //         {
-    //             error: "The page did not contain any readable text.",
-    //         },
-    //         {
-    //             status: 422,
-    //         },
-    //     );
-    // }
-
-    // const articleContent = article.content?.trim();
-
-    // if (!articleContent) {
-    //     return Response.json(
-    //         {
-    //             error: "The page did not contain any convertible content.",
-    //         },
-    //         {
-    //             status: 422,
-    //         },
-    //     );
-    // }
-
-    // const turndownService = new TurndownService({
-    //     headingStyle: "atx",
-    //     codeBlockStyle: "fenced",
-    //     bulletListMarker: "-",
-    // });
-    // const markdown = turndownService.turndown(articleContent);
-
-    let conversion = convertHtmlToMarkdown(html, url);
+    let conversion = convertHtmlToMarkdown(html, finalUrl);
 
     if (!conversion) {
-        const renderedHtml = await renderPage(url);
+        const renderedHtml = await renderPage(finalUrl);
 
-        conversion = convertHtmlToMarkdown(renderedHtml, url);
+        conversion = convertHtmlToMarkdown(renderedHtml, finalUrl);
     }
+
     if (!conversion) {
         return Response.json(
             {
@@ -117,7 +83,7 @@ export async function POST(request: Request) {
     }
 
     return Response.json({
-        sourceUrl: url,
+        sourceUrl: finalUrl,
         title: conversion.title,
         markdown: conversion.markdown,
     });

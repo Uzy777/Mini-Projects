@@ -1,0 +1,7 @@
+{
+    "functions": {
+        "api/url-to-markdown.ts": {
+            "maxDuration": 60
+        }
+    }
+}
