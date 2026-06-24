@@ -1,3 +1,7 @@
+import { JSDOM } from "jsdom";
+import { Readability } from "@mozilla/readability";
+import TurndownService from "turndown";
+
 type UrlToMarkdownRequest = {
     url?: string;
 };
@@ -38,8 +42,58 @@ export async function POST(request: Request) {
         );
     }
 
+    const webpageResponse = await fetch(url);
+    const html = await webpageResponse.text();
+    const dom = new JSDOM(html, {
+        url,
+    });
+
+    const document = dom.window.document;
+    const article = new Readability(document).parse();
+
+    if (!article) {
+        return Response.json(
+            {
+                error: "No readable content could be extracted from this page.",
+            },
+            {
+                status: 422,
+            },
+        );
+    }
+
+    const textContent = article.textContent?.trim();
+
+    if (!textContent) {
+        return Response.json(
+            {
+                error: "The page did not contain any readable text.",
+            },
+            {
+                status: 422,
+            },
+        );
+    }
+
+    const articleContent = article.content?.trim();
+
+    if (!articleContent) {
+        return Response.json(
+            {
+                error: "The page did not contain any convertible content.",
+            },
+            {
+                status: 422,
+            },
+        );
+    }
+
+    const turndownService = new TurndownService();
+    const markdown = turndownService.turndown(articleContent);
+
     return Response.json({
-        message: "URL to Markdown API is working",
-        receivedUrl: url,
+        sourceUrl: url,
+        title: article.title,
+        markdown,
     });
 }

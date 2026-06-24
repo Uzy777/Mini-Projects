@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { requestUrlToMarkdown } from "../services/urlToMarkdownApi";
+import type { UrlToMarkdownResult } from "../types/urlToMarkdown.types";
+import MarkdownResult from "./MarkdownResult";
 
 function isValidHttpUrl(value: string): boolean {
     try {
@@ -14,6 +16,7 @@ function isValidHttpUrl(value: string): boolean {
 function UrlToMarkdownForm() {
     const [url, setUrl] = useState("");
     const [error, setError] = useState("");
+    const [result, setResult] = useState<UrlToMarkdownResult | null>(null);
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -24,12 +27,11 @@ function UrlToMarkdownForm() {
             setError("Enter a valid URL beginning with http:// or https://");
             return;
         }
-        const response = await requestUrlToMarkdown(trimmedUrl);
-        const data = await response.json();
+        const conversionResult = await requestUrlToMarkdown(trimmedUrl);
 
-        console.log("API response:", data);
-        
-        console.log("Submitted URL:", url);
+        setResult(conversionResult);
+
+        // console.log("Submitted URL:", url);
     }
 
     return (
@@ -68,6 +70,8 @@ function UrlToMarkdownForm() {
             >
                 Convert to Markdown
             </button>
+
+            {result && <MarkdownResult result={result} />}
         </form>
     );
 }
