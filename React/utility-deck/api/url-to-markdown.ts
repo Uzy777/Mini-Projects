@@ -88,7 +88,11 @@ export async function POST(request: Request) {
         );
     }
 
-    const turndownService = new TurndownService();
+    const turndownService = new TurndownService({
+        headingStyle: "atx",
+        codeBlockStyle: "fenced",
+        bulletListMarker: "-",
+    });
     const markdown = turndownService.turndown(articleContent);
 
     return Response.json({
