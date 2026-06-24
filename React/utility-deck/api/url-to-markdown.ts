@@ -1,6 +1,9 @@
-import { JSDOM } from "jsdom";
-import { Readability } from "@mozilla/readability";
-import TurndownService from "turndown";
+// import { JSDOM } from "jsdom";
+// import { Readability } from "@mozilla/readability";
+// import TurndownService from "turndown";
+
+import { convertHtmlToMarkdown } from "../server/convertHtmlToMarkdown";
+import { renderPage } from "../server/renderPage";
 
 type UrlToMarkdownRequest = {
     url?: string;
@@ -44,14 +47,65 @@ export async function POST(request: Request) {
 
     const webpageResponse = await fetch(url);
     const html = await webpageResponse.text();
-    const dom = new JSDOM(html, {
-        url,
-    });
+    // const dom = new JSDOM(html, {
+    //     url,
+    // });
 
-    const document = dom.window.document;
-    const article = new Readability(document).parse();
+    // const document = dom.window.document;
+    // const article = new Readability(document).parse();
 
-    if (!article) {
+    // if (!article) {
+    //     return Response.json(
+    //         {
+    //             error: "No readable content could be extracted from this page.",
+    //         },
+    //         {
+    //             status: 422,
+    //         },
+    //     );
+    // }
+
+    // const textContent = article.textContent?.trim();
+
+    // if (!textContent) {
+    //     return Response.json(
+    //         {
+    //             error: "The page did not contain any readable text.",
+    //         },
+    //         {
+    //             status: 422,
+    //         },
+    //     );
+    // }
+
+    // const articleContent = article.content?.trim();
+
+    // if (!articleContent) {
+    //     return Response.json(
+    //         {
+    //             error: "The page did not contain any convertible content.",
+    //         },
+    //         {
+    //             status: 422,
+    //         },
+    //     );
+    // }
+
+    // const turndownService = new TurndownService({
+    //     headingStyle: "atx",
+    //     codeBlockStyle: "fenced",
+    //     bulletListMarker: "-",
+    // });
+    // const markdown = turndownService.turndown(articleContent);
+
+    let conversion = convertHtmlToMarkdown(html, url);
+
+    if (!conversion) {
+        const renderedHtml = await renderPage(url);
+
+        conversion = convertHtmlToMarkdown(renderedHtml, url);
+    }
+    if (!conversion) {
         return Response.json(
             {
                 error: "No readable content could be extracted from this page.",
@@ -62,42 +116,9 @@ export async function POST(request: Request) {
         );
     }
 
-    const textContent = article.textContent?.trim();
-
-    if (!textContent) {
-        return Response.json(
-            {
-                error: "The page did not contain any readable text.",
-            },
-            {
-                status: 422,
-            },
-        );
-    }
-
-    const articleContent = article.content?.trim();
-
-    if (!articleContent) {
-        return Response.json(
-            {
-                error: "The page did not contain any convertible content.",
-            },
-            {
-                status: 422,
-            },
-        );
-    }
-
-    const turndownService = new TurndownService({
-        headingStyle: "atx",
-        codeBlockStyle: "fenced",
-        bulletListMarker: "-",
-    });
-    const markdown = turndownService.turndown(articleContent);
-
     return Response.json({
         sourceUrl: url,
-        title: article.title,
-        markdown,
+        title: conversion.title,
+        markdown: conversion.markdown,
     });
 }
