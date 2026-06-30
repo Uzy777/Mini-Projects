@@ -54,7 +54,7 @@ export async function renderPage(url: string): Promise<string> {
             throw new Error("The Vercel deployment URL is unavailable.");
         }
 
-        const chromiumPackUrl = `https://${deploymentHost}/chromium-pack.tar`;
+        const chromiumPackUrl = "https://github.com/Sparticuz/chromium/releases/download/v149.0.0/chromium-v149.0.0-pack.x64.tar";
 
         browser = await puppeteer.launch({
             args: await puppeteer.defaultArgs({
