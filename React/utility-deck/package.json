@@ -12,6 +12,9 @@
         "prebuild": "npm run chromium:pack"
     },
     "dependencies": {
+        "@ffmpeg/core": "0.12.10",
+        "@ffmpeg/ffmpeg": "0.12.15",
+        "@ffmpeg/util": "0.12.2",
         "@mozilla/readability": "^0.6.0",
         "@sparticuz/chromium-min": "^149.0.0",
         "@tailwindcss/vite": "^4.3.1",
