@@ -27,9 +27,18 @@ function UrlToMarkdownForm() {
             setError("Enter a valid URL beginning with http:// or https://");
             return;
         }
-        const conversionResult = await requestUrlToMarkdown(trimmedUrl);
+        setError("");
+        setResult(null);
 
-        setResult(conversionResult);
+        try {
+            const conversionResult = await requestUrlToMarkdown(trimmedUrl);
+
+            setResult(conversionResult);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "The webpage could not be converted.";
+
+            setError(message);
+        }
 
         // console.log("Submitted URL:", url);
     }
