@@ -1,9 +1,15 @@
 import UrlToMarkdownForm from "./components/UrlToMarkdownForm";
+import { Link } from "react-router";
 
 function UrlToMarkdownPage() {
     return (
         <main className="min-h-screen bg-slate-50 px-4 py-12 text-slate-900 sm:px-6">
             <div className="mx-auto max-w-4xl">
+
+                <Link to="/" className="mb-6 inline-flex items-center text-sm font-medium text-slate-600 transition hover:text-slate-900">
+                    🠈 Back to Utility Deck
+                </Link>
+
                 <header className="mb-8">
                     <h1 className="text-4xl font-bold tracking-tight">Utility Deck</h1>
 
