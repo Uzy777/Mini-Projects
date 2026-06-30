@@ -9,6 +9,7 @@
         "lint": "eslint .",
         "preview": "vite preview",
         "chromium:pack": "node scripts/createChromiumPack.mjs",
+        "ffmpeg:copy": "node scripts/copyFfmpegCore.mjs",
         "prebuild": "npm run chromium:pack"
     },
     "dependencies": {
