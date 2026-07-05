@@ -22,13 +22,16 @@ function HomePage() {
                         <span className="mt-6 inline-block font-medium text-slate-900 group-hover:underline">Open tool →</span>
                     </Link>
 
-                    <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-100 p-6 opacity-70">
+                    <Link
+                        to="/tools/docx-to-pdf"
+                        className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-slate-300 hover:shadow-md"
+                    >
                         <h2 className="text-xl font-semibold">DOCX to PDF</h2>
 
                         <p className="mt-2 text-slate-600">Convert Word documents into PDF files.</p>
 
-                        <span className="mt-6 inline-block text-sm font-medium text-slate-500">Coming soon</span>
-                    </div>
+                        <span className="mt-6 inline-block font-medium text-slate-900 group-hover:underline">Open tool →</span>
+                    </Link>
 
                     <Link
                         to="/tools/video-to-gif"
