@@ -43,6 +43,16 @@ function HomePage() {
 
                         <span className="mt-6 inline-block font-medium text-slate-900 group-hover:underline">Open tool →</span>
                     </Link>
+                    <Link
+                        to="/tools/image-converter"
+                        className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-slate-300 hover:shadow-md"
+                    >
+                        <h2 className="text-xl font-semibold">Image Converter</h2>
+
+                        <p className="mt-2 text-slate-600">Convert images between PNG, JPEG and WebP directly in your browser.</p>
+
+                        <span className="mt-6 inline-block font-medium text-slate-900 group-hover:underline">Open tool →</span>
+                    </Link>
                 </section>
             </div>
         </main>
