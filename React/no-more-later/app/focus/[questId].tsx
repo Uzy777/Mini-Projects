@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -11,6 +11,31 @@ export default function FocusScreen() {
     const [selectedMinutes, setSelectedMinutes] = useState(25);
     const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
     const [isRunning, setIsRunning] = useState(false);
+
+    useEffect(() => {
+        if (!isRunning || remainingSeconds === null) {
+            return;
+        }
+
+        if (remainingSeconds === 0) {
+            setIsRunning(false);
+            return;
+        }
+
+        const intervalId = setInterval(() => {
+            setRemainingSeconds((currentSeconds) => {
+                if (currentSeconds === null) {
+                    return null;
+                }
+
+                return currentSeconds - 1;
+            });
+        }, 1000);
+
+        return () => {
+            clearInterval(intervalId);
+        };
+    }, [isRunning, remainingSeconds]);
 
     function handleStartSession() {
         const totalSeconds = selectedMinutes * 60;
