@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
@@ -10,6 +11,8 @@ type Journey = {
 const JOURNEYS_STORAGE_KEY = "no-more-later-journeys";
 
 export default function JourneyScreen() {
+    const router = useRouter();
+
     const [journeyTitle, setJourneyTitle] = useState("");
     const [journeys, setJourneys] = useState<Journey[]>([]);
 
@@ -68,6 +71,10 @@ export default function JourneyScreen() {
         }
     }
 
+    function handleOpenJourney(journey: Journey) {
+        router.push({ pathname: "/journeys/[id]", params: { id: journey.id, title: journey.title } });
+    }
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Journeys</Text>
@@ -83,8 +90,12 @@ export default function JourneyScreen() {
             <View style={styles.journeyList}>
                 {journeys.map((journey) => (
                     <View key={journey.id} style={styles.journeyCard}>
-                        <Text style={styles.journeyTitle}>{journey.title}</Text>
-                        <Pressable onPress={() => handleDeleteJourney(journey.id)}><Text style={styles.deleteText}>Delete</Text></Pressable>
+                        <Pressable style={styles.journeyContent} onPress={() => handleOpenJourney(journey)}>
+                            <Text style={styles.journeyTitle}>{journey.title}</Text>
+                        </Pressable>
+                        <Pressable onPress={() => handleDeleteJourney(journey.id)}>
+                            <Text style={styles.deleteText}>Delete</Text>
+                        </Pressable>
                     </View>
                 ))}
             </View>
@@ -148,6 +159,7 @@ const styles = StyleSheet.create({
     deleteText: {
         fontSize: 14,
         fontWeight: "600",
-        color: "#b42318"
-    }
+        color: "#b42318",
+    },
+    journeyContent: {},
 });
