@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
@@ -13,6 +13,8 @@ function getQuestsStorageKey(journeyId: string) {
 }
 
 export default function JourneyDetailsScreen() {
+    const router = useRouter();
+
     const { id, title } = useLocalSearchParams<{ id: string; title?: string }>();
     const [questTitle, setQuestTitle] = useState("");
     const [quests, setQuests] = useState<Quest[]>([]);
@@ -59,6 +61,10 @@ export default function JourneyDetailsScreen() {
         }
     }
 
+    function handleOpenQuest(quest: Quest) {
+        router.push({ pathname: "/focus/[questId]", params: { questId: quest.id, title: quest.title } });
+    }
+
     return (
         <View style={styles.container}>
             <Stack.Screen options={{ title: title ?? "Journey" }} />
@@ -75,9 +81,11 @@ export default function JourneyDetailsScreen() {
 
             <View style={styles.questList}>
                 {quests.map((quest) => (
-                    <View key={quest.id} style={styles.questCard}>
+                    <Pressable key={quest.id} style={styles.questCard} onPress={() => handleOpenQuest(quest)}>
                         <Text style={styles.questTitle}>{quest.title}</Text>
-                    </View>
+
+                        <Text style={styles.startText}>Start session</Text>
+                    </Pressable>
                 ))}
             </View>
         </View>
@@ -138,5 +146,11 @@ const styles = StyleSheet.create({
     questTitle: {
         fontSize: 17,
         fontWeight: "600",
+    },
+    startText: {
+        marginTop: 8,
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#555555",
     },
 });
