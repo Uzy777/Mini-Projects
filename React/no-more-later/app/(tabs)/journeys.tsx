@@ -15,19 +15,23 @@ export default function JourneyScreen() {
 
     useEffect(() => {
         async function loadJourneys() {
-            const storedJourneys = await AsyncStorage.getItem(JOURNEYS_STORAGE_KEY);
+            try {
+                const storedJourneys = await AsyncStorage.getItem(JOURNEYS_STORAGE_KEY);
 
-            if (storedJourneys) {
-                const parsedJourneys: Journey[] = JSON.parse(storedJourneys);
+                if (storedJourneys) {
+                    const parsedJourneys: Journey[] = JSON.parse(storedJourneys);
 
-                setJourneys(parsedJourneys);
+                    setJourneys(parsedJourneys);
+                }
+            } catch (error) {
+                console.error("Failed to load Journeys:", error);
             }
         }
 
         loadJourneys();
     }, []);
 
-    function handleAddJourney() {
+    async function handleAddJourney() {
         const trimmedTitle = journeyTitle.trim();
 
         if (!trimmedTitle) {
@@ -43,11 +47,14 @@ export default function JourneyScreen() {
 
         const updatedJourneys = [...journeys, newJourney];
 
-        setJourneys(updatedJourneys);
+        try {
+            await AsyncStorage.setItem(JOURNEYS_STORAGE_KEY, JSON.stringify(updatedJourneys));
 
-        AsyncStorage.setItem(JOURNEYS_STORAGE_KEY, JSON.stringify(updatedJourneys));
-
-        setJourneyTitle("");
+            setJourneys(updatedJourneys);
+            setJourneyTitle("");
+        } catch (error) {
+            console.error("Failed to save Journey:", error);
+        }
     }
 
     return (
