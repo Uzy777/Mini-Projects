@@ -9,6 +9,22 @@ export default function FocusScreen() {
     }>();
 
     const [selectedMinutes, setSelectedMinutes] = useState(25);
+    const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
+    const [isRunning, setIsRunning] = useState(false);
+
+    function handleStartSession() {
+        const totalSeconds = selectedMinutes * 60;
+
+        setRemainingSeconds(totalSeconds);
+        setIsRunning(true);
+    }
+
+    function formatTime(totalSeconds: number) {
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+
+        return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    }
 
     return (
         <View style={styles.container}>
@@ -37,6 +53,11 @@ export default function FocusScreen() {
                     <Text style={[styles.durationText, selectedMinutes === 50 && styles.selectedDurationText]}>50 min</Text>
                 </Pressable>
             </View>
+            <Pressable style={styles.startButton} onPress={handleStartSession}>
+                <Text style={styles.startButtonText}>Start Focus Session</Text>
+            </Pressable>
+
+            {isRunning && remainingSeconds !== null && <Text style={styles.timer}>{formatTime(remainingSeconds)}</Text>}
         </View>
     );
 }
@@ -97,5 +118,23 @@ const styles = StyleSheet.create({
     },
     selectedDurationText: {
         color: "#ffffff",
+    },
+    startButton: {
+        marginTop: 24,
+        paddingVertical: 16,
+        borderRadius: 8,
+        backgroundColor: "#222222",
+        alignItems: "center",
+    },
+    startButtonText: {
+        color: "#ffffff",
+        fontSize: 17,
+        fontWeight: "600",
+    },
+    timer: {
+        marginTop: 32,
+        fontSize: 56,
+        fontWeight: "700",
+        textAlign: "center",
     },
 });
