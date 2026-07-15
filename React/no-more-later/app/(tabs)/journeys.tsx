@@ -57,6 +57,17 @@ export default function JourneyScreen() {
         }
     }
 
+    async function handleDeleteJourney(journeyId: string) {
+        const updatedJourneys = journeys.filter((journey) => journey.id !== journeyId);
+
+        try {
+            await AsyncStorage.setItem(JOURNEYS_STORAGE_KEY, JSON.stringify(updatedJourneys));
+            setJourneys(updatedJourneys);
+        } catch (error) {
+            console.error("Failed to delete Journey:", error);
+        }
+    }
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Journeys</Text>
@@ -73,6 +84,7 @@ export default function JourneyScreen() {
                 {journeys.map((journey) => (
                     <View key={journey.id} style={styles.journeyCard}>
                         <Text style={styles.journeyTitle}>{journey.title}</Text>
+                        <Pressable onPress={() => handleDeleteJourney(journey.id)}><Text style={styles.deleteText}>Delete</Text></Pressable>
                     </View>
                 ))}
             </View>
@@ -125,9 +137,17 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 8,
         backgroundColor: "#ffffff",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
     },
     journeyTitle: {
         fontSize: 18,
         fontWeight: "600",
     },
+    deleteText: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#b42318"
+    }
 });
