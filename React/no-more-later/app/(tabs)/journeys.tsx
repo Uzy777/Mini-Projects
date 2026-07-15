@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 type Journey = {
@@ -6,9 +7,25 @@ type Journey = {
     title: string;
 };
 
+const JOURNEYS_STORAGE_KEY = "no-more-later-journeys";
+
 export default function JourneyScreen() {
     const [journeyTitle, setJourneyTitle] = useState("");
     const [journeys, setJourneys] = useState<Journey[]>([]);
+
+    useEffect(() => {
+        async function loadJourneys() {
+            const storedJourneys = await AsyncStorage.getItem(JOURNEYS_STORAGE_KEY);
+
+            if (storedJourneys) {
+                const parsedJourneys: Journey[] = JSON.parse(storedJourneys);
+
+                setJourneys(parsedJourneys);
+            }
+        }
+
+        loadJourneys();
+    }, []);
 
     function handleAddJourney() {
         const trimmedTitle = journeyTitle.trim();
@@ -22,7 +39,13 @@ export default function JourneyScreen() {
             title: trimmedTitle,
         };
 
-        setJourneys((currentJourneys) => [...currentJourneys, newJourney]);
+        // setJourneys((currentJourneys) => [...currentJourneys, newJourney]);
+
+        const updatedJourneys = [...journeys, newJourney];
+
+        setJourneys(updatedJourneys);
+
+        AsyncStorage.setItem(JOURNEYS_STORAGE_KEY, JSON.stringify(updatedJourneys));
 
         setJourneyTitle("");
     }
