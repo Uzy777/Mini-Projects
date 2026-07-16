@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 type SessionOutcome = "completed" | "progressed" | "blocked" | "stopped";
 
@@ -11,6 +11,8 @@ export default function ReviewSessionScreen() {
         plannedMinutes?: string;
     }>();
     const [selectedOutcome, setSelectedOutcome] = useState<SessionOutcome | null>(null);
+    const [accomplishment, setAccomplishment] = useState("");
+    const [nextAction, setNextAction] = useState("");
 
     return (
         <View style={styles.container}>
@@ -57,6 +59,30 @@ export default function ReviewSessionScreen() {
                     <Text style={[styles.outcomeText, selectedOutcome === "stopped" && styles.selectedOutcomeText]}>Stopped early</Text>
                 </Pressable>
             </View>
+
+            <Text style={styles.inputLabel}>What did you accomplish?</Text>
+
+            <TextInput
+                style={styles.textArea}
+                placeholder="Describe what you worked on..."
+                value={accomplishment}
+                onChangeText={setAccomplishment}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+            />
+
+            <Text style={styles.inputLabel}>What should happen next?</Text>
+
+            <TextInput
+                style={styles.textArea}
+                placeholder="Write the exact next step..."
+                value={nextAction}
+                onChangeText={setNextAction}
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+            />
 
             <Text style={styles.idText}>Quest ID: {questId}</Text>
         </View>
@@ -122,5 +148,21 @@ const styles = StyleSheet.create({
     },
     selectedOutcomeText: {
         color: "#ffffff",
+    },
+    inputLabel: {
+        marginTop: 24,
+        marginBottom: 8,
+        fontSize: 16,
+        fontWeight: "600",
+    },
+    textArea: {
+        minHeight: 100,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderWidth: 1,
+        borderColor: "#cccccc",
+        borderRadius: 8,
+        backgroundColor: "#ffffff",
+        fontSize: 16,
     },
 });
