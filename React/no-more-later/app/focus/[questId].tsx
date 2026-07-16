@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function FocusScreen() {
+    const router = useRouter();
+
     const { questId, questTitle } = useLocalSearchParams<{
         questId: string;
         questTitle?: string;
@@ -49,7 +51,14 @@ export default function FocusScreen() {
     }
 
     function handleReviewSession() {
-        console.log("Review session pressed");
+        router.push({
+            pathname: "/review/[questId]",
+            params: {
+                questId,
+                questTitle,
+                plannedMinutes: selectedMinutes.toString(),
+            },
+        });
     }
 
     function formatTime(totalSeconds: number) {
