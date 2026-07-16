@@ -44,6 +44,10 @@ export default function FocusScreen() {
         setIsRunning(true);
     }
 
+    function handleToggleTimer() {
+        setIsRunning((currentValue) => !currentValue);
+    }
+
     function formatTime(totalSeconds: number) {
         const minutes = Math.floor(totalSeconds / 60);
         const seconds = totalSeconds % 60;
@@ -82,7 +86,17 @@ export default function FocusScreen() {
                 <Text style={styles.startButtonText}>Start Focus Session</Text>
             </Pressable>
 
-            {isRunning && remainingSeconds !== null && <Text style={styles.timer}>{formatTime(remainingSeconds)}</Text>}
+            {remainingSeconds !== null && (
+                <View style={styles.timerContainer}>
+                    <Text style={styles.timer}>{formatTime(remainingSeconds)}</Text>
+
+                    {remainingSeconds > 0 && (
+                        <Pressable style={styles.pauseButton} onPress={handleToggleTimer}>
+                            <Text style={styles.pauseButtonText}>{isRunning ? "Pause" : "Resume"}</Text>
+                        </Pressable>
+                    )}
+                </View>
+            )}
         </View>
     );
 }
@@ -161,5 +175,21 @@ const styles = StyleSheet.create({
         fontSize: 56,
         fontWeight: "700",
         textAlign: "center",
+    },
+    timerContainer: {
+        alignItems: "center",
+    },
+    pauseButton: {
+        marginTop: 20,
+        paddingHorizontal: 32,
+        paddingVertical: 12,
+        borderWidth: 1,
+        borderColor: "#222222",
+        borderRadius: 8,
+    },
+    pauseButtonText: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#222222",
     },
 });
