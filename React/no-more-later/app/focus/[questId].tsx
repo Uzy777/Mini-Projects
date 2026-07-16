@@ -48,6 +48,10 @@ export default function FocusScreen() {
         setIsRunning((currentValue) => !currentValue);
     }
 
+    function handleReviewSession() {
+        console.log("Review session pressed");
+    }
+
     function formatTime(totalSeconds: number) {
         const minutes = Math.floor(totalSeconds / 60);
         const seconds = totalSeconds % 60;
@@ -94,6 +98,18 @@ export default function FocusScreen() {
                         <Pressable style={styles.pauseButton} onPress={handleToggleTimer}>
                             <Text style={styles.pauseButtonText}>{isRunning ? "Pause" : "Resume"}</Text>
                         </Pressable>
+                    )}
+
+                    {remainingSeconds === 0 && (
+                        <View style={styles.completedContainer}>
+                            <Text style={styles.completedTitle}>Focus session complete!</Text>
+
+                            <Text style={styles.completedMessage}>Take a moment to record what you accomplished.</Text>
+
+                            <Pressable style={styles.reviewButton} onPress={handleReviewSession}>
+                                <Text style={styles.reviewButtonText}>Review Session</Text>
+                            </Pressable>
+                        </View>
                     )}
                 </View>
             )}
@@ -191,5 +207,31 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "600",
         color: "#222222",
+    },
+    completedContainer: {
+        marginTop: 24,
+        alignItems: "center",
+    },
+    completedTitle: {
+        fontSize: 22,
+        fontWeight: "700",
+    },
+    completedMessage: {
+        marginTop: 8,
+        fontSize: 16,
+        textAlign: "center",
+        color: "#666666",
+    },
+    reviewButton: {
+        marginTop: 20,
+        paddingHorizontal: 28,
+        paddingVertical: 14,
+        borderRadius: 8,
+        backgroundColor: "#222222",
+    },
+    reviewButtonText: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#ffffff",
     },
 });
