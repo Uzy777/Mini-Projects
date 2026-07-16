@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+
+type SessionOutcome = "completed" | "progressed" | "blocked" | "stopped";
 
 export default function ReviewSessionScreen() {
     const { questId, questTitle, plannedMinutes } = useLocalSearchParams<{
@@ -7,6 +10,7 @@ export default function ReviewSessionScreen() {
         questTitle?: string;
         plannedMinutes?: string;
     }>();
+    const [selectedOutcome, setSelectedOutcome] = useState<SessionOutcome | null>(null);
 
     return (
         <View style={styles.container}>
@@ -22,7 +26,37 @@ export default function ReviewSessionScreen() {
 
             <Text style={styles.sessionLength}>{plannedMinutes ?? "0"} minute session</Text>
 
-            <Text style={styles.description}>Your session review form will appear here.</Text>
+            <Text style={styles.sectionTitle}>How did the session go?</Text>
+
+            <View style={styles.outcomeList}>
+                <Pressable
+                    style={[styles.outcomeButton, selectedOutcome === "completed" && styles.selectedOutcomeButton]}
+                    onPress={() => setSelectedOutcome("completed")}
+                >
+                    <Text style={[styles.outcomeText, selectedOutcome === "completed" && styles.selectedOutcomeText]}>Quest completed</Text>
+                </Pressable>
+
+                <Pressable
+                    style={[styles.outcomeButton, selectedOutcome === "progressed" && styles.selectedOutcomeButton]}
+                    onPress={() => setSelectedOutcome("progressed")}
+                >
+                    <Text style={[styles.outcomeText, selectedOutcome === "progressed" && styles.selectedOutcomeText]}>Made progress</Text>
+                </Pressable>
+
+                <Pressable
+                    style={[styles.outcomeButton, selectedOutcome === "blocked" && styles.selectedOutcomeButton]}
+                    onPress={() => setSelectedOutcome("blocked")}
+                >
+                    <Text style={[styles.outcomeText, selectedOutcome === "blocked" && styles.selectedOutcomeText]}>Got blocked</Text>
+                </Pressable>
+
+                <Pressable
+                    style={[styles.outcomeButton, selectedOutcome === "stopped" && styles.selectedOutcomeButton]}
+                    onPress={() => setSelectedOutcome("stopped")}
+                >
+                    <Text style={[styles.outcomeText, selectedOutcome === "stopped" && styles.selectedOutcomeText]}>Stopped early</Text>
+                </Pressable>
+            </View>
 
             <Text style={styles.idText}>Quest ID: {questId}</Text>
         </View>
@@ -59,5 +93,34 @@ const styles = StyleSheet.create({
         marginTop: 24,
         fontSize: 12,
         color: "#666666",
+    },
+    sectionTitle: {
+        marginTop: 32,
+        marginBottom: 12,
+        fontSize: 18,
+        fontWeight: "600",
+    },
+    outcomeList: {
+        gap: 12,
+    },
+    outcomeButton: {
+        paddingHorizontal: 16,
+        paddingVertical: 16,
+        borderWidth: 1,
+        borderColor: "#cccccc",
+        borderRadius: 8,
+        backgroundColor: "#ffffff",
+    },
+    selectedOutcomeButton: {
+        borderColor: "#222222",
+        backgroundColor: "#222222",
+    },
+    outcomeText: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#222222",
+    },
+    selectedOutcomeText: {
+        color: "#ffffff",
     },
 });
