@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-native";
 
 type SessionOutcome = "completed" | "progressed" | "blocked" | "stopped";
 
@@ -13,9 +13,41 @@ export default function ReviewSessionScreen() {
     const [selectedOutcome, setSelectedOutcome] = useState<SessionOutcome | null>(null);
     const [accomplishment, setAccomplishment] = useState("");
     const [nextAction, setNextAction] = useState("");
+    const [validationMessage, setValidationMessage] = useState("");
+
+    function handleCompleteReview() {
+        const trimmedAccomplishment = accomplishment.trim();
+        const trimmedNextAction = nextAction.trim();
+
+        if (!selectedOutcome) {
+            setValidationMessage("Choose a session outcome.");
+            return;
+        }
+
+        if (!trimmedAccomplishment) {
+            setValidationMessage("Describe what you accomplished.");
+            return;
+        }
+
+        if (selectedOutcome !== "completed" && !trimmedNextAction) {
+            setValidationMessage("Add the next action.");
+            return;
+        }
+
+        setValidationMessage("");
+
+        console.log({
+            questId,
+            questTitle,
+            plannedMinutes,
+            outcome: selectedOutcome,
+            accomplishment: trimmedAccomplishment,
+            nextAction: trimmedNextAction,
+        });
+    }
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
             <Stack.Screen
                 options={{
                     title: "Session Review",
@@ -84,16 +116,25 @@ export default function ReviewSessionScreen() {
                 textAlignVertical="top"
             />
 
+            {validationMessage && <Text style={styles.validationMessage}>{validationMessage}</Text>}
+
+            <Pressable style={styles.completeButton} onPress={handleCompleteReview}>
+                <Text style={styles.completeButtonText}>Complete Review</Text>
+            </Pressable>
+
             <Text style={styles.idText}>Quest ID: {questId}</Text>
-        </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 24,
         backgroundColor: "#f5f5f5",
+    },
+    contentContainer: {
+        padding: 24,
+        paddingBottom: 48,
     },
     label: {
         marginTop: 24,
@@ -164,5 +205,22 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         backgroundColor: "#ffffff",
         fontSize: 16,
+    },
+    validationMessage: {
+        marginTop: 16,
+        fontSize: 14,
+        color: "#b42318",
+    },
+    completeButton: {
+        marginTop: 24,
+        paddingVertical: 16,
+        borderRadius: 8,
+        backgroundColor: "#222222",
+        alignItems: "center",
+    },
+    completeButtonText: {
+        fontSize: 17,
+        fontWeight: "600",
+        color: "#ffffff",
     },
 });

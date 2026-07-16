@@ -40,7 +40,8 @@ export default function FocusScreen() {
     }, [isRunning, remainingSeconds]);
 
     function handleStartSession() {
-        const totalSeconds = selectedMinutes * 60;
+        // const totalSeconds = selectedMinutes * 60;
+        const totalSeconds = 5;
 
         setRemainingSeconds(totalSeconds);
         setIsRunning(true);
