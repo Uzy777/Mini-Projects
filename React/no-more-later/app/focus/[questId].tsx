@@ -5,9 +5,10 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 export default function FocusScreen() {
     const router = useRouter();
 
-    const { questId, questTitle } = useLocalSearchParams<{
+    const { questId, questTitle, journeyId } = useLocalSearchParams<{
         questId: string;
         questTitle?: string;
+        journeyId: string;
     }>();
 
     const [selectedMinutes, setSelectedMinutes] = useState(25);
@@ -57,6 +58,7 @@ export default function FocusScreen() {
             params: {
                 questId,
                 questTitle,
+                journeyId,
                 plannedMinutes: selectedMinutes.toString(),
             },
         });

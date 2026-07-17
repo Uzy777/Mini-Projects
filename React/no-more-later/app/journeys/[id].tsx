@@ -62,7 +62,14 @@ export default function JourneyDetailsScreen() {
     }
 
     function handleOpenQuest(quest: Quest) {
-        router.push({ pathname: "/focus/[questId]", params: { questId: quest.id, title: quest.title } });
+        router.push({
+            pathname: "/focus/[questId]",
+            params: {
+                questId: quest.id,
+                questTitle: quest.title,
+                journeyId: id,
+            },
+        });
     }
 
     return (

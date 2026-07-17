@@ -32,11 +32,13 @@ function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction
 }
 
 export default function ReviewSessionScreen() {
-    const { questId, questTitle, plannedMinutes } = useLocalSearchParams<{
+    const { questId, questTitle, journeyId, plannedMinutes } = useLocalSearchParams<{
         questId: string;
         questTitle?: string;
+        journeyId: string;
         plannedMinutes?: string;
     }>();
+
     const [selectedOutcome, setSelectedOutcome] = useState<SessionOutcome | null>(null);
     const [accomplishment, setAccomplishment] = useState("");
     const [nextAction, setNextAction] = useState("");
@@ -88,6 +90,7 @@ export default function ReviewSessionScreen() {
             setTotalXp(updatedTotalXp);
 
             console.log({
+                journeyId,
                 questId,
                 questTitle,
                 plannedMinutes,
@@ -97,6 +100,7 @@ export default function ReviewSessionScreen() {
                 earnedXp: sessionXp,
                 totalXp: updatedTotalXp,
             });
+            
         } catch (error) {
             console.error("Failed to save XP:", error);
             setValidationMessage("Could not save your XP. Try again.");
