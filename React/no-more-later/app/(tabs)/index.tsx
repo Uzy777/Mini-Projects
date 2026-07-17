@@ -1,6 +1,30 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const TOTAL_XP_STORAGE_KEY = "no-more-later-total-xp";
 
 export default function HomeScreen() {
+    const [totalXp, setTotalXp] = useState(0);
+
+    useEffect(() => {
+        async function loadTotalXp() {
+            try {
+                const storedTotalXp = await AsyncStorage.getItem(TOTAL_XP_STORAGE_KEY);
+
+                if (storedTotalXp) {
+                    setTotalXp(Number(storedTotalXp));
+                }
+            } catch (error) {
+                console.error("Failed to load total XP:", error);
+            }
+        }
+        loadTotalXp();
+    }, []);
+
+    const level = Math.floor(totalXp / 100) + 1;
+    const currentLevelXp = totalXp % 100;
+
     function handleStartSession() {
         console.log("Start session pressed");
     }
@@ -10,6 +34,14 @@ export default function HomeScreen() {
             <Text style={styles.title}>No More Later</Text>
 
             <Text style={styles.tagline}>Turn later into progress.</Text>
+
+            <View style={styles.progressCard}>
+                <Text style={styles.levelText}>Level {level}</Text>
+
+                <Text style={styles.xpText}>{currentLevelXp} / 100 XP</Text>
+
+                <Text style={styles.totalXpText}>Total XP: {totalXp}</Text>
+            </View>
 
             <Pressable style={styles.startButton} onPress={handleStartSession}>
                 <Text style={styles.startButtonText}>Start a focus session</Text>
@@ -45,5 +77,28 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "600",
         color: "#ffffff",
+    },
+    progressCard: {
+        width: "100%",
+        maxWidth: 400,
+        marginBottom: 24,
+        padding: 20,
+        borderRadius: 12,
+        backgroundColor: "#ffffff",
+        alignItems: "center",
+    },
+    levelText: {
+        fontSize: 24,
+        fontWeight: "700",
+    },
+    xpText: {
+        marginTop: 8,
+        fontSize: 18,
+        fontWeight: "600",
+    },
+    totalXpText: {
+        marginTop: 4,
+        fontSize: 14,
+        color: "#666666",
     },
 });
