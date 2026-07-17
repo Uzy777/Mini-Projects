@@ -5,7 +5,19 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type SessionOutcome = "completed" | "progressed" | "blocked" | "stopped";
 
+type Quest = {
+    id: string;
+    title: string;
+    status?: "active" | "completed";
+    nextAction?: string;
+    lastAccomplishment?: string;
+};
+
 const TOTAL_XP_STORAGE_KEY = "no-more-later-total-xp";
+
+function getQuestsStorageKey(journeyId: string) {
+    return `no-more-later-quests-${journeyId}`;
+}
 
 function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction: string) {
     let totalXp = 0;
@@ -86,6 +98,27 @@ export default function ReviewSessionScreen() {
 
             await AsyncStorage.setItem(TOTAL_XP_STORAGE_KEY, updatedTotalXp.toString());
 
+            const questsStorageKey = getQuestsStorageKey(journeyId);
+
+            const storedQuests = await AsyncStorage.getItem(questsStorageKey);
+
+            const currentQuests: Quest[] = storedQuests ? JSON.parse(storedQuests) : [];
+
+            const updatedQuests = currentQuests.map((quest) => {
+                if (quest.id !== questId) {
+                    return quest;
+                }
+
+                return {
+                    ...quest,
+                    status: selectedOutcome === "completed" ? "completed" : "active",
+                    lastAccomplishment: trimmedAccomplishment,
+                    nextAction: selectedOutcome === "completed" ? "" : trimmedNextAction,
+                };
+            });
+
+            await AsyncStorage.setItem(questsStorageKey, JSON.stringify(updatedQuests));
+
             setEarnedXp(sessionXp);
             setTotalXp(updatedTotalXp);
 
@@ -100,7 +133,6 @@ export default function ReviewSessionScreen() {
                 earnedXp: sessionXp,
                 totalXp: updatedTotalXp,
             });
-            
         } catch (error) {
             console.error("Failed to save XP:", error);
             setValidationMessage("Could not save your XP. Try again.");

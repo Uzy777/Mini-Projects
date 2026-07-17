@@ -1,11 +1,14 @@
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useState, useEffect } from "react";
+import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useState, useEffect, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 type Quest = {
     id: string;
     title: string;
+    status?: "active" | "completed";
+    nextAction?: string;
+    lastAccomplishment?: string;
 };
 
 function getQuestsStorageKey(journeyId: string) {
@@ -19,23 +22,23 @@ export default function JourneyDetailsScreen() {
     const [questTitle, setQuestTitle] = useState("");
     const [quests, setQuests] = useState<Quest[]>([]);
 
-    useEffect(() => {
-        async function loadQuests() {
-            try {
-                const storedQuests = await AsyncStorage.getItem(getQuestsStorageKey(id));
+    useFocusEffect(
+        useCallback(() => {
+            async function loadQuests() {
+                try {
+                    const storedQuests = await AsyncStorage.getItem(getQuestsStorageKey(id));
 
-                if (storedQuests) {
-                    const parsedQuests: Quest[] = JSON.parse(storedQuests);
+                    const parsedQuests: Quest[] = storedQuests ? JSON.parse(storedQuests) : [];
 
                     setQuests(parsedQuests);
+                } catch (error) {
+                    console.error("Failed to load Quests:", error);
                 }
-            } catch (error) {
-                console.error("Failed to load Quests:", error);
             }
-        }
 
-        loadQuests();
-    }, [id]);
+            loadQuests();
+        }, [id]),
+    );
 
     async function handleAddQuest() {
         const trimmedTitle = questTitle.trim();
@@ -47,6 +50,7 @@ export default function JourneyDetailsScreen() {
         const newQuest: Quest = {
             id: Date.now().toString(),
             title: trimmedTitle,
+            status: "active",
         };
 
         const updatedQuests = [...quests, newQuest];
@@ -62,6 +66,10 @@ export default function JourneyDetailsScreen() {
     }
 
     function handleOpenQuest(quest: Quest) {
+        if (quest.status === "completed") {
+            return;
+        }
+
         router.push({
             pathname: "/focus/[questId]",
             params: {
@@ -88,10 +96,25 @@ export default function JourneyDetailsScreen() {
 
             <View style={styles.questList}>
                 {quests.map((quest) => (
-                    <Pressable key={quest.id} style={styles.questCard} onPress={() => handleOpenQuest(quest)}>
-                        <Text style={styles.questTitle}>{quest.title}</Text>
+                    <Pressable
+                        key={quest.id}
+                        style={[styles.questCard, quest.status === "completed" && styles.completedQuestCard]}
+                        onPress={() => handleOpenQuest(quest)}
+                        disabled={quest.status === "completed"}
+                    >
+                        <View style={styles.questHeader}>
+                            <Text style={styles.questTitle}>{quest.title}</Text>
 
-                        <Text style={styles.startText}>Start session</Text>
+                            <Text style={[styles.statusText, quest.status === "completed" && styles.completedStatusText]}>
+                                {quest.status === "completed" ? "Completed" : "Active"}
+                            </Text>
+                        </View>
+
+                        {quest.lastAccomplishment && <Text style={styles.progressText}>Last session: {quest.lastAccomplishment}</Text>}
+
+                        {quest.status !== "completed" && quest.nextAction && <Text style={styles.nextActionText}>Next action: {quest.nextAction}</Text>}
+
+                        <Text style={styles.startText}>{quest.status === "completed" ? "Quest complete" : "Start session"}</Text>
                     </Pressable>
                 ))}
             </View>
@@ -159,5 +182,32 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: "600",
         color: "#555555",
+    },
+    completedQuestCard: {
+        opacity: 0.7,
+    },
+    questHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 12,
+    },
+    statusText: {
+        fontSize: 13,
+        fontWeight: "600",
+        color: "#666666",
+    },
+    completedStatusText: {
+        color: "#2f7d32",
+    },
+    progressText: {
+        marginTop: 12,
+        fontSize: 14,
+        color: "#555555",
+    },
+    nextActionText: {
+        marginTop: 8,
+        fontSize: 14,
+        fontWeight: "600",
     },
 });
