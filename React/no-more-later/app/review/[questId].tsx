@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type SessionOutcome = "completed" | "progressed" | "blocked" | "stopped";
+
+const TOTAL_XP_STORAGE_KEY = "no-more-later-total-xp";
 
 function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction: string) {
     let totalXp = 0;
@@ -39,8 +42,14 @@ export default function ReviewSessionScreen() {
     const [nextAction, setNextAction] = useState("");
     const [validationMessage, setValidationMessage] = useState("");
     const [earnedXp, setEarnedXp] = useState<number | null>(null);
+    const [totalXp, setTotalXp] = useState<number | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    function handleCompleteReview() {
+    async function handleCompleteReview() {
+        if (isSubmitting || earnedXp !== null) {
+            return;
+        }
+
         const trimmedAccomplishment = accomplishment.trim();
         const trimmedNextAction = nextAction.trim();
 
@@ -60,21 +69,40 @@ export default function ReviewSessionScreen() {
         }
 
         setValidationMessage("");
+        setIsSubmitting(true);
 
         const sessionMinutes = Number(plannedMinutes ?? 0);
 
         const sessionXp = calculateSessionXp(sessionMinutes, selectedOutcome, trimmedNextAction);
 
-        setEarnedXp(sessionXp);
+        try {
+            const storedTotalXp = await AsyncStorage.getItem(TOTAL_XP_STORAGE_KEY);
 
-        console.log({
-            questId,
-            questTitle,
-            plannedMinutes,
-            outcome: selectedOutcome,
-            accomplishment: trimmedAccomplishment,
-            nextAction: trimmedNextAction,
-        });
+            const currentTotalXp = storedTotalXp ? Number(storedTotalXp) : 0;
+
+            const updatedTotalXp = currentTotalXp + sessionXp;
+
+            await AsyncStorage.setItem(TOTAL_XP_STORAGE_KEY, updatedTotalXp.toString());
+
+            setEarnedXp(sessionXp);
+            setTotalXp(updatedTotalXp);
+
+            console.log({
+                questId,
+                questTitle,
+                plannedMinutes,
+                outcome: selectedOutcome,
+                accomplishment: trimmedAccomplishment,
+                nextAction: trimmedNextAction,
+                earnedXp: sessionXp,
+                totalXp: updatedTotalXp,
+            });
+        } catch (error) {
+            console.error("Failed to save XP:", error);
+            setValidationMessage("Could not save your XP. Try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
     }
 
     return (
@@ -149,8 +177,12 @@ export default function ReviewSessionScreen() {
 
             {validationMessage && <Text style={styles.validationMessage}>{validationMessage}</Text>}
 
-            <Pressable style={styles.completeButton} onPress={handleCompleteReview}>
-                <Text style={styles.completeButtonText}>Complete Review</Text>
+            <Pressable
+                style={[styles.completeButton, (isSubmitting || earnedXp !== null) && styles.disabledButton]}
+                onPress={handleCompleteReview}
+                disabled={isSubmitting || earnedXp !== null}
+            >
+                <Text style={styles.completeButtonText}>{isSubmitting ? "Saving..." : earnedXp !== null ? "Review Completed" : "Complete Review"}</Text>
             </Pressable>
 
             {earnedXp !== null && (
@@ -158,6 +190,8 @@ export default function ReviewSessionScreen() {
                     <Text style={styles.rewardTitle}>Review complete!</Text>
 
                     <Text style={styles.rewardXp}>+{earnedXp} XP</Text>
+
+                    {totalXp !== null && <Text style={styles.totalXp}>Total XP: {totalXp}</Text>}
                 </View>
             )}
 
@@ -277,5 +311,13 @@ const styles = StyleSheet.create({
         marginTop: 8,
         fontSize: 32,
         fontWeight: "700",
+    },
+    disabledButton: {
+        opacity: 0.5,
+    },
+    totalXp: {
+        marginTop: 8,
+        fontSize: 16,
+        color: "#666666",
     },
 });
