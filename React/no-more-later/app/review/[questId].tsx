@@ -4,6 +4,30 @@ import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-
 
 type SessionOutcome = "completed" | "progressed" | "blocked" | "stopped";
 
+function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction: string) {
+    let totalXp = 0;
+
+    if (minutes === 15) {
+        totalXp += 5;
+    } else if (minutes === 25) {
+        totalXp += 10;
+    } else if (minutes === 50) {
+        totalXp += 20;
+    }
+
+    totalXp += 5;
+
+    if (outcome === "completed") {
+        totalXp += 10;
+    }
+
+    if (outcome !== "completed" && nextAction.trim()) {
+        totalXp += 5;
+    }
+
+    return totalXp;
+}
+
 export default function ReviewSessionScreen() {
     const { questId, questTitle, plannedMinutes } = useLocalSearchParams<{
         questId: string;
@@ -14,6 +38,7 @@ export default function ReviewSessionScreen() {
     const [accomplishment, setAccomplishment] = useState("");
     const [nextAction, setNextAction] = useState("");
     const [validationMessage, setValidationMessage] = useState("");
+    const [earnedXp, setEarnedXp] = useState<number | null>(null);
 
     function handleCompleteReview() {
         const trimmedAccomplishment = accomplishment.trim();
@@ -35,6 +60,12 @@ export default function ReviewSessionScreen() {
         }
 
         setValidationMessage("");
+
+        const sessionMinutes = Number(plannedMinutes ?? 0);
+
+        const sessionXp = calculateSessionXp(sessionMinutes, selectedOutcome, trimmedNextAction);
+
+        setEarnedXp(sessionXp);
 
         console.log({
             questId,
@@ -122,7 +153,15 @@ export default function ReviewSessionScreen() {
                 <Text style={styles.completeButtonText}>Complete Review</Text>
             </Pressable>
 
-            <Text style={styles.idText}>Quest ID: {questId}</Text>
+            {earnedXp !== null && (
+                <View style={styles.rewardContainer}>
+                    <Text style={styles.rewardTitle}>Review complete!</Text>
+
+                    <Text style={styles.rewardXp}>+{earnedXp} XP</Text>
+                </View>
+            )}
+
+            {/* <Text style={styles.idText}>Quest ID: {questId}</Text> */}
         </ScrollView>
     );
 }
@@ -222,5 +261,21 @@ const styles = StyleSheet.create({
         fontSize: 17,
         fontWeight: "600",
         color: "#ffffff",
+    },
+    rewardContainer: {
+        marginTop: 24,
+        padding: 20,
+        borderRadius: 8,
+        backgroundColor: "#ffffff",
+        alignItems: "center",
+    },
+    rewardTitle: {
+        fontSize: 18,
+        fontWeight: "600",
+    },
+    rewardXp: {
+        marginTop: 8,
+        fontSize: 32,
+        fontWeight: "700",
     },
 });
