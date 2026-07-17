@@ -1,26 +1,30 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "expo-router";
 
 const TOTAL_XP_STORAGE_KEY = "no-more-later-total-xp";
 
 export default function HomeScreen() {
     const [totalXp, setTotalXp] = useState(0);
 
-    useEffect(() => {
-        async function loadTotalXp() {
-            try {
-                const storedTotalXp = await AsyncStorage.getItem(TOTAL_XP_STORAGE_KEY);
+    useFocusEffect(
+        useCallback(() => {
+            async function loadTotalXp() {
+                try {
+                    const storedTotalXp = await AsyncStorage.getItem(TOTAL_XP_STORAGE_KEY);
 
-                if (storedTotalXp) {
-                    setTotalXp(Number(storedTotalXp));
+                    const parsedTotalXp = storedTotalXp ? Number(storedTotalXp) : 0;
+
+                    setTotalXp(parsedTotalXp);
+                } catch (error) {
+                    console.error("Failed to load total XP:", error);
                 }
-            } catch (error) {
-                console.error("Failed to load total XP:", error);
             }
-        }
-        loadTotalXp();
-    }, []);
+
+            loadTotalXp();
+        }, []),
+    );
 
     const level = Math.floor(totalXp / 100) + 1;
     const currentLevelXp = totalXp % 100;
