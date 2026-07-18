@@ -5,6 +5,31 @@ import { useFocusEffect, useRouter } from "expo-router";
 
 const TOTAL_XP_STORAGE_KEY = "no-more-later-total-xp";
 
+const STARTING_LEVEL_XP = 100;
+const XP_INCREASE_PER_LEVEL = 25;
+
+function getXpRequiredForLevel(level: number) {
+    return STARTING_LEVEL_XP + (level - 1) * XP_INCREASE_PER_LEVEL;
+}
+
+function calculateLevelProgress(totalXp: number) {
+    let level = 1;
+    let xpIntoLevel = totalXp;
+    let xpRequired = getXpRequiredForLevel(level);
+
+    while (xpIntoLevel >= xpRequired) {
+        xpIntoLevel -= xpRequired;
+        level += 1;
+        xpRequired = getXpRequiredForLevel(level);
+    }
+
+    return {
+        level,
+        xpIntoLevel,
+        xpRequired,
+    };
+}
+
 export default function HomeScreen() {
     const router = useRouter();
 
@@ -28,8 +53,7 @@ export default function HomeScreen() {
         }, []),
     );
 
-    const level = Math.floor(totalXp / 100) + 1;
-    const currentLevelXp = totalXp % 100;
+    const { level, xpIntoLevel, xpRequired } = calculateLevelProgress(totalXp);
 
     function handleStartSession() {
         router.navigate("/journeys");
@@ -44,7 +68,7 @@ export default function HomeScreen() {
             <View style={styles.progressCard}>
                 <Text style={styles.levelText}>Level {level}</Text>
 
-                <Text style={styles.xpText}>{currentLevelXp} / 100 XP</Text>
+                <Text style={styles.xpText}>{xpIntoLevel} / {xpRequired} XP</Text>
 
                 <Text style={styles.totalXpText}>Total XP: {totalXp}</Text>
             </View>
