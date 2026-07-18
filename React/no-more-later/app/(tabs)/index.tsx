@@ -1,11 +1,13 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useEffect, useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 
 const TOTAL_XP_STORAGE_KEY = "no-more-later-total-xp";
 
 export default function HomeScreen() {
+    const router = useRouter();
+
     const [totalXp, setTotalXp] = useState(0);
 
     useFocusEffect(
@@ -30,7 +32,7 @@ export default function HomeScreen() {
     const currentLevelXp = totalXp % 100;
 
     function handleStartSession() {
-        console.log("Start session pressed");
+        router.navigate("/journeys");
     }
 
     return (
