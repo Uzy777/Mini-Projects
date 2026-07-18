@@ -14,42 +14,61 @@ export default function FocusScreen() {
     const [selectedMinutes, setSelectedMinutes] = useState(25);
     const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
     const [isRunning, setIsRunning] = useState(false);
+    const [endTime, setEndTime] = useState<number | null>(null);
 
     useEffect(() => {
-        if (!isRunning || remainingSeconds === null) {
+        if (!isRunning || endTime === null) {
             return;
         }
 
-        if (remainingSeconds === 0) {
-            setIsRunning(false);
-            return;
+        const activeEndTime = endTime;
+
+        function updateRemainingTime() {
+            const millisecondsRemaining = activeEndTime - Date.now();
+
+            const nextRemainingSeconds = Math.max(0, Math.ceil(millisecondsRemaining / 1000));
+
+            setRemainingSeconds(nextRemainingSeconds);
+
+            if (nextRemainingSeconds === 0) {
+                setIsRunning(false);
+                setEndTime(null);
+            }
         }
 
-        const intervalId = setInterval(() => {
-            setRemainingSeconds((currentSeconds) => {
-                if (currentSeconds === null) {
-                    return null;
-                }
+        updateRemainingTime();
 
-                return currentSeconds - 1;
-            });
-        }, 1000);
+        const intervalId = setInterval(updateRemainingTime, 1000);
 
         return () => {
             clearInterval(intervalId);
         };
-    }, [isRunning, remainingSeconds]);
+    }, [isRunning, endTime]);
 
     function handleStartSession() {
         // const totalSeconds = selectedMinutes * 60;
         const totalSeconds = 5;
 
+        const calculatedEndTime = Date.now() + totalSeconds * 1000;
+
         setRemainingSeconds(totalSeconds);
+        setEndTime(calculatedEndTime);
         setIsRunning(true);
     }
 
     function handleToggleTimer() {
-        setIsRunning((currentValue) => !currentValue);
+        if (isRunning) {
+            setIsRunning(false);
+            setEndTime(null);
+            return;
+        }
+
+        if (remainingSeconds !== null && remainingSeconds > 0) {
+            const resumedEndTime = Date.now() + remainingSeconds * 1000;
+
+            setEndTime(resumedEndTime);
+            setIsRunning(true);
+        }
     }
 
     function handleReviewSession() {
