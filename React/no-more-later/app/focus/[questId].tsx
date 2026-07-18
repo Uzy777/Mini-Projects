@@ -37,6 +37,7 @@ export default function FocusScreen() {
     const [isRunning, setIsRunning] = useState(false);
     const [endTime, setEndTime] = useState<number | null>(null);
     const [sessionMessage, setSessionMessage] = useState("");
+    const [existingActiveSession, setExistingActiveSession] = useState<ActiveFocusSession | null>(null);
 
     useEffect(() => {
         async function loadActiveFocusSession() {
@@ -121,6 +122,7 @@ export default function FocusScreen() {
 
     async function handleStartSession() {
         setSessionMessage("");
+        setExistingActiveSession(null);
 
         try {
             const storedSession = await AsyncStorage.getItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY);
@@ -133,6 +135,8 @@ export default function FocusScreen() {
                 if (hasExpired) {
                     await AsyncStorage.removeItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY);
                 } else {
+                    setExistingActiveSession(existingSession);
+
                     const isCurrentQuest = existingSession.questId === questId && existingSession.journeyId === journeyId;
 
                     if (isCurrentQuest) {
@@ -167,6 +171,21 @@ export default function FocusScreen() {
 
             setSessionMessage("The Focus Session could not be started.");
         }
+    }
+
+    function handleReturnToActiveSession() {
+        if (!existingActiveSession) {
+            return;
+        }
+
+        router.replace({
+            pathname: "/focus/[questId]",
+            params: {
+                questId: existingActiveSession.questId,
+                journeyId: existingActiveSession.journeyId,
+                questTitle: existingActiveSession.questTitle,
+            },
+        });
     }
 
     async function handleToggleTimer() {
@@ -256,6 +275,12 @@ export default function FocusScreen() {
             </View>
 
             {sessionMessage && <Text style={styles.sessionMessage}>{sessionMessage}</Text>}
+
+            {existingActiveSession && (
+                <Pressable style={styles.returnButton} onPress={handleReturnToActiveSession}>
+                    <Text style={styles.returnButtonText}>Return to active session</Text>
+                </Pressable>
+            )}
 
             <Pressable style={styles.startButton} onPress={handleStartSession}>
                 <Text style={styles.startButtonText}>Start Focus Session</Text>
@@ -411,5 +436,18 @@ const styles = StyleSheet.create({
         lineHeight: 20,
         color: "#b42318",
         textAlign: "center",
+    },
+    returnButton: {
+        marginTop: 12,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        backgroundColor: "#222222",
+        alignItems: "center",
+    },
+    returnButtonText: {
+        fontSize: 15,
+        fontWeight: "600",
+        color: "#ffffff",
     },
 });
