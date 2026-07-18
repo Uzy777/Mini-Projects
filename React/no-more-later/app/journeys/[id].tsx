@@ -1,7 +1,7 @@
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useState, useEffect, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-native";
 
 type Quest = {
     id: string;
@@ -93,7 +93,7 @@ export default function JourneyDetailsScreen() {
     }
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <Stack.Screen options={{ title: title ?? "Journey" }} />
 
             <Text style={styles.title}>{title ?? "Journey"}</Text>
@@ -139,7 +139,7 @@ export default function JourneyDetailsScreen() {
                     </View>
                 ))}
             </View>
-        </View>
+        </ScrollView>
     );
 }
 

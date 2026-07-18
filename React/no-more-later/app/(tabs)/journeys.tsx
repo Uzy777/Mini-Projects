@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-native";
 
 type Journey = {
     id: string;
@@ -76,7 +76,7 @@ export default function JourneyScreen() {
     }
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <Text style={styles.title}>Journeys</Text>
 
             <Text style={styles.description}>Your larger goals and projects will appear here.</Text>
@@ -99,7 +99,7 @@ export default function JourneyScreen() {
                     </View>
                 ))}
             </View>
-        </View>
+        </ScrollView>
     );
 }
 
