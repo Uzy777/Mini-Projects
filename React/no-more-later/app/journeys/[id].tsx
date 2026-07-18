@@ -65,6 +65,18 @@ export default function JourneyDetailsScreen() {
         }
     }
 
+    async function handleDeleteQuest(questId: string) {
+        const updatedQuests = quests.filter((quest) => quest.id !== questId);
+
+        try {
+            await AsyncStorage.setItem(getQuestsStorageKey(id), JSON.stringify(updatedQuests));
+
+            setQuests(updatedQuests);
+        } catch (error) {
+            console.error("Failed to delete Quest:", error);
+        }
+    }
+
     function handleOpenQuest(quest: Quest) {
         if (quest.status === "completed") {
             return;
@@ -96,26 +108,35 @@ export default function JourneyDetailsScreen() {
 
             <View style={styles.questList}>
                 {quests.map((quest) => (
-                    <Pressable
-                        key={quest.id}
-                        style={[styles.questCard, quest.status === "completed" && styles.completedQuestCard]}
-                        onPress={() => handleOpenQuest(quest)}
-                        disabled={quest.status === "completed"}
-                    >
+                    <View key={quest.id} style={[styles.questCard, quest.status === "completed" && styles.completedQuestCard]}>
+                        {/* <Pressable style={styles.deleteButton} onPress={() => handleDeleteQuest(quest.id)}>
+                            <Text style={styles.deleteText}>Delete Quest</Text>
+                        </Pressable> */}
+
                         <View style={styles.questHeader}>
                             <Text style={styles.questTitle}>{quest.title}</Text>
 
-                            <Text style={[styles.statusText, quest.status === "completed" && styles.completedStatusText]}>
-                                {quest.status === "completed" ? "Completed" : "Active"}
-                            </Text>
+                            <View style={styles.questActions}>
+                                <Text style={[styles.statusText, quest.status === "completed" && styles.completedStatusText]}>
+                                    {quest.status === "completed" ? "Completed" : "Active"}
+                                </Text>
+
+                                <Pressable style={styles.deleteButton} onPress={() => handleDeleteQuest(quest.id)}>
+                                    <Text style={styles.deleteText}>Delete Quest</Text>
+                                </Pressable>
+                            </View>
                         </View>
 
                         {quest.lastAccomplishment && <Text style={styles.progressText}>Last session: {quest.lastAccomplishment}</Text>}
 
                         {quest.status !== "completed" && quest.nextAction && <Text style={styles.nextActionText}>Next action: {quest.nextAction}</Text>}
 
-                        <Text style={styles.startText}>{quest.status === "completed" ? "Quest complete" : "Start session"}</Text>
-                    </Pressable>
+                        {quest.status !== "completed" && (
+                            <Pressable style={styles.startButton} onPress={() => handleOpenQuest(quest)}>
+                                <Text style={styles.startButtonText}>Start Session</Text>
+                            </Pressable>
+                        )}
+                    </View>
                 ))}
             </View>
         </View>
@@ -174,6 +195,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#ffffff",
     },
     questTitle: {
+        flex: 1,
         fontSize: 17,
         fontWeight: "600",
     },
@@ -209,5 +231,31 @@ const styles = StyleSheet.create({
         marginTop: 8,
         fontSize: 14,
         fontWeight: "600",
+    },
+    startButton: {
+        marginTop: 16,
+        paddingVertical: 12,
+        borderRadius: 8,
+        backgroundColor: "#222222",
+        alignItems: "center",
+    },
+    startButtonText: {
+        fontSize: 15,
+        fontWeight: "600",
+        color: "#ffffff",
+    },
+    deleteButton: {
+        marginTop: 12,
+        paddingVertical: 10,
+        alignItems: "center",
+    },
+    deleteText: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#b42318",
+    },
+    questActions: {
+        alignItems: "flex-end",
+        gap: 6,
     },
 });
