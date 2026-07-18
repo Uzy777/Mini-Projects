@@ -55,6 +55,10 @@ export default function HomeScreen() {
 
     const { level, xpIntoLevel, xpRequired } = calculateLevelProgress(totalXp);
 
+    const levelProgressPercentage = (xpIntoLevel / xpRequired) * 100;
+
+    const xpUntilNextLevel = xpRequired - xpIntoLevel;
+
     function handleStartSession() {
         router.navigate("/journeys");
     }
@@ -68,7 +72,17 @@ export default function HomeScreen() {
             <View style={styles.progressCard}>
                 <Text style={styles.levelText}>Level {level}</Text>
 
-                <Text style={styles.xpText}>{xpIntoLevel} / {xpRequired} XP</Text>
+                <View style={styles.progressTrack}>
+                    <View style={[styles.progressFill, { width: `${levelProgressPercentage}%` }]}></View>
+                </View>
+
+                <Text style={styles.xpText}>
+                    {xpIntoLevel} / {xpRequired} XP
+                </Text>
+
+                <Text style={styles.nextLevelText}>
+                    {xpUntilNextLevel} XP until Level {level + 1}
+                </Text>
 
                 <Text style={styles.totalXpText}>Total XP: {totalXp}</Text>
             </View>
@@ -128,6 +142,24 @@ const styles = StyleSheet.create({
     },
     totalXpText: {
         marginTop: 4,
+        fontSize: 14,
+        color: "#666666",
+    },
+    progressTrack: {
+        width: "100%",
+        height: 12,
+        marginTop: 16,
+        borderRadius: 6,
+        backgroundColor: "#dddddd",
+        overflow: "hidden",
+    },
+    progressFill: {
+        height: "100%",
+        borderRadius: 6,
+        backgroundColor: "#222222",
+    },
+    nextLevelText: {
+        marginTop: 6,
         fontSize: 14,
         color: "#666666",
     },
