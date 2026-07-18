@@ -36,6 +36,7 @@ export default function FocusScreen() {
     const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
     const [isRunning, setIsRunning] = useState(false);
     const [endTime, setEndTime] = useState<number | null>(null);
+    const [sessionMessage, setSessionMessage] = useState("");
 
     useEffect(() => {
         async function loadActiveFocusSession() {
@@ -119,24 +120,53 @@ export default function FocusScreen() {
     }, [isRunning, endTime]);
 
     async function handleStartSession() {
-        // const totalSeconds = selectedMinutes * 60;
-        const totalSeconds = 5;
+        setSessionMessage("");
 
-        const calculatedEndTime = Date.now() + totalSeconds * 1000;
+        try {
+            const storedSession = await AsyncStorage.getItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY);
 
-        setRemainingSeconds(totalSeconds);
-        setEndTime(calculatedEndTime);
-        setIsRunning(true);
+            if (storedSession) {
+                const existingSession: ActiveFocusSession = JSON.parse(storedSession);
 
-        await saveActiveFocusSession({
-            questId,
-            journeyId,
-            questTitle: questTitle ?? "Untitled Quest",
-            selectedMinutes,
-            remainingSeconds: totalSeconds,
-            isRunning: true,
-            endTime: calculatedEndTime,
-        });
+                const hasExpired = existingSession.isRunning && existingSession.endTime !== null && existingSession.endTime <= Date.now();
+
+                if (hasExpired) {
+                    await AsyncStorage.removeItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY);
+                } else {
+                    const isCurrentQuest = existingSession.questId === questId && existingSession.journeyId === journeyId;
+
+                    if (isCurrentQuest) {
+                        setSessionMessage("This Quest already has an active Focus Session.");
+                    } else {
+                        setSessionMessage(`A Focus Session is already active for "${existingSession.questTitle}".`);
+                    }
+
+                    return;
+                }
+            }
+
+            const totalSeconds = selectedMinutes * 60;
+
+            const calculatedEndTime = Date.now() + totalSeconds * 1000;
+
+            setRemainingSeconds(totalSeconds);
+            setEndTime(calculatedEndTime);
+            setIsRunning(true);
+
+            await saveActiveFocusSession({
+                questId,
+                journeyId,
+                questTitle: questTitle ?? "Untitled Quest",
+                selectedMinutes,
+                remainingSeconds: totalSeconds,
+                isRunning: true,
+                endTime: calculatedEndTime,
+            });
+        } catch (error) {
+            console.error("Failed to start Focus Session:", error);
+
+            setSessionMessage("The Focus Session could not be started.");
+        }
     }
 
     async function handleToggleTimer() {
@@ -224,6 +254,9 @@ export default function FocusScreen() {
                     <Text style={[styles.durationText, selectedMinutes === 50 && styles.selectedDurationText]}>50 min</Text>
                 </Pressable>
             </View>
+
+            {sessionMessage && <Text style={styles.sessionMessage}>{sessionMessage}</Text>}
+
             <Pressable style={styles.startButton} onPress={handleStartSession}>
                 <Text style={styles.startButtonText}>Start Focus Session</Text>
             </Pressable>
@@ -371,5 +404,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "600",
         color: "#ffffff",
+    },
+    sessionMessage: {
+        marginTop: 16,
+        fontSize: 14,
+        lineHeight: 20,
+        color: "#b42318",
+        textAlign: "center",
     },
 });
