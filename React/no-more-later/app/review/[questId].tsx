@@ -13,7 +13,21 @@ type Quest = {
     lastAccomplishment?: string;
 };
 
+type FocusSessionRecord = {
+    id: string;
+    journeyId: string;
+    questId: string;
+    questTitle: string;
+    plannedMinutes: number;
+    outcome: SessionOutcome;
+    accomplishment: string;
+    nextAction: string;
+    earnedXp: number;
+    completedAt: string;
+};
+
 const TOTAL_XP_STORAGE_KEY = "no-more-later-total-xp";
+const FOCUS_SESSIONS_STORAGE_KEY = "no-more-later-focus-sessions";
 
 function getQuestsStorageKey(journeyId: string) {
     return `no-more-later-quests-${journeyId}`;
@@ -89,6 +103,21 @@ export default function ReviewSessionScreen() {
 
         const sessionXp = calculateSessionXp(sessionMinutes, selectedOutcome, trimmedNextAction);
 
+        const completedAt = new Date().toISOString();
+
+        const newSessionRecord: FocusSessionRecord = {
+            id: Date.now().toString(),
+            journeyId,
+            questId,
+            questTitle: questTitle ?? "Untitled Quest",
+            plannedMinutes: sessionMinutes,
+            outcome: selectedOutcome,
+            accomplishment: trimmedAccomplishment,
+            nextAction: trimmedNextAction,
+            earnedXp: sessionXp,
+            completedAt,
+        };
+
         try {
             const storedTotalXp = await AsyncStorage.getItem(TOTAL_XP_STORAGE_KEY);
 
@@ -118,6 +147,14 @@ export default function ReviewSessionScreen() {
             });
 
             await AsyncStorage.setItem(questsStorageKey, JSON.stringify(updatedQuests));
+
+            const storedSessions = await AsyncStorage.getItem(FOCUS_SESSIONS_STORAGE_KEY);
+
+            const currentSessions: FocusSessionRecord[] = storedSessions ? JSON.parse(storedSessions) : [];
+
+            const updatedSessions = [newSessionRecord, ...currentSessions];
+
+            await AsyncStorage.setItem(FOCUS_SESSIONS_STORAGE_KEY, JSON.stringify(updatedSessions));
 
             setEarnedXp(sessionXp);
             setTotalXp(updatedTotalXp);
