@@ -1,6 +1,27 @@
 import { useEffect, useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+type ActiveFocusSession = {
+    questId: string;
+    journeyId: string;
+    questTitle: string;
+    selectedMinutes: number;
+    remainingSeconds: number;
+    isRunning: boolean;
+    endTime: number | null;
+};
+
+const ACTIVE_FOCUS_SESSION_STORAGE_KEY = "no-more-later-active-focus-session";
+
+async function saveActiveFocusSession(session: ActiveFocusSession) {
+    try {
+        await AsyncStorage.setItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY, JSON.stringify(session));
+    } catch (error) {
+        console.error("Failed to save active focus session:", error);
+    }
+}
 
 export default function FocusScreen() {
     const router = useRouter();
@@ -15,6 +36,54 @@ export default function FocusScreen() {
     const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
     const [isRunning, setIsRunning] = useState(false);
     const [endTime, setEndTime] = useState<number | null>(null);
+
+    useEffect(() => {
+        async function loadActiveFocusSession() {
+            try {
+                const storedSession = await AsyncStorage.getItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY);
+
+                if (!storedSession) {
+                    return;
+                }
+
+                const parsedSession: ActiveFocusSession = JSON.parse(storedSession);
+
+                if (parsedSession.questId !== questId || parsedSession.journeyId !== journeyId) {
+                    return;
+                }
+
+                setSelectedMinutes(parsedSession.selectedMinutes);
+
+                if (parsedSession.isRunning && parsedSession.endTime !== null) {
+                    const restoredRemainingSeconds = Math.max(0, Math.ceil((parsedSession.endTime - Date.now()) / 1000));
+
+                    setRemainingSeconds(restoredRemainingSeconds);
+
+                    if (restoredRemainingSeconds === 0) {
+                        setIsRunning(false);
+                        setEndTime(null);
+
+                        await AsyncStorage.removeItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY);
+
+                        return;
+                    }
+
+                    setEndTime(parsedSession.endTime);
+                    setIsRunning(true);
+
+                    return;
+                }
+
+                setRemainingSeconds(parsedSession.remainingSeconds);
+                setEndTime(null);
+                setIsRunning(false);
+            } catch (error) {
+                console.error("Failed to load active focus session:", error);
+            }
+        }
+
+        loadActiveFocusSession();
+    }, [questId, journeyId]);
 
     useEffect(() => {
         if (!isRunning || endTime === null) {
@@ -33,6 +102,10 @@ export default function FocusScreen() {
             if (nextRemainingSeconds === 0) {
                 setIsRunning(false);
                 setEndTime(null);
+
+                AsyncStorage.removeItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY).catch((error) => {
+                    console.error("Failed ot clear active focus session:", error);
+                });
             }
         }
 
@@ -45,7 +118,7 @@ export default function FocusScreen() {
         };
     }, [isRunning, endTime]);
 
-    function handleStartSession() {
+    async function handleStartSession() {
         // const totalSeconds = selectedMinutes * 60;
         const totalSeconds = 5;
 
@@ -54,12 +127,36 @@ export default function FocusScreen() {
         setRemainingSeconds(totalSeconds);
         setEndTime(calculatedEndTime);
         setIsRunning(true);
+
+        await saveActiveFocusSession({
+            questId,
+            journeyId,
+            questTitle: questTitle ?? "Untitled Quest",
+            selectedMinutes,
+            remainingSeconds: totalSeconds,
+            isRunning: true,
+            endTime: calculatedEndTime,
+        });
     }
 
-    function handleToggleTimer() {
+    async function handleToggleTimer() {
         if (isRunning) {
+            const pausedRemainingSeconds = endTime !== null ? Math.max(0, Math.ceil((endTime - Date.now()) / 1000)) : (remainingSeconds ?? 0);
+
+            setRemainingSeconds(pausedRemainingSeconds);
             setIsRunning(false);
             setEndTime(null);
+
+            await saveActiveFocusSession({
+                questId,
+                journeyId,
+                questTitle: questTitle ?? "Untitled Quest",
+                selectedMinutes,
+                remainingSeconds: pausedRemainingSeconds,
+                isRunning: false,
+                endTime: null,
+            });
+
             return;
         }
 
@@ -68,6 +165,16 @@ export default function FocusScreen() {
 
             setEndTime(resumedEndTime);
             setIsRunning(true);
+
+            await saveActiveFocusSession({
+                questId,
+                journeyId,
+                questTitle: questTitle ?? "Untitled Quest",
+                selectedMinutes,
+                remainingSeconds,
+                isRunning: true,
+                endTime: resumedEndTime,
+            });
         }
     }
 
