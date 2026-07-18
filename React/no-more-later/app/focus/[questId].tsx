@@ -227,6 +227,30 @@ export default function FocusScreen() {
         }
     }
 
+    async function handleEndSessionEarly() {
+        setIsRunning(false);
+        setEndTime(null);
+
+        try {
+            await AsyncStorage.removeItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY);
+
+            router.replace({
+                pathname: "/review/[questId]",
+                params: {
+                    questId,
+                    questTitle,
+                    journeyId,
+                    plannedMinutes: selectedMinutes.toString(),
+                    endedEarly: "true",
+                },
+            });
+        } catch (error) {
+            console.error("Failed to end Focus Session early:", error);
+        }
+
+        setSessionMessage("The Focus Session could not be ended.");
+    }
+
     function handleReviewSession() {
         router.push({
             pathname: "/review/[questId]",
@@ -293,6 +317,12 @@ export default function FocusScreen() {
                     {remainingSeconds > 0 && (
                         <Pressable style={styles.pauseButton} onPress={handleToggleTimer}>
                             <Text style={styles.pauseButtonText}>{isRunning ? "Pause" : "Resume"}</Text>
+                        </Pressable>
+                    )}
+
+                    {remainingSeconds !== null && remainingSeconds > 0 && (
+                        <Pressable style={styles.endEarlyButton} onPress={handleEndSessionEarly}>
+                            <Text style={styles.endEarlyButtonText}>End Session Early</Text>
                         </Pressable>
                     )}
 
@@ -449,5 +479,15 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: "600",
         color: "#ffffff",
+    },
+    endEarlyButton: {
+        marginTop: 12,
+        paddingVertical: 12,
+        alignItems: "center",
+    },
+    endEarlyButtonText: {
+        fontSize: 15,
+        fontWeight: "600",
+        color: "#b42318",
     },
 });

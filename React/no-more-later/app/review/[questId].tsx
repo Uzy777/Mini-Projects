@@ -36,12 +36,30 @@ function getQuestsStorageKey(journeyId: string) {
 function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction: string) {
     let totalXp = 0;
 
-    if (minutes === 15) {
+    function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction: string) {
+        let totalXp = 0;
+
+        if (outcome !== "stopped") {
+            if (minutes === 15) {
+                totalXp += 5;
+            } else if (minutes === 25) {
+                totalXp += 10;
+            } else if (minutes === 50) {
+                totalXp += 20;
+            }
+        }
+
         totalXp += 5;
-    } else if (minutes === 25) {
-        totalXp += 10;
-    } else if (minutes === 50) {
-        totalXp += 20;
+
+        if (outcome === "completed") {
+            totalXp += 10;
+        }
+
+        if (outcome !== "completed" && nextAction.trim()) {
+            totalXp += 5;
+        }
+
+        return totalXp;
     }
 
     totalXp += 5;
@@ -58,14 +76,15 @@ function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction
 }
 
 export default function ReviewSessionScreen() {
-    const { questId, questTitle, journeyId, plannedMinutes } = useLocalSearchParams<{
+    const { questId, questTitle, journeyId, plannedMinutes, endedEarly } = useLocalSearchParams<{
         questId: string;
         questTitle?: string;
         journeyId: string;
         plannedMinutes?: string;
+        endedEarly?: string;
     }>();
 
-    const [selectedOutcome, setSelectedOutcome] = useState<SessionOutcome | null>(null);
+    const [selectedOutcome, setSelectedOutcome] = useState<SessionOutcome | null>(endedEarly === "true" ? "stopped" : null);
     const [accomplishment, setAccomplishment] = useState("");
     const [nextAction, setNextAction] = useState("");
     const [validationMessage, setValidationMessage] = useState("");
