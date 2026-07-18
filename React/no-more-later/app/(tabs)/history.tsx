@@ -11,6 +11,7 @@ type FocusSessionRecord = {
     questId: string;
     questTitle: string;
     plannedMinutes: number;
+    actualSeconds?: number;
     outcome: SessionOutcome;
     accomplishment: string;
     nextAction: string;
@@ -34,6 +35,22 @@ function getOutcomeLabel(outcome: SessionOutcome) {
     }
 
     return "Stopped early";
+}
+
+function formatFocusedTime(totalSeconds: number) {
+    const minutes = Math.floor(totalSeconds / 60);
+
+    const seconds = totalSeconds % 60;
+
+    if (minutes === 0) {
+        return `${seconds} sec`;
+    }
+
+    if (seconds === 0) {
+        return `${minutes} min`;
+    }
+
+    return `${minutes} min ${seconds} sec`;
 }
 
 export default function HistoryScreen() {
@@ -77,8 +94,12 @@ export default function HistoryScreen() {
                         </View>
 
                         <Text style={styles.sessionDetails}>
-                            {session.plannedMinutes} minutes · {getOutcomeLabel(session.outcome)}
+                            Focused for {formatFocusedTime(session.actualSeconds ?? session.plannedMinutes * 60)}
+                            {" · "}
+                            {getOutcomeLabel(session.outcome)}
                         </Text>
+
+                        <Text style={styles.plannedTimeText}>Planned duration: {session.plannedMinutes} minutes</Text>
 
                         <Text style={styles.dateText}>{new Date(session.completedAt).toLocaleString()}</Text>
 
@@ -167,5 +188,10 @@ const styles = StyleSheet.create({
         marginTop: 4,
         fontSize: 15,
         lineHeight: 22,
+    },
+    plannedTimeText: {
+        marginTop: 4,
+        fontSize: 13,
+        color: "#777777",
     },
 });

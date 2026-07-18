@@ -19,6 +19,7 @@ type FocusSessionRecord = {
     questId: string;
     questTitle: string;
     plannedMinutes: number;
+    actualSeconds?: number;
     outcome: SessionOutcome;
     accomplishment: string;
     nextAction: string;
@@ -76,11 +77,12 @@ function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction
 }
 
 export default function ReviewSessionScreen() {
-    const { questId, questTitle, journeyId, plannedMinutes, endedEarly } = useLocalSearchParams<{
+    const { questId, questTitle, journeyId, plannedMinutes, actualSeconds, endedEarly } = useLocalSearchParams<{
         questId: string;
         questTitle?: string;
         journeyId: string;
         plannedMinutes?: string;
+        actualSeconds?: string;
         endedEarly?: string;
     }>();
 
@@ -120,6 +122,8 @@ export default function ReviewSessionScreen() {
 
         const sessionMinutes = Number(plannedMinutes ?? 0);
 
+        const focusedSeconds = Number(actualSeconds ?? sessionMinutes * 60);
+
         const sessionXp = calculateSessionXp(sessionMinutes, selectedOutcome, trimmedNextAction);
 
         const completedAt = new Date().toISOString();
@@ -130,6 +134,7 @@ export default function ReviewSessionScreen() {
             questId,
             questTitle: questTitle ?? "Untitled Quest",
             plannedMinutes: sessionMinutes,
+            actualSeconds: focusedSeconds,
             outcome: selectedOutcome,
             accomplishment: trimmedAccomplishment,
             nextAction: trimmedNextAction,

@@ -228,6 +228,13 @@ export default function FocusScreen() {
     }
 
     async function handleEndSessionEarly() {
+        const plannedSeconds = selectedMinutes * 60;
+
+        const accurateRemainingSeconds =
+            isRunning && endTime !== null ? Math.max(0, Math.ceil((endTime - Date.now()) / 1000)) : (remainingSeconds ?? plannedSeconds);
+
+        const actualSeconds = Math.max(0, plannedSeconds - accurateRemainingSeconds);
+
         setIsRunning(false);
         setEndTime(null);
 
@@ -241,6 +248,7 @@ export default function FocusScreen() {
                     questTitle,
                     journeyId,
                     plannedMinutes: selectedMinutes.toString(),
+                    actualSeconds: actualSeconds.toString(),
                     endedEarly: "true",
                 },
             });
@@ -259,6 +267,7 @@ export default function FocusScreen() {
                 questTitle,
                 journeyId,
                 plannedMinutes: selectedMinutes.toString(),
+                actualSeconds: (selectedMinutes * 60).toString(),
             },
         });
     }
