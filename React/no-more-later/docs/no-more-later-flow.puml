@@ -1,0 +1,109 @@
+@startuml
+title No More Later — Current MVP User Flow
+
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam activity {
+  BackgroundColor White
+  BorderColor #333333
+  FontColor #222222
+  DiamondBackgroundColor #F2F2F2
+  DiamondBorderColor #333333
+  ArrowColor #555555
+}
+
+start
+
+partition "Home" {
+  :Open No More Later;
+  :Load total XP from AsyncStorage;
+  :Calculate current level and XP progress;
+}
+
+if ("Start a Focus Session?") then (Yes)
+
+  partition "Journeys" {
+    :Open Journeys tab;
+
+    if ("Journey already exists?") then (No)
+      :Create a Journey;
+      :Save Journey to AsyncStorage;
+    endif
+
+    :Open a Journey;
+  }
+
+  partition "Quests" {
+    if ("Quest already exists?") then (No)
+      :Create a Quest;
+      :Save Quest under the Journey storage key;
+    endif
+
+    :Choose an active Quest;
+  }
+
+  partition "Focus Session" {
+    :Select 15, 25 or 50 minutes;
+    :Check for a saved active session;
+
+    if ("Another session already exists?") then (Yes)
+      :Show warning message;
+      :Return to the existing active session;
+    else (No)
+      :Start timer;
+      :Save active-session details;
+
+      while ("Time remaining?") is (Yes)
+        :Calculate remaining time from end timestamp;
+
+        if ("Pause pressed?") then (Yes)
+          :Save paused remaining time;
+          :Wait until Resume is pressed;
+          :Create a new end timestamp;
+        endif
+      endwhile (No)
+
+      :Timer reaches 0:00;
+      :Clear active-session storage;
+    endif
+  }
+
+  partition "Session Review" {
+    :Choose session outcome;
+    :Describe what was accomplished;
+
+    if ("Quest completed?") then (Yes)
+      :Mark Quest as completed;
+      :Clear next action;
+    else (No)
+      :Enter the next action;
+      :Keep Quest active;
+    endif
+
+    :Calculate earned XP;
+    :Update total XP;
+    :Save updated Quest;
+    :Save session in History;
+  }
+
+  partition "Updated App State" {
+    :Home shows updated level and progress;
+    :Journey shows updated Quest status;
+    :History shows the completed session;
+  }
+
+else (No)
+  :Browse Journeys or History;
+endif
+
+stop
+
+legend right
+  Current MVP:
+  - Local data stored with AsyncStorage
+  - One active Focus Session at a time
+  - XP and levels are calculated locally
+  - Cloud sync and leaderboards are future features
+endlegend
+
+@enduml
