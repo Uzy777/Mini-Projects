@@ -3,7 +3,19 @@ import { useEffect, useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useRouter } from "expo-router";
 
+type ActiveFocusSession = {
+    questId: string;
+    journeyId: string;
+    questTitle: string;
+    selectedMinutes: number;
+    remainingSeconds: number;
+    isRunning: boolean;
+    endTime: number | null;
+};
+
 const TOTAL_XP_STORAGE_KEY = "no-more-later-total-xp";
+
+const ACTIVE_FOCUS_SESSION_STORAGE_KEY = "no-more-later-active-focus-session";
 
 const STARTING_LEVEL_XP = 100;
 const XP_INCREASE_PER_LEVEL = 25;
@@ -34,6 +46,7 @@ export default function HomeScreen() {
     const router = useRouter();
 
     const [totalXp, setTotalXp] = useState(0);
+    const [activeSession, setActiveSession] = useState<ActiveFocusSession | null>(null);
 
     useFocusEffect(
         useCallback(() => {
@@ -53,14 +66,67 @@ export default function HomeScreen() {
         }, []),
     );
 
+    useFocusEffect(
+        useCallback(() => {
+            async function loadActiveSession() {
+                try {
+                    const storedSession = await AsyncStorage.getItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY);
+
+                    const parsedSession: ActiveFocusSession | null = storedSession ? JSON.parse(storedSession) : null;
+
+                    setActiveSession(parsedSession);
+                } catch (error) {
+                    console.error("Failed to load active session:", error);
+
+                    setActiveSession(null);
+                }
+            }
+
+            loadActiveSession();
+        }, []),
+    );
+
     const { level, xpIntoLevel, xpRequired } = calculateLevelProgress(totalXp);
 
     const levelProgressPercentage = (xpIntoLevel / xpRequired) * 100;
 
     const xpUntilNextLevel = xpRequired - xpIntoLevel;
 
+    const activeSessionHasFinished = activeSession?.isRunning === true && activeSession.endTime !== null && activeSession.endTime <= Date.now();
+
+    function getActiveSessionStatus() {
+        if (!activeSession) {
+            return "";
+        }
+
+        if (activeSessionHasFinished) {
+            return "Ready for review";
+        }
+
+        if (activeSession.isRunning) {
+            return "In progress";
+        }
+
+        return "Paused";
+    }
+
     function handleStartSession() {
         router.navigate("/journeys");
+    }
+
+    function handleReturnToActiveSession() {
+        if (!activeSession) {
+            return;
+        }
+
+        router.push({
+            pathname: "/focus/[questId]",
+            params: {
+                questId: activeSession.questId,
+                journeyId: activeSession.journeyId,
+                questTitle: activeSession.questTitle,
+            },
+        });
     }
 
     return (
@@ -87,9 +153,29 @@ export default function HomeScreen() {
                 <Text style={styles.totalXpText}>Total XP: {totalXp}</Text>
             </View>
 
-            <Pressable style={styles.startButton} onPress={handleStartSession}>
-                <Text style={styles.startButtonText}>Start a focus session</Text>
-            </Pressable>
+            {activeSession && (
+                <View style={styles.activeSessionCard}>
+                    <Text style={styles.activeSessionLabel}>Active Focus Session</Text>
+
+                    <Text style={styles.activeSessionTitle}>{activeSession.questTitle}</Text>
+
+                    <Text style={styles.activeSessionDetails}>
+                        {activeSession.selectedMinutes}-minute session
+                        {" · "}
+                        {getActiveSessionStatus()}
+                    </Text>
+
+                    <Pressable style={styles.returnButton} onPress={handleReturnToActiveSession}>
+                        <Text style={styles.returnButtonText}>{activeSessionHasFinished ? "Review Session" : "Return to Session"}</Text>
+                    </Pressable>
+                </View>
+            )}
+
+            {!activeSession && (
+                <Pressable style={styles.startButton} onPress={handleStartSession}>
+                    <Text style={styles.startButtonText}>Start a focus session</Text>
+                </Pressable>
+            )}
         </View>
     );
 }
@@ -162,5 +248,38 @@ const styles = StyleSheet.create({
         marginTop: 6,
         fontSize: 14,
         color: "#666666",
+    },
+    activeSessionCard: {
+        marginTop: 20,
+        padding: 18,
+        borderRadius: 12,
+        backgroundColor: "#ffffff",
+    },
+    activeSessionLabel: {
+        fontSize: 13,
+        fontWeight: "600",
+        color: "#666666",
+    },
+    activeSessionTitle: {
+        marginTop: 6,
+        fontSize: 18,
+        fontWeight: "700",
+    },
+    activeSessionDetails: {
+        marginTop: 6,
+        fontSize: 14,
+        color: "#555555",
+    },
+    returnButton: {
+        marginTop: 16,
+        paddingVertical: 12,
+        borderRadius: 8,
+        backgroundColor: "#222222",
+        alignItems: "center",
+    },
+    returnButtonText: {
+        fontSize: 15,
+        fontWeight: "600",
+        color: "#ffffff",
     },
 });
