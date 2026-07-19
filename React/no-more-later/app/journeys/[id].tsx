@@ -40,6 +40,12 @@ export default function JourneyDetailsScreen() {
         }, [id]),
     );
 
+    const totalQuestCount = quests.length;
+
+    const completedQuestCount = quests.filter((quest) => quest.status === "completed").length;
+
+    const journeyProgressPercentage = totalQuestCount > 0 ? (completedQuestCount / totalQuestCount) * 100 : 0;
+
     async function handleAddQuest() {
         const trimmedTitle = questTitle.trim();
 
@@ -99,6 +105,29 @@ export default function JourneyDetailsScreen() {
             <Text style={styles.title}>{title ?? "Journey"}</Text>
 
             <Text style={styles.description}>Quests for this Journey will appear here.</Text>
+
+            <View style={styles.progressCard}>
+                <View style={styles.progressHeader}>
+                    <Text style={styles.progressTitle}>Journey Progress</Text>
+
+                    <Text style={styles.progressPercentage}>{Math.round(journeyProgressPercentage)}%</Text>
+                </View>
+
+                <View style={styles.progressTrack}>
+                    <View
+                        style={[
+                            styles.progressFill,
+                            {
+                                width: `${journeyProgressPercentage}%`,
+                            },
+                        ]}
+                    />
+                </View>
+
+                <Text style={styles.progressSummary}>
+                    {totalQuestCount === 0 ? "Add your first Quest to begin this Journey." : `${completedQuestCount} of ${totalQuestCount} Quests completed`}
+                </Text>
+            </View>
 
             <TextInput style={styles.input} placeholder="What needs to be done?" value={questTitle} onChangeText={setQuestTitle} />
 
@@ -257,5 +286,43 @@ const styles = StyleSheet.create({
     questActions: {
         alignItems: "flex-end",
         gap: 6,
+    },
+    progressCard: {
+        marginTop: 20,
+        padding: 16,
+        borderRadius: 12,
+        backgroundColor: "#ffffff",
+    },
+    progressHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+    },
+    progressTitle: {
+        fontSize: 16,
+        fontWeight: "700",
+    },
+    progressPercentage: {
+        fontSize: 15,
+        fontWeight: "600",
+        color: "#555555",
+    },
+    progressTrack: {
+        width: "100%",
+        height: 10,
+        marginTop: 14,
+        borderRadius: 5,
+        backgroundColor: "#dddddd",
+        overflow: "hidden",
+    },
+    progressFill: {
+        height: "100%",
+        borderRadius: 5,
+        backgroundColor: "#222222",
+    },
+    progressSummary: {
+        marginTop: 10,
+        fontSize: 14,
+        color: "#666666",
     },
 });
