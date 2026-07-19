@@ -37,32 +37,6 @@ function getQuestsStorageKey(journeyId: string) {
 function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction: string) {
     let totalXp = 0;
 
-    function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction: string) {
-        let totalXp = 0;
-
-        if (outcome !== "stopped") {
-            if (minutes === 15) {
-                totalXp += 5;
-            } else if (minutes === 25) {
-                totalXp += 10;
-            } else if (minutes === 50) {
-                totalXp += 20;
-            }
-        }
-
-        totalXp += 5;
-
-        if (outcome === "completed") {
-            totalXp += 10;
-        }
-
-        if (outcome !== "completed" && nextAction.trim()) {
-            totalXp += 5;
-        }
-
-        return totalXp;
-    }
-
     totalXp += 5;
 
     if (outcome === "completed") {
@@ -77,6 +51,8 @@ function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction
 }
 
 export default function ReviewSessionScreen() {
+    const router = useRouter();
+
     const { questId, questTitle, journeyId, plannedMinutes, actualSeconds, endedEarly } = useLocalSearchParams<{
         questId: string;
         questTitle?: string;
@@ -93,6 +69,14 @@ export default function ReviewSessionScreen() {
     const [earnedXp, setEarnedXp] = useState<number | null>(null);
     const [totalXp, setTotalXp] = useState<number | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    function handleReturnToJourneys() {
+        router.replace("/journeys");
+    }
+
+    function handleViewHistory() {
+        router.replace("/history");
+    }
 
     async function handleCompleteReview() {
         if (isSubmitting || earnedXp !== null) {
@@ -289,6 +273,14 @@ export default function ReviewSessionScreen() {
                     <Text style={styles.rewardXp}>+{earnedXp} XP</Text>
 
                     {totalXp !== null && <Text style={styles.totalXp}>Total XP: {totalXp}</Text>}
+
+                    <Pressable style={styles.returnButton} onPress={handleReturnToJourneys}>
+                        <Text style={styles.returnButtonText}>Return to Journeys</Text>
+                    </Pressable>
+
+                    <Pressable style={styles.historyButton} onPress={handleViewHistory}>
+                        <Text style={styles.historyButtonText}>View Session History</Text>
+                    </Pressable>
                 </View>
             )}
 
@@ -416,5 +408,29 @@ const styles = StyleSheet.create({
         marginTop: 8,
         fontSize: 16,
         color: "#666666",
+    },
+    returnButton: {
+        marginTop: 20,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        backgroundColor: "#222222",
+        alignItems: "center",
+    },
+    returnButtonText: {
+        fontSize: 15,
+        fontWeight: "600",
+        color: "#ffffff",
+    },
+    historyButton: {
+        marginTop: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        alignItems: "center",
+    },
+    historyButtonText: {
+        fontSize: 15,
+        fontWeight: "600",
+        color: "#222222",
     },
 });
