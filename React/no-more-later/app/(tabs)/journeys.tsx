@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-
 type Journey = {
     id: string;
     title: string;
+    status?: "active" | "completed";
 };
 
 const JOURNEYS_STORAGE_KEY = "no-more-later-journeys";
@@ -44,6 +45,7 @@ export default function JourneyScreen() {
         const newJourney: Journey = {
             id: Date.now().toString(),
             title: trimmedTitle,
+            status: "active",
         };
 
         // setJourneys((currentJourneys) => [...currentJourneys, newJourney]);
@@ -93,9 +95,16 @@ export default function JourneyScreen() {
                         <Pressable style={styles.journeyContent} onPress={() => handleOpenJourney(journey)}>
                             <Text style={styles.journeyTitle}>{journey.title}</Text>
                         </Pressable>
-                        <Pressable onPress={() => handleDeleteJourney(journey.id)}>
-                            <Text style={styles.deleteText}>Delete</Text>
-                        </Pressable>
+
+                        <View style={styles.journeyActions}>
+                            <Text style={[styles.statusText, journey.status === "completed" && styles.completedStatusText]}>
+                                {journey.status === "completed" ? "Completed" : "Active"}
+                            </Text>
+
+                            <Pressable onPress={() => handleDeleteJourney(journey.id)}>
+                                <Text style={styles.deleteText}>Delete Journey</Text>
+                            </Pressable>
+                        </View>
                     </View>
                 ))}
             </View>
@@ -161,5 +170,20 @@ const styles = StyleSheet.create({
         fontWeight: "600",
         color: "#b42318",
     },
-    journeyContent: {},
+    journeyContent: {
+        flex: 1,
+        paddingRight: 16,
+    },
+    journeyActions: {
+        alignItems: "flex-end",
+        gap: 6,
+    },
+    statusText: {
+        fontSize: 13,
+        fontWeight: "600",
+        color: "#666666",
+    },
+    completedStatusText: {
+        color: "#2f7d32",
+    },
 });

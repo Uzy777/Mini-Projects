@@ -13,6 +13,12 @@ type Quest = {
     lastAccomplishment?: string;
 };
 
+type Journey = {
+    id: string;
+    title: string;
+    status?: "active" | "completed";
+};
+
 type FocusSessionRecord = {
     id: string;
     journeyId: string;
@@ -29,6 +35,7 @@ type FocusSessionRecord = {
 
 const TOTAL_XP_STORAGE_KEY = "no-more-later-total-xp";
 const FOCUS_SESSIONS_STORAGE_KEY = "no-more-later-focus-sessions";
+const JOURNEYS_STORAGE_KEY = "no-more-later-journeys";
 
 function getQuestsStorageKey(journeyId: string) {
     return `no-more-later-quests-${journeyId}`;
@@ -154,7 +161,26 @@ export default function ReviewSessionScreen() {
                 };
             });
 
+            const allQuestsCompleted = updatedQuests.length > 0 && updatedQuests.every((quest) => quest.status === "completed");
+
             await AsyncStorage.setItem(questsStorageKey, JSON.stringify(updatedQuests));
+
+            const storedJourneys = await AsyncStorage.getItem(JOURNEYS_STORAGE_KEY);
+
+            const currentJourneys: Journey[] = storedJourneys ? JSON.parse(storedJourneys) : [];
+
+            const updatedJourneys = currentJourneys.map((journey) => {
+                if (journey.id !== journeyId) {
+                    return journey;
+                }
+
+                return {
+                    ...journey,
+                    status: allQuestsCompleted ? "completed" : "active",
+                };
+            });
+
+            await AsyncStorage.setItem(JOURNEYS_STORAGE_KEY, JSON.stringify(updatedJourneys));
 
             const storedSessions = await AsyncStorage.getItem(FOCUS_SESSIONS_STORAGE_KEY);
 
