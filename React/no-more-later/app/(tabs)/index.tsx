@@ -50,6 +50,46 @@ function calculateLevelProgress(totalXp: number) {
     };
 }
 
+// Using year, month, day to follow the users local calendar
+function getLocalDataKey(date: Date) {
+    const year = date.getFullYear();
+
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+
+    const day = String(date.getDay()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+function calculateCurrentStreak(sessions: FocusSessionSummary[]) {
+    const sessionDateKeys = new Set(sessions.map((session) => getLocalDataKey(new Date(session.completedAt))));
+
+    const today = new Date();
+
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    let currentDate: Date;
+
+    if (sessionDateKeys.has(getLocalDataKey(today))) {
+        currentDate = new Date(today);
+    } else if (sessionDateKeys.has(getLocalDataKey(yesterday))) {
+        currentDate = new Date(yesterday);
+    } else {
+        return 0;
+    }
+
+    let streak = 0;
+
+    while (sessionDateKeys.has(getLocalDataKey(currentDate))) {
+        streak += 1;
+
+        currentDate.setDate(currentDate.getDate() - 1);
+    }
+
+    return streak;
+}
+
 export default function HomeScreen() {
     const router = useRouter();
 
@@ -125,6 +165,8 @@ export default function HomeScreen() {
 
     const todayDate = new Date().toDateString();
 
+    const currentStreak = calculateCurrentStreak(focusSessions);
+
     const todaysSessions = focusSessions.filter((session) => {
         const sessionDate = new Date(session.completedAt).toDateString();
 
@@ -177,9 +219,19 @@ export default function HomeScreen() {
     return (
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
             <View style={styles.pageContent}>
-                <Text style={styles.title}>No More Later</Text>
+                <View style={styles.headerRow}>
+                    <View style={styles.headerText}>
+                        <Text style={styles.title}>No More Later</Text>
 
-                <Text style={styles.tagline}>Turn later into progress.</Text>
+                        <Text style={styles.tagline}>Turn later into progress.</Text>
+                    </View>
+
+                    <View style={styles.streakBadge}>
+                        <Text style={styles.streakValue}>{currentStreak}</Text>
+
+                        <Text style={styles.streakLabel}>{currentStreak === 1 ? "day streak" : "day streak"}</Text>
+                    </View>
+                </View>
 
                 <View style={styles.progressCard}>
                     <Text style={styles.levelText}>Level {level}</Text>
@@ -216,6 +268,16 @@ export default function HomeScreen() {
                         </View>
                     </View>
                 </View>
+
+                {/* <View style={styles.streakCard}>
+                    <Text style={styles.streakLabel}>Current Streak</Text>
+
+                    <Text style={styles.streakValue}>
+                        {currentStreak} {currentStreak === 1 ? "day" : "days"}
+                    </Text>
+
+                    <Text style={styles.streakDescription}>Complete at least one Focus Session each day to keep yoru streak going.</Text>
+                </View> */}
 
                 {activeSession && (
                     <View style={styles.activeSessionCard}>
@@ -385,6 +447,48 @@ const styles = StyleSheet.create({
     todayStatLabel: {
         marginTop: 4,
         fontSize: 13,
+        color: "#666666",
+    },
+    streakCard: {
+        width: "100%",
+        marginTop: 20,
+        padding: 18,
+        borderRadius: 12,
+        backgroundColor: "#ffffff",
+    },
+    streakDescription: {
+        marginTop: 8,
+        fontSize: 14,
+        lineHeight: 20,
+        color: "#666666",
+    },
+
+    headerRow: {
+        width: "100%",
+        flexDirection: "row",
+        alignItems: "flex-start",
+        justifyContent: "space-between",
+        gap: 16,
+    },
+    headerText: {
+        flex: 1,
+    },
+    streakBadge: {
+        minWidth: 82,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderRadius: 12,
+        backgroundColor: "#ffffff",
+        alignItems: "center",
+    },
+    streakValue: {
+        fontSize: 22,
+        fontWeight: "700",
+    },
+    streakLabel: {
+        marginTop: 2,
+        fontSize: 12,
+        fontWeight: "600",
         color: "#666666",
     },
 });
