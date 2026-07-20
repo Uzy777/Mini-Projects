@@ -123,6 +123,44 @@ export default function JourneyDetailsScreen() {
         });
     }
 
+    async function handleReopenQuest(questId: string) {
+        const updatedQuests = quests.map((quest) => {
+            if (quest.id !== questId) {
+                return quest;
+            }
+
+            return {
+                ...quest,
+                status: "active" as const,
+            };
+        });
+
+        try {
+            await AsyncStorage.setItem(getQuestsStorageKey(id), JSON.stringify(updatedQuests));
+
+            const storedJourneys = await AsyncStorage.getItem(JOURNEYS_STORAGE_KEY);
+
+            const currentJourneys: Journey[] = storedJourneys ? JSON.parse(storedJourneys) : [];
+
+            const updatedJourneys = currentJourneys.map((journey) => {
+                if (journey.id !== id) {
+                    return journey;
+                }
+
+                return {
+                    ...journey,
+                    status: "active" as const,
+                };
+            });
+
+            await AsyncStorage.setItem(JOURNEYS_STORAGE_KEY, JSON.stringify(updatedJourneys));
+
+            setQuests(updatedQuests);
+        } catch (error) {
+            console.error("Failed to reopen Quest:", error);
+        }
+    }
+
     return (
         <ScrollView style={styles.container}>
             <Stack.Screen options={{ title: title ?? "Journey" }} />
@@ -188,6 +226,12 @@ export default function JourneyDetailsScreen() {
                         {quest.status !== "completed" && (
                             <Pressable style={styles.startButton} onPress={() => handleOpenQuest(quest)}>
                                 <Text style={styles.startButtonText}>Start Session</Text>
+                            </Pressable>
+                        )}
+
+                        {quest.status === "completed" && (
+                            <Pressable style={styles.reopenButton} onPress={() => handleReopenQuest(quest.id)}>
+                                <Text style={styles.reopenButtonText}>Reopen Quest</Text>
                             </Pressable>
                         )}
                     </View>
@@ -349,5 +393,18 @@ const styles = StyleSheet.create({
         marginTop: 10,
         fontSize: 14,
         color: "#666666",
+    },
+    reopenButton: {
+        marginTop: 16,
+        paddingVertical: 12,
+        borderWidth: 1,
+        borderColor: "#222222",
+        borderRadius: 8,
+        alignItems: "center",
+    },
+    reopenButtonText: {
+        fontSize: 15,
+        fontWeight: "600",
+        color: "#222222",
     },
 });
