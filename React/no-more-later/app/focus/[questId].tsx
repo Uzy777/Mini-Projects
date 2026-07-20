@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAudioPlayer } from "expo-audio";
+
+const focusCompleteSound = require("../../assets/sounds/focus-complete.mp3");
 
 type ActiveFocusSession = {
     questId: string;
@@ -25,6 +28,8 @@ async function saveActiveFocusSession(session: ActiveFocusSession) {
 
 export default function FocusScreen() {
     const router = useRouter();
+
+    const completionSoundPlayer = useAudioPlayer(focusCompleteSound);
 
     const { questId, questTitle, journeyId } = useLocalSearchParams<{
         questId: string;
@@ -102,6 +107,9 @@ export default function FocusScreen() {
             setRemainingSeconds(nextRemainingSeconds);
 
             if (nextRemainingSeconds === 0) {
+                completionSoundPlayer.seekTo(0); // Seek back to the start to play again
+                completionSoundPlayer.play();
+
                 setIsRunning(false);
                 setEndTime(null);
 
@@ -118,7 +126,7 @@ export default function FocusScreen() {
         return () => {
             clearInterval(intervalId);
         };
-    }, [isRunning, endTime]);
+    }, [isRunning, endTime, completionSoundPlayer]);
 
     async function handleStartSession() {
         setSessionMessage("");
@@ -149,7 +157,9 @@ export default function FocusScreen() {
                 }
             }
 
-            const totalSeconds = selectedMinutes * 60;
+            // CONTROL TIMER FOR TESTING
+            // const totalSeconds = selectedMinutes * 60;
+            const totalSeconds = 5;
 
             const calculatedEndTime = Date.now() + totalSeconds * 1000;
 
