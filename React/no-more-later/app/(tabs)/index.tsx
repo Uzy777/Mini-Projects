@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
 import { useEffect, useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -13,9 +13,17 @@ type ActiveFocusSession = {
     endTime: number | null;
 };
 
+type FocusSessionSummary = {
+    actualSeconds: number;
+    plannedMinutes: number;
+    completedAt: string;
+};
+
 const TOTAL_XP_STORAGE_KEY = "no-more-later-total-xp";
 
 const ACTIVE_FOCUS_SESSION_STORAGE_KEY = "no-more-later-active-focus-session";
+
+const FOCUS_SESSIONS_STORAGE_KEY = "no-more-later-focus-sessions";
 
 const STARTING_LEVEL_XP = 100;
 const XP_INCREASE_PER_LEVEL = 25;
@@ -47,6 +55,7 @@ export default function HomeScreen() {
 
     const [totalXp, setTotalXp] = useState(0);
     const [activeSession, setActiveSession] = useState<ActiveFocusSession | null>(null);
+    const [focusSessions, setFocusSessions] = useState<FocusSessionSummary[]>([]);
 
     useFocusEffect(
         useCallback(() => {
@@ -86,6 +95,26 @@ export default function HomeScreen() {
         }, []),
     );
 
+    useFocusEffect(
+        useCallback(() => {
+            async function loadFocusSessions() {
+                try {
+                    const storedSessions = await AsyncStorage.getItem(FOCUS_SESSIONS_STORAGE_KEY);
+
+                    const parsedSessions: FocusSessionSummary[] = storedSessions ? JSON.parse(storedSessions) : [];
+
+                    setFocusSessions(parsedSessions);
+                } catch (error) {
+                    console.error("Failed to load focus sessions:", error);
+
+                    setFocusSessions([]);
+                }
+            }
+
+            loadFocusSessions();
+        }, []),
+    );
+
     const { level, xpIntoLevel, xpRequired } = calculateLevelProgress(totalXp);
 
     const levelProgressPercentage = (xpIntoLevel / xpRequired) * 100;
@@ -93,6 +122,22 @@ export default function HomeScreen() {
     const xpUntilNextLevel = xpRequired - xpIntoLevel;
 
     const activeSessionHasFinished = activeSession?.isRunning === true && activeSession.endTime !== null && activeSession.endTime <= Date.now();
+
+    const todayDate = new Date().toDateString();
+
+    const todaysSessions = focusSessions.filter((session) => {
+        const sessionDate = new Date(session.completedAt).toDateString();
+
+        return sessionDate === todayDate;
+    });
+
+    const todayFocusedSeconds = todaysSessions.reduce((total, session) => {
+        const sessionSeconds = session.actualSeconds ?? session.plannedMinutes * 60;
+
+        return total + sessionSeconds;
+    }, 0);
+
+    const todayFocusedMinutes = Math.floor(todayFocusedSeconds / 60);
 
     function getActiveSessionStatus() {
         if (!activeSession) {
@@ -130,63 +175,90 @@ export default function HomeScreen() {
     }
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>No More Later</Text>
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+            <View style={styles.pageContent}>
+                <Text style={styles.title}>No More Later</Text>
 
-            <Text style={styles.tagline}>Turn later into progress.</Text>
+                <Text style={styles.tagline}>Turn later into progress.</Text>
 
-            <View style={styles.progressCard}>
-                <Text style={styles.levelText}>Level {level}</Text>
+                <View style={styles.progressCard}>
+                    <Text style={styles.levelText}>Level {level}</Text>
 
-                <View style={styles.progressTrack}>
-                    <View style={[styles.progressFill, { width: `${levelProgressPercentage}%` }]}></View>
-                </View>
+                    <View style={styles.progressTrack}>
+                        <View style={[styles.progressFill, { width: `${levelProgressPercentage}%` }]}></View>
+                    </View>
 
-                <Text style={styles.xpText}>
-                    {xpIntoLevel} / {xpRequired} XP
-                </Text>
-
-                <Text style={styles.nextLevelText}>
-                    {xpUntilNextLevel} XP until Level {level + 1}
-                </Text>
-
-                <Text style={styles.totalXpText}>Total XP: {totalXp}</Text>
-            </View>
-
-            {activeSession && (
-                <View style={styles.activeSessionCard}>
-                    <Text style={styles.activeSessionLabel}>Active Focus Session</Text>
-
-                    <Text style={styles.activeSessionTitle}>{activeSession.questTitle}</Text>
-
-                    <Text style={styles.activeSessionDetails}>
-                        {activeSession.selectedMinutes}-minute session
-                        {" · "}
-                        {getActiveSessionStatus()}
+                    <Text style={styles.xpText}>
+                        {xpIntoLevel} / {xpRequired} XP
                     </Text>
 
-                    <Pressable style={styles.returnButton} onPress={handleReturnToActiveSession}>
-                        <Text style={styles.returnButtonText}>{activeSessionHasFinished ? "Review Session" : "Return to Session"}</Text>
-                    </Pressable>
-                </View>
-            )}
+                    <Text style={styles.nextLevelText}>
+                        {xpUntilNextLevel} XP until Level {level + 1}
+                    </Text>
 
-            {!activeSession && (
-                <Pressable style={styles.startButton} onPress={handleStartSession}>
-                    <Text style={styles.startButtonText}>Start a focus session</Text>
-                </Pressable>
-            )}
-        </View>
+                    <Text style={styles.totalXpText}>Total XP: {totalXp}</Text>
+                </View>
+
+                <View style={styles.todayCard}>
+                    <Text style={styles.todayTitle}>Today</Text>
+
+                    <View style={styles.todayStats}>
+                        <View style={styles.todayStat}>
+                            <Text style={styles.todayStatValue}>{todaysSessions.length}</Text>
+
+                            <Text style={styles.todayStatLabel}>{todaysSessions.length === 1 ? "Focus session" : "Focus sessions"}</Text>
+                        </View>
+
+                        <View style={styles.todayStat}>
+                            <Text style={styles.todayStatValue}>{todayFocusedMinutes}</Text>
+
+                            <Text style={styles.todayStatLabel}>Minutes focused</Text>
+                        </View>
+                    </View>
+                </View>
+
+                {activeSession && (
+                    <View style={styles.activeSessionCard}>
+                        <Text style={styles.activeSessionLabel}>Active Focus Session</Text>
+
+                        <Text style={styles.activeSessionTitle}>{activeSession.questTitle}</Text>
+
+                        <Text style={styles.activeSessionDetails}>
+                            {activeSession.selectedMinutes}-minute session
+                            {" · "}
+                            {getActiveSessionStatus()}
+                        </Text>
+
+                        <Pressable style={styles.returnButton} onPress={handleReturnToActiveSession}>
+                            <Text style={styles.returnButtonText}>{activeSessionHasFinished ? "Review Session" : "Return to Session"}</Text>
+                        </Pressable>
+                    </View>
+                )}
+
+                {!activeSession && (
+                    <Pressable style={styles.startButton} onPress={handleStartSession}>
+                        <Text style={styles.startButtonText}>Start a focus session</Text>
+                    </Pressable>
+                )}
+            </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    scrollView: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 24,
         backgroundColor: "#f5f5f5",
+    },
+    pageContent: {
+        width: "100%",
+        maxWidth: 700,
+        alignSelf: "center",
+    },
+    contentContainer: {
+        paddingHorizontal: 24,
+        paddingTop: 48,
+        paddingBottom: 120,
     },
     title: {
         fontSize: 32,
@@ -207,6 +279,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "600",
         color: "#ffffff",
+        textAlign: "center",
     },
     progressCard: {
         width: "100%",
@@ -216,6 +289,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         backgroundColor: "#ffffff",
         alignItems: "center",
+        alignSelf: "center",
     },
     levelText: {
         fontSize: 24,
@@ -281,5 +355,36 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: "600",
         color: "#ffffff",
+    },
+    todayCard: {
+        marginTop: 20,
+        marginBottom: 18,
+        padding: 18,
+        borderRadius: 12,
+        backgroundColor: "#ffffff",
+    },
+    todayTitle: {
+        fontSize: 18,
+        fontWeight: "700",
+    },
+    todayStats: {
+        marginTop: 16,
+        flexDirection: "row",
+        gap: 16,
+    },
+    todayStat: {
+        flex: 1,
+        padding: 14,
+        borderRadius: 8,
+        backgroundColor: "#f0f0f0",
+    },
+    todayStatValue: {
+        fontSize: 24,
+        fontWeight: "700",
+    },
+    todayStatLabel: {
+        marginTop: 4,
+        fontSize: 13,
+        color: "#666666",
     },
 });
