@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useRouter } from "expo-router";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter, useFocusEffect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-native";
 
@@ -17,23 +17,23 @@ export default function JourneyScreen() {
     const [journeyTitle, setJourneyTitle] = useState("");
     const [journeys, setJourneys] = useState<Journey[]>([]);
 
-    useEffect(() => {
-        async function loadJourneys() {
-            try {
-                const storedJourneys = await AsyncStorage.getItem(JOURNEYS_STORAGE_KEY);
+    useFocusEffect(
+        useCallback(() => {
+            async function loadJourneys() {
+                try {
+                    const storedJourneys = await AsyncStorage.getItem(JOURNEYS_STORAGE_KEY);
 
-                if (storedJourneys) {
-                    const parsedJourneys: Journey[] = JSON.parse(storedJourneys);
+                    const parsedJourneys: Journey[] = storedJourneys ? JSON.parse(storedJourneys) : [];
 
                     setJourneys(parsedJourneys);
+                } catch (error) {
+                    console.error("Failed to load Journeys:", error);
                 }
-            } catch (error) {
-                console.error("Failed to load Journeys:", error);
             }
-        }
 
-        loadJourneys();
-    }, []);
+            loadJourneys();
+        }, []),
+    );
 
     async function handleAddJourney() {
         const trimmedTitle = journeyTitle.trim();
