@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import type { SessionOutcome } from "../../types/models";
+import { FOCUS_SESSIONS_STORAGE_KEY } from "../../constants/storageKeys";
 
 type FocusSessionRecord = {
     id: string;
@@ -18,8 +19,6 @@ type FocusSessionRecord = {
     earnedXp: number;
     completedAt: string;
 };
-
-const FOCUS_SESSIONS_STORAGE_KEY = "no-more-later-focus-sessions";
 
 function getOutcomeLabel(outcome: SessionOutcome) {
     if (outcome === "completed") {

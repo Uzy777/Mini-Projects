@@ -4,8 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-native";
 
 import type { Journey } from "../../types/models";
-
-const JOURNEYS_STORAGE_KEY = "no-more-later-journeys";
+import { JOURNEYS_STORAGE_KEY } from "../../constants/storageKeys";
 
 export default function JourneyScreen() {
     const router = useRouter();

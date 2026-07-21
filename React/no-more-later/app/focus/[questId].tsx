@@ -4,6 +4,8 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAudioPlayer } from "expo-audio";
 
+import { ACTIVE_FOCUS_SESSION_STORAGE_KEY } from "../../constants/storageKeys";
+
 const focusCompleteSound = require("../../assets/sounds/focus-complete.mp3");
 
 type ActiveFocusSession = {
@@ -15,8 +17,6 @@ type ActiveFocusSession = {
     isRunning: boolean;
     endTime: number | null;
 };
-
-const ACTIVE_FOCUS_SESSION_STORAGE_KEY = "no-more-later-active-focus-session";
 
 async function saveActiveFocusSession(session: ActiveFocusSession) {
     try {

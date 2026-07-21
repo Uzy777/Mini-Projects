@@ -4,12 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-native";
 
 import type { Journey, Quest } from "../../types/models";
-
-const JOURNEYS_STORAGE_KEY = "no-more-later-journeys";
-
-function getQuestsStorageKey(journeyId: string) {
-    return `no-more-later-quests-${journeyId}`;
-}
+import { JOURNEYS_STORAGE_KEY, getQuestsStorageKey } from "../../constants/storageKeys";
 
 export default function JourneyDetailsScreen() {
     const router = useRouter();

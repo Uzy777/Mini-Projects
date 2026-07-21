@@ -5,6 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { calculateLevel } from "../../utils/level";
 import type { Journey, Quest, SessionOutcome } from "../../types/models";
+import { FOCUS_SESSIONS_STORAGE_KEY, JOURNEYS_STORAGE_KEY, TOTAL_XP_STORAGE_KEY, getQuestsStorageKey } from "../../constants/storageKeys";
 
 type FocusSessionRecord = {
     id: string;
@@ -19,14 +20,6 @@ type FocusSessionRecord = {
     earnedXp: number;
     completedAt: string;
 };
-
-const TOTAL_XP_STORAGE_KEY = "no-more-later-total-xp";
-const FOCUS_SESSIONS_STORAGE_KEY = "no-more-later-focus-sessions";
-const JOURNEYS_STORAGE_KEY = "no-more-later-journeys";
-
-function getQuestsStorageKey(journeyId: string) {
-    return `no-more-later-quests-${journeyId}`;
-}
 
 function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction: string) {
     let totalXp = 0;
