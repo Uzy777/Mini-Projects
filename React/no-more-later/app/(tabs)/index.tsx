@@ -14,7 +14,12 @@ type ActiveFocusSession = {
 };
 
 type FocusSessionSummary = {
-    actualSeconds: number;
+    journeyId: string;
+    questId: string;
+    questTitle: string;
+    outcome: "completed" | "progressed" | "blocked" | "stopped";
+    nextAction: string;
+    actualSeconds?: number;
     plannedMinutes: number;
     completedAt: string;
 };
@@ -167,6 +172,8 @@ export default function HomeScreen() {
 
     const currentStreak = calculateCurrentStreak(focusSessions);
 
+    const latestUnfinishedSession = focusSessions.find((session) => session.outcome !== "completed" && session.nextAction.trim());
+
     const todaysSessions = focusSessions.filter((session) => {
         const sessionDate = new Date(session.completedAt).toDateString();
 
@@ -212,6 +219,21 @@ export default function HomeScreen() {
                 questId: activeSession.questId,
                 journeyId: activeSession.journeyId,
                 questTitle: activeSession.questTitle,
+            },
+        });
+    }
+
+    function handleContinueQuest() {
+        if (!latestUnfinishedSession) {
+            return;
+        }
+
+        router.push({
+            pathname: "/focus/[questId]",
+            params: {
+                questId: latestUnfinishedSession.questId,
+                journeyId: latestUnfinishedSession.journeyId,
+                questTitle: latestUnfinishedSession.questTitle,
             },
         });
     }
@@ -268,6 +290,20 @@ export default function HomeScreen() {
                         </View>
                     </View>
                 </View>
+
+                {!activeSession && latestUnfinishedSession && (
+                    <View style={styles.continueCard}>
+                        <Text style={styles.continueLabel}>Continue where you left off</Text>
+
+                        <Text style={styles.continueTitle}>{latestUnfinishedSession.questTitle}</Text>
+
+                        <Text style={styles.continueNextAction}>Next action: {latestUnfinishedSession.nextAction}</Text>
+
+                        <Pressable style={styles.continueButton} onPress={handleContinueQuest}>
+                            <Text style={styles.continueButtonText}>Continue Quest</Text>
+                        </Pressable>
+                    </View>
+                )}
 
                 {/* <View style={styles.streakCard}>
                     <Text style={styles.streakLabel}>Current Streak</Text>
@@ -420,7 +456,7 @@ const styles = StyleSheet.create({
     },
     todayCard: {
         marginTop: 20,
-        marginBottom: 18,
+        // marginBottom: 18,
         padding: 18,
         borderRadius: 12,
         backgroundColor: "#ffffff",
@@ -490,5 +526,40 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: "600",
         color: "#666666",
+    },
+    continueCard: {
+        width: "100%",
+        marginTop: 20,
+        padding: 18,
+        borderRadius: 12,
+        backgroundColor: "#ffffff",
+    },
+    continueLabel: {
+        fontSize: 13,
+        fontWeight: "600",
+        color: "#666666",
+    },
+    continueTitle: {
+        marginTop: 6,
+        fontSize: 18,
+        fontWeight: "700",
+    },
+    continueNextAction: {
+        marginTop: 8,
+        fontSize: 14,
+        lineHeight: 20,
+        color: "#555555",
+    },
+    continueButton: {
+        marginTop: 16,
+        paddingVertical: 12,
+        borderRadius: 8,
+        backgroundColor: "#222222",
+        alignItems: "center",
+    },
+    continueButtonText: {
+        fontSize: 15,
+        fontWeight: "600",
+        color: "#ffffff",
     },
 });
