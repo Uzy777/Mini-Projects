@@ -95,6 +95,24 @@ function calculateCurrentStreak(sessions: FocusSessionSummary[]) {
     return streak;
 }
 
+function findLatestUnfinishedSession(sessions: FocusSessionSummary[]) {
+    const checkedQuestIds = new Set<string>();
+
+    for (const session of sessions) {
+        if (checkedQuestIds.has(session.questId)) {
+            continue;
+        }
+
+        checkedQuestIds.add(session.questId);
+
+        if (session.outcome !== "completed" && session.nextAction.trim()) {
+            return session;
+        }
+    }
+
+    return undefined;
+}
+
 export default function HomeScreen() {
     const router = useRouter();
 
@@ -172,7 +190,7 @@ export default function HomeScreen() {
 
     const currentStreak = calculateCurrentStreak(focusSessions);
 
-    const latestUnfinishedSession = focusSessions.find((session) => session.outcome !== "completed" && session.nextAction.trim());
+    const latestUnfinishedSession = findLatestUnfinishedSession(focusSessions);
 
     const todaysSessions = focusSessions.filter((session) => {
         const sessionDate = new Date(session.completedAt).toDateString();
