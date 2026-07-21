@@ -3,11 +3,7 @@ import { useRouter, useFocusEffect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-native";
 
-type Journey = {
-    id: string;
-    title: string;
-    status?: "active" | "completed";
-};
+import type { Journey } from "../../types/models";
 
 const JOURNEYS_STORAGE_KEY = "no-more-later-journeys";
 

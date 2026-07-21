@@ -4,22 +4,7 @@ import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { calculateLevel } from "../../utils/level";
-
-type SessionOutcome = "completed" | "progressed" | "blocked" | "stopped";
-
-type Quest = {
-    id: string;
-    title: string;
-    status?: "active" | "completed";
-    nextAction?: string;
-    lastAccomplishment?: string;
-};
-
-type Journey = {
-    id: string;
-    title: string;
-    status?: "active" | "completed";
-};
+import type { Journey, Quest, SessionOutcome } from "../../types/models";
 
 type FocusSessionRecord = {
     id: string;

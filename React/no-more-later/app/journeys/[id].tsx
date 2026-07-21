@@ -3,19 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-native";
 
-type Quest = {
-    id: string;
-    title: string;
-    status?: "active" | "completed";
-    nextAction?: string;
-    lastAccomplishment?: string;
-};
-
-type Journey = {
-    id: string;
-    title: string;
-    status?: "active" | "completed";
-};
+import type { Journey, Quest } from "../../types/models";
 
 const JOURNEYS_STORAGE_KEY = "no-more-later-journeys";
 

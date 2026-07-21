@@ -3,7 +3,7 @@ import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
-type SessionOutcome = "completed" | "progress" | "blocked" | "stopped";
+import type { SessionOutcome } from "../../types/models";
 
 type FocusSessionRecord = {
     id: string;
@@ -26,7 +26,7 @@ function getOutcomeLabel(outcome: SessionOutcome) {
         return "Quest completed";
     }
 
-    if (outcome === "progress") {
+    if (outcome === "progressed") {
         return "Made progress";
     }
 
