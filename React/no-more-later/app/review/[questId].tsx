@@ -36,6 +36,8 @@ type FocusSessionRecord = {
 const TOTAL_XP_STORAGE_KEY = "no-more-later-total-xp";
 const FOCUS_SESSIONS_STORAGE_KEY = "no-more-later-focus-sessions";
 const JOURNEYS_STORAGE_KEY = "no-more-later-journeys";
+const STARTING_LEVEL_XP = 100;
+const XP_INCREASE_PER_LEVEL = 25;
 
 function getQuestsStorageKey(journeyId: string) {
     return `no-more-later-quests-${journeyId}`;
@@ -57,6 +59,21 @@ function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction
     return totalXp;
 }
 
+function calculateLevel(totalXp: number) {
+    let level = 1;
+    let remainingXp = totalXp;
+    let requiredXp = STARTING_LEVEL_XP;
+
+    while (remainingXp >= requiredXp) {
+        remainingXp -= requiredXp;
+        level += 1;
+
+        requiredXp = STARTING_LEVEL_XP + (level - 1) * XP_INCREASE_PER_LEVEL;
+    }
+
+    return level;
+}
+
 export default function ReviewSessionScreen() {
     const router = useRouter();
 
@@ -76,6 +93,7 @@ export default function ReviewSessionScreen() {
     const [earnedXp, setEarnedXp] = useState<number | null>(null);
     const [totalXp, setTotalXp] = useState<number | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [reachedLevel, setReachedLevel] = useState<number | null>(null);
 
     function handleReturnToJourneys() {
         router.replace("/journeys");
@@ -140,6 +158,10 @@ export default function ReviewSessionScreen() {
 
             const updatedTotalXp = currentTotalXp + sessionXp;
 
+            const previousLevel = calculateLevel(currentTotalXp);
+
+            const updatedLevel = calculateLevel(updatedTotalXp);
+
             await AsyncStorage.setItem(TOTAL_XP_STORAGE_KEY, updatedTotalXp.toString());
 
             const questsStorageKey = getQuestsStorageKey(journeyId);
@@ -192,6 +214,12 @@ export default function ReviewSessionScreen() {
 
             setEarnedXp(sessionXp);
             setTotalXp(updatedTotalXp);
+
+            if (updatedLevel > previousLevel) {
+                setReachedLevel(updatedLevel);
+            } else {
+                setReachedLevel(null);
+            }
 
             console.log({
                 journeyId,
@@ -299,6 +327,14 @@ export default function ReviewSessionScreen() {
                     <Text style={styles.rewardXp}>+{earnedXp} XP</Text>
 
                     {totalXp !== null && <Text style={styles.totalXp}>Total XP: {totalXp}</Text>}
+
+                    {reachedLevel !== null && (
+                        <View style={styles.levelUpContainer}>
+                            <Text style={styles.levelUpTitle}>Level Up!</Text>
+
+                            <Text style={styles.levelUpText}>You reached Level {reachedLevel}</Text>
+                        </View>
+                    )}
 
                     <Pressable style={styles.returnButton} onPress={handleReturnToJourneys}>
                         <Text style={styles.returnButtonText}>Return to Journeys</Text>
@@ -458,5 +494,21 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: "600",
         color: "#222222",
+    },
+    levelUpContainer: {
+        marginTop: 18,
+        padding: 16,
+        borderRadius: 10,
+        backgroundColor: "#f0f0f0",
+        alignItems: "center",
+    },
+    levelUpTitle: {
+        fontSize: 21,
+        fontWeight: "700",
+    },
+    levelUpText: {
+        marginTop: 4,
+        fontSize: 15,
+        color: "#555555",
     },
 });
