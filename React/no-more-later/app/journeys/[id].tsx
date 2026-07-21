@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-
 import type { Journey, Quest } from "../../types/models";
 import { JOURNEYS_STORAGE_KEY, getQuestsStorageKey } from "../../constants/storageKeys";
 import { getJourneys, saveJourneys } from "../../services/storage/journeysStorage";
+import { getQuests, saveQuests } from "../../services/storage/questsStorage";
 
 export default function JourneyDetailsScreen() {
     const router = useRouter();
@@ -18,11 +19,9 @@ export default function JourneyDetailsScreen() {
         useCallback(() => {
             async function loadQuests() {
                 try {
-                    const storedQuests = await AsyncStorage.getItem(getQuestsStorageKey(id));
+                    const currentQuests = await getQuests(id);
 
-                    const parsedQuests: Quest[] = storedQuests ? JSON.parse(storedQuests) : [];
-
-                    setQuests(parsedQuests);
+                    setQuests(currentQuests);
                 } catch (error) {
                     console.error("Failed to load Quests:", error);
                 }
@@ -54,7 +53,7 @@ export default function JourneyDetailsScreen() {
         const updatedQuests = [...quests, newQuest];
 
         try {
-            await AsyncStorage.setItem(getQuestsStorageKey(id), JSON.stringify(updatedQuests));
+            await saveQuests(id, updatedQuests);
 
             const currentJourneys = await getJourneys();
 
@@ -82,7 +81,7 @@ export default function JourneyDetailsScreen() {
         const updatedQuests = quests.filter((quest) => quest.id !== questId);
 
         try {
-            await AsyncStorage.setItem(getQuestsStorageKey(id), JSON.stringify(updatedQuests));
+            await saveQuests(id, updatedQuests);
 
             setQuests(updatedQuests);
         } catch (error) {
@@ -118,11 +117,9 @@ export default function JourneyDetailsScreen() {
         });
 
         try {
-            await AsyncStorage.setItem(getQuestsStorageKey(id), JSON.stringify(updatedQuests));
+            await saveQuests(id, updatedQuests);
 
-            const storedJourneys = await AsyncStorage.getItem(JOURNEYS_STORAGE_KEY);
-
-            const currentJourneys: Journey[] = storedJourneys ? JSON.parse(storedJourneys) : [];
+            const currentJourneys = await getJourneys();
 
             const updatedJourneys = currentJourneys.map((journey) => {
                 if (journey.id !== id) {
@@ -135,7 +132,7 @@ export default function JourneyDetailsScreen() {
                 };
             });
 
-            await AsyncStorage.setItem(JOURNEYS_STORAGE_KEY, JSON.stringify(updatedJourneys));
+            await saveJourneys(updatedJourneys);
 
             setQuests(updatedQuests);
         } catch (error) {

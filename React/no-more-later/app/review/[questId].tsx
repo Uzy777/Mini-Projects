@@ -4,9 +4,10 @@ import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { calculateLevel } from "../../utils/level";
-import type { Journey, JourneyStatus, Quest, SessionOutcome } from "../../types/models";
+import type { Journey, JourneyStatus, Quest, QuestStatus, SessionOutcome } from "../../types/models";
 import { FOCUS_SESSIONS_STORAGE_KEY, JOURNEYS_STORAGE_KEY, TOTAL_XP_STORAGE_KEY, getQuestsStorageKey } from "../../constants/storageKeys";
 import { getJourneys, saveJourneys } from "../../services/storage/journeysStorage";
+import { getQuests, saveQuests } from "../../services/storage/questsStorage";
 
 type FocusSessionRecord = {
     id: string;
@@ -128,20 +129,18 @@ export default function ReviewSessionScreen() {
 
             await AsyncStorage.setItem(TOTAL_XP_STORAGE_KEY, updatedTotalXp.toString());
 
-            const questsStorageKey = getQuestsStorageKey(journeyId);
+            const currentQuests = await getQuests(journeyId);
 
-            const storedQuests = await AsyncStorage.getItem(questsStorageKey);
+            const updatedQuestStatus: QuestStatus = selectedOutcome === "completed" ? "completed" : "active";
 
-            const currentQuests: Quest[] = storedQuests ? JSON.parse(storedQuests) : [];
-
-            const updatedQuests = currentQuests.map((quest) => {
+            const updatedQuests = currentQuests.map((quest): Quest => {
                 if (quest.id !== questId) {
                     return quest;
                 }
 
                 return {
                     ...quest,
-                    status: selectedOutcome === "completed" ? "completed" : "active",
+                    status: updatedQuestStatus,
                     lastAccomplishment: trimmedAccomplishment,
                     nextAction: selectedOutcome === "completed" ? "" : trimmedNextAction,
                 };
@@ -149,8 +148,7 @@ export default function ReviewSessionScreen() {
 
             const allQuestsCompleted = updatedQuests.length > 0 && updatedQuests.every((quest) => quest.status === "completed");
 
-            await AsyncStorage.setItem(questsStorageKey, JSON.stringify(updatedQuests));
-
+            await saveQuests(journeyId, updatedQuests);
             const currentJourneys = await getJourneys();
 
             const updatedJourneyStatus: JourneyStatus = allQuestsCompleted ? "completed" : "active";
