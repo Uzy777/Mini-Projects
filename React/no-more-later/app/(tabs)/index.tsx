@@ -3,6 +3,8 @@ import { useEffect, useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useRouter } from "expo-router";
 
+import { calculateLevelProgress } from "../../utils/level";
+
 type ActiveFocusSession = {
     questId: string;
     journeyId: string;
@@ -29,31 +31,6 @@ const TOTAL_XP_STORAGE_KEY = "no-more-later-total-xp";
 const ACTIVE_FOCUS_SESSION_STORAGE_KEY = "no-more-later-active-focus-session";
 
 const FOCUS_SESSIONS_STORAGE_KEY = "no-more-later-focus-sessions";
-
-const STARTING_LEVEL_XP = 100;
-const XP_INCREASE_PER_LEVEL = 25;
-
-function getXpRequiredForLevel(level: number) {
-    return STARTING_LEVEL_XP + (level - 1) * XP_INCREASE_PER_LEVEL;
-}
-
-function calculateLevelProgress(totalXp: number) {
-    let level = 1;
-    let xpIntoLevel = totalXp;
-    let xpRequired = getXpRequiredForLevel(level);
-
-    while (xpIntoLevel >= xpRequired) {
-        xpIntoLevel -= xpRequired;
-        level += 1;
-        xpRequired = getXpRequiredForLevel(level);
-    }
-
-    return {
-        level,
-        xpIntoLevel,
-        xpRequired,
-    };
-}
 
 // Using year, month, day to follow the users local calendar
 function getLocalDataKey(date: Date) {

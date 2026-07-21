@@ -3,6 +3,8 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import { calculateLevel } from "../../utils/level";
+
 type SessionOutcome = "completed" | "progressed" | "blocked" | "stopped";
 
 type Quest = {
@@ -36,8 +38,6 @@ type FocusSessionRecord = {
 const TOTAL_XP_STORAGE_KEY = "no-more-later-total-xp";
 const FOCUS_SESSIONS_STORAGE_KEY = "no-more-later-focus-sessions";
 const JOURNEYS_STORAGE_KEY = "no-more-later-journeys";
-const STARTING_LEVEL_XP = 100;
-const XP_INCREASE_PER_LEVEL = 25;
 
 function getQuestsStorageKey(journeyId: string) {
     return `no-more-later-quests-${journeyId}`;
@@ -57,21 +57,6 @@ function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction
     }
 
     return totalXp;
-}
-
-function calculateLevel(totalXp: number) {
-    let level = 1;
-    let remainingXp = totalXp;
-    let requiredXp = STARTING_LEVEL_XP;
-
-    while (remainingXp >= requiredXp) {
-        remainingXp -= requiredXp;
-        level += 1;
-
-        requiredXp = STARTING_LEVEL_XP + (level - 1) * XP_INCREASE_PER_LEVEL;
-    }
-
-    return level;
 }
 
 export default function ReviewSessionScreen() {
