@@ -4,24 +4,11 @@ import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { calculateLevel } from "../../utils/level";
-import type { Journey, JourneyStatus, Quest, QuestStatus, SessionOutcome } from "../../types/models";
+import type { Journey, JourneyStatus, Quest, QuestStatus, SessionOutcome, FocusSessionRecord } from "../../types/models";
 import { FOCUS_SESSIONS_STORAGE_KEY, JOURNEYS_STORAGE_KEY, TOTAL_XP_STORAGE_KEY, getQuestsStorageKey } from "../../constants/storageKeys";
 import { getJourneys, saveJourneys } from "../../services/storage/journeysStorage";
 import { getQuests, saveQuests } from "../../services/storage/questsStorage";
-
-type FocusSessionRecord = {
-    id: string;
-    journeyId: string;
-    questId: string;
-    questTitle: string;
-    plannedMinutes: number;
-    actualSeconds?: number;
-    outcome: SessionOutcome;
-    accomplishment: string;
-    nextAction: string;
-    earnedXp: number;
-    completedAt: string;
-};
+import { addFocusSession } from "../../services/storage/focusSessionsStorage";
 
 function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction: string) {
     let totalXp = 0;
@@ -166,13 +153,7 @@ export default function ReviewSessionScreen() {
 
             await saveJourneys(updatedJourneys);
 
-            const storedSessions = await AsyncStorage.getItem(FOCUS_SESSIONS_STORAGE_KEY);
-
-            const currentSessions: FocusSessionRecord[] = storedSessions ? JSON.parse(storedSessions) : [];
-
-            const updatedSessions = [newSessionRecord, ...currentSessions];
-
-            await AsyncStorage.setItem(FOCUS_SESSIONS_STORAGE_KEY, JSON.stringify(updatedSessions));
+            await addFocusSession(newSessionRecord);
 
             setEarnedXp(sessionXp);
             setTotalXp(updatedTotalXp);

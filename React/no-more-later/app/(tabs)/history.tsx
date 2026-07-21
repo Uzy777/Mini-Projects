@@ -5,20 +5,8 @@ import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import type { SessionOutcome } from "../../types/models";
 import { FOCUS_SESSIONS_STORAGE_KEY } from "../../constants/storageKeys";
-
-type FocusSessionRecord = {
-    id: string;
-    journeyId: string;
-    questId: string;
-    questTitle: string;
-    plannedMinutes: number;
-    actualSeconds?: number;
-    outcome: SessionOutcome;
-    accomplishment: string;
-    nextAction: string;
-    earnedXp: number;
-    completedAt: string;
-};
+import type { FocusSessionRecord } from "../../types/models";
+import { getFocusSessions } from "../../services/storage/focusSessionsStorage";
 
 function getOutcomeLabel(outcome: SessionOutcome) {
     if (outcome === "completed") {
@@ -59,11 +47,9 @@ export default function HistoryScreen() {
         useCallback(() => {
             async function loadSessions() {
                 try {
-                    const storedSessions = await AsyncStorage.getItem(FOCUS_SESSIONS_STORAGE_KEY);
+                    const currentSessions = await getFocusSessions();
 
-                    const parsedSessions: FocusSessionRecord[] = storedSessions ? JSON.parse(storedSessions) : [];
-
-                    setSessions(parsedSessions);
+                    setSessions(currentSessions);
                 } catch (error) {
                     console.error("Failed to load focus sessions:", error);
                 }

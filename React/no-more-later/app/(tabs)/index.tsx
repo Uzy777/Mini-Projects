@@ -5,6 +5,8 @@ import { useFocusEffect, useRouter } from "expo-router";
 
 import { calculateLevelProgress } from "../../utils/level";
 import { ACTIVE_FOCUS_SESSION_STORAGE_KEY, FOCUS_SESSIONS_STORAGE_KEY, TOTAL_XP_STORAGE_KEY } from "../../constants/storageKeys";
+import type { FocusSessionRecord } from "../../types/models";
+import { getFocusSessions } from "../../services/storage/focusSessionsStorage";
 
 type ActiveFocusSession = {
     questId: string;
@@ -90,7 +92,7 @@ export default function HomeScreen() {
 
     const [totalXp, setTotalXp] = useState(0);
     const [activeSession, setActiveSession] = useState<ActiveFocusSession | null>(null);
-    const [focusSessions, setFocusSessions] = useState<FocusSessionSummary[]>([]);
+    const [focusSessions, setFocusSessions] = useState<FocusSessionRecord[]>([]);
 
     useFocusEffect(
         useCallback(() => {
@@ -134,11 +136,9 @@ export default function HomeScreen() {
         useCallback(() => {
             async function loadFocusSessions() {
                 try {
-                    const storedSessions = await AsyncStorage.getItem(FOCUS_SESSIONS_STORAGE_KEY);
+                    const currentSessions = await getFocusSessions();
 
-                    const parsedSessions: FocusSessionSummary[] = storedSessions ? JSON.parse(storedSessions) : [];
-
-                    setFocusSessions(parsedSessions);
+                    setFocusSessions(currentSessions);
                 } catch (error) {
                     console.error("Failed to load focus sessions:", error);
 

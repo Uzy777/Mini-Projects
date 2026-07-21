@@ -17,3 +17,17 @@ export type Quest = {
     nextAction?: string;
     lastAccomplishment?: string;
 };
+
+export type FocusSessionRecord = {
+    id: string;
+    journeyId: string;
+    questId: string;
+    questTitle: string;
+    plannedMinutes: number;
+    actualSeconds?: number;
+    outcome: SessionOutcome;
+    accomplishment: string;
+    nextAction: string;
+    earnedXp: number;
+    completedAt: string;
+};
