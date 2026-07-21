@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-
 
 import type { Journey } from "../../types/models";
 import { JOURNEYS_STORAGE_KEY } from "../../constants/storageKeys";
+import { getJourneys, saveJourneys } from "../../services/storage/journeysStorage";
 
 export default function JourneyScreen() {
     const router = useRouter();
@@ -16,11 +17,9 @@ export default function JourneyScreen() {
         useCallback(() => {
             async function loadJourneys() {
                 try {
-                    const storedJourneys = await AsyncStorage.getItem(JOURNEYS_STORAGE_KEY);
+                    const currentJourneys = await getJourneys();
 
-                    const parsedJourneys: Journey[] = storedJourneys ? JSON.parse(storedJourneys) : [];
-
-                    setJourneys(parsedJourneys);
+                    setJourneys(currentJourneys);
                 } catch (error) {
                     console.error("Failed to load Journeys:", error);
                 }
@@ -48,7 +47,7 @@ export default function JourneyScreen() {
         const updatedJourneys = [...journeys, newJourney];
 
         try {
-            await AsyncStorage.setItem(JOURNEYS_STORAGE_KEY, JSON.stringify(updatedJourneys));
+            await saveJourneys(updatedJourneys);
 
             setJourneys(updatedJourneys);
             setJourneyTitle("");
@@ -61,7 +60,7 @@ export default function JourneyScreen() {
         const updatedJourneys = journeys.filter((journey) => journey.id !== journeyId);
 
         try {
-            await AsyncStorage.setItem(JOURNEYS_STORAGE_KEY, JSON.stringify(updatedJourneys));
+            await saveJourneys(updatedJourneys);
             setJourneys(updatedJourneys);
         } catch (error) {
             console.error("Failed to delete Journey:", error);

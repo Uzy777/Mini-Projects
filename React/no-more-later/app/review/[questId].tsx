@@ -4,8 +4,9 @@ import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { calculateLevel } from "../../utils/level";
-import type { Journey, Quest, SessionOutcome } from "../../types/models";
+import type { Journey, JourneyStatus, Quest, SessionOutcome } from "../../types/models";
 import { FOCUS_SESSIONS_STORAGE_KEY, JOURNEYS_STORAGE_KEY, TOTAL_XP_STORAGE_KEY, getQuestsStorageKey } from "../../constants/storageKeys";
+import { getJourneys, saveJourneys } from "../../services/storage/journeysStorage";
 
 type FocusSessionRecord = {
     id: string;
@@ -150,22 +151,22 @@ export default function ReviewSessionScreen() {
 
             await AsyncStorage.setItem(questsStorageKey, JSON.stringify(updatedQuests));
 
-            const storedJourneys = await AsyncStorage.getItem(JOURNEYS_STORAGE_KEY);
+            const currentJourneys = await getJourneys();
 
-            const currentJourneys: Journey[] = storedJourneys ? JSON.parse(storedJourneys) : [];
+            const updatedJourneyStatus: JourneyStatus = allQuestsCompleted ? "completed" : "active";
 
-            const updatedJourneys = currentJourneys.map((journey) => {
+            const updatedJourneys = currentJourneys.map((journey): Journey => {
                 if (journey.id !== journeyId) {
                     return journey;
                 }
 
                 return {
                     ...journey,
-                    status: allQuestsCompleted ? "completed" : "active",
+                    status: updatedJourneyStatus,
                 };
             });
 
-            await AsyncStorage.setItem(JOURNEYS_STORAGE_KEY, JSON.stringify(updatedJourneys));
+            await saveJourneys(updatedJourneys);
 
             const storedSessions = await AsyncStorage.getItem(FOCUS_SESSIONS_STORAGE_KEY);
 

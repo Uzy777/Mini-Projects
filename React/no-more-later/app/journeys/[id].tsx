@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-
 
 import type { Journey, Quest } from "../../types/models";
 import { JOURNEYS_STORAGE_KEY, getQuestsStorageKey } from "../../constants/storageKeys";
+import { getJourneys, saveJourneys } from "../../services/storage/journeysStorage";
 
 export default function JourneyDetailsScreen() {
     const router = useRouter();
@@ -55,9 +56,7 @@ export default function JourneyDetailsScreen() {
         try {
             await AsyncStorage.setItem(getQuestsStorageKey(id), JSON.stringify(updatedQuests));
 
-            const storedJourneys = await AsyncStorage.getItem(JOURNEYS_STORAGE_KEY);
-
-            const currentJourneys: Journey[] = storedJourneys ? JSON.parse(storedJourneys) : [];
+            const currentJourneys = await getJourneys();
 
             const updatedJourneys = currentJourneys.map((journey) => {
                 if (journey.id !== id) {
@@ -70,7 +69,7 @@ export default function JourneyDetailsScreen() {
                 };
             });
 
-            await AsyncStorage.setItem(JOURNEYS_STORAGE_KEY, JSON.stringify(updatedJourneys));
+            await saveJourneys(updatedJourneys);
 
             setQuests(updatedQuests);
             setQuestTitle("");
