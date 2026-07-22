@@ -9,6 +9,7 @@ import type { FocusSessionRecord, ActiveFocusSession } from "../../types/models"
 import { getFocusSessions } from "../../services/storage/focusSessionsStorage";
 import { getTotalXp } from "../../services/storage/xpStorage";
 import { getActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
+import { HomeHeader } from "../../components/home/HomeHeader";
 
 type FocusSessionSummary = {
     journeyId: string;
@@ -219,19 +220,7 @@ export default function HomeScreen() {
     return (
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
             <View style={styles.pageContent}>
-                <View style={styles.headerRow}>
-                    <View style={styles.headerText}>
-                        <Text style={styles.title}>No More Later</Text>
-
-                        <Text style={styles.tagline}>Turn later into progress.</Text>
-                    </View>
-
-                    <View style={styles.streakBadge}>
-                        <Text style={styles.streakValue}>{currentStreak}</Text>
-
-                        <Text style={styles.streakLabel}>{currentStreak === 1 ? "day streak" : "day streak"}</Text>
-                    </View>
-                </View>
+                <HomeHeader currentStreak={currentStreak} />
 
                 <View style={styles.progressCard}>
                     <Text style={styles.levelText}>Level {level}</Text>
@@ -335,11 +324,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         paddingTop: 48,
         paddingBottom: 120,
-    },
-    title: {
-        fontSize: 32,
-        fontWeight: "700",
-        marginBottom: 8,
     },
     tagline: {
         fontSize: 18,
@@ -474,35 +458,6 @@ const styles = StyleSheet.create({
         marginTop: 8,
         fontSize: 14,
         lineHeight: 20,
-        color: "#666666",
-    },
-
-    headerRow: {
-        width: "100%",
-        flexDirection: "row",
-        alignItems: "flex-start",
-        justifyContent: "space-between",
-        gap: 16,
-    },
-    headerText: {
-        flex: 1,
-    },
-    streakBadge: {
-        minWidth: 82,
-        paddingVertical: 10,
-        paddingHorizontal: 12,
-        borderRadius: 12,
-        backgroundColor: "#ffffff",
-        alignItems: "center",
-    },
-    streakValue: {
-        fontSize: 22,
-        fontWeight: "700",
-    },
-    streakLabel: {
-        marginTop: 2,
-        fontSize: 12,
-        fontWeight: "600",
         color: "#666666",
     },
     continueCard: {
