@@ -13,6 +13,7 @@ import { HomeHeader } from "../../components/home/HomeHeader";
 import { LevelProgressCard } from "../../components/home/LevelProgressCard";
 import { TodaySummaryCard } from "../../components/home/TodaySummaryCard";
 import { ContinueQuestCard } from "../../components/home/ContinueQuestCard";
+import { ActiveFocusSessionCard } from "../../components/home/ActiveFocusSessionCard";
 
 type FocusSessionSummary = {
     journeyId: string;
@@ -166,9 +167,9 @@ export default function HomeScreen() {
 
     const todayFocusedMinutes = Math.floor(todayFocusedSeconds / 60);
 
-    function getActiveSessionStatus() {
+    function getActiveSessionStatus(): "In progress" | "Paused" | "Ready for review" | null {
         if (!activeSession) {
-            return "";
+            return null;
         }
 
         if (activeSessionHasFinished) {
@@ -181,6 +182,8 @@ export default function HomeScreen() {
 
         return "Paused";
     }
+
+    const activeSessionStatus = getActiveSessionStatus();
 
     function handleStartSession() {
         router.navigate("/journeys");
@@ -233,22 +236,8 @@ export default function HomeScreen() {
                     />
                 )}
 
-                {activeSession && (
-                    <View style={styles.activeSessionCard}>
-                        <Text style={styles.activeSessionLabel}>Active Focus Session</Text>
-
-                        <Text style={styles.activeSessionTitle}>{activeSession.questTitle}</Text>
-
-                        <Text style={styles.activeSessionDetails}>
-                            {activeSession.selectedMinutes}-minute session
-                            {" · "}
-                            {getActiveSessionStatus()}
-                        </Text>
-
-                        <Pressable style={styles.returnButton} onPress={handleReturnToActiveSession}>
-                            <Text style={styles.returnButtonText}>{activeSessionHasFinished ? "Review Session" : "Return to Session"}</Text>
-                        </Pressable>
-                    </View>
+                {activeSession && activeSessionStatus && (
+                    <ActiveFocusSessionCard questTitle={activeSession.questTitle} status={activeSessionStatus} onReturn={handleReturnToActiveSession} />
                 )}
 
                 {!activeSession && (
@@ -301,22 +290,6 @@ const styles = StyleSheet.create({
         marginTop: 6,
         fontSize: 14,
         color: "#666666",
-    },
-    activeSessionCard: {
-        marginTop: 20,
-        padding: 18,
-        borderRadius: 12,
-        backgroundColor: "#ffffff",
-    },
-    activeSessionLabel: {
-        fontSize: 13,
-        fontWeight: "600",
-        color: "#666666",
-    },
-    activeSessionTitle: {
-        marginTop: 6,
-        fontSize: 18,
-        fontWeight: "700",
     },
     activeSessionDetails: {
         marginTop: 6,
