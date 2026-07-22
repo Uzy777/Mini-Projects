@@ -12,6 +12,7 @@ import { getActiveFocusSession } from "../../services/storage/activeFocusSession
 import { HomeHeader } from "../../components/home/HomeHeader";
 import { LevelProgressCard } from "../../components/home/LevelProgressCard";
 import { TodaySummaryCard } from "../../components/home/TodaySummaryCard";
+import { ContinueQuestCard } from "../../components/home/ContinueQuestCard";
 
 type FocusSessionSummary = {
     journeyId: string;
@@ -225,17 +226,11 @@ export default function HomeScreen() {
                 <TodaySummaryCard sessionCount={todaysSessions.length} focusedMinutes={todayFocusedMinutes} />
 
                 {!activeSession && latestUnfinishedSession && (
-                    <View style={styles.continueCard}>
-                        <Text style={styles.continueLabel}>Continue where you left off</Text>
-
-                        <Text style={styles.continueTitle}>{latestUnfinishedSession.questTitle}</Text>
-
-                        <Text style={styles.continueNextAction}>Next action: {latestUnfinishedSession.nextAction}</Text>
-
-                        <Pressable style={styles.continueButton} onPress={handleContinueQuest}>
-                            <Text style={styles.continueButtonText}>Continue Quest</Text>
-                        </Pressable>
-                    </View>
+                    <ContinueQuestCard
+                        questTitle={latestUnfinishedSession.questTitle}
+                        nextAction={latestUnfinishedSession.nextAction}
+                        onContinue={handleContinueQuest}
+                    />
                 )}
 
                 {activeSession && (
@@ -368,40 +363,5 @@ const styles = StyleSheet.create({
         fontSize: 14,
         lineHeight: 20,
         color: "#666666",
-    },
-    continueCard: {
-        width: "100%",
-        marginTop: 20,
-        padding: 18,
-        borderRadius: 12,
-        backgroundColor: "#ffffff",
-    },
-    continueLabel: {
-        fontSize: 13,
-        fontWeight: "600",
-        color: "#666666",
-    },
-    continueTitle: {
-        marginTop: 6,
-        fontSize: 18,
-        fontWeight: "700",
-    },
-    continueNextAction: {
-        marginTop: 8,
-        fontSize: 14,
-        lineHeight: 20,
-        color: "#555555",
-    },
-    continueButton: {
-        marginTop: 16,
-        paddingVertical: 12,
-        borderRadius: 8,
-        backgroundColor: "#222222",
-        alignItems: "center",
-    },
-    continueButtonText: {
-        fontSize: 15,
-        fontWeight: "600",
-        color: "#ffffff",
     },
 });
