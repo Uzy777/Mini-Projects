@@ -10,6 +10,7 @@ import { getFocusSessions } from "../../services/storage/focusSessionsStorage";
 import { getTotalXp } from "../../services/storage/xpStorage";
 import { getActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
 import { HomeHeader } from "../../components/home/HomeHeader";
+import { LevelProgressCard } from "../../components/home/LevelProgressCard";
 
 type FocusSessionSummary = {
     journeyId: string;
@@ -141,10 +142,6 @@ export default function HomeScreen() {
 
     const { level, xpIntoLevel, xpRequired } = calculateLevelProgress(totalXp);
 
-    const levelProgressPercentage = (xpIntoLevel / xpRequired) * 100;
-
-    const xpUntilNextLevel = xpRequired - xpIntoLevel;
-
     const activeSessionHasFinished = activeSession?.isRunning === true && activeSession.endTime !== null && activeSession.endTime <= Date.now();
 
     const todayDate = new Date().toDateString();
@@ -222,23 +219,7 @@ export default function HomeScreen() {
             <View style={styles.pageContent}>
                 <HomeHeader currentStreak={currentStreak} />
 
-                <View style={styles.progressCard}>
-                    <Text style={styles.levelText}>Level {level}</Text>
-
-                    <View style={styles.progressTrack}>
-                        <View style={[styles.progressFill, { width: `${levelProgressPercentage}%` }]}></View>
-                    </View>
-
-                    <Text style={styles.xpText}>
-                        {xpIntoLevel} / {xpRequired} XP
-                    </Text>
-
-                    <Text style={styles.nextLevelText}>
-                        {xpUntilNextLevel} XP until Level {level + 1}
-                    </Text>
-
-                    <Text style={styles.totalXpText}>Total XP: {totalXp}</Text>
-                </View>
+                <LevelProgressCard level={level} xpIntoLevel={xpIntoLevel} xpRequired={xpRequired} />
 
                 <View style={styles.todayCard}>
                     <Text style={styles.todayTitle}>Today</Text>
@@ -341,42 +322,10 @@ const styles = StyleSheet.create({
         color: "#ffffff",
         textAlign: "center",
     },
-    progressCard: {
-        width: "100%",
-        maxWidth: 400,
-        marginBottom: 24,
-        padding: 20,
-        borderRadius: 12,
-        backgroundColor: "#ffffff",
-        alignItems: "center",
-        alignSelf: "center",
-    },
-    levelText: {
-        fontSize: 24,
-        fontWeight: "700",
-    },
-    xpText: {
-        marginTop: 8,
-        fontSize: 18,
-        fontWeight: "600",
-    },
     totalXpText: {
         marginTop: 4,
         fontSize: 14,
         color: "#666666",
-    },
-    progressTrack: {
-        width: "100%",
-        height: 12,
-        marginTop: 16,
-        borderRadius: 6,
-        backgroundColor: "#dddddd",
-        overflow: "hidden",
-    },
-    progressFill: {
-        height: "100%",
-        borderRadius: 6,
-        backgroundColor: "#222222",
     },
     nextLevelText: {
         marginTop: 6,
