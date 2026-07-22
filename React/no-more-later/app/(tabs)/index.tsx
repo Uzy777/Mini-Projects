@@ -11,6 +11,7 @@ import { getTotalXp } from "../../services/storage/xpStorage";
 import { getActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
 import { HomeHeader } from "../../components/home/HomeHeader";
 import { LevelProgressCard } from "../../components/home/LevelProgressCard";
+import { TodaySummaryCard } from "../../components/home/TodaySummaryCard";
 
 type FocusSessionSummary = {
     journeyId: string;
@@ -221,23 +222,7 @@ export default function HomeScreen() {
 
                 <LevelProgressCard level={level} xpIntoLevel={xpIntoLevel} xpRequired={xpRequired} />
 
-                <View style={styles.todayCard}>
-                    <Text style={styles.todayTitle}>Today</Text>
-
-                    <View style={styles.todayStats}>
-                        <View style={styles.todayStat}>
-                            <Text style={styles.todayStatValue}>{todaysSessions.length}</Text>
-
-                            <Text style={styles.todayStatLabel}>{todaysSessions.length === 1 ? "Focus session" : "Focus sessions"}</Text>
-                        </View>
-
-                        <View style={styles.todayStat}>
-                            <Text style={styles.todayStatValue}>{todayFocusedMinutes}</Text>
-
-                            <Text style={styles.todayStatLabel}>Minutes focused</Text>
-                        </View>
-                    </View>
-                </View>
+                <TodaySummaryCard sessionCount={todaysSessions.length} focusedMinutes={todayFocusedMinutes} />
 
                 {!activeSession && latestUnfinishedSession && (
                     <View style={styles.continueCard}>
@@ -252,16 +237,6 @@ export default function HomeScreen() {
                         </Pressable>
                     </View>
                 )}
-
-                {/* <View style={styles.streakCard}>
-                    <Text style={styles.streakLabel}>Current Streak</Text>
-
-                    <Text style={styles.streakValue}>
-                        {currentStreak} {currentStreak === 1 ? "day" : "days"}
-                    </Text>
-
-                    <Text style={styles.streakDescription}>Complete at least one Focus Session each day to keep yoru streak going.</Text>
-                </View> */}
 
                 {activeSession && (
                     <View style={styles.activeSessionCard}>
@@ -365,22 +340,7 @@ const styles = StyleSheet.create({
         fontWeight: "600",
         color: "#ffffff",
     },
-    todayCard: {
-        marginTop: 20,
-        // marginBottom: 18,
-        padding: 18,
-        borderRadius: 12,
-        backgroundColor: "#ffffff",
-    },
-    todayTitle: {
-        fontSize: 18,
-        fontWeight: "700",
-    },
-    todayStats: {
-        marginTop: 16,
-        flexDirection: "row",
-        gap: 16,
-    },
+
     todayStat: {
         flex: 1,
         padding: 14,
