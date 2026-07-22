@@ -9,6 +9,7 @@ import { FOCUS_SESSIONS_STORAGE_KEY, JOURNEYS_STORAGE_KEY, TOTAL_XP_STORAGE_KEY,
 import { getJourneys, saveJourneys } from "../../services/storage/journeysStorage";
 import { getQuests, saveQuests } from "../../services/storage/questsStorage";
 import { addFocusSession } from "../../services/storage/focusSessionsStorage";
+import { getTotalXp, saveTotalXp } from "../../services/storage/xpStorage";
 
 function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction: string) {
     let totalXp = 0;
@@ -104,9 +105,7 @@ export default function ReviewSessionScreen() {
         };
 
         try {
-            const storedTotalXp = await AsyncStorage.getItem(TOTAL_XP_STORAGE_KEY);
-
-            const currentTotalXp = storedTotalXp ? Number(storedTotalXp) : 0;
+            const currentTotalXp = await getTotalXp();
 
             const updatedTotalXp = currentTotalXp + sessionXp;
 
@@ -114,8 +113,7 @@ export default function ReviewSessionScreen() {
 
             const updatedLevel = calculateLevel(updatedTotalXp);
 
-            await AsyncStorage.setItem(TOTAL_XP_STORAGE_KEY, updatedTotalXp.toString());
-
+            await saveTotalXp(updatedTotalXp);
             const currentQuests = await getQuests(journeyId);
 
             const updatedQuestStatus: QuestStatus = selectedOutcome === "completed" ? "completed" : "active";

@@ -7,6 +7,7 @@ import { calculateLevelProgress } from "../../utils/level";
 import { ACTIVE_FOCUS_SESSION_STORAGE_KEY, FOCUS_SESSIONS_STORAGE_KEY, TOTAL_XP_STORAGE_KEY } from "../../constants/storageKeys";
 import type { FocusSessionRecord } from "../../types/models";
 import { getFocusSessions } from "../../services/storage/focusSessionsStorage";
+import { getTotalXp } from "../../services/storage/xpStorage";
 
 type ActiveFocusSession = {
     questId: string;
@@ -98,11 +99,9 @@ export default function HomeScreen() {
         useCallback(() => {
             async function loadTotalXp() {
                 try {
-                    const storedTotalXp = await AsyncStorage.getItem(TOTAL_XP_STORAGE_KEY);
+                    const currentTotalXp = await getTotalXp();
 
-                    const parsedTotalXp = storedTotalXp ? Number(storedTotalXp) : 0;
-
-                    setTotalXp(parsedTotalXp);
+                    setTotalXp(currentTotalXp);
                 } catch (error) {
                     console.error("Failed to load total XP:", error);
                 }
