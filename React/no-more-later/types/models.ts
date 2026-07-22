@@ -31,3 +31,13 @@ export type FocusSessionRecord = {
     earnedXp: number;
     completedAt: string;
 };
+
+export type ActiveFocusSession = {
+    questId: string;
+    journeyId: string;
+    questTitle: string;
+    selectedMinutes: number;
+    remainingSeconds: number;
+    isRunning: boolean;
+    endTime: number | null;
+};

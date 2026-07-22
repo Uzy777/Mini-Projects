@@ -5,26 +5,18 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAudioPlayer } from "expo-audio";
 
 import { ACTIVE_FOCUS_SESSION_STORAGE_KEY } from "../../constants/storageKeys";
+import { ActiveFocusSession } from "../../types/models";
+import { clearActiveFocusSession, getActiveFocusSession, saveActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
 
 const focusCompleteSound = require("../../assets/sounds/focus-complete.mp3");
 
-type ActiveFocusSession = {
-    questId: string;
-    journeyId: string;
-    questTitle: string;
-    selectedMinutes: number;
-    remainingSeconds: number;
-    isRunning: boolean;
-    endTime: number | null;
-};
-
-async function saveActiveFocusSession(session: ActiveFocusSession) {
-    try {
-        await AsyncStorage.setItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY, JSON.stringify(session));
-    } catch (error) {
-        console.error("Failed to save active focus session:", error);
-    }
-}
+// async function saveActiveFocusSession(session: ActiveFocusSession) {
+//     try {
+//         await AsyncStorage.setItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY, JSON.stringify(session));
+//     } catch (error) {
+//         console.error("Failed to save active focus session:", error);
+//     }
+// }
 
 export default function FocusScreen() {
     const router = useRouter();
@@ -47,22 +39,20 @@ export default function FocusScreen() {
     useEffect(() => {
         async function loadActiveFocusSession() {
             try {
-                const storedSession = await AsyncStorage.getItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY);
+                const storedSession = await getActiveFocusSession();
 
                 if (!storedSession) {
                     return;
                 }
 
-                const parsedSession: ActiveFocusSession = JSON.parse(storedSession);
-
-                if (parsedSession.questId !== questId || parsedSession.journeyId !== journeyId) {
+                if (storedSession.questId !== questId || storedSession.journeyId !== journeyId) {
                     return;
                 }
 
-                setSelectedMinutes(parsedSession.selectedMinutes);
+                setSelectedMinutes(storedSession.selectedMinutes);
 
-                if (parsedSession.isRunning && parsedSession.endTime !== null) {
-                    const restoredRemainingSeconds = Math.max(0, Math.ceil((parsedSession.endTime - Date.now()) / 1000));
+                if (storedSession.isRunning && storedSession.endTime !== null) {
+                    const restoredRemainingSeconds = Math.max(0, Math.ceil((storedSession.endTime - Date.now()) / 1000));
 
                     setRemainingSeconds(restoredRemainingSeconds);
 
@@ -70,18 +60,20 @@ export default function FocusScreen() {
                         setIsRunning(false);
                         setEndTime(null);
 
-                        await AsyncStorage.removeItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY);
+                        await clearActiveFocusSession();
 
                         return;
                     }
 
-                    setEndTime(parsedSession.endTime);
+                    setEndTime(storedSession.endTime);
+
                     setIsRunning(true);
 
                     return;
                 }
 
-                setRemainingSeconds(parsedSession.remainingSeconds);
+                setRemainingSeconds(storedSession.remainingSeconds);
+
                 setEndTime(null);
                 setIsRunning(false);
             } catch (error) {
@@ -113,8 +105,8 @@ export default function FocusScreen() {
                 setIsRunning(false);
                 setEndTime(null);
 
-                AsyncStorage.removeItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY).catch((error) => {
-                    console.error("Failed ot clear active focus session:", error);
+                clearActiveFocusSession().catch((error) => {
+                    console.error("Failed to clear active Focus Session:", error);
                 });
             }
         }
@@ -133,15 +125,13 @@ export default function FocusScreen() {
         setExistingActiveSession(null);
 
         try {
-            const storedSession = await AsyncStorage.getItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY);
+            const existingSession = await getActiveFocusSession();
 
-            if (storedSession) {
-                const existingSession: ActiveFocusSession = JSON.parse(storedSession);
-
+            if (existingSession) {
                 const hasExpired = existingSession.isRunning && existingSession.endTime !== null && existingSession.endTime <= Date.now();
 
                 if (hasExpired) {
-                    await AsyncStorage.removeItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY);
+                    await clearActiveFocusSession();
                 } else {
                     setExistingActiveSession(existingSession);
 
@@ -158,7 +148,9 @@ export default function FocusScreen() {
             }
 
             // CONTROL TIMER FOR TESTING
-            // const totalSeconds = selectedMinutes * 60;
+            // const totalSeconds =
+            //     selectedMinutes * 60;
+
             const totalSeconds = 5;
 
             const calculatedEndTime = Date.now() + totalSeconds * 1000;
@@ -249,7 +241,7 @@ export default function FocusScreen() {
         setEndTime(null);
 
         try {
-            await AsyncStorage.removeItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY);
+            await clearActiveFocusSession();
 
             router.replace({
                 pathname: "/review/[questId]",
