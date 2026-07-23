@@ -7,6 +7,7 @@ import type { SessionOutcome } from "../../types/models";
 import { FOCUS_SESSIONS_STORAGE_KEY } from "../../constants/storageKeys";
 import type { FocusSessionRecord } from "../../types/models";
 import { getFocusSessions } from "../../services/storage/focusSessionsStorage";
+import { FocusSessionHistoryCard } from "../../components/history/FocusSessionHistoryCard";
 
 function getOutcomeLabel(outcome: SessionOutcome) {
     if (outcome === "completed") {
@@ -67,40 +68,8 @@ export default function HistoryScreen() {
 
             <FlatList
                 data={sessions}
-                keyExtractor={(session) => session.id}
-                contentContainerStyle={styles.sessionList}
-                ListEmptyComponent={<Text style={styles.emptyText}>Your completed focus sessions will appear here.</Text>}
-                renderItem={({ item: session }) => (
-                    <View style={styles.sessionCard}>
-                        <View style={styles.sessionHeader}>
-                            <Text style={styles.questTitle}>{session.questTitle}</Text>
-
-                            <Text style={styles.xpText}>+{session.earnedXp} XP</Text>
-                        </View>
-
-                        <Text style={styles.sessionDetails}>
-                            Focused for {formatFocusedTime(session.actualSeconds ?? session.plannedMinutes * 60)}
-                            {" · "}
-                            {getOutcomeLabel(session.outcome)}
-                        </Text>
-
-                        <Text style={styles.plannedTimeText}>Planned duration: {session.plannedMinutes} minutes</Text>
-
-                        <Text style={styles.dateText}>{new Date(session.completedAt).toLocaleString()}</Text>
-
-                        <Text style={styles.sectionLabel}>Accomplished</Text>
-
-                        <Text style={styles.bodyText}>{session.accomplishment}</Text>
-
-                        {session.nextAction && (
-                            <>
-                                <Text style={styles.sectionLabel}>Next action</Text>
-
-                                <Text style={styles.bodyText}>{session.nextAction}</Text>
-                            </>
-                        )}
-                    </View>
-                )}
+                keyExtractor={(session, index) => `${session.completedAt}-${index}`}
+                renderItem={({ item }) => <FocusSessionHistoryCard session={item} />}
             />
         </View>
     );
@@ -121,62 +90,5 @@ const styles = StyleSheet.create({
         marginTop: 8,
         fontSize: 16,
         color: "#666666",
-    },
-    sessionList: {
-        paddingTop: 24,
-        paddingBottom: 48,
-        gap: 16,
-    },
-    emptyText: {
-        marginTop: 24,
-        fontSize: 16,
-        color: "#666666",
-        textAlign: "center",
-    },
-    sessionCard: {
-        padding: 18,
-        borderRadius: 12,
-        backgroundColor: "#ffffff",
-    },
-    sessionHeader: {
-        flexDirection: "row",
-        alignItems: "flex-start",
-        justifyContent: "space-between",
-        gap: 12,
-    },
-    questTitle: {
-        flex: 1,
-        fontSize: 18,
-        fontWeight: "700",
-    },
-    xpText: {
-        fontSize: 16,
-        fontWeight: "700",
-    },
-    sessionDetails: {
-        marginTop: 8,
-        fontSize: 14,
-        color: "#555555",
-    },
-    dateText: {
-        marginTop: 4,
-        fontSize: 13,
-        color: "#777777",
-    },
-    sectionLabel: {
-        marginTop: 16,
-        fontSize: 13,
-        fontWeight: "700",
-        color: "#555555",
-    },
-    bodyText: {
-        marginTop: 4,
-        fontSize: 15,
-        lineHeight: 22,
-    },
-    plannedTimeText: {
-        marginTop: 4,
-        fontSize: 13,
-        color: "#777777",
     },
 });
