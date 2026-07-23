@@ -7,6 +7,7 @@ import type { Journey, Quest } from "../../types/models";
 import { JOURNEYS_STORAGE_KEY, getQuestsStorageKey } from "../../constants/storageKeys";
 import { getJourneys, saveJourneys } from "../../services/storage/journeysStorage";
 import { getQuests, saveQuests } from "../../services/storage/questsStorage";
+import { QuestCard } from "../../components/journeys/QuestCard";
 
 export default function JourneyDetailsScreen() {
     const router = useRouter();
@@ -179,41 +180,13 @@ export default function JourneyDetailsScreen() {
 
             <View style={styles.questList}>
                 {quests.map((quest) => (
-                    <View key={quest.id} style={[styles.questCard, quest.status === "completed" && styles.completedQuestCard]}>
-                        {/* <Pressable style={styles.deleteButton} onPress={() => handleDeleteQuest(quest.id)}>
-                            <Text style={styles.deleteText}>Delete Quest</Text>
-                        </Pressable> */}
-
-                        <View style={styles.questHeader}>
-                            <Text style={styles.questTitle}>{quest.title}</Text>
-
-                            <View style={styles.questActions}>
-                                <Text style={[styles.statusText, quest.status === "completed" && styles.completedStatusText]}>
-                                    {quest.status === "completed" ? "Completed" : "Active"}
-                                </Text>
-
-                                <Pressable style={styles.deleteButton} onPress={() => handleDeleteQuest(quest.id)}>
-                                    <Text style={styles.deleteText}>Delete Quest</Text>
-                                </Pressable>
-                            </View>
-                        </View>
-
-                        {quest.lastAccomplishment && <Text style={styles.progressText}>Last session: {quest.lastAccomplishment}</Text>}
-
-                        {quest.status !== "completed" && quest.nextAction && <Text style={styles.nextActionText}>Next action: {quest.nextAction}</Text>}
-
-                        {quest.status !== "completed" && (
-                            <Pressable style={styles.startButton} onPress={() => handleOpenQuest(quest)}>
-                                <Text style={styles.startButtonText}>Start Session</Text>
-                            </Pressable>
-                        )}
-
-                        {quest.status === "completed" && (
-                            <Pressable style={styles.reopenButton} onPress={() => handleReopenQuest(quest.id)}>
-                                <Text style={styles.reopenButtonText}>Reopen Quest</Text>
-                            </Pressable>
-                        )}
-                    </View>
+                    <QuestCard
+                        key={quest.id}
+                        quest={quest}
+                        onStartSession={() => handleOpenQuest(quest)}
+                        onReopenQuest={() => handleReopenQuest(quest.id)}
+                        onDeleteQuest={() => handleDeleteQuest(quest.id)}
+                    />
                 ))}
             </View>
         </ScrollView>
@@ -234,11 +207,6 @@ const styles = StyleSheet.create({
     },
     description: {
         fontSize: 16,
-    },
-    idText: {
-        marginTop: 24,
-        fontSize: 12,
-        color: "#666666",
     },
     input: {
         marginTop: 24,
@@ -265,75 +233,6 @@ const styles = StyleSheet.create({
     questList: {
         marginTop: 24,
         gap: 12,
-    },
-    questCard: {
-        padding: 16,
-        borderRadius: 8,
-        backgroundColor: "#ffffff",
-    },
-    questTitle: {
-        flex: 1,
-        fontSize: 17,
-        fontWeight: "600",
-    },
-    startText: {
-        marginTop: 8,
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#555555",
-    },
-    completedQuestCard: {
-        opacity: 0.7,
-    },
-    questHeader: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 12,
-    },
-    statusText: {
-        fontSize: 13,
-        fontWeight: "600",
-        color: "#666666",
-    },
-    completedStatusText: {
-        color: "#2f7d32",
-    },
-    progressText: {
-        marginTop: 12,
-        fontSize: 14,
-        color: "#555555",
-    },
-    nextActionText: {
-        marginTop: 8,
-        fontSize: 14,
-        fontWeight: "600",
-    },
-    startButton: {
-        marginTop: 16,
-        paddingVertical: 12,
-        borderRadius: 8,
-        backgroundColor: "#222222",
-        alignItems: "center",
-    },
-    startButtonText: {
-        fontSize: 15,
-        fontWeight: "600",
-        color: "#ffffff",
-    },
-    deleteButton: {
-        marginTop: 12,
-        paddingVertical: 10,
-        alignItems: "center",
-    },
-    deleteText: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#b42318",
-    },
-    questActions: {
-        alignItems: "flex-end",
-        gap: 6,
     },
     progressCard: {
         marginTop: 20,
@@ -372,18 +271,5 @@ const styles = StyleSheet.create({
         marginTop: 10,
         fontSize: 14,
         color: "#666666",
-    },
-    reopenButton: {
-        marginTop: 16,
-        paddingVertical: 12,
-        borderWidth: 1,
-        borderColor: "#222222",
-        borderRadius: 8,
-        alignItems: "center",
-    },
-    reopenButtonText: {
-        fontSize: 15,
-        fontWeight: "600",
-        color: "#222222",
     },
 });
