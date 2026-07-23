@@ -10,6 +10,7 @@ import { clearActiveFocusSession, getActiveFocusSession, saveActiveFocusSession 
 import { FocusDurationSelector } from "../../components/focus/FocusDurationSelector";
 import { FocusTimerDisplay } from "../../components/focus/FocusTimerDisplay";
 import { FocusTimerControls } from "../../components/focus/FocusTimerControls";
+import { ActiveSessionNotice } from "../../components/focus/ActiveSessionNotice";
 
 const focusCompleteSound = require("../../assets/sounds/focus-complete.mp3");
 
@@ -304,13 +305,7 @@ export default function FocusScreen() {
 
             <FocusDurationSelector selectedMinutes={selectedMinutes} onSelectMinutes={setSelectedMinutes} disabled={hasSessionStarted} />
 
-            {sessionMessage && <Text style={styles.sessionMessage}>{sessionMessage}</Text>}
-
-            {existingActiveSession && (
-                <Pressable style={styles.returnButton} onPress={handleReturnToActiveSession}>
-                    <Text style={styles.returnButtonText}>Return to active session</Text>
-                </Pressable>
-            )}
+            <ActiveSessionNotice message={sessionMessage} showReturnButton={existingActiveSession !== null} onReturn={handleReturnToActiveSession} />
 
             {remainingSeconds !== null && <FocusTimerDisplay seconds={remainingSeconds} />}
 
@@ -343,26 +338,5 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 30,
         fontWeight: "700",
-    },
-
-    sessionMessage: {
-        marginTop: 16,
-        fontSize: 14,
-        lineHeight: 20,
-        color: "#b42318",
-        textAlign: "center",
-    },
-    returnButton: {
-        marginTop: 12,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        backgroundColor: "#222222",
-        alignItems: "center",
-    },
-    returnButtonText: {
-        fontSize: 15,
-        fontWeight: "600",
-        color: "#ffffff",
     },
 });
