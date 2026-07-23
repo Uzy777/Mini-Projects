@@ -9,6 +9,7 @@ import { getJourneys, saveJourneys } from "../../services/storage/journeysStorag
 import { getQuests, saveQuests } from "../../services/storage/questsStorage";
 import { QuestCard } from "../../components/journeys/QuestCard";
 import { JourneyProgressCard } from "../../components/journeys/JourneyProgressCard";
+import { AddQuestForm } from "../../components/journeys/AddQuestForm";
 
 export default function JourneyDetailsScreen() {
     const router = useRouter();
@@ -152,11 +153,7 @@ export default function JourneyDetailsScreen() {
 
             <JourneyProgressCard totalQuestCount={totalQuestCount} completedQuestCount={completedQuestCount} />
 
-            <TextInput style={styles.input} placeholder="What needs to be done?" value={questTitle} onChangeText={setQuestTitle} />
-
-            <Pressable style={styles.addButton} onPress={handleAddQuest}>
-                <Text style={styles.addButtonText}>Add Quest</Text>
-            </Pressable>
+            <AddQuestForm questTitle={questTitle} onChangeQuestTitle={setQuestTitle} onAddQuest={handleAddQuest} />
 
             <View style={styles.questList}>
                 {quests.map((quest) => (
@@ -187,28 +184,6 @@ const styles = StyleSheet.create({
     },
     description: {
         fontSize: 16,
-    },
-    input: {
-        marginTop: 24,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderWidth: 1,
-        borderColor: "#cccccc",
-        borderRadius: 8,
-        backgroundColor: "#ffffff",
-        fontSize: 16,
-    },
-    addButton: {
-        marginTop: 12,
-        paddingVertical: 14,
-        borderRadius: 8,
-        backgroundColor: "#222222",
-        alignItems: "center",
-    },
-    addButtonText: {
-        color: "#ffffff",
-        fontSize: 16,
-        fontWeight: "600",
     },
     questList: {
         marginTop: 24,
