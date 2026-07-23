@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-
 import type { Journey } from "../../types/models";
 import { JOURNEYS_STORAGE_KEY } from "../../constants/storageKeys";
 import { getJourneys, saveJourneys } from "../../services/storage/journeysStorage";
+import { JourneyCard } from "../../components/journeys/JourneyCard";
 
 export default function JourneyScreen() {
     const router = useRouter();
@@ -85,21 +86,12 @@ export default function JourneyScreen() {
 
             <View style={styles.journeyList}>
                 {journeys.map((journey) => (
-                    <View key={journey.id} style={styles.journeyCard}>
-                        <Pressable style={styles.journeyContent} onPress={() => handleOpenJourney(journey)}>
-                            <Text style={styles.journeyTitle}>{journey.title}</Text>
-                        </Pressable>
-
-                        <View style={styles.journeyActions}>
-                            <Text style={[styles.statusText, journey.status === "completed" && styles.completedStatusText]}>
-                                {journey.status === "completed" ? "Completed" : "Active"}
-                            </Text>
-
-                            <Pressable onPress={() => handleDeleteJourney(journey.id)}>
-                                <Text style={styles.deleteText}>Delete Journey</Text>
-                            </Pressable>
-                        </View>
-                    </View>
+                    <JourneyCard
+                        key={journey.id}
+                        journey={journey}
+                        onOpen={() => handleOpenJourney(journey)}
+                        onDelete={() => handleDeleteJourney(journey.id)}
+                    />
                 ))}
             </View>
         </ScrollView>
@@ -146,38 +138,5 @@ const styles = StyleSheet.create({
     journeyList: {
         marginTop: 24,
         gap: 12,
-    },
-    journeyCard: {
-        padding: 16,
-        borderRadius: 8,
-        backgroundColor: "#ffffff",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-    },
-    journeyTitle: {
-        fontSize: 18,
-        fontWeight: "600",
-    },
-    deleteText: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#b42318",
-    },
-    journeyContent: {
-        flex: 1,
-        paddingRight: 16,
-    },
-    journeyActions: {
-        alignItems: "flex-end",
-        gap: 6,
-    },
-    statusText: {
-        fontSize: 13,
-        fontWeight: "600",
-        color: "#666666",
-    },
-    completedStatusText: {
-        color: "#2f7d32",
     },
 });
