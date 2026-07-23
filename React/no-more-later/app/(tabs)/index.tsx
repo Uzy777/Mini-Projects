@@ -14,6 +14,7 @@ import { LevelProgressCard } from "../../components/home/LevelProgressCard";
 import { TodaySummaryCard } from "../../components/home/TodaySummaryCard";
 import { ContinueQuestCard } from "../../components/home/ContinueQuestCard";
 import { ActiveFocusSessionCard } from "../../components/home/ActiveFocusSessionCard";
+import { calculateCurrentStreak, calculateTodayFocusSummary, findLatestUnfinishedSession } from "../../utils/focusSessionStats";
 
 type FocusSessionSummary = {
     journeyId: string;
@@ -35,53 +36,6 @@ function getLocalDataKey(date: Date) {
     const day = String(date.getDay()).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
-}
-
-function calculateCurrentStreak(sessions: FocusSessionSummary[]) {
-    const sessionDateKeys = new Set(sessions.map((session) => getLocalDataKey(new Date(session.completedAt))));
-
-    const today = new Date();
-
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    let currentDate: Date;
-
-    if (sessionDateKeys.has(getLocalDataKey(today))) {
-        currentDate = new Date(today);
-    } else if (sessionDateKeys.has(getLocalDataKey(yesterday))) {
-        currentDate = new Date(yesterday);
-    } else {
-        return 0;
-    }
-
-    let streak = 0;
-
-    while (sessionDateKeys.has(getLocalDataKey(currentDate))) {
-        streak += 1;
-
-        currentDate.setDate(currentDate.getDate() - 1);
-    }
-
-    return streak;
-}
-
-function findLatestUnfinishedSession(sessions: FocusSessionSummary[]) {
-    const checkedQuestIds = new Set<string>();
-
-    for (const session of sessions) {
-        if (checkedQuestIds.has(session.questId)) {
-            continue;
-        }
-
-        checkedQuestIds.add(session.questId);
-
-        if (session.outcome !== "completed" && session.nextAction.trim()) {
-            return session;
-        }
-    }
-
-    return undefined;
 }
 
 export default function HomeScreen() {
@@ -147,25 +101,11 @@ export default function HomeScreen() {
 
     const activeSessionHasFinished = activeSession?.isRunning === true && activeSession.endTime !== null && activeSession.endTime <= Date.now();
 
-    const todayDate = new Date().toDateString();
+    const { sessionCount: todaySessionCount, focusedMinutes: todayFocusedMinutes } = calculateTodayFocusSummary(focusSessions);
 
     const currentStreak = calculateCurrentStreak(focusSessions);
 
     const latestUnfinishedSession = findLatestUnfinishedSession(focusSessions);
-
-    const todaysSessions = focusSessions.filter((session) => {
-        const sessionDate = new Date(session.completedAt).toDateString();
-
-        return sessionDate === todayDate;
-    });
-
-    const todayFocusedSeconds = todaysSessions.reduce((total, session) => {
-        const sessionSeconds = session.actualSeconds ?? session.plannedMinutes * 60;
-
-        return total + sessionSeconds;
-    }, 0);
-
-    const todayFocusedMinutes = Math.floor(todayFocusedSeconds / 60);
 
     function getActiveSessionStatus(): "In progress" | "Paused" | "Ready for review" | null {
         if (!activeSession) {
@@ -226,7 +166,7 @@ export default function HomeScreen() {
 
                 <LevelProgressCard level={level} xpIntoLevel={xpIntoLevel} xpRequired={xpRequired} />
 
-                <TodaySummaryCard sessionCount={todaysSessions.length} focusedMinutes={todayFocusedMinutes} />
+                <TodaySummaryCard sessionCount={todaySessionCount} focusedMinutes={todayFocusedMinutes} />
 
                 {!activeSession && latestUnfinishedSession && (
                     <ContinueQuestCard
