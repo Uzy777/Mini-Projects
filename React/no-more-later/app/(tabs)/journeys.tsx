@@ -7,6 +7,7 @@ import type { Journey } from "../../types/models";
 import { JOURNEYS_STORAGE_KEY } from "../../constants/storageKeys";
 import { getJourneys, saveJourneys } from "../../services/storage/journeysStorage";
 import { JourneyCard } from "../../components/journeys/JourneyCard";
+import { AddJourneyForm } from "../../components/journeys/AddJourneyForm";
 
 export default function JourneyScreen() {
     const router = useRouter();
@@ -78,11 +79,7 @@ export default function JourneyScreen() {
 
             <Text style={styles.description}>Your larger goals and projects will appear here.</Text>
 
-            <TextInput style={styles.input} placeholder="For example, organise the house" value={journeyTitle} onChangeText={setJourneyTitle} />
-
-            <Pressable style={styles.addButton} onPress={handleAddJourney}>
-                <Text style={styles.addButtonText}>Add Journey</Text>
-            </Pressable>
+            <AddJourneyForm journeyTitle={journeyTitle} onChangeJourneyTitle={setJourneyTitle} onAddJourney={handleAddJourney} />
 
             <View style={styles.journeyList}>
                 {journeys.map((journey) => (
@@ -112,28 +109,6 @@ const styles = StyleSheet.create({
     },
     description: {
         fontSize: 16,
-    },
-    input: {
-        marginTop: 24,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderWidth: 1,
-        borderColor: "#cccccc",
-        borderRadius: 8,
-        backgroundColor: "#ffffff",
-        fontSize: 16,
-    },
-    addButton: {
-        marginTop: 12,
-        paddingVertical: 14,
-        borderRadius: 8,
-        backgroundColor: "#222222",
-        alignItems: "center",
-    },
-    addButtonText: {
-        color: "#ffffff",
-        fontSize: 16,
-        fontWeight: "600",
     },
     journeyList: {
         marginTop: 24,
