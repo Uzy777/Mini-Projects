@@ -7,6 +7,7 @@ import { useAudioPlayer } from "expo-audio";
 import { ACTIVE_FOCUS_SESSION_STORAGE_KEY } from "../../constants/storageKeys";
 import { ActiveFocusSession } from "../../types/models";
 import { clearActiveFocusSession, getActiveFocusSession, saveActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
+import { FocusDurationSelector } from "../../components/focus/FocusDurationSelector";
 
 const focusCompleteSound = require("../../assets/sounds/focus-complete.mp3");
 
@@ -293,21 +294,7 @@ export default function FocusScreen() {
 
             <Text style={styles.title}>{questTitle ?? "Untitled Quest"}</Text>
 
-            <Text style={styles.sectionTitle}>Choose a session length</Text>
-
-            <View style={styles.durationOptions}>
-                <Pressable style={[styles.durationButton, selectedMinutes === 15 && styles.selectedDurationButton]} onPress={() => setSelectedMinutes(15)}>
-                    <Text style={[styles.durationText, selectedMinutes === 15 && styles.selectedDurationText]}>15 min</Text>
-                </Pressable>
-
-                <Pressable style={[styles.durationButton, selectedMinutes === 25 && styles.selectedDurationButton]} onPress={() => setSelectedMinutes(25)}>
-                    <Text style={[styles.durationText, selectedMinutes === 25 && styles.selectedDurationText]}>25 min</Text>
-                </Pressable>
-
-                <Pressable style={[styles.durationButton, selectedMinutes === 50 && styles.selectedDurationButton]} onPress={() => setSelectedMinutes(50)}>
-                    <Text style={[styles.durationText, selectedMinutes === 50 && styles.selectedDurationText]}>50 min</Text>
-                </Pressable>
-            </View>
+            <FocusDurationSelector selectedMinutes={selectedMinutes} onSelectMinutes={setSelectedMinutes} disabled={isRunning} />
 
             {sessionMessage && <Text style={styles.sessionMessage}>{sessionMessage}</Text>}
 
@@ -370,46 +357,6 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 30,
         fontWeight: "700",
-    },
-    description: {
-        marginTop: 16,
-        fontSize: 16,
-    },
-    idText: {
-        marginTop: 24,
-        fontSize: 12,
-        color: "#666666",
-    },
-    sectionTitle: {
-        marginTop: 32,
-        marginBottom: 12,
-        fontSize: 16,
-        fontWeight: "600",
-    },
-    durationOptions: {
-        flexDirection: "row",
-        gap: 12,
-    },
-    durationButton: {
-        flex: 1,
-        paddingVertical: 14,
-        borderWidth: 1,
-        borderColor: "#cccccc",
-        borderRadius: 8,
-        backgroundColor: "#ffffff",
-        alignItems: "center",
-    },
-    selectedDurationButton: {
-        borderColor: "#222222",
-        backgroundColor: "#222222",
-    },
-    durationText: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: "#222222",
-    },
-    selectedDurationText: {
-        color: "#ffffff",
     },
     startButton: {
         marginTop: 24,
