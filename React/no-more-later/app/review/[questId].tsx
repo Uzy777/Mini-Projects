@@ -11,6 +11,7 @@ import { getQuests, saveQuests } from "../../services/storage/questsStorage";
 import { addFocusSession } from "../../services/storage/focusSessionsStorage";
 import { getTotalXp, saveTotalXp } from "../../services/storage/xpStorage";
 import { SessionOutcomeSelector } from "../../components/review/SessionOutcomeSelector";
+import { ReviewResultCard } from "../../components/review/ReviewResultCard";
 
 function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction: string) {
     let totalXp = 0;
@@ -234,30 +235,14 @@ export default function ReviewSessionScreen() {
                 <Text style={styles.completeButtonText}>{isSubmitting ? "Saving..." : earnedXp !== null ? "Review Completed" : "Complete Review"}</Text>
             </Pressable>
 
-            {earnedXp !== null && (
-                <View style={styles.rewardContainer}>
-                    <Text style={styles.rewardTitle}>Review complete!</Text>
-
-                    <Text style={styles.rewardXp}>+{earnedXp} XP</Text>
-
-                    {totalXp !== null && <Text style={styles.totalXp}>Total XP: {totalXp}</Text>}
-
-                    {reachedLevel !== null && (
-                        <View style={styles.levelUpContainer}>
-                            <Text style={styles.levelUpTitle}>Level Up!</Text>
-
-                            <Text style={styles.levelUpText}>You reached Level {reachedLevel}</Text>
-                        </View>
-                    )}
-
-                    <Pressable style={styles.returnButton} onPress={handleReturnToJourneys}>
-                        <Text style={styles.returnButtonText}>Return to Journeys</Text>
-                    </Pressable>
-
-                    <Pressable style={styles.historyButton} onPress={handleViewHistory}>
-                        <Text style={styles.historyButtonText}>View Session History</Text>
-                    </Pressable>
-                </View>
+            {earnedXp !== null && totalXp !== null && (
+                <ReviewResultCard
+                    earnedXp={earnedXp}
+                    totalXp={totalXp}
+                    reachedLevel={reachedLevel}
+                    onReturnToJourneys={handleReturnToJourneys}
+                    onViewHistory={handleViewHistory}
+                />
             )}
 
             {/* <Text style={styles.idText}>Quest ID: {questId}</Text> */}
@@ -329,68 +314,7 @@ const styles = StyleSheet.create({
         fontWeight: "600",
         color: "#ffffff",
     },
-    rewardContainer: {
-        marginTop: 24,
-        padding: 20,
-        borderRadius: 8,
-        backgroundColor: "#ffffff",
-        alignItems: "center",
-    },
-    rewardTitle: {
-        fontSize: 18,
-        fontWeight: "600",
-    },
-    rewardXp: {
-        marginTop: 8,
-        fontSize: 32,
-        fontWeight: "700",
-    },
     disabledButton: {
         opacity: 0.5,
-    },
-    totalXp: {
-        marginTop: 8,
-        fontSize: 16,
-        color: "#666666",
-    },
-    returnButton: {
-        marginTop: 20,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        backgroundColor: "#222222",
-        alignItems: "center",
-    },
-    returnButtonText: {
-        fontSize: 15,
-        fontWeight: "600",
-        color: "#ffffff",
-    },
-    historyButton: {
-        marginTop: 10,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        alignItems: "center",
-    },
-    historyButtonText: {
-        fontSize: 15,
-        fontWeight: "600",
-        color: "#222222",
-    },
-    levelUpContainer: {
-        marginTop: 18,
-        padding: 16,
-        borderRadius: 10,
-        backgroundColor: "#f0f0f0",
-        alignItems: "center",
-    },
-    levelUpTitle: {
-        fontSize: 21,
-        fontWeight: "700",
-    },
-    levelUpText: {
-        marginTop: 4,
-        fontSize: 15,
-        color: "#555555",
     },
 });
