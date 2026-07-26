@@ -12,6 +12,7 @@ import { addFocusSession } from "../../services/storage/focusSessionsStorage";
 import { getTotalXp, saveTotalXp } from "../../services/storage/xpStorage";
 import { SessionOutcomeSelector } from "../../components/review/SessionOutcomeSelector";
 import { ReviewResultCard } from "../../components/review/ReviewResultCard";
+import { ReviewForm } from "../../components/review/ReviewForm";
 
 function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction: string) {
     let totalXp = 0;
@@ -183,6 +184,8 @@ export default function ReviewSessionScreen() {
         }
     }
 
+    const showNextAction = selectedOutcome !== null && selectedOutcome !== "completed";
+
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
             <Stack.Screen
@@ -201,39 +204,15 @@ export default function ReviewSessionScreen() {
 
             <SessionOutcomeSelector selectedOutcome={selectedOutcome} onSelectOutcome={setSelectedOutcome} />
 
-            <Text style={styles.inputLabel}>What did you accomplish?</Text>
-
-            <TextInput
-                style={styles.textArea}
-                placeholder="Describe what you worked on..."
-                value={accomplishment}
-                onChangeText={setAccomplishment}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
+            <ReviewForm
+                accomplishment={accomplishment}
+                nextAction={nextAction}
+                showNextAction={showNextAction}
+                errorMessage={validationMessage}
+                onChangeAccomplishment={setAccomplishment}
+                onChangeNextAction={setNextAction}
+                onSubmit={handleCompleteReview}
             />
-
-            <Text style={styles.inputLabel}>What should happen next?</Text>
-
-            <TextInput
-                style={styles.textArea}
-                placeholder="Write the exact next step..."
-                value={nextAction}
-                onChangeText={setNextAction}
-                multiline
-                numberOfLines={3}
-                textAlignVertical="top"
-            />
-
-            {validationMessage && <Text style={styles.validationMessage}>{validationMessage}</Text>}
-
-            <Pressable
-                style={[styles.completeButton, (isSubmitting || earnedXp !== null) && styles.disabledButton]}
-                onPress={handleCompleteReview}
-                disabled={isSubmitting || earnedXp !== null}
-            >
-                <Text style={styles.completeButtonText}>{isSubmitting ? "Saving..." : earnedXp !== null ? "Review Completed" : "Complete Review"}</Text>
-            </Pressable>
 
             {earnedXp !== null && totalXp !== null && (
                 <ReviewResultCard
@@ -280,41 +259,5 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         fontSize: 18,
         fontWeight: "600",
-    },
-    inputLabel: {
-        marginTop: 24,
-        marginBottom: 8,
-        fontSize: 16,
-        fontWeight: "600",
-    },
-    textArea: {
-        minHeight: 100,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderWidth: 1,
-        borderColor: "#cccccc",
-        borderRadius: 8,
-        backgroundColor: "#ffffff",
-        fontSize: 16,
-    },
-    validationMessage: {
-        marginTop: 16,
-        fontSize: 14,
-        color: "#b42318",
-    },
-    completeButton: {
-        marginTop: 24,
-        paddingVertical: 16,
-        borderRadius: 8,
-        backgroundColor: "#222222",
-        alignItems: "center",
-    },
-    completeButtonText: {
-        fontSize: 17,
-        fontWeight: "600",
-        color: "#ffffff",
-    },
-    disabledButton: {
-        opacity: 0.5,
     },
 });
