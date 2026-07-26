@@ -13,22 +13,7 @@ import { getTotalXp, saveTotalXp } from "../../services/storage/xpStorage";
 import { SessionOutcomeSelector } from "../../components/review/SessionOutcomeSelector";
 import { ReviewResultCard } from "../../components/review/ReviewResultCard";
 import { ReviewForm } from "../../components/review/ReviewForm";
-
-function calculateSessionXp(minutes: number, outcome: SessionOutcome, nextAction: string) {
-    let totalXp = 0;
-
-    totalXp += 5;
-
-    if (outcome === "completed") {
-        totalXp += 10;
-    }
-
-    if (outcome !== "completed" && nextAction.trim()) {
-        totalXp += 5;
-    }
-
-    return totalXp;
-}
+import { calculateSessionXp } from "../../utils/sessionXp";
 
 export default function ReviewSessionScreen() {
     const router = useRouter();
