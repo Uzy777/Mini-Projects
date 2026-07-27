@@ -11,6 +11,7 @@ import { FocusDurationSelector } from "../../components/focus/FocusDurationSelec
 import { FocusTimerDisplay } from "../../components/focus/FocusTimerDisplay";
 import { FocusTimerControls } from "../../components/focus/FocusTimerControls";
 import { ActiveSessionNotice } from "../../components/focus/ActiveSessionNotice";
+import { calculateActualFocusedSeconds, getRemainingSecondsFromEndTime } from "../../utils/focusTimer";
 
 const focusCompleteSound = require("../../assets/sounds/focus-complete.mp3");
 
@@ -56,7 +57,7 @@ export default function FocusScreen() {
                 setSelectedMinutes(storedSession.selectedMinutes);
 
                 if (storedSession.isRunning && storedSession.endTime !== null) {
-                    const restoredRemainingSeconds = Math.max(0, Math.ceil((storedSession.endTime - Date.now()) / 1000));
+                    const restoredRemainingSeconds = getRemainingSecondsFromEndTime(storedSession.endTime);
 
                     setRemainingSeconds(restoredRemainingSeconds);
 
@@ -98,7 +99,7 @@ export default function FocusScreen() {
         function updateRemainingTime() {
             const millisecondsRemaining = activeEndTime - Date.now();
 
-            const nextRemainingSeconds = Math.max(0, Math.ceil(millisecondsRemaining / 1000));
+            const nextRemainingSeconds = getRemainingSecondsFromEndTime(activeEndTime);
 
             setRemainingSeconds(nextRemainingSeconds);
 
@@ -234,12 +235,12 @@ export default function FocusScreen() {
     }
 
     async function handleEndSessionEarly() {
-        const plannedSeconds = selectedMinutes * 60;
-
-        const accurateRemainingSeconds =
-            isRunning && endTime !== null ? Math.max(0, Math.ceil((endTime - Date.now()) / 1000)) : (remainingSeconds ?? plannedSeconds);
-
-        const actualSeconds = Math.max(0, plannedSeconds - accurateRemainingSeconds);
+        const actualSeconds = calculateActualFocusedSeconds({
+            selectedMinutes,
+            remainingSeconds,
+            isRunning,
+            endTime,
+        });
 
         setIsRunning(false);
         setEndTime(null);
