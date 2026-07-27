@@ -2,12 +2,13 @@ import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from "expo-rou
 import { useState, useCallback } from "react";
 import { StyleSheet, Text, View, ScrollView } from "react-native";
 
-import type { Quest } from "../../types/models";
+import type { Journey, Quest } from "../../types/models";
 import { getJourneys, saveJourneys } from "../../services/storage/journeysStorage";
 import { getQuests, saveQuests } from "../../services/storage/questsStorage";
 import { QuestCard } from "../../components/journeys/QuestCard";
 import { JourneyProgressCard } from "../../components/journeys/JourneyProgressCard";
 import { AddQuestForm } from "../../components/journeys/AddQuestForm";
+import { confirmDelete } from "../../utils/confirmDelete";
 
 export default function JourneyDetailsScreen() {
     const router = useRouter();
@@ -88,6 +89,16 @@ export default function JourneyDetailsScreen() {
         }
     }
 
+    function handleRequestDeleteQuest(quest: Quest) {
+        confirmDelete({
+            title: "Delete Quest?",
+            message: `Are you sure you want to delete "${quest.title}"?`,
+            onConfirm: () => {
+                void handleDeleteQuest(quest.id);
+            },
+        });
+    }
+
     function handleOpenQuest(quest: Quest) {
         if (quest.status === "completed") {
             return;
@@ -158,7 +169,7 @@ export default function JourneyDetailsScreen() {
                         quest={quest}
                         onStartSession={() => handleOpenQuest(quest)}
                         onReopenQuest={() => handleReopenQuest(quest.id)}
-                        onDeleteQuest={() => handleDeleteQuest(quest.id)}
+                        onDeleteQuest={() => handleRequestDeleteQuest(quest)}
                     />
                 ))}
             </View>
