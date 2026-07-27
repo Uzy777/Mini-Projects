@@ -14,6 +14,7 @@ import { SessionOutcomeSelector } from "../../components/review/SessionOutcomeSe
 import { ReviewResultCard } from "../../components/review/ReviewResultCard";
 import { ReviewForm } from "../../components/review/ReviewForm";
 import { calculateSessionXp } from "../../utils/sessionXp";
+import { getReviewValidationMessage } from "../../utils/reviewValidation";
 
 export default function ReviewSessionScreen() {
     const router = useRouter();
@@ -52,20 +53,23 @@ export default function ReviewSessionScreen() {
         const trimmedAccomplishment = accomplishment.trim();
         const trimmedNextAction = nextAction.trim();
 
+        const reviewValidationMessage = getReviewValidationMessage({
+            selectedOutcome,
+            accomplishment,
+            nextAction,
+        });
+
+        if (reviewValidationMessage) {
+            setValidationMessage(reviewValidationMessage);
+
+            return;
+        }
+
         if (!selectedOutcome) {
-            setValidationMessage("Choose a session outcome.");
             return;
         }
 
-        if (!trimmedAccomplishment) {
-            setValidationMessage("Describe what you accomplished.");
-            return;
-        }
-
-        if (selectedOutcome !== "completed" && !trimmedNextAction) {
-            setValidationMessage("Add the next action.");
-            return;
-        }
+        setValidationMessage("");
 
         setValidationMessage("");
         setIsSubmitting(true);
