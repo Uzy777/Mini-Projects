@@ -15,6 +15,7 @@ import { ReviewResultCard } from "../../components/review/ReviewResultCard";
 import { ReviewForm } from "../../components/review/ReviewForm";
 import { calculateSessionXp } from "../../utils/sessionXp";
 import { getReviewValidationMessage } from "../../utils/reviewValidation";
+import { updateReviewProgress } from "../../services/reviewProgressService";
 
 export default function ReviewSessionScreen() {
     const router = useRouter();
@@ -106,42 +107,14 @@ export default function ReviewSessionScreen() {
             const updatedLevel = calculateLevel(updatedTotalXp);
 
             await saveTotalXp(updatedTotalXp);
-            const currentQuests = await getQuests(journeyId);
 
-            const updatedQuestStatus: QuestStatus = selectedOutcome === "completed" ? "completed" : "active";
-
-            const updatedQuests = currentQuests.map((quest): Quest => {
-                if (quest.id !== questId) {
-                    return quest;
-                }
-
-                return {
-                    ...quest,
-                    status: updatedQuestStatus,
-                    lastAccomplishment: trimmedAccomplishment,
-                    nextAction: selectedOutcome === "completed" ? "" : trimmedNextAction,
-                };
+            await updateReviewProgress({
+                journeyId,
+                questId,
+                outcome: selectedOutcome,
+                accomplishment: trimmedAccomplishment,
+                nextAction: trimmedNextAction,
             });
-
-            const allQuestsCompleted = updatedQuests.length > 0 && updatedQuests.every((quest) => quest.status === "completed");
-
-            await saveQuests(journeyId, updatedQuests);
-            const currentJourneys = await getJourneys();
-
-            const updatedJourneyStatus: JourneyStatus = allQuestsCompleted ? "completed" : "active";
-
-            const updatedJourneys = currentJourneys.map((journey): Journey => {
-                if (journey.id !== journeyId) {
-                    return journey;
-                }
-
-                return {
-                    ...journey,
-                    status: updatedJourneyStatus,
-                };
-            });
-
-            await saveJourneys(updatedJourneys);
 
             await addFocusSession(newSessionRecord);
 
