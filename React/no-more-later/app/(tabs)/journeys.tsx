@@ -6,6 +6,7 @@ import type { Journey } from "../../types/models";
 import { getJourneys, saveJourneys } from "../../services/storage/journeysStorage";
 import { JourneyCard } from "../../components/journeys/JourneyCard";
 import { AddJourneyForm } from "../../components/journeys/AddJourneyForm";
+import { confirmDelete } from "../../utils/confirmDelete";
 
 export default function JourneyScreen() {
     const router = useRouter();
@@ -65,6 +66,16 @@ export default function JourneyScreen() {
         }
     }
 
+    function handleRequestDeleteJourney(journey: Journey) {
+        confirmDelete({
+            title: "Delete Journey?",
+            message: `Are you sure you want to delete "${journey.title}"?`,
+            onConfirm: () => {
+                void handleDeleteJourney(journey.id);
+            },
+        });
+    }
+
     function handleOpenJourney(journey: Journey) {
         router.push({ pathname: "/journeys/[id]", params: { id: journey.id, title: journey.title } });
     }
@@ -83,7 +94,7 @@ export default function JourneyScreen() {
                         key={journey.id}
                         journey={journey}
                         onOpen={() => handleOpenJourney(journey)}
-                        onDelete={() => handleDeleteJourney(journey.id)}
+                        onDelete={() => handleRequestDeleteJourney(journey)}
                     />
                 ))}
             </View>
