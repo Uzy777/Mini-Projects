@@ -7,6 +7,7 @@ import { getJourneys, saveJourneys } from "../../services/storage/journeysStorag
 import { JourneyCard } from "../../components/journeys/JourneyCard";
 import { AddJourneyForm } from "../../components/journeys/AddJourneyForm";
 import { confirmDelete } from "../../utils/confirmDelete";
+import { clearQuestsForJourney } from "../../services/storage/questsStorage";
 
 export default function JourneyScreen() {
     const router = useRouter();
@@ -60,6 +61,8 @@ export default function JourneyScreen() {
 
         try {
             await saveJourneys(updatedJourneys);
+
+            await clearQuestsForJourney(journeyId);
             setJourneys(updatedJourneys);
         } catch (error) {
             console.error("Failed to delete Journey:", error);

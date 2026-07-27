@@ -13,3 +13,7 @@ export async function getQuests(journeyId: string): Promise<Quest[]> {
 export async function saveQuests(journeyId: string, quests: Quest[]): Promise<void> {
     await AsyncStorage.setItem(getQuestsStorageKey(journeyId), JSON.stringify(quests));
 }
+
+export async function clearQuestsForJourney(journeyId: string): Promise<void> {
+    await AsyncStorage.removeItem(getQuestsStorageKey(journeyId));
+}
