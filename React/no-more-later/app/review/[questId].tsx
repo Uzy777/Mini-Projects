@@ -1,13 +1,9 @@
 import { useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { StyleSheet, Text, ScrollView } from "react-native";
 
 import { calculateLevel } from "../../utils/level";
-import type { Journey, JourneyStatus, Quest, QuestStatus, SessionOutcome, FocusSessionRecord } from "../../types/models";
-import { FOCUS_SESSIONS_STORAGE_KEY, JOURNEYS_STORAGE_KEY, TOTAL_XP_STORAGE_KEY, getQuestsStorageKey } from "../../constants/storageKeys";
-import { getJourneys, saveJourneys } from "../../services/storage/journeysStorage";
-import { getQuests, saveQuests } from "../../services/storage/questsStorage";
+import type { SessionOutcome, FocusSessionRecord } from "../../types/models";
 import { addFocusSession } from "../../services/storage/focusSessionsStorage";
 import { getTotalXp, saveTotalXp } from "../../services/storage/xpStorage";
 import { SessionOutcomeSelector } from "../../components/review/SessionOutcomeSelector";

@@ -1,10 +1,8 @@
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useRouter, useFocusEffect } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-native";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
 
 import type { Journey } from "../../types/models";
-import { JOURNEYS_STORAGE_KEY } from "../../constants/storageKeys";
 import { getJourneys, saveJourneys } from "../../services/storage/journeysStorage";
 import { JourneyCard } from "../../components/journeys/JourneyCard";
 import { AddJourneyForm } from "../../components/journeys/AddJourneyForm";
@@ -43,8 +41,6 @@ export default function JourneyScreen() {
             title: trimmedTitle,
             status: "active",
         };
-
-        // setJourneys((currentJourneys) => [...currentJourneys, newJourney]);
 
         const updatedJourneys = [...journeys, newJourney];
 

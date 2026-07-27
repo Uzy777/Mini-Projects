@@ -1,10 +1,8 @@
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { useState, useEffect, useCallback } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Pressable, StyleSheet, Text, TextInput, View, ScrollView } from "react-native";
+import { useState, useCallback } from "react";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
 
-import type { Journey, Quest } from "../../types/models";
-import { JOURNEYS_STORAGE_KEY, getQuestsStorageKey } from "../../constants/storageKeys";
+import type { Quest } from "../../types/models";
 import { getJourneys, saveJourneys } from "../../services/storage/journeysStorage";
 import { getQuests, saveQuests } from "../../services/storage/questsStorage";
 import { QuestCard } from "../../components/journeys/QuestCard";
@@ -37,8 +35,6 @@ export default function JourneyDetailsScreen() {
     const totalQuestCount = quests.length;
 
     const completedQuestCount = quests.filter((quest) => quest.status === "completed").length;
-
-    const journeyProgressPercentage = totalQuestCount > 0 ? (completedQuestCount / totalQuestCount) * 100 : 0;
 
     async function handleAddQuest() {
         const trimmedTitle = questTitle.trim();

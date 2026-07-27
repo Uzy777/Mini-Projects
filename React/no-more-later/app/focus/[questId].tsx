@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { StyleSheet, Text, View } from "react-native";
 import { useAudioPlayer } from "expo-audio";
 
-import { ACTIVE_FOCUS_SESSION_STORAGE_KEY } from "../../constants/storageKeys";
 import { ActiveFocusSession } from "../../types/models";
 import { clearActiveFocusSession, getActiveFocusSession, saveActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
 import { FocusDurationSelector } from "../../components/focus/FocusDurationSelector";
@@ -14,14 +12,6 @@ import { ActiveSessionNotice } from "../../components/focus/ActiveSessionNotice"
 import { calculateActualFocusedSeconds, getRemainingSecondsFromEndTime } from "../../utils/focusTimer";
 
 const focusCompleteSound = require("../../assets/sounds/focus-complete.mp3");
-
-// async function saveActiveFocusSession(session: ActiveFocusSession) {
-//     try {
-//         await AsyncStorage.setItem(ACTIVE_FOCUS_SESSION_STORAGE_KEY, JSON.stringify(session));
-//     } catch (error) {
-//         console.error("Failed to save active focus session:", error);
-//     }
-// }
 
 export default function FocusScreen() {
     const router = useRouter();
@@ -278,15 +268,6 @@ export default function FocusScreen() {
             },
         });
     }
-
-    function formatTime(totalSeconds: number) {
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-
-        return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-    }
-
-    const displayedSeconds = remainingSeconds ?? selectedMinutes * 60;
 
     const hasSessionStarted = remainingSeconds !== null;
 

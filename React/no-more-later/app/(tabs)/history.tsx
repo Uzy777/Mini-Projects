@@ -1,45 +1,10 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
-import type { SessionOutcome } from "../../types/models";
-import { FOCUS_SESSIONS_STORAGE_KEY } from "../../constants/storageKeys";
 import type { FocusSessionRecord } from "../../types/models";
 import { getFocusSessions } from "../../services/storage/focusSessionsStorage";
 import { FocusSessionHistoryCard } from "../../components/history/FocusSessionHistoryCard";
-
-function getOutcomeLabel(outcome: SessionOutcome) {
-    if (outcome === "completed") {
-        return "Quest completed";
-    }
-
-    if (outcome === "progressed") {
-        return "Made progress";
-    }
-
-    if (outcome === "blocked") {
-        return "Got blocked";
-    }
-
-    return "Stopped early";
-}
-
-function formatFocusedTime(totalSeconds: number) {
-    const minutes = Math.floor(totalSeconds / 60);
-
-    const seconds = totalSeconds % 60;
-
-    if (minutes === 0) {
-        return `${seconds} sec`;
-    }
-
-    if (seconds === 0) {
-        return `${minutes} min`;
-    }
-
-    return `${minutes} min ${seconds} sec`;
-}
 
 export default function HistoryScreen() {
     const [sessions, setSessions] = useState<FocusSessionRecord[]>([]);
