@@ -8,6 +8,9 @@ import { JourneyCard } from "../../components/journeys/JourneyCard";
 import { AddJourneyForm } from "../../components/journeys/AddJourneyForm";
 import { confirmDelete } from "../../utils/confirmDelete";
 import { clearQuestsForJourney } from "../../services/storage/questsStorage";
+import { getActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
+
+import { showMessage } from "../../utils/showMessage";
 
 export default function JourneyScreen() {
     const router = useRouter();
@@ -69,14 +72,30 @@ export default function JourneyScreen() {
         }
     }
 
-    function handleRequestDeleteJourney(journey: Journey) {
-        confirmDelete({
-            title: "Delete Journey?",
-            message: `Are you sure you want to delete "${journey.title}"?`,
-            onConfirm: () => {
-                void handleDeleteJourney(journey.id);
-            },
-        });
+    async function handleRequestDeleteJourney(journey: Journey) {
+        try {
+            const activeSession = await getActiveFocusSession();
+
+            const journeyHasActiveSession = activeSession?.journeyId === journey.id;
+
+            if (journeyHasActiveSession) {
+                showMessage("Journey has an active session", `End or review the Focus Session for "${activeSession.questTitle}" before deleting this Journey.`);
+
+                return;
+            }
+
+            confirmDelete({
+                title: "Delete Journey?",
+                message: `Are you sure you want to delete "${journey.title}"?`,
+                onConfirm: () => {
+                    void handleDeleteJourney(journey.id);
+                },
+            });
+        } catch (error) {
+            console.error("Failed to check active Focus Session:", error);
+
+            showMessage("Journey could not be deleted", "The active Focus Session could not be checked. Please try again.");
+        }
     }
 
     function handleOpenJourney(journey: Journey) {
@@ -97,7 +116,9 @@ export default function JourneyScreen() {
                         key={journey.id}
                         journey={journey}
                         onOpen={() => handleOpenJourney(journey)}
-                        onDelete={() => handleRequestDeleteJourney(journey)}
+                        onDelete={() => {
+                            void handleRequestDeleteJourney(journey);
+                        }}
                     />
                 ))}
             </View>
