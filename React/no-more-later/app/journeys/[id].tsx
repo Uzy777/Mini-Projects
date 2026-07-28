@@ -9,6 +9,9 @@ import { QuestCard } from "../../components/journeys/QuestCard";
 import { JourneyProgressCard } from "../../components/journeys/JourneyProgressCard";
 import { AddQuestForm } from "../../components/journeys/AddQuestForm";
 import { confirmDelete } from "../../utils/confirmDelete";
+import { getActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
+
+import { showMessage } from "../../utils/showMessage";
 
 export default function JourneyDetailsScreen() {
     const router = useRouter();
@@ -89,14 +92,30 @@ export default function JourneyDetailsScreen() {
         }
     }
 
-    function handleRequestDeleteQuest(quest: Quest) {
-        confirmDelete({
-            title: "Delete Quest?",
-            message: `Are you sure you want to delete "${quest.title}"?`,
-            onConfirm: () => {
-                void handleDeleteQuest(quest.id);
-            },
-        });
+    async function handleRequestDeleteQuest(quest: Quest) {
+        try {
+            const activeSession = await getActiveFocusSession();
+
+            const questHasActiveSession = activeSession?.questId === quest.id;
+
+            if (questHasActiveSession) {
+                showMessage("Quest has an active session", `End or review the Focus Session for "${quest.title}" before deleting this Quest.`);
+
+                return;
+            }
+
+            confirmDelete({
+                title: "Delete Quest?",
+                message: `Are you sure you want to delete "${quest.title}"?`,
+                onConfirm: () => {
+                    void handleDeleteQuest(quest.id);
+                },
+            });
+        } catch (error) {
+            console.error("Failed to check active Focus Session:", error);
+
+            showMessage("Quest could not be deleted", "The active Focus Session could not be checked. Please try again.");
+        }
     }
 
     function handleOpenQuest(quest: Quest) {
@@ -169,7 +188,9 @@ export default function JourneyDetailsScreen() {
                         quest={quest}
                         onStartSession={() => handleOpenQuest(quest)}
                         onReopenQuest={() => handleReopenQuest(quest.id)}
-                        onDeleteQuest={() => handleRequestDeleteQuest(quest)}
+                        onDeleteQuest={() => {
+                            void handleRequestDeleteQuest(quest);
+                        }}
                     />
                 ))}
             </View>
