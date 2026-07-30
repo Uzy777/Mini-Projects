@@ -12,6 +12,7 @@ import { ReviewForm } from "../../components/review/ReviewForm";
 import { calculateSessionXp } from "../../utils/sessionXp";
 import { getReviewValidationMessage } from "../../utils/reviewValidation";
 import { updateReviewProgress } from "../../services/reviewProgressService";
+import { clearActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
 
 export default function ReviewSessionScreen() {
     const router = useRouter();
@@ -112,6 +113,8 @@ export default function ReviewSessionScreen() {
             });
 
             await addFocusSession(newSessionRecord);
+
+            await clearActiveFocusSession();
 
             setEarnedXp(sessionXp);
             setTotalXp(updatedTotalXp);
