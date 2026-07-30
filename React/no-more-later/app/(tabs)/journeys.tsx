@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useRouter, useFocusEffect } from "expo-router";
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Alert, Platform } from "react-native";
 
 import type { Journey } from "../../types/models";
 import { getJourneys, saveJourneys } from "../../services/storage/journeysStorage";
@@ -38,6 +38,16 @@ export default function JourneyScreen() {
         const trimmedTitle = journeyTitle.trim();
 
         if (!trimmedTitle) {
+            return;
+        }
+
+        const normalisedTitle = trimmedTitle.toLowerCase();
+
+        const journeyAlreadyExists = journeys.some((journey) => journey.title.trim().toLowerCase() === normalisedTitle);
+
+        if (journeyAlreadyExists) {
+            showMessage("Journey already exists", `A Journey named "${trimmedTitle}" already exists.`);
+
             return;
         }
 
