@@ -10,8 +10,8 @@ import { JourneyProgressCard } from "../../components/journeys/JourneyProgressCa
 import { AddQuestForm } from "../../components/journeys/AddQuestForm";
 import { confirmDelete } from "../../utils/confirmDelete";
 import { getActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
-
 import { showMessage } from "../../utils/showMessage";
+import { syncJourneyStatusFromQuests } from "../../services/journeyStatusService";
 
 export default function JourneyDetailsScreen() {
     const router = useRouter();
@@ -85,6 +85,8 @@ export default function JourneyDetailsScreen() {
 
         try {
             await saveQuests(id, updatedQuests);
+
+            await syncJourneyStatusFromQuests(id, updatedQuests);
 
             setQuests(updatedQuests);
         } catch (error) {
