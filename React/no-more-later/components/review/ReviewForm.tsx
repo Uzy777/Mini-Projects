@@ -7,6 +7,7 @@ type ReviewFormProps = {
     errorMessage: string;
     onChangeAccomplishment: (value: string) => void;
     onChangeNextAction: (value: string) => void;
+    isSubmitting: boolean;
     onSubmit: () => void;
 };
 
@@ -17,6 +18,7 @@ export function ReviewForm({
     errorMessage,
     onChangeAccomplishment,
     onChangeNextAction,
+    isSubmitting,
     onSubmit,
 }: ReviewFormProps) {
     return (
@@ -49,8 +51,8 @@ export function ReviewForm({
 
             {errorMessage && <Text style={styles.errorMessage}>{errorMessage}</Text>}
 
-            <Pressable style={styles.submitButton} onPress={onSubmit}>
-                <Text style={styles.submitButtonText}>Complete Review</Text>
+            <Pressable style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]} onPress={onSubmit} disabled={isSubmitting}>
+                <Text style={styles.submitButtonText}>{isSubmitting ? "Saving..." : "Complete Review"}</Text>
             </Pressable>
         </View>
     );
@@ -99,5 +101,8 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "600",
         color: "#ffffff",
+    },
+    submitButtonDisabled: {
+        opacity: 0.6,
     },
 });

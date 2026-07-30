@@ -48,6 +48,7 @@ export default function ReviewSessionScreen() {
         }
 
         const trimmedAccomplishment = accomplishment.trim();
+
         const trimmedNextAction = nextAction.trim();
 
         const reviewValidationMessage = getReviewValidationMessage({
@@ -67,33 +68,31 @@ export default function ReviewSessionScreen() {
         }
 
         setValidationMessage("");
-
-        setValidationMessage("");
         setIsSubmitting(true);
 
-        const sessionMinutes = Number(plannedMinutes ?? 0);
-
-        const focusedSeconds = Number(actualSeconds ?? sessionMinutes * 60);
-
-        const sessionXp = calculateSessionXp(sessionMinutes, selectedOutcome, trimmedNextAction);
-
-        const completedAt = new Date().toISOString();
-
-        const newSessionRecord: FocusSessionRecord = {
-            id: Date.now().toString(),
-            journeyId,
-            questId,
-            questTitle: questTitle ?? "Untitled Quest",
-            plannedMinutes: sessionMinutes,
-            actualSeconds: focusedSeconds,
-            outcome: selectedOutcome,
-            accomplishment: trimmedAccomplishment,
-            nextAction: trimmedNextAction,
-            earnedXp: sessionXp,
-            completedAt,
-        };
-
         try {
+            const sessionMinutes = Number(plannedMinutes ?? 0);
+
+            const focusedSeconds = Number(actualSeconds ?? sessionMinutes * 60);
+
+            const sessionXp = calculateSessionXp(sessionMinutes, selectedOutcome, trimmedNextAction);
+
+            const completedAt = new Date().toISOString();
+
+            const newSessionRecord: FocusSessionRecord = {
+                id: Date.now().toString(),
+                journeyId,
+                questId,
+                questTitle: questTitle ?? "Untitled Quest",
+                plannedMinutes: sessionMinutes,
+                actualSeconds: focusedSeconds,
+                outcome: selectedOutcome,
+                accomplishment: trimmedAccomplishment,
+                nextAction: trimmedNextAction,
+                earnedXp: sessionXp,
+                completedAt,
+            };
+
             const currentTotalXp = await getTotalXp();
 
             const updatedTotalXp = currentTotalXp + sessionXp;
@@ -135,8 +134,9 @@ export default function ReviewSessionScreen() {
                 totalXp: updatedTotalXp,
             });
         } catch (error) {
-            console.error("Failed to save XP:", error);
-            setValidationMessage("Could not save your XP. Try again.");
+            console.error("Failed to complete Review:", error);
+
+            setValidationMessage("Could not save your Review. Try again.");
         } finally {
             setIsSubmitting(false);
         }
@@ -169,6 +169,7 @@ export default function ReviewSessionScreen() {
                 errorMessage={validationMessage}
                 onChangeAccomplishment={setAccomplishment}
                 onChangeNextAction={setNextAction}
+                isSubmitting={isSubmitting}
                 onSubmit={handleCompleteReview}
             />
 
