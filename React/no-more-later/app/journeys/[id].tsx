@@ -47,6 +47,16 @@ export default function JourneyDetailsScreen() {
             return;
         }
 
+        const normalisedTitle = trimmedTitle.toLowerCase();
+
+        const questAlreadyExists = quests.some((quest) => quest.title.trim().toLowerCase() === normalisedTitle);
+
+        if (questAlreadyExists) {
+            showMessage("Quest already exists", `A Quest named "${trimmedTitle}" already exists in this Journey.`);
+
+            return;
+        }
+
         const newQuest: Quest = {
             id: Date.now().toString(),
             title: trimmedTitle,
