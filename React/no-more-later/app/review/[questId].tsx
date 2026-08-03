@@ -72,16 +72,6 @@ export default function ReviewSessionScreen() {
         setIsSubmitting(true);
 
         try {
-            const activeSession = await getActiveFocusSession();
-
-            const reviewMatchesActiveSession = activeSession?.questId === questId && activeSession?.journeyId === journeyId;
-
-            if (!reviewMatchesActiveSession) {
-                setValidationMessage("This Focus Session has already been reviewed or is no longer active.");
-
-                return;
-            }
-
             const sessionMinutes = Number(plannedMinutes ?? 0);
 
             const focusedSeconds = Number(actualSeconds ?? sessionMinutes * 60);
@@ -134,18 +124,6 @@ export default function ReviewSessionScreen() {
             } else {
                 setReachedLevel(null);
             }
-
-            console.log({
-                journeyId,
-                questId,
-                questTitle,
-                plannedMinutes,
-                outcome: selectedOutcome,
-                accomplishment: trimmedAccomplishment,
-                nextAction: trimmedNextAction,
-                earnedXp: sessionXp,
-                totalXp: updatedTotalXp,
-            });
         } catch (error) {
             console.error("Failed to complete Review:", error);
 
