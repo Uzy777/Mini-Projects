@@ -1,6 +1,6 @@
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useState, useCallback } from "react";
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Pressable } from "react-native";
 
 import type { Journey, Quest } from "../../types/models";
 import { getJourneys, saveJourneys } from "../../services/storage/journeysStorage";
@@ -13,12 +13,33 @@ import { getActiveFocusSession } from "../../services/storage/activeFocusSession
 import { showMessage } from "../../utils/showMessage";
 import { syncJourneyStatusFromQuests } from "../../services/journeyStatusService";
 
+type QuestFilter = "all" | "active" | "completed";
+
+const questFilters: {
+    label: string;
+    value: QuestFilter;
+}[] = [
+    {
+        label: "All",
+        value: "all",
+    },
+    {
+        label: "Active",
+        value: "active",
+    },
+    {
+        label: "Completed",
+        value: "completed",
+    },
+];
+
 export default function JourneyDetailsScreen() {
     const router = useRouter();
 
     const { id, title } = useLocalSearchParams<{ id: string; title?: string }>();
     const [questTitle, setQuestTitle] = useState("");
     const [quests, setQuests] = useState<Quest[]>([]);
+    const [selectedQuestFilter, setSelectedQuestFilter] = useState<QuestFilter>("all");
 
     useFocusEffect(
         useCallback(() => {
@@ -181,6 +202,16 @@ export default function JourneyDetailsScreen() {
         }
     }
 
+    const filteredQuests = quests.filter((quest) => {
+        if (selectedQuestFilter === "all") {
+            return true;
+        }
+
+        const questStatus = quest.status ?? "active";
+
+        return questStatus === selectedQuestFilter;
+    });
+
     return (
         <ScrollView style={styles.container}>
             <Stack.Screen options={{ title: title ?? "Journey" }} />
@@ -193,8 +224,24 @@ export default function JourneyDetailsScreen() {
 
             <AddQuestForm questTitle={questTitle} onChangeQuestTitle={setQuestTitle} onAddQuest={handleAddQuest} />
 
+            <View style={styles.filterRow}>
+                {questFilters.map((filter) => {
+                    const isSelected = selectedQuestFilter === filter.value;
+
+                    return (
+                        <Pressable
+                            key={filter.value}
+                            style={[styles.filterButton, isSelected && styles.filterButtonSelected]}
+                            onPress={() => setSelectedQuestFilter(filter.value)}
+                        >
+                            <Text style={[styles.filterButtonText, isSelected && styles.filterButtonTextSelected]}>{filter.label}</Text>
+                        </Pressable>
+                    );
+                })}
+            </View>
+
             <View style={styles.questList}>
-                {quests.map((quest) => (
+                {filteredQuests.map((quest) => (
                     <QuestCard
                         key={quest.id}
                         quest={quest}
@@ -228,5 +275,36 @@ const styles = StyleSheet.create({
     questList: {
         marginTop: 24,
         gap: 12,
+    },
+    filterRow: {
+        flexDirection: "row",
+        gap: 8,
+        marginVertical: 16,
+    },
+
+    filterButton: {
+        flex: 1,
+        alignItems: "center",
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderWidth: 1,
+        borderColor: "#d4d4d4",
+        borderRadius: 10,
+        backgroundColor: "#ffffff",
+    },
+
+    filterButtonSelected: {
+        backgroundColor: "#171717",
+        borderColor: "#171717",
+    },
+
+    filterButtonText: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#525252",
+    },
+
+    filterButtonTextSelected: {
+        color: "#ffffff",
     },
 });
