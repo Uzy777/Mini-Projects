@@ -241,17 +241,23 @@ export default function JourneyDetailsScreen() {
             </View>
 
             <View style={styles.questList}>
-                {filteredQuests.map((quest) => (
-                    <QuestCard
-                        key={quest.id}
-                        quest={quest}
-                        onStartSession={() => handleOpenQuest(quest)}
-                        onReopenQuest={() => handleReopenQuest(quest.id)}
-                        onDeleteQuest={() => {
-                            void handleRequestDeleteQuest(quest);
-                        }}
-                    />
-                ))}
+                {quests.length === 0 ? (
+                    <Text style={styles.emptyText}>No Quests yet.</Text>
+                ) : filteredQuests.length === 0 ? (
+                    <Text style={styles.emptyText}>{selectedQuestFilter === "completed" ? "No completed Quests." : "No active Quests."}</Text>
+                ) : (
+                    filteredQuests.map((quest) => (
+                        <QuestCard
+                            key={quest.id}
+                            quest={quest}
+                            onStartSession={() => handleOpenQuest(quest)}
+                            onReopenQuest={() => handleReopenQuest(quest.id)}
+                            onDeleteQuest={() => {
+                                void handleRequestDeleteQuest(quest);
+                            }}
+                        />
+                    ))
+                )}
             </View>
         </ScrollView>
     );
@@ -306,5 +312,12 @@ const styles = StyleSheet.create({
 
     filterButtonTextSelected: {
         color: "#ffffff",
+    },
+    emptyText: {
+        marginTop: 24,
+        textAlign: "center",
+        fontSize: 15,
+        lineHeight: 22,
+        color: "#737373",
     },
 });
