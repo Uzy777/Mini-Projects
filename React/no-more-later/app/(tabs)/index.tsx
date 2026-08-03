@@ -13,6 +13,7 @@ import { TodaySummaryCard } from "../../components/home/TodaySummaryCard";
 import { ContinueQuestCard } from "../../components/home/ContinueQuestCard";
 import { ActiveFocusSessionCard } from "../../components/home/ActiveFocusSessionCard";
 import { calculateCurrentStreak, calculateTodayFocusSummary, findLatestUnfinishedSession } from "../../utils/focusSessionStats";
+import { spacing } from "../../constants/design";
 
 export default function HomeScreen() {
     const router = useRouter();
@@ -137,14 +138,15 @@ export default function HomeScreen() {
 
     return (
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-            <View style={styles.pageContent}>
+            {/* <View style={styles.pageContent}> */}
+            <View style={styles.contentSections}>
                 <HomeHeader currentStreak={currentStreak} />
 
                 <LevelProgressCard level={level} xpIntoLevel={xpIntoLevel} xpRequired={xpRequired} />
 
                 <TodaySummaryCard sessionCount={todaySessionCount} focusedMinutes={todayFocusedMinutes} />
 
-                {!activeSession && latestUnfinishedSession && (
+                {/* {!activeSession && latestUnfinishedSession && (
                     <ContinueQuestCard
                         questTitle={latestUnfinishedSession.questTitle}
                         nextAction={latestUnfinishedSession.nextAction}
@@ -154,7 +156,17 @@ export default function HomeScreen() {
 
                 {activeSession && activeSessionStatus && (
                     <ActiveFocusSessionCard questTitle={activeSession.questTitle} status={activeSessionStatus} onReturn={handleReturnToActiveSession} />
-                )}
+                )} */}
+
+                {activeSession && activeSessionStatus ? (
+                    <ActiveFocusSessionCard questTitle={activeSession.questTitle} status={activeSessionStatus} onReturn={handleReturnToActiveSession} />
+                ) : latestUnfinishedSession ? (
+                    <ContinueQuestCard
+                        questTitle={latestUnfinishedSession.questTitle}
+                        nextAction={latestUnfinishedSession.nextAction}
+                        onContinue={handleContinueQuest}
+                    />
+                ) : null}
 
                 {!activeSession && (
                     <Pressable style={styles.startButton} onPress={handleStartSession}>
@@ -192,5 +204,8 @@ const styles = StyleSheet.create({
         fontWeight: "600",
         color: "#ffffff",
         textAlign: "center",
+    },
+    contentSections: {
+        gap: spacing.md,
     },
 });
