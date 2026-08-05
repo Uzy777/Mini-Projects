@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 
+import { colours, radius, spacing } from "../../constants/design";
+
 type TodaySummaryCardProps = {
     sessionCount: number;
     focusedMinutes: number;
@@ -7,58 +9,84 @@ type TodaySummaryCardProps = {
 
 export function TodaySummaryCard({ sessionCount, focusedMinutes }: TodaySummaryCardProps) {
     return (
-        <View style={styles.todayCard}>
-            <Text style={styles.todayTitle}>Today</Text>
+        <View style={styles.card}>
+            <Text style={styles.label}>TODAY</Text>
 
-            <View style={styles.todayStats}>
-                <View style={styles.statItem}>
-                    <Text style={styles.statValue}>{sessionCount}</Text>
+            <View style={styles.focusRow}>
+                <Text style={styles.focusValue}>{focusedMinutes}</Text>
 
-                    <Text style={styles.statLabel}>{sessionCount === 1 ? "session" : "sessions"}</Text>
-                </View>
+                <Text style={styles.focusLabel}>{focusedMinutes === 1 ? "focused minute" : "focused minutes"}</Text>
+            </View>
 
-                <View style={styles.statItem}>
-                    <Text style={styles.statValue}>{focusedMinutes}</Text>
+            <View style={styles.divider} />
 
-                    <Text style={styles.statLabel}>focused minutes</Text>
-                </View>
+            <View style={styles.sessionsRow}>
+                <Text style={styles.sessionsLabel}>Sessions completed</Text>
+
+                <Text style={styles.sessionsValue}>{sessionCount}</Text>
             </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    todayCard: {
+    card: {
         width: "100%",
-        marginTop: 20,
-        padding: 18,
-        borderRadius: 12,
-        backgroundColor: "#ffffff",
+        padding: spacing.lg,
+        borderWidth: 1,
+        borderColor: colours.border,
+        borderRadius: radius.lg,
+        backgroundColor: colours.surface,
     },
-    todayTitle: {
+
+    label: {
+        fontSize: 12,
+        fontWeight: "700",
+        letterSpacing: 0.7,
+        color: colours.textMuted,
+    },
+
+    focusRow: {
+        flexDirection: "row",
+        alignItems: "baseline",
+        gap: spacing.sm,
+        marginTop: spacing.md,
+    },
+
+    focusValue: {
+        fontSize: 36,
+        lineHeight: 42,
+        fontWeight: "800",
+        color: colours.text,
+    },
+
+    focusLabel: {
+        flexShrink: 1,
+        fontSize: 15,
+        fontWeight: "600",
+        color: colours.textMuted,
+    },
+
+    divider: {
+        height: 1,
+        marginVertical: spacing.lg,
+        backgroundColor: colours.border,
+    },
+
+    sessionsRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+    },
+
+    sessionsLabel: {
+        fontSize: 14,
+        color: colours.textMuted,
+    },
+
+    sessionsValue: {
         fontSize: 18,
         fontWeight: "700",
-    },
-    todayStats: {
-        marginTop: 16,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        gap: 20,
-    },
-    statItem: {
-        flex: 1,
-        borderRadius: 10,
-        paddingVertical: 16,
-        paddingHorizontal: 12,
-        backgroundColor: "#f2f2f2",
-    },
-    statValue: {
-        fontSize: 24,
-        fontWeight: "700",
-    },
-    statLabel: {
-        marginTop: 4,
-        fontSize: 13,
-        color: "#666666",
+        color: colours.primary,
     },
 });
