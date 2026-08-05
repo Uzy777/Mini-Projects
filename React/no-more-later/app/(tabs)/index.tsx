@@ -13,7 +13,7 @@ import { TodaySummaryCard } from "../../components/home/TodaySummaryCard";
 import { ContinueQuestCard } from "../../components/home/ContinueQuestCard";
 import { ActiveFocusSessionCard } from "../../components/home/ActiveFocusSessionCard";
 import { calculateCurrentStreak, calculateTodayFocusSummary, findLatestUnfinishedSession } from "../../utils/focusSessionStats";
-import { spacing } from "../../constants/design";
+import { colours, spacing } from "../../constants/design";
 
 export default function HomeScreen() {
     const router = useRouter();
@@ -137,7 +137,7 @@ export default function HomeScreen() {
     }
 
     return (
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+        <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
             {/* <View style={styles.pageContent}> */}
             <View style={styles.contentSections}>
                 <HomeHeader currentStreak={currentStreak} />
@@ -179,19 +179,13 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-    scrollView: {
-        flex: 1,
-        backgroundColor: "#f5f5f5",
-    },
-    pageContent: {
-        width: "100%",
-        maxWidth: 700,
-        alignSelf: "center",
-    },
     contentContainer: {
-        paddingHorizontal: 24,
-        paddingTop: 48,
-        paddingBottom: 120,
+        width: "100%",
+        maxWidth: 720,
+        alignSelf: "center",
+        paddingHorizontal: spacing.lg,
+        paddingTop: spacing.lg,
+        paddingBottom: 48,
     },
     startButton: {
         paddingHorizontal: 24,
@@ -207,5 +201,9 @@ const styles = StyleSheet.create({
     },
     contentSections: {
         gap: spacing.md,
+    },
+    screen: {
+        flex: 1,
+        backgroundColor: colours.background,
     },
 });
