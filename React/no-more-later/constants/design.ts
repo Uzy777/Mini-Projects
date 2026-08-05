@@ -10,6 +10,7 @@ export const colours = {
     primary: "#4f46e5",
     primaryPressed: "#4338ca",
     primarySoft: "#eef2ff",
+    primaryBorder: "#c7d2fe",
 
     success: "#15803d",
     successSoft: "#dcfce7",
