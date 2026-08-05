@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { colours, radius, spacing } from "../../constants/design";
+
 type ActiveSessionStatus = "In progress" | "Paused" | "Ready for review";
 
 type ActiveFocusSessionCardProps = {
@@ -9,56 +11,95 @@ type ActiveFocusSessionCardProps = {
 };
 
 export function ActiveFocusSessionCard({ questTitle, status, onReturn }: ActiveFocusSessionCardProps) {
-    const buttonText = status === "Ready for review" ? "Review Session" : "Return to Session";
+    const actionText = status === "Ready for review" ? "Review session" : "Return to session";
 
     return (
-        <View style={styles.activeSessionCard}>
-            <Text style={styles.activeSessionLabel}>Active Focus Session</Text>
+        <Pressable style={({ pressed }) => [styles.card, pressed && styles.cardPressed]} onPress={onReturn}>
+            <View style={styles.topRow}>
+                <Text style={styles.label}>ACTIVE FOCUS SESSION</Text>
 
-            <Text style={styles.activeSessionTitle}>{questTitle}</Text>
+                <View style={styles.statusBadge}>
+                    <Text style={styles.statusText}>{status}</Text>
+                </View>
+            </View>
 
-            <Text style={styles.activeSessionStatus}>{status}</Text>
+            <Text style={styles.title}>{questTitle}</Text>
 
-            <Pressable style={styles.activeSessionButton} onPress={onReturn}>
-                <Text style={styles.activeSessionButtonText}>{buttonText}</Text>
-            </Pressable>
-        </View>
+            <View style={styles.actionRow}>
+                <Text style={styles.actionText}>{actionText}</Text>
+
+                <Text style={styles.arrow}>→</Text>
+            </View>
+        </Pressable>
     );
 }
 
 const styles = StyleSheet.create({
-    activeSessionCard: {
+    card: {
         width: "100%",
-        marginTop: 20,
-        padding: 18,
-        borderRadius: 12,
-        backgroundColor: "#ffffff",
+        padding: spacing.lg,
+        borderWidth: 1,
+        borderColor: colours.primaryBorder,
+        borderRadius: radius.lg,
+        backgroundColor: colours.primarySoft,
     },
-    activeSessionLabel: {
-        fontSize: 13,
-        fontWeight: "600",
-        color: "#666666",
+
+    cardPressed: {
+        opacity: 0.78,
     },
-    activeSessionTitle: {
-        marginTop: 6,
-        fontSize: 18,
-        fontWeight: "700",
-    },
-    activeSessionStatus: {
-        marginTop: 8,
-        fontSize: 14,
-        color: "#555555",
-    },
-    activeSessionButton: {
-        marginTop: 16,
-        paddingVertical: 12,
-        borderRadius: 8,
-        backgroundColor: "#222222",
+
+    topRow: {
+        flexDirection: "row",
         alignItems: "center",
+        justifyContent: "space-between",
+        gap: spacing.sm,
+        marginBottom: spacing.md,
     },
-    activeSessionButtonText: {
-        fontSize: 15,
+
+    label: {
+        flexShrink: 1,
+        fontSize: 12,
+        fontWeight: "700",
+        letterSpacing: 0.7,
+        color: colours.primary,
+    },
+
+    statusBadge: {
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: radius.pill,
+        backgroundColor: colours.surface,
+    },
+
+    statusText: {
+        fontSize: 12,
         fontWeight: "600",
-        color: "#ffffff",
+        color: colours.primary,
+    },
+
+    title: {
+        fontSize: 21,
+        lineHeight: 27,
+        fontWeight: "700",
+        color: colours.text,
+    },
+
+    actionRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginTop: spacing.lg,
+    },
+
+    actionText: {
+        fontSize: 15,
+        fontWeight: "700",
+        color: colours.primary,
+    },
+
+    arrow: {
+        fontSize: 21,
+        fontWeight: "700",
+        color: colours.primary,
     },
 });
