@@ -11,7 +11,7 @@ import { clearQuestsForJourney } from "../../../services/storage/questsStorage";
 import { getActiveFocusSession } from "../../../services/storage/activeFocusSessionStorage";
 import { showMessage } from "../../../utils/showMessage";
 import { clearNoMoreLaterStorage } from "../../../services/storage/resetAppStorage";
-import { colours, spacing } from "../../../constants/design";
+import { colours, spacing, radius } from "../../../constants/design";
 
 type JourneyFilter = "all" | "active" | "completed";
 
@@ -174,7 +174,7 @@ export default function JourneyScreen() {
 
             <AddJourneyForm journeyTitle={journeyTitle} onChangeJourneyTitle={setJourneyTitle} onAddJourney={handleAddJourney} />
 
-            <View style={styles.filterRow}>
+            <View style={styles.filterContainer}>
                 {journeyFilters.map((filter) => {
                     const isSelected = selectedFilter === filter.value;
 
@@ -213,33 +213,6 @@ export default function JourneyScreen() {
 }
 
 const styles = StyleSheet.create({
-    filterRow: {
-        flexDirection: "row",
-        gap: 8,
-        marginVertical: 16,
-    },
-    filterButton: {
-        flex: 1,
-        alignItems: "center",
-        paddingVertical: 10,
-        paddingHorizontal: 12,
-        borderWidth: 1,
-        borderColor: "#d4d4d4",
-        borderRadius: 10,
-        backgroundColor: "#ffffff",
-    },
-    filterButtonSelected: {
-        backgroundColor: "#171717",
-        borderColor: "#171717",
-    },
-    filterButtonText: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#525252",
-    },
-    filterButtonTextSelected: {
-        color: "#ffffff",
-    },
     emptyText: {
         marginTop: 24,
         textAlign: "center",
@@ -277,5 +250,39 @@ const styles = StyleSheet.create({
     journeyList: {
         gap: spacing.md,
         marginTop: spacing.md,
+    },
+    filterContainer: {
+        width: "100%",
+        flexDirection: "row",
+        gap: spacing.xs,
+        marginTop: spacing.lg,
+        padding: spacing.xs,
+        borderWidth: 1,
+        borderColor: colours.border,
+        borderRadius: radius.md,
+        backgroundColor: colours.surface,
+    },
+
+    filterButton: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 10,
+        paddingHorizontal: spacing.sm,
+        borderRadius: radius.sm,
+    },
+
+    filterButtonSelected: {
+        backgroundColor: colours.primary,
+    },
+
+    filterButtonText: {
+        fontSize: 13,
+        fontWeight: "700",
+        color: colours.textMuted,
+    },
+
+    filterButtonTextSelected: {
+        color: colours.surface,
     },
 });
