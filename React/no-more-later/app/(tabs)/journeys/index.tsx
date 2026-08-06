@@ -11,6 +11,7 @@ import { clearQuestsForJourney } from "../../../services/storage/questsStorage";
 import { getActiveFocusSession } from "../../../services/storage/activeFocusSessionStorage";
 import { showMessage } from "../../../utils/showMessage";
 import { clearNoMoreLaterStorage } from "../../../services/storage/resetAppStorage";
+import { colours, spacing } from "../../../constants/design";
 
 type JourneyFilter = "all" | "active" | "completed";
 
@@ -156,18 +157,20 @@ export default function JourneyScreen() {
     }
 
     return (
-        <ScrollView style={styles.container}>
-            <Pressable
+        <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+            {/* <Pressable
                 onPress={() => {
                     void clearNoMoreLaterStorage();
                 }}
             >
                 <Text>Reset all app data</Text>
-            </Pressable>
+            </Pressable> */}
 
-            <Text style={styles.title}>Journeys</Text>
+            <View style={styles.header}>
+                <Text style={styles.title}>Journeys</Text>
 
-            <Text style={styles.description}>Your larger goals and projects will appear here.</Text>
+                <Text style={styles.subtitle}>Choose a goal and keep moving it forward.</Text>
+            </View>
 
             <AddJourneyForm journeyTitle={journeyTitle} onChangeJourneyTitle={setJourneyTitle} onAddJourney={handleAddJourney} />
 
@@ -210,24 +213,6 @@ export default function JourneyScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 24,
-        backgroundColor: "#f5f5f5",
-    },
-    title: {
-        fontSize: 32,
-        fontWeight: "700",
-        marginTop: 48,
-        marginBottom: 8,
-    },
-    description: {
-        fontSize: 16,
-    },
-    journeyList: {
-        marginTop: 24,
-        gap: 12,
-    },
     filterRow: {
         flexDirection: "row",
         gap: 8,
@@ -261,5 +246,36 @@ const styles = StyleSheet.create({
         fontSize: 15,
         lineHeight: 22,
         color: "#737373",
+    },
+    screen: {
+        flex: 1,
+        backgroundColor: colours.background,
+    },
+    contentContainer: {
+        width: "100%",
+        maxWidth: 720,
+        alignSelf: "center",
+        paddingHorizontal: spacing.lg,
+        paddingTop: spacing.lg,
+        paddingBottom: 48,
+    },
+    header: {
+        marginBottom: spacing.lg,
+    },
+    title: {
+        fontSize: 30,
+        lineHeight: 36,
+        fontWeight: "800",
+        color: colours.text,
+    },
+    subtitle: {
+        marginTop: spacing.sm,
+        fontSize: 15,
+        lineHeight: 22,
+        color: colours.textMuted,
+    },
+    journeyList: {
+        gap: spacing.md,
+        marginTop: spacing.md,
     },
 });
