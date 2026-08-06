@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 
+import { colours, radius, spacing } from "../../constants/design";
+
 type JourneyProgressCardProps = {
     totalQuestCount: number;
     completedQuestCount: number;
@@ -8,78 +10,127 @@ type JourneyProgressCardProps = {
 export function JourneyProgressCard({ totalQuestCount, completedQuestCount }: JourneyProgressCardProps) {
     const progressPercentage = totalQuestCount > 0 ? Math.round((completedQuestCount / totalQuestCount) * 100) : 0;
 
+    const journeyIsCompleted = totalQuestCount > 0 && completedQuestCount === totalQuestCount;
+
     return (
-        <View style={styles.progressCard}>
-            <Text style={styles.progressTitle}>Journey progress</Text>
+        <View style={styles.card}>
+            <View style={styles.header}>
+                <Text style={styles.label}>JOURNEY PROGRESS</Text>
 
-            <View style={styles.progressSummary}>
-                <Text style={styles.progressText}>
-                    {completedQuestCount} of {totalQuestCount} {totalQuestCount === 1 ? "Quest" : "Quests"} completed
-                </Text>
-
-                <Text style={styles.progressPercentage}>{progressPercentage}%</Text>
+                <View style={[styles.percentageBadge, journeyIsCompleted && styles.completedPercentageBadge]}>
+                    <Text style={[styles.percentageText, journeyIsCompleted && styles.completedPercentageText]}>{progressPercentage}%</Text>
+                </View>
             </View>
 
-            <View style={styles.progressTrack}>
-                <View
-                    style={[
-                        styles.progressFill,
-                        {
-                            width: `${progressPercentage}%` as `${number}%`,
-                        },
-                    ]}
-                />
-            </View>
+            {totalQuestCount === 0 ? (
+                <View style={styles.emptyState}>
+                    <Text style={styles.emptyText}>Add your first Quest to begin making progress.</Text>
+                </View>
+            ) : (
+                <>
+                    <Text style={styles.summaryText}>
+                        {completedQuestCount} of {totalQuestCount} {totalQuestCount === 1 ? "Quest" : "Quests"} completed
+                    </Text>
 
-            {totalQuestCount === 0 && <Text style={styles.emptyProgressText}>Add your first Quest to begin making progress.</Text>}
+                    <View style={styles.progressTrack}>
+                        <View
+                            style={[
+                                styles.progressFill,
+                                journeyIsCompleted && styles.completedProgressFill,
+                                {
+                                    width: `${progressPercentage}%` as `${number}%`,
+                                },
+                            ]}
+                        />
+                    </View>
+                </>
+            )}
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    progressCard: {
+    card: {
         width: "100%",
-        marginTop: 20,
-        padding: 18,
-        borderRadius: 12,
-        backgroundColor: "#ffffff",
+        padding: spacing.lg,
+        borderWidth: 1,
+        borderColor: colours.border,
+        borderRadius: radius.lg,
+        backgroundColor: colours.surface,
     },
-    progressTitle: {
-        fontSize: 18,
-        fontWeight: "700",
-    },
-    progressSummary: {
-        marginTop: 14,
+
+    header: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: 12,
+        gap: spacing.md,
     },
-    progressText: {
+
+    label: {
         flex: 1,
-        fontSize: 14,
-        color: "#555555",
-    },
-    progressPercentage: {
-        fontSize: 15,
+        fontSize: 12,
         fontWeight: "700",
+        letterSpacing: 0.7,
+        color: colours.textMuted,
     },
+
+    percentageBadge: {
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: radius.pill,
+        backgroundColor: colours.primarySoft,
+    },
+
+    percentageText: {
+        fontSize: 13,
+        fontWeight: "800",
+        color: colours.primary,
+    },
+
+    completedPercentageBadge: {
+        backgroundColor: colours.successSoft,
+    },
+
+    completedPercentageText: {
+        color: colours.success,
+    },
+
+    summaryText: {
+        marginTop: spacing.lg,
+        fontSize: 15,
+        lineHeight: 21,
+        color: colours.text,
+    },
+
     progressTrack: {
         width: "100%",
         height: 10,
-        marginTop: 12,
-        borderRadius: 5,
-        backgroundColor: "#dddddd",
+        marginTop: spacing.md,
+        borderRadius: radius.pill,
+        backgroundColor: colours.primarySoft,
         overflow: "hidden",
     },
+
     progressFill: {
         height: "100%",
-        borderRadius: 5,
-        backgroundColor: "#222222",
+        borderRadius: radius.pill,
+        backgroundColor: colours.primary,
     },
-    emptyProgressText: {
-        marginTop: 10,
-        fontSize: 13,
-        color: "#666666",
+
+    completedProgressFill: {
+        backgroundColor: colours.success,
+    },
+
+    emptyState: {
+        marginTop: spacing.lg,
+        padding: spacing.md,
+        borderRadius: radius.md,
+        backgroundColor: colours.background,
+    },
+
+    emptyText: {
+        fontSize: 14,
+        lineHeight: 20,
+        color: colours.textMuted,
     },
 });
