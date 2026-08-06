@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
+import { colours, radius, spacing } from "../../constants/design";
+
 type AddJourneyFormProps = {
     journeyTitle: string;
     onChangeJourneyTitle: (title: string) => void;
@@ -11,7 +13,7 @@ export function AddJourneyForm({ journeyTitle, onChangeJourneyTitle, onAddJourne
 
     return (
         <View style={styles.formCard}>
-            <Text style={styles.formTitle}>Create a Journey</Text>
+            <Text style={styles.formLabel}>NEW JOURNEY</Text>
 
             <Text style={styles.formDescription}>Add a larger goal that you want to make steady progress towards.</Text>
 
@@ -19,12 +21,18 @@ export function AddJourneyForm({ journeyTitle, onChangeJourneyTitle, onAddJourne
                 style={styles.input}
                 value={journeyTitle}
                 onChangeText={onChangeJourneyTitle}
-                placeholder="Enter a Journey"
+                placeholder="What do you want to achieve?"
+                placeholderTextColor={colours.textMuted}
+                selectionColor={colours.primary}
                 returnKeyType="done"
                 onSubmitEditing={titleIsEmpty ? undefined : onAddJourney}
             />
 
-            <Pressable style={[styles.addButton, titleIsEmpty && styles.disabledButton]} onPress={onAddJourney} disabled={titleIsEmpty}>
+            <Pressable
+                style={({ pressed }) => [styles.addButton, titleIsEmpty && styles.disabledButton, pressed && !titleIsEmpty && styles.addButtonPressed]}
+                onPress={onAddJourney}
+                disabled={titleIsEmpty}
+            >
                 <Text style={[styles.addButtonText, titleIsEmpty && styles.disabledButtonText]}>Add Journey</Text>
             </Pressable>
         </View>
@@ -34,48 +42,63 @@ export function AddJourneyForm({ journeyTitle, onChangeJourneyTitle, onAddJourne
 const styles = StyleSheet.create({
     formCard: {
         width: "100%",
-        marginTop: 24,
-        padding: 18,
-        borderRadius: 12,
-        backgroundColor: "#ffffff",
+        padding: spacing.lg,
+        borderWidth: 1,
+        borderColor: colours.border,
+        borderRadius: radius.lg,
+        backgroundColor: colours.surface,
     },
-    formTitle: {
-        fontSize: 18,
+
+    formLabel: {
+        fontSize: 12,
         fontWeight: "700",
+        letterSpacing: 0.7,
+        color: colours.primary,
     },
+
     formDescription: {
-        marginTop: 6,
+        marginTop: spacing.sm,
         fontSize: 14,
         lineHeight: 20,
-        color: "#666666",
+        color: colours.textMuted,
     },
+
     input: {
         width: "100%",
-        marginTop: 16,
-        paddingVertical: 12,
-        paddingHorizontal: 14,
+        marginTop: spacing.md,
+        paddingVertical: 13,
+        paddingHorizontal: spacing.md,
         borderWidth: 1,
-        borderColor: "#cccccc",
-        borderRadius: 8,
+        borderColor: colours.border,
+        borderRadius: radius.md,
         fontSize: 16,
-        backgroundColor: "#ffffff",
+        color: colours.text,
+        backgroundColor: colours.background,
     },
+
     addButton: {
-        marginTop: 12,
-        paddingVertical: 12,
-        borderRadius: 8,
-        backgroundColor: "#222222",
+        marginTop: spacing.md,
         alignItems: "center",
+        paddingVertical: 13,
+        borderRadius: radius.md,
+        backgroundColor: colours.primary,
     },
+
+    addButtonPressed: {
+        backgroundColor: colours.primaryPressed,
+    },
+
     addButtonText: {
         fontSize: 15,
-        fontWeight: "600",
-        color: "#ffffff",
+        fontWeight: "700",
+        color: colours.surface,
     },
+
     disabledButton: {
-        backgroundColor: "#cccccc",
+        backgroundColor: colours.primarySoft,
     },
+
     disabledButtonText: {
-        color: "#777777",
+        color: colours.textMuted,
     },
 });
