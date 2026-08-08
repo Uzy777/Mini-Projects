@@ -222,46 +222,50 @@ export default function JourneyDetailsScreen() {
 
                 <Text style={styles.description}>Break this Journey into small Quests and keep moving forward.</Text>
             </View>
-            <JourneyProgressCard totalQuestCount={totalQuestCount} completedQuestCount={completedQuestCount} />
-            <AddQuestForm questTitle={questTitle} onChangeQuestTitle={setQuestTitle} onAddQuest={handleAddQuest} />
-            <View style={styles.filterContainer}>
-                {" "}
-                {questFilters.map((filter) => {
-                    const isSelected = selectedQuestFilter === filter.value;
+            <View style={styles.sections}>
+                <JourneyProgressCard totalQuestCount={totalQuestCount} completedQuestCount={completedQuestCount} />
 
-                    return (
-                        <Pressable
-                            key={filter.value}
-                            style={({ pressed }) => [
-                                styles.filterButton,
-                                isSelected && styles.filterButtonSelected,
-                                pressed && !isSelected && styles.filterButtonPressed,
-                            ]}
-                            onPress={() => setSelectedQuestFilter(filter.value)}
-                        >
-                            <Text style={[styles.filterButtonText, isSelected && styles.filterButtonTextSelected]}>{filter.label}</Text>
-                        </Pressable>
-                    );
-                })}
-            </View>
-            <View style={styles.questList}>
-                {quests.length === 0 ? (
-                    <Text style={styles.emptyText}>No Quests yet.</Text>
-                ) : filteredQuests.length === 0 ? (
-                    <Text style={styles.emptyText}>{selectedQuestFilter === "completed" ? "No completed Quests." : "No active Quests."}</Text>
-                ) : (
-                    filteredQuests.map((quest) => (
-                        <QuestCard
-                            key={quest.id}
-                            quest={quest}
-                            onStartSession={() => handleOpenQuest(quest)}
-                            onReopenQuest={() => handleReopenQuest(quest.id)}
-                            onDeleteQuest={() => {
-                                void handleRequestDeleteQuest(quest);
-                            }}
-                        />
-                    ))
-                )}
+                <AddQuestForm questTitle={questTitle} onChangeQuestTitle={setQuestTitle} onAddQuest={handleAddQuest} />
+
+                <View style={styles.filterContainer}>
+                    {questFilters.map((filter) => {
+                        const isSelected = selectedQuestFilter === filter.value;
+
+                        return (
+                            <Pressable
+                                key={filter.value}
+                                style={({ pressed }) => [
+                                    styles.filterButton,
+                                    isSelected && styles.filterButtonSelected,
+                                    pressed && !isSelected && styles.filterButtonPressed,
+                                ]}
+                                onPress={() => setSelectedQuestFilter(filter.value)}
+                            >
+                                <Text style={[styles.filterButtonText, isSelected && styles.filterButtonTextSelected]}>{filter.label}</Text>
+                            </Pressable>
+                        );
+                    })}
+                </View>
+
+                <View style={styles.questList}>
+                    {quests.length === 0 ? (
+                        <Text style={styles.emptyText}>No Quests yet.</Text>
+                    ) : filteredQuests.length === 0 ? (
+                        <Text style={styles.emptyText}>{selectedQuestFilter === "completed" ? "No completed Quests." : "No active Quests."}</Text>
+                    ) : (
+                        filteredQuests.map((quest) => (
+                            <QuestCard
+                                key={quest.id}
+                                quest={quest}
+                                onStartSession={() => handleOpenQuest(quest)}
+                                onReopenQuest={() => handleReopenQuest(quest.id)}
+                                onDeleteQuest={() => {
+                                    void handleRequestDeleteQuest(quest);
+                                }}
+                            />
+                        ))
+                    )}
+                </View>
             </View>
         </ScrollView>
     );
@@ -304,7 +308,6 @@ const styles = StyleSheet.create({
         width: "100%",
         flexDirection: "row",
         gap: spacing.xs,
-        marginTop: spacing.lg,
         padding: spacing.xs,
         borderWidth: 1,
         borderColor: colours.border,
@@ -340,7 +343,6 @@ const styles = StyleSheet.create({
     },
 
     questList: {
-        marginTop: spacing.md,
         gap: spacing.md,
     },
 
@@ -350,5 +352,8 @@ const styles = StyleSheet.create({
         fontSize: 15,
         lineHeight: 22,
         color: colours.textMuted,
+    },
+    sections: {
+        gap: spacing.md,
     },
 });

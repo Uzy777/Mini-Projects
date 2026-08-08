@@ -43,7 +43,6 @@ export function AddQuestForm({ questTitle, onChangeQuestTitle, onAddQuest }: Add
 const styles = StyleSheet.create({
     formCard: {
         width: "100%",
-        marginTop: spacing.md,
         padding: spacing.lg,
         borderWidth: 1,
         borderColor: colours.border,
