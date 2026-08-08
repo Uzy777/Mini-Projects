@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
+import { colours, radius, spacing } from "@/constants/design";
+
 type AddQuestFormProps = {
     questTitle: string;
     onChangeQuestTitle: (title: string) => void;
@@ -11,20 +13,27 @@ export function AddQuestForm({ questTitle, onChangeQuestTitle, onAddQuest }: Add
 
     return (
         <View style={styles.formCard}>
-            <Text style={styles.formTitle}>Add a Quest</Text>
+            <Text style={styles.formLabel}>NEW QUEST</Text>
 
-            <Text style={styles.formDescription}>Break this Journey into a clear, achievable task.</Text>
+            <Text style={styles.formDescription}>Break this Journey into one clear, achievable step.</Text>
 
             <TextInput
                 style={styles.input}
                 value={questTitle}
                 onChangeText={onChangeQuestTitle}
-                placeholder="Enter a Quest"
+                placeholder="What needs to be done next?"
+                placeholderTextColor={colours.textMuted}
+                selectionColor={colours.primary}
                 returnKeyType="done"
                 onSubmitEditing={titleIsEmpty ? undefined : onAddQuest}
             />
 
-            <Pressable style={[styles.addButton, titleIsEmpty && styles.disabledButton]} onPress={onAddQuest} disabled={titleIsEmpty}>
+            <Pressable
+                style={({ pressed }) => [styles.addButton, titleIsEmpty && styles.disabledButton, pressed && !titleIsEmpty && styles.addButtonPressed]}
+                onPress={onAddQuest}
+                disabled={titleIsEmpty}
+            >
+                {" "}
                 <Text style={[styles.addButtonText, titleIsEmpty && styles.disabledButtonText]}>Add Quest</Text>
             </Pressable>
         </View>
@@ -34,48 +43,64 @@ export function AddQuestForm({ questTitle, onChangeQuestTitle, onAddQuest }: Add
 const styles = StyleSheet.create({
     formCard: {
         width: "100%",
-        marginTop: 20,
-        padding: 18,
-        borderRadius: 12,
-        backgroundColor: "#ffffff",
+        marginTop: spacing.md,
+        padding: spacing.lg,
+        borderWidth: 1,
+        borderColor: colours.border,
+        borderRadius: radius.lg,
+        backgroundColor: colours.surface,
     },
-    formTitle: {
-        fontSize: 18,
+
+    formLabel: {
+        fontSize: 12,
         fontWeight: "700",
+        letterSpacing: 0.7,
+        color: colours.primary,
     },
+
     formDescription: {
-        marginTop: 6,
+        marginTop: spacing.sm,
         fontSize: 14,
         lineHeight: 20,
-        color: "#666666",
+        color: colours.textMuted,
     },
+
     input: {
         width: "100%",
-        marginTop: 16,
-        paddingVertical: 12,
-        paddingHorizontal: 14,
+        marginTop: spacing.md,
+        paddingVertical: 13,
+        paddingHorizontal: spacing.md,
         borderWidth: 1,
-        borderColor: "#cccccc",
-        borderRadius: 8,
+        borderColor: colours.border,
+        borderRadius: radius.md,
         fontSize: 16,
-        backgroundColor: "#ffffff",
+        color: colours.text,
+        backgroundColor: colours.background,
     },
+
     addButton: {
-        marginTop: 12,
-        paddingVertical: 12,
-        borderRadius: 8,
-        backgroundColor: "#222222",
+        marginTop: spacing.md,
         alignItems: "center",
+        paddingVertical: 13,
+        borderRadius: radius.md,
+        backgroundColor: colours.primary,
     },
+
+    addButtonPressed: {
+        backgroundColor: colours.primaryPressed,
+    },
+
     addButtonText: {
         fontSize: 15,
-        fontWeight: "600",
-        color: "#ffffff",
+        fontWeight: "700",
+        color: colours.surface,
     },
+
     disabledButton: {
-        backgroundColor: "#cccccc",
+        backgroundColor: colours.primarySoft,
     },
+
     disabledButtonText: {
-        color: "#777777",
+        color: colours.textMuted,
     },
 });
