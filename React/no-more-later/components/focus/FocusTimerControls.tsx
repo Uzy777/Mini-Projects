@@ -85,10 +85,6 @@ const styles = StyleSheet.create({
         color: colours.surface,
     },
 
-    startButton: {
-        marginTop: spacing.lg,
-    },
-
     secondaryButton: {
         width: "100%",
         alignItems: "center",
