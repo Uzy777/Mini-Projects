@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
 import { useAudioPlayer } from "expo-audio";
 
 import { ActiveFocusSession } from "../../types/models";
@@ -10,6 +10,7 @@ import { FocusTimerDisplay } from "../../components/focus/FocusTimerDisplay";
 import { FocusTimerControls } from "../../components/focus/FocusTimerControls";
 import { ActiveSessionNotice } from "../../components/focus/ActiveSessionNotice";
 import { calculateActualFocusedSeconds, getRemainingSecondsFromEndTime } from "../../utils/focusTimer";
+import { colours, spacing } from "@/constants/design";
 
 const focusCompleteSound = require("../../assets/sounds/focus-complete.mp3");
 
@@ -274,51 +275,84 @@ export default function FocusScreen() {
     const hasSessionFinished = remainingSeconds === 0;
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
             <Stack.Screen
                 options={{
-                    title: "Focus Session",
+                    title: "Focus",
                 }}
             />
 
-            <Text style={styles.label}>Current Quest</Text>
+            <View style={styles.header}>
+                <Text style={styles.label}>CURRENT QUEST</Text>
 
-            <Text style={styles.title}>{questTitle ?? "Untitled Quest"}</Text>
+                <Text style={styles.title}>{questTitle ?? "Untitled Quest"}</Text>
 
-            <FocusDurationSelector selectedMinutes={selectedMinutes} onSelectMinutes={setSelectedMinutes} disabled={hasSessionStarted} />
+                <Text style={styles.subtitle}>Give this one thing your attention.</Text>
+            </View>
 
-            <ActiveSessionNotice message={sessionMessage} showReturnButton={existingActiveSession !== null} onReturn={handleReturnToActiveSession} />
+            <View style={styles.sessionContent}>
+                <FocusDurationSelector selectedMinutes={selectedMinutes} onSelectMinutes={setSelectedMinutes} disabled={hasSessionStarted} />
 
-            {remainingSeconds !== null && <FocusTimerDisplay seconds={remainingSeconds} />}
+                <ActiveSessionNotice message={sessionMessage} showReturnButton={existingActiveSession !== null} onReturn={handleReturnToActiveSession} />
 
-            <FocusTimerControls
-                hasStarted={hasSessionStarted}
-                hasFinished={hasSessionFinished}
-                isRunning={isRunning}
-                onStart={handleStartSession}
-                onToggleTimer={handleToggleTimer}
-                onEndEarly={handleEndSessionEarly}
-                onReview={handleReviewSession}
-            />
-        </View>
+                {remainingSeconds !== null && <FocusTimerDisplay seconds={remainingSeconds} />}
+
+                <FocusTimerControls
+                    hasStarted={hasSessionStarted}
+                    hasFinished={hasSessionFinished}
+                    isRunning={isRunning}
+                    onStart={handleStartSession}
+                    onToggleTimer={handleToggleTimer}
+                    onEndEarly={handleEndSessionEarly}
+                    onReview={handleReviewSession}
+                />
+            </View>
+        </ScrollView>
     );
 }
-
 const styles = StyleSheet.create({
-    container: {
+    screen: {
         flex: 1,
-        padding: 24,
-        backgroundColor: "#f5f5f5",
+        backgroundColor: colours.background,
     },
+
+    contentContainer: {
+        width: "100%",
+        maxWidth: 640,
+        alignSelf: "center",
+        paddingHorizontal: spacing.lg,
+        paddingTop: spacing.lg,
+        paddingBottom: 48,
+    },
+
+    header: {
+        width: "100%",
+        marginBottom: spacing.xl,
+    },
+
     label: {
-        marginTop: 24,
-        marginBottom: 8,
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#666666",
-    },
-    title: {
-        fontSize: 30,
+        fontSize: 12,
         fontWeight: "700",
+        letterSpacing: 0.7,
+        color: colours.primary,
+    },
+
+    title: {
+        marginTop: spacing.sm,
+        fontSize: 30,
+        lineHeight: 36,
+        fontWeight: "800",
+        color: colours.text,
+    },
+
+    subtitle: {
+        marginTop: spacing.sm,
+        fontSize: 15,
+        lineHeight: 22,
+        color: colours.textMuted,
+    },
+
+    sessionContent: {
+        width: "100%",
     },
 });

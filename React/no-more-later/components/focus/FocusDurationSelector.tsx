@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { colours, radius, spacing } from "@/constants/design";
+
 type FocusDurationSelectorProps = {
     selectedMinutes: number;
     disabled?: boolean;
@@ -11,28 +13,27 @@ const focusDurations = [15, 25, 50];
 export function FocusDurationSelector({ selectedMinutes, disabled = false, onSelectMinutes }: FocusDurationSelectorProps) {
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Choose a duration</Text>
+            <Text style={styles.label}>SESSION LENGTH</Text>
 
-            <View style={styles.durationOptions}>
+            <View style={[styles.durationOptions, disabled && styles.durationOptionsDisabled]}>
+                {" "}
                 {focusDurations.map((minutes) => {
                     const isSelected = selectedMinutes === minutes;
 
                     return (
                         <Pressable
                             key={minutes}
-                            style={[styles.durationButton, isSelected && styles.selectedDurationButton, disabled && styles.disabledDurationButton]}
+                            style={({ pressed }) => [
+                                styles.durationButton,
+
+                                isSelected && styles.selectedDurationButton,
+
+                                pressed && !disabled && !isSelected && styles.durationButtonPressed,
+                            ]}
                             onPress={() => onSelectMinutes(minutes)}
                             disabled={disabled}
                         >
-                            <Text
-                                style={[
-                                    styles.durationButtonText,
-                                    isSelected && styles.selectedDurationButtonText,
-                                    disabled && styles.disabledDurationButtonText,
-                                ]}
-                            >
-                                {minutes} min
-                            </Text>
+                            <Text style={[styles.durationButtonText, isSelected && styles.selectedDurationButtonText]}>{minutes} min</Text>
                         </Pressable>
                     );
                 })}
@@ -45,41 +46,54 @@ const styles = StyleSheet.create({
     container: {
         width: "100%",
     },
+
     label: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#555555",
+        fontSize: 12,
+        fontWeight: "700",
+        letterSpacing: 0.7,
+        color: colours.textMuted,
     },
+
     durationOptions: {
-        marginTop: 12,
+        width: "100%",
         flexDirection: "row",
-        gap: 10,
+        gap: spacing.xs,
+        marginTop: spacing.sm,
+        padding: spacing.xs,
+        borderWidth: 1,
+        borderColor: colours.border,
+        borderRadius: radius.md,
+        backgroundColor: colours.surface,
     },
+
+    durationOptionsDisabled: {
+        opacity: 0.6,
+    },
+
     durationButton: {
         flex: 1,
-        paddingVertical: 12,
-        borderWidth: 1,
-        borderColor: "#cccccc",
-        borderRadius: 8,
         alignItems: "center",
-        backgroundColor: "#ffffff",
+        justifyContent: "center",
+        paddingVertical: 12,
+        paddingHorizontal: spacing.sm,
+        borderRadius: radius.sm,
     },
+
+    durationButtonPressed: {
+        backgroundColor: colours.background,
+    },
+
     selectedDurationButton: {
-        borderColor: "#222222",
-        backgroundColor: "#222222",
+        backgroundColor: colours.primary,
     },
+
     durationButtonText: {
         fontSize: 14,
-        fontWeight: "600",
-        color: "#222222",
+        fontWeight: "700",
+        color: colours.textMuted,
     },
+
     selectedDurationButtonText: {
-        color: "#ffffff",
-    },
-    disabledDurationButton: {
-        opacity: 0.5,
-    },
-    disabledDurationButtonText: {
-        opacity: 0.8,
+        color: colours.surface,
     },
 });
