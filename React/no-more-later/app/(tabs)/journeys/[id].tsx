@@ -2,7 +2,7 @@ import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from "expo-rou
 import { useState, useCallback } from "react";
 import { StyleSheet, Text, View, ScrollView, Pressable } from "react-native";
 
-import type { Journey, Quest } from "../../../types/models";
+import type { Quest } from "../../../types/models";
 import { getJourneys, saveJourneys } from "../../../services/storage/journeysStorage";
 import { getQuests, saveQuests } from "../../../services/storage/questsStorage";
 import { QuestCard } from "../../../components/journeys/QuestCard";
@@ -12,6 +12,7 @@ import { confirmDelete } from "../../../utils/confirmDelete";
 import { getActiveFocusSession } from "../../../services/storage/activeFocusSessionStorage";
 import { showMessage } from "../../../utils/showMessage";
 import { syncJourneyStatusFromQuests } from "../../../services/journeyStatusService";
+import { colours, radius, spacing } from "@/constants/design";
 
 type QuestFilter = "all" | "active" | "completed";
 
@@ -213,25 +214,29 @@ export default function JourneyDetailsScreen() {
     });
 
     return (
-        <ScrollView style={styles.container}>
-            <Stack.Screen options={{ title: title ?? "Journey" }} />
+        <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+            {" "}
+            <Stack.Screen options={{ title: "Journey" }} />
+            <View style={styles.pageHeader}>
+                <Text style={styles.title}>{title ?? "Journey"}</Text>
 
-            <Text style={styles.title}>{title ?? "Journey"}</Text>
-
-            <Text style={styles.description}>Quests for this Journey will appear here.</Text>
-
+                <Text style={styles.description}>Break this Journey into small Quests and keep moving forward.</Text>
+            </View>
             <JourneyProgressCard totalQuestCount={totalQuestCount} completedQuestCount={completedQuestCount} />
-
             <AddQuestForm questTitle={questTitle} onChangeQuestTitle={setQuestTitle} onAddQuest={handleAddQuest} />
-
-            <View style={styles.filterRow}>
+            <View style={styles.filterContainer}>
+                {" "}
                 {questFilters.map((filter) => {
                     const isSelected = selectedQuestFilter === filter.value;
 
                     return (
                         <Pressable
                             key={filter.value}
-                            style={[styles.filterButton, isSelected && styles.filterButtonSelected]}
+                            style={({ pressed }) => [
+                                styles.filterButton,
+                                isSelected && styles.filterButtonSelected,
+                                pressed && !isSelected && styles.filterButtonPressed,
+                            ]}
                             onPress={() => setSelectedQuestFilter(filter.value)}
                         >
                             <Text style={[styles.filterButtonText, isSelected && styles.filterButtonTextSelected]}>{filter.label}</Text>
@@ -239,7 +244,6 @@ export default function JourneyDetailsScreen() {
                     );
                 })}
             </View>
-
             <View style={styles.questList}>
                 {quests.length === 0 ? (
                     <Text style={styles.emptyText}>No Quests yet.</Text>
@@ -264,60 +268,87 @@ export default function JourneyDetailsScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: {
+    screen: {
         flex: 1,
-        padding: 24,
-        backgroundColor: "#f5f5f5",
+        backgroundColor: colours.background,
     },
+
+    contentContainer: {
+        width: "100%",
+        maxWidth: 720,
+        alignSelf: "center",
+        paddingHorizontal: spacing.lg,
+        paddingTop: spacing.lg,
+        paddingBottom: 48,
+    },
+
+    pageHeader: {
+        marginBottom: spacing.lg,
+    },
+
     title: {
-        marginTop: 24,
-        marginBottom: 8,
-        fontSize: 32,
-        fontWeight: "700",
+        fontSize: 30,
+        lineHeight: 36,
+        fontWeight: "800",
+        color: colours.text,
     },
+
     description: {
-        fontSize: 16,
+        marginTop: spacing.sm,
+        fontSize: 15,
+        lineHeight: 22,
+        color: colours.textMuted,
     },
-    questList: {
-        marginTop: 24,
-        gap: 12,
-    },
-    filterRow: {
+
+    filterContainer: {
+        width: "100%",
         flexDirection: "row",
-        gap: 8,
-        marginVertical: 16,
+        gap: spacing.xs,
+        marginTop: spacing.lg,
+        padding: spacing.xs,
+        borderWidth: 1,
+        borderColor: colours.border,
+        borderRadius: radius.md,
+        backgroundColor: colours.surface,
     },
 
     filterButton: {
         flex: 1,
         alignItems: "center",
+        justifyContent: "center",
         paddingVertical: 10,
-        paddingHorizontal: 12,
-        borderWidth: 1,
-        borderColor: "#d4d4d4",
-        borderRadius: 10,
-        backgroundColor: "#ffffff",
+        paddingHorizontal: spacing.sm,
+        borderRadius: radius.sm,
+    },
+
+    filterButtonPressed: {
+        backgroundColor: colours.background,
     },
 
     filterButtonSelected: {
-        backgroundColor: "#171717",
-        borderColor: "#171717",
+        backgroundColor: colours.primary,
     },
 
     filterButtonText: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#525252",
+        fontSize: 13,
+        fontWeight: "700",
+        color: colours.textMuted,
     },
 
     filterButtonTextSelected: {
-        color: "#ffffff",
+        color: colours.surface,
     },
+
+    questList: {
+        marginTop: spacing.md,
+        gap: spacing.md,
+    },
+
     emptyText: {
-        marginTop: 24,
+        paddingVertical: spacing.xl,
         textAlign: "center",
         fontSize: 15,
         lineHeight: 22,
-        color: "#737373",
+        color: colours.textMuted,
     },
 });
