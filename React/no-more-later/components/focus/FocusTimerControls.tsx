@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { colours, radius, spacing } from "@/constants/design";
+
 type FocusTimerControlsProps = {
     hasStarted: boolean;
     hasFinished: boolean;
@@ -13,8 +15,8 @@ type FocusTimerControlsProps = {
 export function FocusTimerControls({ hasStarted, hasFinished, isRunning, onStart, onToggleTimer, onEndEarly, onReview }: FocusTimerControlsProps) {
     if (!hasStarted) {
         return (
-            <Pressable style={styles.startButton} onPress={onStart}>
-                <Text style={styles.startButtonText}>Start Focus Session</Text>
+            <Pressable style={({ pressed }) => [styles.primaryButton, pressed && styles.primaryButtonPressed]} onPress={onStart}>
+                <Text style={styles.primaryButtonText}>Start Focus Session</Text>
             </Pressable>
         );
     }
@@ -22,12 +24,16 @@ export function FocusTimerControls({ hasStarted, hasFinished, isRunning, onStart
     if (hasFinished) {
         return (
             <View style={styles.completedContainer}>
-                <Text style={styles.completedTitle}>Focus session complete!</Text>
+                <View style={styles.completedBadge}>
+                    <Text style={styles.completedBadgeText}>COMPLETE</Text>
+                </View>
+
+                <Text style={styles.completedTitle}>Focus session complete</Text>
 
                 <Text style={styles.completedMessage}>Take a moment to record what you accomplished.</Text>
 
-                <Pressable style={styles.reviewButton} onPress={onReview}>
-                    <Text style={styles.reviewButtonText}>Review Session</Text>
+                <Pressable style={({ pressed }) => [styles.primaryButton, styles.reviewButton, pressed && styles.primaryButtonPressed]} onPress={onReview}>
+                    <Text style={styles.primaryButtonText}>Review Session</Text>
                 </Pressable>
             </View>
         );
@@ -35,11 +41,18 @@ export function FocusTimerControls({ hasStarted, hasFinished, isRunning, onStart
 
     return (
         <View style={styles.controlsContainer}>
-            <Pressable style={styles.pauseButton} onPress={onToggleTimer}>
-                <Text style={styles.pauseButtonText}>{isRunning ? "Pause" : "Resume"}</Text>
+            <Pressable
+                style={({ pressed }) => [
+                    isRunning ? styles.secondaryButton : styles.primaryButton,
+
+                    pressed && (isRunning ? styles.secondaryButtonPressed : styles.primaryButtonPressed),
+                ]}
+                onPress={onToggleTimer}
+            >
+                <Text style={isRunning ? styles.secondaryButtonText : styles.primaryButtonText}>{isRunning ? "Pause Session" : "Resume Session"}</Text>
             </Pressable>
 
-            <Pressable style={styles.endEarlyButton} onPress={onEndEarly}>
+            <Pressable style={({ pressed }) => [styles.endEarlyButton, pressed && styles.endEarlyButtonPressed]} onPress={onEndEarly}>
                 <Text style={styles.endEarlyButtonText}>End Session Early</Text>
             </Pressable>
         </View>
@@ -49,67 +62,117 @@ export function FocusTimerControls({ hasStarted, hasFinished, isRunning, onStart
 const styles = StyleSheet.create({
     controlsContainer: {
         width: "100%",
+        marginTop: spacing.lg,
+    },
+
+    primaryButton: {
+        width: "100%",
         alignItems: "center",
-    },
-    startButton: {
-        marginTop: 24,
-        paddingVertical: 16,
-        borderRadius: 8,
-        backgroundColor: "#222222",
-        alignItems: "center",
-    },
-    startButtonText: {
-        color: "#ffffff",
-        fontSize: 17,
-        fontWeight: "600",
-    },
-    pauseButton: {
-        marginTop: 20,
-        paddingHorizontal: 32,
-        paddingVertical: 12,
-        borderWidth: 1,
-        borderColor: "#222222",
-        borderRadius: 8,
-    },
-    pauseButtonText: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: "#222222",
-    },
-    endEarlyButton: {
-        marginTop: 12,
-        paddingVertical: 12,
-        alignItems: "center",
-    },
-    endEarlyButtonText: {
-        fontSize: 15,
-        fontWeight: "600",
-        color: "#b42318",
-    },
-    completedContainer: {
-        marginTop: 24,
-        alignItems: "center",
-    },
-    completedTitle: {
-        fontSize: 22,
-        fontWeight: "700",
-    },
-    completedMessage: {
-        marginTop: 8,
-        fontSize: 16,
-        textAlign: "center",
-        color: "#666666",
-    },
-    reviewButton: {
-        marginTop: 20,
-        paddingHorizontal: 28,
+        justifyContent: "center",
         paddingVertical: 14,
-        borderRadius: 8,
-        backgroundColor: "#222222",
+        paddingHorizontal: spacing.md,
+        borderRadius: radius.md,
+        backgroundColor: colours.primary,
     },
-    reviewButtonText: {
+
+    primaryButtonPressed: {
+        backgroundColor: colours.primaryPressed,
+    },
+
+    primaryButtonText: {
         fontSize: 16,
-        fontWeight: "600",
-        color: "#ffffff",
+        fontWeight: "700",
+        color: colours.surface,
+    },
+
+    startButton: {
+        marginTop: spacing.lg,
+    },
+
+    secondaryButton: {
+        width: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 14,
+        paddingHorizontal: spacing.md,
+        borderWidth: 1,
+        borderColor: colours.border,
+        borderRadius: radius.md,
+        backgroundColor: colours.surface,
+    },
+
+    secondaryButtonPressed: {
+        backgroundColor: colours.background,
+    },
+
+    secondaryButtonText: {
+        fontSize: 16,
+        fontWeight: "700",
+        color: colours.text,
+    },
+
+    endEarlyButton: {
+        alignSelf: "center",
+        marginTop: spacing.sm,
+        paddingHorizontal: spacing.md,
+        paddingVertical: 10,
+        borderRadius: radius.sm,
+    },
+
+    endEarlyButtonPressed: {
+        backgroundColor: colours.dangerSoft,
+    },
+
+    endEarlyButtonText: {
+        fontSize: 14,
+        fontWeight: "700",
+        color: colours.danger,
+    },
+
+    completedContainer: {
+        width: "100%",
+        marginTop: spacing.lg,
+        padding: spacing.lg,
+        alignItems: "center",
+        borderWidth: 1,
+        borderColor: colours.border,
+        borderRadius: radius.lg,
+        backgroundColor: colours.surface,
+    },
+
+    completedBadge: {
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: radius.pill,
+        backgroundColor: colours.successSoft,
+    },
+
+    completedBadgeText: {
+        fontSize: 11,
+        fontWeight: "800",
+        letterSpacing: 0.6,
+        color: colours.success,
+    },
+
+    completedTitle: {
+        marginTop: spacing.md,
+        fontSize: 22,
+        lineHeight: 28,
+        fontWeight: "800",
+        textAlign: "center",
+        color: colours.text,
+    },
+
+    completedMessage: {
+        marginTop: spacing.sm,
+        maxWidth: 360,
+        fontSize: 15,
+        lineHeight: 22,
+        textAlign: "center",
+        color: colours.textMuted,
+    },
+
+    reviewButton: {
+        marginTop: spacing.lg,
     },
 });
