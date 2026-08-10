@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { colours, radius, spacing } from "@/constants/design";
+
 type ReviewResultCardProps = {
     earnedXp: number;
     totalXp: number;
@@ -10,97 +12,147 @@ type ReviewResultCardProps = {
 
 export function ReviewResultCard({ earnedXp, totalXp, reachedLevel, onReturnToJourneys, onViewHistory }: ReviewResultCardProps) {
     return (
-        <View style={styles.rewardContainer}>
-            <Text style={styles.rewardTitle}>Review complete!</Text>
+        <View style={styles.card}>
+            <Text style={styles.label}>REVIEW COMPLETE</Text>
 
-            <Text style={styles.rewardXp}>+{earnedXp} XP</Text>
+            <View style={styles.rewardSection}>
+                <Text style={styles.rewardXp}>+{earnedXp} XP</Text>
 
-            <Text style={styles.totalXp}>Total XP: {totalXp}</Text>
+                <Text style={styles.totalXp}>{totalXp} total XP</Text>
+            </View>
 
             {reachedLevel !== null && (
-                <View style={styles.levelUpContainer}>
-                    <Text style={styles.levelUpTitle}>Level Up!</Text>
+                <View style={styles.levelUpCard}>
+                    <Text style={styles.levelUpLabel}>LEVEL UP</Text>
 
-                    <Text style={styles.levelUpText}>You reached Level {reachedLevel}</Text>
+                    <Text style={styles.levelUpTitle}>Level {reachedLevel}</Text>
+
+                    <Text style={styles.levelUpText}>You reached a new level.</Text>
                 </View>
             )}
 
-            <Pressable style={styles.primaryButton} onPress={onReturnToJourneys}>
-                <Text style={styles.primaryButtonText}>Return to Journeys</Text>
-            </Pressable>
+            <View style={styles.actions}>
+                <Pressable style={({ pressed }) => [styles.primaryButton, pressed && styles.primaryButtonPressed]} onPress={onReturnToJourneys}>
+                    <Text style={styles.primaryButtonText}>Return to Journeys</Text>
+                </Pressable>
 
-            <Pressable style={styles.secondaryButton} onPress={onViewHistory}>
-                <Text style={styles.secondaryButtonText}>View Session History</Text>
-            </Pressable>
+                <Pressable style={({ pressed }) => [styles.secondaryButton, pressed && styles.secondaryButtonPressed]} onPress={onViewHistory}>
+                    <Text style={styles.secondaryButtonText}>View Session History</Text>
+                </Pressable>
+            </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    rewardContainer: {
+    card: {
         width: "100%",
-        marginTop: 24,
-        padding: 20,
-        borderRadius: 12,
-        backgroundColor: "#ffffff",
+        padding: spacing.lg,
+        borderWidth: 1,
+        borderColor: colours.border,
+        borderRadius: radius.lg,
+        backgroundColor: colours.surface,
         alignItems: "center",
     },
-    rewardTitle: {
-        fontSize: 22,
-        fontWeight: "700",
+
+    label: {
+        fontSize: 12,
+        fontWeight: "800",
+        letterSpacing: 0.8,
+        color: colours.success,
     },
+
+    rewardSection: {
+        alignItems: "center",
+        marginTop: spacing.md,
+    },
+
     rewardXp: {
-        marginTop: 12,
-        fontSize: 30,
-        fontWeight: "700",
+        fontSize: 38,
+        lineHeight: 44,
+        fontWeight: "800",
+        color: colours.primary,
     },
+
     totalXp: {
-        marginTop: 6,
-        fontSize: 15,
-        color: "#666666",
+        marginTop: spacing.xs,
+        fontSize: 14,
+        fontWeight: "600",
+        color: colours.textMuted,
     },
-    levelUpContainer: {
+
+    levelUpCard: {
         width: "100%",
-        marginTop: 18,
-        padding: 16,
-        borderRadius: 10,
-        backgroundColor: "#f0f0f0",
+        marginTop: spacing.lg,
+        padding: spacing.md,
+        borderWidth: 1,
+        borderColor: colours.primaryBorder,
+        borderRadius: radius.md,
+        backgroundColor: colours.primarySoft,
         alignItems: "center",
     },
+
+    levelUpLabel: {
+        fontSize: 11,
+        fontWeight: "800",
+        letterSpacing: 0.7,
+        color: colours.primary,
+    },
+
     levelUpTitle: {
-        fontSize: 21,
-        fontWeight: "700",
+        marginTop: spacing.xs,
+        fontSize: 24,
+        fontWeight: "800",
+        color: colours.text,
     },
+
     levelUpText: {
-        marginTop: 4,
-        fontSize: 15,
-        color: "#555555",
+        marginTop: spacing.xs,
+        fontSize: 14,
+        color: colours.textMuted,
     },
+
+    actions: {
+        width: "100%",
+        marginTop: spacing.lg,
+        gap: spacing.sm,
+    },
+
     primaryButton: {
         width: "100%",
-        marginTop: 20,
-        paddingVertical: 14,
-        borderRadius: 8,
-        backgroundColor: "#222222",
         alignItems: "center",
+        paddingVertical: 14,
+        borderRadius: radius.md,
+        backgroundColor: colours.primary,
     },
+
+    primaryButtonPressed: {
+        backgroundColor: colours.primaryPressed,
+    },
+
     primaryButtonText: {
         fontSize: 15,
-        fontWeight: "600",
-        color: "#ffffff",
+        fontWeight: "700",
+        color: colours.surface,
     },
+
     secondaryButton: {
         width: "100%",
-        marginTop: 10,
-        paddingVertical: 14,
-        borderWidth: 1,
-        borderColor: "#222222",
-        borderRadius: 8,
         alignItems: "center",
+        paddingVertical: 13,
+        borderWidth: 1,
+        borderColor: colours.border,
+        borderRadius: radius.md,
+        backgroundColor: colours.surface,
     },
+
+    secondaryButtonPressed: {
+        backgroundColor: colours.background,
+    },
+
     secondaryButtonText: {
         fontSize: 15,
-        fontWeight: "600",
-        color: "#222222",
+        fontWeight: "700",
+        color: colours.text,
     },
 });
