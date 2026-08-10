@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { StyleSheet, Text, ScrollView } from "react-native";
+import { StyleSheet, Text, ScrollView, View } from "react-native";
 
 import { calculateLevel } from "../../utils/level";
 import type { SessionOutcome, FocusSessionRecord } from "../../types/models";
@@ -12,7 +12,8 @@ import { ReviewForm } from "../../components/review/ReviewForm";
 import { calculateSessionXp } from "../../utils/sessionXp";
 import { getReviewValidationMessage } from "../../utils/reviewValidation";
 import { updateReviewProgress } from "../../services/reviewProgressService";
-import { clearActiveFocusSession, getActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
+import { clearActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
+import { colours, radius, spacing } from "@/constants/design";
 
 export default function ReviewSessionScreen() {
     const router = useRouter();
@@ -136,35 +137,29 @@ export default function ReviewSessionScreen() {
     const showNextAction = selectedOutcome !== null && selectedOutcome !== "completed";
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
+        <ScrollView
+            style={styles.screen}
+            contentContainerStyle={styles.contentContainer}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+        >
             <Stack.Screen
                 options={{
-                    title: "Session Review",
+                    title: "Review",
                 }}
             />
 
-            <Text style={styles.label}>Quest</Text>
+            <View style={styles.header}>
+                <Text style={styles.label}>SESSION REVIEW</Text>
 
-            <Text style={styles.title}>{questTitle ?? "Untitled Quest"}</Text>
+                <Text style={styles.title}>{questTitle ?? "Untitled Quest"}</Text>
 
-            <Text style={styles.sessionLength}>{plannedMinutes ?? "0"} minute session</Text>
+                <View style={styles.sessionBadge}>
+                    <Text style={styles.sessionLength}>{plannedMinutes ?? "0"} minute Focus Session</Text>
+                </View>
+            </View>
 
-            <Text style={styles.sectionTitle}>How did the session go?</Text>
-
-            <SessionOutcomeSelector selectedOutcome={selectedOutcome} onSelectOutcome={setSelectedOutcome} />
-
-            <ReviewForm
-                accomplishment={accomplishment}
-                nextAction={nextAction}
-                showNextAction={showNextAction}
-                errorMessage={validationMessage}
-                onChangeAccomplishment={setAccomplishment}
-                onChangeNextAction={setNextAction}
-                isSubmitting={isSubmitting}
-                onSubmit={handleCompleteReview}
-            />
-
-            {earnedXp !== null && totalXp !== null && (
+            {earnedXp !== null && totalXp !== null ? (
                 <ReviewResultCard
                     earnedXp={earnedXp}
                     totalXp={totalXp}
@@ -172,42 +167,78 @@ export default function ReviewSessionScreen() {
                     onReturnToJourneys={handleReturnToJourneys}
                     onViewHistory={handleViewHistory}
                 />
-            )}
+            ) : (
+                <View style={styles.reviewSections}>
+                    <SessionOutcomeSelector selectedOutcome={selectedOutcome} onSelectOutcome={setSelectedOutcome} />
 
-            {/* <Text style={styles.idText}>Quest ID: {questId}</Text> */}
+                    <ReviewForm
+                        accomplishment={accomplishment}
+                        nextAction={nextAction}
+                        showNextAction={showNextAction}
+                        errorMessage={validationMessage}
+                        onChangeAccomplishment={setAccomplishment}
+                        onChangeNextAction={setNextAction}
+                        isSubmitting={isSubmitting}
+                        onSubmit={handleCompleteReview}
+                    />
+                </View>
+            )}
         </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    screen: {
         flex: 1,
-        backgroundColor: "#f5f5f5",
+        backgroundColor: colours.background,
     },
+
     contentContainer: {
-        padding: 24,
+        width: "100%",
+        maxWidth: 720,
+        alignSelf: "center",
+        paddingHorizontal: spacing.lg,
+        paddingTop: spacing.lg,
         paddingBottom: 48,
     },
+
+    header: {
+        width: "100%",
+        marginBottom: spacing.xl,
+    },
+
     label: {
-        marginTop: 24,
-        marginBottom: 8,
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#666666",
+        fontSize: 12,
+        fontWeight: "800",
+        letterSpacing: 0.8,
+        color: colours.primary,
     },
+
     title: {
+        marginTop: spacing.sm,
         fontSize: 30,
-        fontWeight: "700",
+        lineHeight: 36,
+        fontWeight: "800",
+        color: colours.text,
     },
+
+    sessionBadge: {
+        alignSelf: "flex-start",
+        marginTop: spacing.md,
+        paddingHorizontal: 12,
+        paddingVertical: 7,
+        borderRadius: radius.pill,
+        backgroundColor: colours.primarySoft,
+    },
+
     sessionLength: {
-        marginTop: 8,
-        fontSize: 16,
-        color: "#666666",
+        fontSize: 13,
+        fontWeight: "700",
+        color: colours.primary,
     },
-    sectionTitle: {
-        marginTop: 32,
-        marginBottom: 12,
-        fontSize: 18,
-        fontWeight: "600",
+
+    reviewSections: {
+        width: "100%",
+        gap: spacing.xl,
     },
 });
