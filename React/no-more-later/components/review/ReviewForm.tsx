@@ -85,6 +85,7 @@ const styles = StyleSheet.create({
     formContainer: {
         width: "100%",
         gap: spacing.lg,
+        marginTop: spacing.lg,
     },
 
     fieldGroup: {
