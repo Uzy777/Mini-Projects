@@ -5,6 +5,7 @@ import { FlatList, StyleSheet, Text, View } from "react-native";
 import type { FocusSessionRecord } from "../../types/models";
 import { getFocusSessions } from "../../services/storage/focusSessionsStorage";
 import { FocusSessionHistoryCard } from "../../components/history/FocusSessionHistoryCard";
+import { colours, radius, spacing } from "@/constants/design";
 
 export default function HistoryScreen() {
     const [sessions, setSessions] = useState<FocusSessionRecord[]>([]);
@@ -26,34 +27,99 @@ export default function HistoryScreen() {
     );
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>History</Text>
-
-            <Text style={styles.description}>Review the focused progress you have made.</Text>
-
+        <View style={styles.screen}>
             <FlatList
                 data={sessions}
                 keyExtractor={(session, index) => `${session.completedAt}-${index}`}
                 renderItem={({ item }) => <FocusSessionHistoryCard session={item} />}
+                style={styles.list}
+                contentContainerStyle={styles.contentContainer}
+                showsVerticalScrollIndicator={false}
+                ItemSeparatorComponent={() => <View style={styles.separator} />}
+                ListHeaderComponent={
+                    <View style={styles.header}>
+                        <Text style={styles.title}>History</Text>
+
+                        <Text style={styles.description}>Review the focused progress you have made.</Text>
+                    </View>
+                }
+                ListEmptyComponent={
+                    <View style={styles.emptyState}>
+                        <Text style={styles.emptyTitle}>No Focus Sessions yet</Text>
+
+                        <Text style={styles.emptyDescription}>Complete a Focus Session and its Review to see it here.</Text>
+                    </View>
+                }
             />
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    screen: {
         flex: 1,
-        paddingHorizontal: 24,
-        backgroundColor: "#f5f5f5",
+        backgroundColor: colours.background,
     },
+
+    list: {
+        flex: 1,
+    },
+
+    contentContainer: {
+        width: "100%",
+        maxWidth: 720,
+        alignSelf: "center",
+        paddingHorizontal: spacing.lg,
+        paddingTop: spacing.lg,
+        paddingBottom: 48,
+    },
+
+    header: {
+        marginBottom: spacing.xl,
+    },
+
     title: {
-        marginTop: 48,
-        fontSize: 32,
-        fontWeight: "700",
+        fontSize: 30,
+        lineHeight: 36,
+        fontWeight: "800",
+        color: colours.text,
     },
+
     description: {
-        marginTop: 8,
-        fontSize: 16,
-        color: "#666666",
+        marginTop: spacing.sm,
+        fontSize: 15,
+        lineHeight: 22,
+        color: colours.textMuted,
+    },
+
+    separator: {
+        height: spacing.md,
+    },
+
+    emptyState: {
+        width: "100%",
+        alignItems: "center",
+        paddingVertical: spacing.xl,
+        paddingHorizontal: spacing.lg,
+        borderWidth: 1,
+        borderColor: colours.border,
+        borderRadius: radius.lg,
+        backgroundColor: colours.surface,
+    },
+
+    emptyTitle: {
+        fontSize: 17,
+        fontWeight: "700",
+        color: colours.text,
+        textAlign: "center",
+    },
+
+    emptyDescription: {
+        marginTop: spacing.sm,
+        maxWidth: 320,
+        fontSize: 14,
+        lineHeight: 20,
+        color: colours.textMuted,
+        textAlign: "center",
     },
 });
