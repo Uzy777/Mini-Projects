@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
+import { colours, radius, spacing } from "@/constants/design";
+
 type ReviewFormProps = {
     accomplishment: string;
     nextAction: string;
@@ -23,35 +25,56 @@ export function ReviewForm({
 }: ReviewFormProps) {
     return (
         <View style={styles.formContainer}>
-            <Text style={styles.inputLabel}>What did you accomplish?</Text>
+            <View style={styles.fieldGroup}>
+                <Text style={styles.inputLabel}>What did you accomplish?</Text>
 
-            <TextInput
-                style={[styles.input, styles.multilineInput]}
-                value={accomplishment}
-                onChangeText={onChangeAccomplishment}
-                placeholder="Describe what you completed or worked on"
-                multiline
-                textAlignVertical="top"
-            />
+                <Text style={styles.helperText}>Briefly describe what you completed or moved forward.</Text>
 
+                <TextInput
+                    style={[styles.input, styles.multilineInput]}
+                    value={accomplishment}
+                    onChangeText={onChangeAccomplishment}
+                    placeholder="What did you get done?"
+                    placeholderTextColor={colours.textMuted}
+                    selectionColor={colours.primary}
+                    multiline
+                    textAlignVertical="top"
+                />
+            </View>
             {showNextAction && (
-                <>
+                <View style={styles.fieldGroup}>
                     <Text style={styles.inputLabel}>What is the next action?</Text>
+
+                    <Text style={styles.helperText}>Make the next step specific and easy to start.</Text>
 
                     <TextInput
                         style={[styles.input, styles.multilineInput]}
                         value={nextAction}
                         onChangeText={onChangeNextAction}
-                        placeholder="Enter the next clear action"
+                        placeholder="e.g. Create the login form component"
+                        placeholderTextColor={colours.textMuted}
+                        selectionColor={colours.primary}
                         multiline
                         textAlignVertical="top"
                     />
-                </>
+                </View>
             )}
 
-            {errorMessage && <Text style={styles.errorMessage}>{errorMessage}</Text>}
+            {errorMessage && (
+                <View style={styles.errorBox}>
+                    <Text style={styles.errorMessage}>{errorMessage}</Text>
+                </View>
+            )}
 
-            <Pressable style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]} onPress={onSubmit} disabled={isSubmitting}>
+            <Pressable
+                style={({ pressed }) => [
+                    styles.submitButton,
+                    isSubmitting && styles.submitButtonDisabled,
+                    pressed && !isSubmitting && styles.submitButtonPressed,
+                ]}
+                onPress={onSubmit}
+                disabled={isSubmitting}
+            >
                 <Text style={styles.submitButtonText}>{isSubmitting ? "Saving..." : "Complete Review"}</Text>
             </Pressable>
         </View>
@@ -61,48 +84,76 @@ export function ReviewForm({
 const styles = StyleSheet.create({
     formContainer: {
         width: "100%",
+        gap: spacing.lg,
     },
+
+    fieldGroup: {
+        width: "100%",
+    },
+
     inputLabel: {
-        marginTop: 20,
-        marginBottom: 8,
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#555555",
+        fontSize: 15,
+        fontWeight: "700",
+        color: colours.text,
     },
+
+    helperText: {
+        marginTop: spacing.xs,
+        fontSize: 13,
+        lineHeight: 19,
+        color: colours.textMuted,
+    },
+
     input: {
         width: "100%",
-        paddingVertical: 12,
-        paddingHorizontal: 14,
+        marginTop: spacing.sm,
+        paddingVertical: 13,
+        paddingHorizontal: spacing.md,
         borderWidth: 1,
-        borderColor: "#cccccc",
-        borderRadius: 8,
-        backgroundColor: "#ffffff",
+        borderColor: colours.border,
+        borderRadius: radius.md,
         fontSize: 16,
+        lineHeight: 22,
+        color: colours.text,
+        backgroundColor: colours.surface,
     },
+
     multilineInput: {
-        minHeight: 100,
+        minHeight: 110,
     },
+
+    errorBox: {
+        padding: spacing.md,
+        borderRadius: radius.md,
+        backgroundColor: colours.dangerSoft,
+    },
+
     errorMessage: {
-        marginTop: 16,
         fontSize: 14,
         lineHeight: 20,
-        color: "#b42318",
-        textAlign: "center",
+        fontWeight: "600",
+        color: colours.danger,
     },
+
     submitButton: {
         width: "100%",
-        marginTop: 20,
-        paddingVertical: 14,
-        borderRadius: 8,
-        backgroundColor: "#222222",
         alignItems: "center",
+        paddingVertical: 14,
+        borderRadius: radius.md,
+        backgroundColor: colours.primary,
     },
+
+    submitButtonPressed: {
+        backgroundColor: colours.primaryPressed,
+    },
+
+    submitButtonDisabled: {
+        opacity: 0.55,
+    },
+
     submitButtonText: {
         fontSize: 16,
-        fontWeight: "600",
-        color: "#ffffff",
-    },
-    submitButtonDisabled: {
-        opacity: 0.6,
+        fontWeight: "700",
+        color: colours.surface,
     },
 });
