@@ -88,8 +88,6 @@ export default function FocusScreen() {
         const activeEndTime = endTime;
 
         function updateRemainingTime() {
-            const millisecondsRemaining = activeEndTime - Date.now();
-
             const nextRemainingSeconds = getRemainingSecondsFromEndTime(activeEndTime);
 
             setRemainingSeconds(nextRemainingSeconds);
@@ -354,5 +352,6 @@ const styles = StyleSheet.create({
 
     sessionContent: {
         width: "100%",
+        gap: spacing.xl,
     },
 });
