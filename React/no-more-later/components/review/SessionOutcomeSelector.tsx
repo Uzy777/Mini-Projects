@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import type { SessionOutcome } from "../../types/models";
+import { colours, radius, spacing } from "@/constants/design";
 
 type SessionOutcomeSelectorProps = {
     selectedOutcome: SessionOutcome | null;
@@ -39,7 +40,9 @@ const outcomeOptions: OutcomeOption[] = [
 export function SessionOutcomeSelector({ selectedOutcome, onSelectOutcome }: SessionOutcomeSelectorProps) {
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Session outcome</Text>
+            <Text style={styles.label}>HOW DID IT GO?</Text>
+
+            <Text style={styles.helperText}>Choose the outcome that best describes this Focus Session.</Text>
 
             <View style={styles.options}>
                 {outcomeOptions.map((option) => {
@@ -48,10 +51,16 @@ export function SessionOutcomeSelector({ selectedOutcome, onSelectOutcome }: Ses
                     return (
                         <Pressable
                             key={option.value}
-                            style={[styles.option, isSelected && styles.selectedOption]}
+                            style={({ pressed }) => [styles.option, isSelected && styles.selectedOption, pressed && !isSelected && styles.optionPressed]}
                             onPress={() => onSelectOutcome(option.value)}
                         >
-                            <Text style={[styles.optionLabel, isSelected && styles.selectedOptionLabel]}>{option.label}</Text>
+                            <View style={styles.optionHeader}>
+                                <Text style={[styles.optionLabel, isSelected && styles.selectedOptionLabel]}>{option.label}</Text>
+
+                                <View style={[styles.selectionCircle, isSelected && styles.selectionCircleSelected]}>
+                                    {isSelected && <View style={styles.selectionCircleInner} />}
+                                </View>
+                            </View>
 
                             <Text style={[styles.optionDescription, isSelected && styles.selectedOptionDescription]}>{option.description}</Text>
                         </Pressable>
@@ -65,44 +74,93 @@ export function SessionOutcomeSelector({ selectedOutcome, onSelectOutcome }: Ses
 const styles = StyleSheet.create({
     container: {
         width: "100%",
-        marginTop: 24,
     },
+
     label: {
-        marginBottom: 10,
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#555555",
+        fontSize: 12,
+        fontWeight: "700",
+        letterSpacing: 0.7,
+        color: colours.textMuted,
     },
+
+    helperText: {
+        marginTop: spacing.xs,
+        fontSize: 13,
+        lineHeight: 19,
+        color: colours.textMuted,
+    },
+
     options: {
-        gap: 10,
+        marginTop: spacing.md,
+        gap: spacing.sm,
     },
+
     option: {
         width: "100%",
-        padding: 14,
+        padding: spacing.md,
         borderWidth: 1,
-        borderColor: "#cccccc",
-        borderRadius: 10,
-        backgroundColor: "#ffffff",
+        borderColor: colours.border,
+        borderRadius: radius.md,
+        backgroundColor: colours.surface,
     },
+
+    optionPressed: {
+        backgroundColor: colours.background,
+    },
+
     selectedOption: {
-        borderColor: "#222222",
-        backgroundColor: "#222222",
+        borderColor: colours.primary,
+        backgroundColor: colours.primarySoft,
     },
+
+    optionHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: spacing.md,
+    },
+
     optionLabel: {
+        flex: 1,
         fontSize: 15,
         fontWeight: "700",
-        color: "#222222",
+        color: colours.text,
     },
+
     selectedOptionLabel: {
-        color: "#ffffff",
+        color: colours.primary,
     },
+
     optionDescription: {
-        marginTop: 4,
+        marginTop: spacing.xs,
+        paddingRight: 32,
         fontSize: 13,
         lineHeight: 18,
-        color: "#666666",
+        color: colours.textMuted,
     },
+
     selectedOptionDescription: {
-        color: "#dddddd",
+        color: colours.text,
+    },
+
+    selectionCircle: {
+        width: 20,
+        height: 20,
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 2,
+        borderColor: colours.border,
+        borderRadius: radius.pill,
+    },
+
+    selectionCircleSelected: {
+        borderColor: colours.primary,
+    },
+
+    selectionCircleInner: {
+        width: 10,
+        height: 10,
+        borderRadius: radius.pill,
+        backgroundColor: colours.primary,
     },
 });
