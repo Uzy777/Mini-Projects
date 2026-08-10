@@ -50,6 +50,7 @@ const styles = StyleSheet.create({
     header: {
         width: "100%",
         marginBottom: spacing.xl,
+        marginTop: spacing.xl,
     },
 
     topRow: {
