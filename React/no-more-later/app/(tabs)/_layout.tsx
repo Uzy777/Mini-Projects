@@ -2,22 +2,17 @@ import { Tabs } from "expo-router";
 import React from "react";
 
 import { HapticTab } from "@/components/haptic-tab";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
+import { House, Map, RotateCcwClock } from "lucide-react-native";
 
 import { colours } from "../../constants/design";
 
 export default function TabLayout() {
-    const colorScheme = useColorScheme();
-
     return (
         <Tabs
             screenOptions={{
-                // tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
                 headerShown: false,
                 tabBarButton: HapticTab,
-                
+
                 tabBarActiveTintColor: colours.primary,
 
                 tabBarInactiveTintColor: colours.textMuted,
@@ -46,17 +41,17 @@ export default function TabLayout() {
                 name="index"
                 options={{
                     title: "Home",
-                    tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+                    tabBarIcon: ({ color, size }) => <House size={size} color={color} />,
                 }}
             />
             <Tabs.Screen
                 name="journeys"
                 options={{
-                    title: "Journey",
-                    tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+                    title: "Journeys",
+                    tabBarIcon: ({ color, size }) => <Map size={size} color={color} />,
                 }}
             />
-            <Tabs.Screen name="history" options={{ title: "History" }} />
+            <Tabs.Screen name="history" options={{ title: "History", tabBarIcon: ({ color, size }) => <RotateCcwClock size={size} color={color} /> }} />
         </Tabs>
     );
 }
