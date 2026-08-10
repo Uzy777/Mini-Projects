@@ -15,6 +15,10 @@ export const colours = {
     success: "#15803d",
     successSoft: "#dcfce7",
 
+    warning: "#b45309",
+    warningSoft: "#fffbeb",
+    warningBorder: "#fde68a",
+
     danger: "#b91c1c",
     dangerSoft: "#fee2e2",
 } as const;

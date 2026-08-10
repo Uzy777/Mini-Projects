@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { colours, radius, spacing } from "@/constants/design";
+
 type ActiveSessionNoticeProps = {
     message: string;
     showReturnButton: boolean;
@@ -12,11 +14,13 @@ export function ActiveSessionNotice({ message, showReturnButton, onReturn }: Act
     }
 
     return (
-        <View style={styles.noticeContainer}>
-            {message && <Text style={styles.sessionMessage}>{message}</Text>}
+        <View style={styles.notice}>
+            <Text style={styles.label}>SESSION NOTICE</Text>
+
+            {message && <Text style={styles.message}>{message}</Text>}
 
             {showReturnButton && (
-                <Pressable style={styles.returnButton} onPress={onReturn}>
+                <Pressable style={({ pressed }) => [styles.returnButton, pressed && styles.returnButtonPressed]} onPress={onReturn}>
                     <Text style={styles.returnButtonText}>Return to active session</Text>
                 </Pressable>
             )}
@@ -25,27 +29,45 @@ export function ActiveSessionNotice({ message, showReturnButton, onReturn }: Act
 }
 
 const styles = StyleSheet.create({
-    noticeContainer: {
+    notice: {
         width: "100%",
+        padding: spacing.md,
+        borderWidth: 1,
+        borderColor: colours.warningBorder,
+        borderRadius: radius.md,
+        backgroundColor: colours.warningSoft,
     },
-    sessionMessage: {
-        marginTop: 16,
+
+    label: {
+        fontSize: 11,
+        fontWeight: "800",
+        letterSpacing: 0.7,
+        color: colours.warning,
+    },
+
+    message: {
+        marginTop: spacing.xs,
         fontSize: 14,
         lineHeight: 20,
-        color: "#b42318",
-        textAlign: "center",
+        color: colours.text,
     },
+
     returnButton: {
-        marginTop: 12,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        backgroundColor: "#222222",
+        marginTop: spacing.md,
         alignItems: "center",
+        paddingVertical: 12,
+        paddingHorizontal: spacing.md,
+        borderRadius: radius.md,
+        backgroundColor: colours.warning,
     },
+
+    returnButtonPressed: {
+        opacity: 0.82,
+    },
+
     returnButtonText: {
-        fontSize: 15,
-        fontWeight: "600",
-        color: "#ffffff",
+        fontSize: 14,
+        fontWeight: "700",
+        color: colours.surface,
     },
 });
