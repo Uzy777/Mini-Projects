@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View } from "react-native";
 
 import { colours, radius, spacing } from "../../constants/design";
+import { RankDisplay } from "@/components/ranks/RankDisplay";
+import { RANK_VISUAL_STYLE } from "@/constants/rankConfig";
 
 type LevelProgressCardProps = {
     level: number;
@@ -15,123 +17,127 @@ export function LevelProgressCard({ level, xpIntoLevel, xpRequired }: LevelProgr
 
     return (
         <View style={styles.card}>
-            <View style={styles.header}>
-                <View style={styles.headingContainer}>
-                    <Text style={styles.label}>LEVEL PROGRESS</Text>
-
-                    <Text style={styles.levelText}>Level {level}</Text>
+            <View style={styles.topRow}>
+                <View style={styles.rankArea}>
+                    <RankDisplay level={level} visualStyle={RANK_VISUAL_STYLE} />
                 </View>
 
-                <View style={styles.xpBadge}>
-                    <Text style={styles.xpText}>
+                <View style={styles.levelBadge}>
+                    <Text style={styles.levelBadgeText}>Level {level}</Text>
+                </View>
+            </View>
+
+            <View style={styles.progressSection}>
+                <View style={styles.progressHeader}>
+                    <Text style={styles.progressLabel}>LEVEL PROGRESS</Text>
+
+                    <Text style={styles.progressXp}>
                         {xpIntoLevel} / {xpRequired} XP
                     </Text>
                 </View>
-            </View>
 
-            <View style={styles.progressTrack}>
-                <View
-                    style={[
-                        styles.progressFill,
-                        {
-                            width: `${progressPercentage}%` as `${number}%`,
-                        },
-                    ]}
-                />
-            </View>
-
-            <View style={styles.footer}>
-                <Text style={styles.remainingXpText}>
-                    {xpUntilNextLevel} XP until Level {level + 1}
-                </Text>
-
-                <Text style={styles.percentageText}>{Math.round(progressPercentage)}%</Text>
+                <View style={styles.progressTrack}>
+                    <View
+                        style={[
+                            styles.progressFill,
+                            {
+                                width: `${progressPercentage}%`,
+                            },
+                        ]}
+                    />
+                </View>
             </View>
         </View>
     );
 }
-
 const styles = StyleSheet.create({
     card: {
-        width: "100%",
-        padding: spacing.lg,
+        backgroundColor: colours.surface,
+        borderRadius: radius.lg,
         borderWidth: 1,
         borderColor: colours.border,
-        borderRadius: radius.lg,
-        backgroundColor: colours.surface,
+        padding: spacing.lg,
+        gap: spacing.lg,
     },
 
-    header: {
+    topRow: {
         flexDirection: "row",
         alignItems: "flex-start",
+        gap: spacing.md,
+    },
+
+    rankArea: {
+        flex: 1,
+        minWidth: 0,
+    },
+
+    levelBadge: {
+        backgroundColor: colours.primarySoft,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: radius.pill,
+        alignSelf: "flex-start",
+    },
+
+    levelBadgeText: {
+        color: colours.primary,
+        fontSize: 13,
+        fontWeight: "700",
+    },
+
+    progressSection: {
+        gap: spacing.sm,
+    },
+
+    progressHeader: {
+        flexDirection: "row",
+        alignItems: "center",
         justifyContent: "space-between",
         gap: spacing.md,
     },
 
-    headingContainer: {
-        flex: 1,
-    },
-
-    label: {
-        fontSize: 12,
-        fontWeight: "700",
-        letterSpacing: 0.7,
+    progressLabel: {
         color: colours.textMuted,
-    },
-
-    levelText: {
-        marginTop: spacing.xs,
-        fontSize: 22,
-        lineHeight: 28,
-        fontWeight: "800",
-        color: colours.text,
-    },
-
-    xpBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: radius.pill,
-        backgroundColor: colours.primarySoft,
-    },
-
-    xpText: {
         fontSize: 12,
         fontWeight: "700",
-        color: colours.primary,
+        letterSpacing: 1,
+    },
+
+    progressXp: {
+        color: colours.text,
+        fontSize: 13,
+        fontWeight: "600",
     },
 
     progressTrack: {
         width: "100%",
         height: 10,
-        marginTop: spacing.lg,
-        borderRadius: radius.pill,
         backgroundColor: colours.primarySoft,
+        borderRadius: radius.pill,
         overflow: "hidden",
     },
 
     progressFill: {
         height: "100%",
-        borderRadius: radius.pill,
         backgroundColor: colours.primary,
+        borderRadius: radius.pill,
     },
 
-    footer: {
+    progressFooter: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
         gap: spacing.md,
-        marginTop: spacing.sm,
     },
 
-    remainingXpText: {
-        flex: 1,
-        fontSize: 13,
+    remainingText: {
         color: colours.textMuted,
+        fontSize: 13,
     },
 
     percentageText: {
+        color: colours.primary,
         fontSize: 13,
         fontWeight: "700",
-        color: colours.primary,
     },
 });

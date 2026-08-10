@@ -14,6 +14,8 @@ import { ContinueQuestCard } from "../../components/home/ContinueQuestCard";
 import { ActiveFocusSessionCard } from "../../components/home/ActiveFocusSessionCard";
 import { calculateCurrentStreak, calculateTodayFocusSummary, findLatestUnfinishedSession } from "../../utils/focusSessionStats";
 import { colours, spacing } from "../../constants/design";
+import { RankDisplay } from "@/components/ranks/RankDisplay";
+import { RANK_VISUAL_STYLE } from "@/constants/rankConfig";
 
 export default function HomeScreen() {
     const router = useRouter();
@@ -138,25 +140,13 @@ export default function HomeScreen() {
 
     return (
         <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-            {/* <View style={styles.pageContent}> */}
             <View style={styles.contentSections}>
                 <HomeHeader currentStreak={currentStreak} />
 
                 <LevelProgressCard level={level} xpIntoLevel={xpIntoLevel} xpRequired={xpRequired} />
 
+
                 <TodaySummaryCard sessionCount={todaySessionCount} focusedMinutes={todayFocusedMinutes} />
-
-                {/* {!activeSession && latestUnfinishedSession && (
-                    <ContinueQuestCard
-                        questTitle={latestUnfinishedSession.questTitle}
-                        nextAction={latestUnfinishedSession.nextAction}
-                        onContinue={handleContinueQuest}
-                    />
-                )}
-
-                {activeSession && activeSessionStatus && (
-                    <ActiveFocusSessionCard questTitle={activeSession.questTitle} status={activeSessionStatus} onReturn={handleReturnToActiveSession} />
-                )} */}
 
                 {activeSession && activeSessionStatus ? (
                     <ActiveFocusSessionCard questTitle={activeSession.questTitle} status={activeSessionStatus} onReturn={handleReturnToActiveSession} />
