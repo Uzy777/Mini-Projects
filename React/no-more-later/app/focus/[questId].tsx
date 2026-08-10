@@ -56,7 +56,12 @@ export default function FocusScreen() {
                         setIsRunning(false);
                         setEndTime(null);
 
-                        await clearActiveFocusSession();
+                        await saveActiveFocusSession({
+                            ...storedSession,
+                            remainingSeconds: 0,
+                            isRunning: false,
+                            endTime: null,
+                        });
 
                         return;
                     }
@@ -93,14 +98,22 @@ export default function FocusScreen() {
             setRemainingSeconds(nextRemainingSeconds);
 
             if (nextRemainingSeconds === 0) {
-                completionSoundPlayer.seekTo(0); // Seek back to the start to play again
+                completionSoundPlayer.seekTo(0);
                 completionSoundPlayer.play();
 
                 setIsRunning(false);
                 setEndTime(null);
 
-                clearActiveFocusSession().catch((error) => {
-                    console.error("Failed to clear active Focus Session:", error);
+                saveActiveFocusSession({
+                    questId,
+                    journeyId,
+                    questTitle: questTitle ?? "Untitled Quest",
+                    selectedMinutes,
+                    remainingSeconds: 0,
+                    isRunning: false,
+                    endTime: null,
+                }).catch((error) => {
+                    console.error("Failed to save completed Focus Session:", error);
                 });
             }
         }
@@ -125,7 +138,20 @@ export default function FocusScreen() {
                 const hasExpired = existingSession.isRunning && existingSession.endTime !== null && existingSession.endTime <= Date.now();
 
                 if (hasExpired) {
-                    await clearActiveFocusSession();
+                    const completedSession: ActiveFocusSession = {
+                        ...existingSession,
+                        remainingSeconds: 0,
+                        isRunning: false,
+                        endTime: null,
+                    };
+
+                    await saveActiveFocusSession(completedSession);
+
+                    setExistingActiveSession(completedSession);
+
+                    setSessionMessage(`"${existingSession.questTitle}" is ready for Review.`);
+
+                    return;
                 } else {
                     setExistingActiveSession(existingSession);
 
