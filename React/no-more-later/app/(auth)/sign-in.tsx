@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, Link } from "expo-router";
 
 import { colours, radius, spacing } from "@/constants/design";
 import { signInWithEmail } from "@/services/auth/authService";
@@ -112,6 +112,16 @@ export default function SignInScreen() {
                 >
                     <Text style={styles.submitButtonText}>{isSubmitting ? "Signing in..." : "Sign in"}</Text>
                 </Pressable>
+
+                <View style={styles.authLinkRow}>
+                    <Text style={styles.authLinkText}>Don't have an account?</Text>
+
+                    <Link href="/sign-up" asChild>
+                        <Pressable>
+                            <Text style={styles.authLink}>Create one</Text>
+                        </Pressable>
+                    </Link>
+                </View>
             </View>
         </ScrollView>
     );
@@ -220,5 +230,22 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: "700",
         color: colours.surface,
+    },
+    authLinkRow: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: spacing.xs,
+    },
+
+    authLinkText: {
+        fontSize: 14,
+        color: colours.textMuted,
+    },
+
+    authLink: {
+        fontSize: 14,
+        fontWeight: "700",
+        color: colours.primary,
     },
 });
