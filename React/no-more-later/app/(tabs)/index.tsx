@@ -13,10 +13,11 @@ import { TodaySummaryCard } from "../../components/home/TodaySummaryCard";
 import { ContinueQuestCard } from "../../components/home/ContinueQuestCard";
 import { ActiveFocusSessionCard } from "../../components/home/ActiveFocusSessionCard";
 import { calculateCurrentStreak, calculateTodayFocusSummary, findLatestUnfinishedSession } from "../../utils/focusSessionStats";
-import { colours, spacing } from "../../constants/design";
+import { colours, spacing, radius } from "../../constants/design";
 import { RankDisplay } from "@/components/ranks/RankDisplay";
 import { RANK_VISUAL_STYLE } from "@/constants/rankConfig";
 import { supabase } from "@/lib/supabase";
+import { signOut } from "@/services/auth/authService";
 
 export default function HomeScreen() {
     const router = useRouter();
@@ -139,10 +140,22 @@ export default function HomeScreen() {
         });
     }
 
+    async function handleSignOut() {
+        const { error } = await signOut();
+
+        if (error) {
+            console.error("Failed to sign out:", error);
+        }
+    }
+
     return (
         <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
             <View style={styles.contentSections}>
                 <HomeHeader currentStreak={currentStreak} />
+                
+                <Pressable style={styles.signOutButton} onPress={handleSignOut}>
+                    <Text style={styles.signOutButtonText}>Sign out</Text>
+                </Pressable>
 
                 <LevelProgressCard level={level} xpIntoLevel={xpIntoLevel} xpRequired={xpRequired} />
 
@@ -195,5 +208,21 @@ const styles = StyleSheet.create({
     screen: {
         flex: 1,
         backgroundColor: colours.background,
+    },
+    signOutButton: {
+        alignSelf: "flex-start",
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
+        borderWidth: 1,
+        borderColor: colours.border,
+        borderRadius: radius.md,
+        backgroundColor: colours.surface,
+        marginTop: -25,
+    },
+
+    signOutButtonText: {
+        fontSize: 14,
+        fontWeight: "700",
+        color: colours.textMuted,
     },
 });

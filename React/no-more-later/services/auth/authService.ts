@@ -7,3 +7,7 @@ export async function signUpWithEmail(email: string, password: string) {
 export async function signInWithEmail(email: string, password: string) {
     return await supabase.auth.signInWithPassword({ email, password });
 }
+
+export async function signOut() {
+    return await supabase.auth.signOut({ scope: "local" });
+}
