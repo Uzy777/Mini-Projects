@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { StyleSheet, Text, ScrollView, View } from "react-native";
+import { StyleSheet, Text, ScrollView, View, Pressable } from "react-native";
 
 import { calculateLevel } from "../../utils/level";
 import type { SessionOutcome, FocusSessionRecord } from "../../types/models";
@@ -37,6 +37,7 @@ export default function ReviewSessionScreen() {
     const [totalXp, setTotalXp] = useState<number | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [reachedLevel, setReachedLevel] = useState<number | null>(null);
+    const [finishLineConfirmed, setFinishLineConfirmed] = useState(false);
 
     useEffect(() => {
         async function loadQuest() {
@@ -192,6 +193,14 @@ export default function ReviewSessionScreen() {
                             <Text style={styles.finishLineDescription}>You said this Quest would be complete when:</Text>
 
                             <Text style={styles.finishLineText}>{questDoneWhen}</Text>
+
+                            <Pressable style={styles.confirmationRow} onPress={() => setFinishLineConfirmed((currentValue) => !currentValue)}>
+                                <View style={[styles.checkbox, finishLineConfirmed && styles.checkboxConfirmed]}>
+                                    {finishLineConfirmed && <Text style={styles.checkmark}>✓</Text>}
+                                </View>
+
+                                <Text style={styles.confirmationText}>I genuinely met this finish line.</Text>
+                            </Pressable>
                         </View>
                     )}
 
@@ -292,6 +301,42 @@ const styles = StyleSheet.create({
         marginTop: spacing.sm,
         fontSize: 16,
         lineHeight: 23,
+        fontWeight: "600",
+        color: colours.text,
+    },
+    confirmationRow: {
+        marginTop: spacing.lg,
+        flexDirection: "row",
+        alignItems: "center",
+        gap: spacing.sm,
+    },
+
+    checkbox: {
+        width: 22,
+        height: 22,
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 2,
+        borderColor: colours.primaryBorder,
+        borderRadius: 6,
+        backgroundColor: colours.surface,
+    },
+
+    checkboxConfirmed: {
+        borderColor: colours.primary,
+        backgroundColor: colours.primary,
+    },
+
+    checkmark: {
+        fontSize: 14,
+        fontWeight: "800",
+        color: colours.surface,
+    },
+
+    confirmationText: {
+        flex: 1,
+        fontSize: 14,
+        lineHeight: 20,
         fontWeight: "600",
         color: colours.text,
     },
