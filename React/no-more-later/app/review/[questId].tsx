@@ -151,6 +151,12 @@ export default function ReviewSessionScreen() {
 
     const showNextAction = selectedOutcome !== null && selectedOutcome !== "completed";
 
+    function handleSelectOutcome(outcome: SessionOutcome) {
+        setSelectedOutcome(outcome);
+        setFinishLineConfirmed(false);
+        setValidationMessage("");
+    }
+
     return (
         <ScrollView
             style={styles.screen}
@@ -184,7 +190,7 @@ export default function ReviewSessionScreen() {
                 />
             ) : (
                 <View style={styles.reviewSections}>
-                    <SessionOutcomeSelector selectedOutcome={selectedOutcome} onSelectOutcome={setSelectedOutcome} />
+                    <SessionOutcomeSelector selectedOutcome={selectedOutcome} onSelectOutcome={handleSelectOutcome} />
 
                     {selectedOutcome === "completed" && questDoneWhen && (
                         <View style={styles.finishLineCard}>
