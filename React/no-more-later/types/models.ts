@@ -14,6 +14,7 @@ export type Quest = {
     id: string;
     title: string;
     status?: QuestStatus;
+    doneWhen?: string;
     nextAction?: string;
     lastAccomplishment?: string;
 };

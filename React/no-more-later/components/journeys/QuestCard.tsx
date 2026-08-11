@@ -29,6 +29,14 @@ export function QuestCard({ quest, onStartSession, onReopenQuest, onDeleteQuest 
 
             <Text style={styles.title}>{quest.title}</Text>
 
+            {quest.doneWhen && (
+                <View style={styles.doneWhenBox}>
+                    <Text style={styles.doneWhenLabel}>DONE WHEN</Text>
+
+                    <Text style={styles.doneWhenText}>{quest.doneWhen}</Text>
+                </View>
+            )}
+
             {quest.lastAccomplishment && (
                 <View style={styles.accomplishmentBox}>
                     <Text style={styles.detailLabel}>Last accomplishment</Text>
@@ -205,6 +213,26 @@ const styles = StyleSheet.create({
     secondaryButtonText: {
         fontSize: 15,
         fontWeight: "700",
+        color: colours.text,
+    },
+    doneWhenBox: {
+        marginTop: spacing.md,
+        padding: spacing.md,
+        borderRadius: radius.md,
+        backgroundColor: colours.primarySoft,
+    },
+
+    doneWhenLabel: {
+        fontSize: 11,
+        fontWeight: "800",
+        letterSpacing: 0.6,
+        color: colours.primary,
+    },
+
+    doneWhenText: {
+        marginTop: spacing.xs,
+        fontSize: 14,
+        lineHeight: 20,
         color: colours.text,
     },
 });

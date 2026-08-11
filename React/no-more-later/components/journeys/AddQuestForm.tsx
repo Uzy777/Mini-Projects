@@ -4,11 +4,13 @@ import { colours, radius, spacing } from "@/constants/design";
 
 type AddQuestFormProps = {
     questTitle: string;
+    doneWhen: string;
     onChangeQuestTitle: (title: string) => void;
+    onChangeDoneWhen: (doneWhen: string) => void;
     onAddQuest: () => void;
 };
 
-export function AddQuestForm({ questTitle, onChangeQuestTitle, onAddQuest }: AddQuestFormProps) {
+export function AddQuestForm({ questTitle, doneWhen, onChangeQuestTitle, onChangeDoneWhen, onAddQuest }: AddQuestFormProps) {
     const titleIsEmpty = !questTitle.trim();
 
     return (
@@ -28,6 +30,22 @@ export function AddQuestForm({ questTitle, onChangeQuestTitle, onAddQuest }: Add
                 onSubmitEditing={titleIsEmpty ? undefined : onAddQuest}
             />
 
+            <View style={styles.fieldGroup}>
+                <Text style={styles.fieldLabel}>DONE WHEN</Text>
+
+                <Text style={styles.helperText}>Give this Quest a clear finish line.</Text>
+
+                <TextInput
+                    style={[styles.input, styles.doneWhenInput]}
+                    value={doneWhen}
+                    onChangeText={onChangeDoneWhen}
+                    placeholder="What will allow me to mark this quest as done?"
+                    placeholderTextColor={colours.textMuted}
+                    selectionColor={colours.primary}
+                    multiline
+                    textAlignVertical="top"
+                />
+            </View>
             <Pressable
                 style={({ pressed }) => [styles.addButton, titleIsEmpty && styles.disabledButton, pressed && !titleIsEmpty && styles.addButtonPressed]}
                 onPress={onAddQuest}
@@ -101,5 +119,28 @@ const styles = StyleSheet.create({
 
     disabledButtonText: {
         color: colours.textMuted,
+    },
+    fieldGroup: {
+        marginTop: spacing.md,
+        gap: spacing.sm,
+    },
+
+    fieldLabel: {
+        fontSize: 12,
+        fontWeight: "700",
+        letterSpacing: 0.7,
+        color: colours.text,
+    },
+
+    helperText: {
+        fontSize: 13,
+        lineHeight: 18,
+        color: colours.textMuted,
+    },
+
+    doneWhenInput: {
+        marginTop: 0,
+        minHeight: 90,
+        paddingTop: spacing.md,
     },
 });

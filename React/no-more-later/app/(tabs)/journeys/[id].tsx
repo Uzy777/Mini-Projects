@@ -39,6 +39,7 @@ export default function JourneyDetailsScreen() {
 
     const { id, title } = useLocalSearchParams<{ id: string; title?: string }>();
     const [questTitle, setQuestTitle] = useState("");
+    const [doneWhen, setDoneWhen] = useState("");
     const [quests, setQuests] = useState<Quest[]>([]);
     const [selectedQuestFilter, setSelectedQuestFilter] = useState<QuestFilter>("all");
 
@@ -64,6 +65,7 @@ export default function JourneyDetailsScreen() {
 
     async function handleAddQuest() {
         const trimmedTitle = questTitle.trim();
+        const trimmedDoneWhen = doneWhen.trim();
 
         if (!trimmedTitle) {
             return;
@@ -83,6 +85,7 @@ export default function JourneyDetailsScreen() {
             id: Date.now().toString(),
             title: trimmedTitle,
             status: "active",
+            doneWhen: trimmedDoneWhen || undefined,
         };
 
         const updatedQuests = [...quests, newQuest];
@@ -107,6 +110,7 @@ export default function JourneyDetailsScreen() {
 
             setQuests(updatedQuests);
             setQuestTitle("");
+            setDoneWhen("");
         } catch (error) {
             console.error("Failed to save Quest:", error);
         }
@@ -225,7 +229,13 @@ export default function JourneyDetailsScreen() {
             <View style={styles.sections}>
                 <JourneyProgressCard totalQuestCount={totalQuestCount} completedQuestCount={completedQuestCount} />
 
-                <AddQuestForm questTitle={questTitle} onChangeQuestTitle={setQuestTitle} onAddQuest={handleAddQuest} />
+                <AddQuestForm
+                    questTitle={questTitle}
+                    doneWhen={doneWhen}
+                    onChangeQuestTitle={setQuestTitle}
+                    onChangeDoneWhen={setDoneWhen}
+                    onAddQuest={handleAddQuest}
+                />
 
                 <View style={styles.filterContainer}>
                     {questFilters.map((filter) => {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { StyleSheet, Text, ScrollView, View } from "react-native";
 
@@ -14,6 +14,7 @@ import { getReviewValidationMessage } from "../../utils/reviewValidation";
 import { updateReviewProgress } from "../../services/reviewProgressService";
 import { clearActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
 import { colours, radius, spacing } from "@/constants/design";
+import { getQuests } from "../../services/storage/questsStorage";
 
 export default function ReviewSessionScreen() {
     const router = useRouter();
@@ -28,6 +29,7 @@ export default function ReviewSessionScreen() {
     }>();
 
     const [selectedOutcome, setSelectedOutcome] = useState<SessionOutcome | null>(endedEarly === "true" ? "stopped" : null);
+    const [questDoneWhen, setQuestDoneWhen] = useState<string | null>(null);
     const [accomplishment, setAccomplishment] = useState("");
     const [nextAction, setNextAction] = useState("");
     const [validationMessage, setValidationMessage] = useState("");
@@ -35,6 +37,18 @@ export default function ReviewSessionScreen() {
     const [totalXp, setTotalXp] = useState<number | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [reachedLevel, setReachedLevel] = useState<number | null>(null);
+
+    useEffect(() => {
+        async function loadQuest() {
+            const quests = await getQuests(journeyId);
+
+            const quest = quests.find((quest) => quest.id === questId);
+
+            setQuestDoneWhen(quest?.doneWhen?.trim() || null);
+        }
+
+        loadQuest();
+    }, [journeyId, questId]);
 
     function handleReturnToJourneys() {
         router.replace("/journeys");
@@ -171,6 +185,16 @@ export default function ReviewSessionScreen() {
                 <View style={styles.reviewSections}>
                     <SessionOutcomeSelector selectedOutcome={selectedOutcome} onSelectOutcome={setSelectedOutcome} />
 
+                    {selectedOutcome === "completed" && questDoneWhen && (
+                        <View style={styles.finishLineCard}>
+                            <Text style={styles.finishLineLabel}>YOUR FINISH LINE</Text>
+
+                            <Text style={styles.finishLineDescription}>You said this Quest would be complete when:</Text>
+
+                            <Text style={styles.finishLineText}>{questDoneWhen}</Text>
+                        </View>
+                    )}
+
                     <ReviewForm
                         accomplishment={accomplishment}
                         nextAction={nextAction}
@@ -240,5 +264,35 @@ const styles = StyleSheet.create({
     reviewSections: {
         width: "100%",
         gap: spacing.xl,
+    },
+    finishLineCard: {
+        width: "100%",
+        padding: spacing.lg,
+        borderWidth: 1,
+        borderColor: colours.primaryBorder,
+        borderRadius: radius.lg,
+        backgroundColor: colours.primarySoft,
+    },
+
+    finishLineLabel: {
+        fontSize: 11,
+        fontWeight: "800",
+        letterSpacing: 0.8,
+        color: colours.primary,
+    },
+
+    finishLineDescription: {
+        marginTop: spacing.sm,
+        fontSize: 13,
+        lineHeight: 19,
+        color: colours.textMuted,
+    },
+
+    finishLineText: {
+        marginTop: spacing.sm,
+        fontSize: 16,
+        lineHeight: 23,
+        fontWeight: "600",
+        color: colours.text,
     },
 });
