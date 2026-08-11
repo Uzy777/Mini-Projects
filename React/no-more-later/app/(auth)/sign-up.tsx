@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, View, Pressable } from "react-native";
+import { useRouter } from "expo-router";
 
 import { colours, radius, spacing } from "@/constants/design";
 import { signUpWithEmail } from "@/services/auth/authService";
 
 export default function SignUpScreen() {
+    const router = useRouter();
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -48,9 +51,13 @@ export default function SignUpScreen() {
                 setValidationMessage(error.message);
                 return;
             }
+            if (!data.session) {
+                setValidationMessage("Your account was created, but no login session was started.");
 
-            console.log("Signed up user:", data.user);
-            console.log("Session:", data.session);
+                return;
+            }
+
+            router.replace("/");
         } catch (error) {
             console.error("Sign up failed:", error);
 
