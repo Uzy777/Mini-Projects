@@ -1,9 +1,8 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 
 import { colours, spacing } from "@/constants/design";
-import { getFocusRank } from "@/utils/rank";
+import { getFocusRank, getNextFocusRank, getRankProgress } from "@/utils/rank";
 import { getRankImage } from "@/utils/rankImage";
-
 import type { RankVisualStyle } from "@/types/ranks";
 
 type RankDisplayProps = {
@@ -19,6 +18,8 @@ export function RankDisplay({ level, visualStyle }: RankDisplayProps) {
     }
 
     const image = getRankImage(rank.id, visualStyle);
+    const nextRank = getNextFocusRank(level);
+    const rankProgress = getRankProgress(level);
 
     return (
         <View style={styles.container}>
@@ -29,9 +30,13 @@ export function RankDisplay({ level, visualStyle }: RankDisplayProps) {
 
                 <Text style={styles.name}>{rank.name}</Text>
 
-                <Text style={styles.levelRange}>
-                    Levels {rank.minimumLevel}–{rank.maximumLevel}
-                </Text>
+                {rankProgress && <Text style={styles.progressText}>{Math.round(rankProgress.progressPercentage)}% through rank</Text>}
+
+                {nextRank && (
+                    <Text style={styles.nextRankText}>
+                        Next: {nextRank.name} at Level {nextRank.minimumLevel}
+                    </Text>
+                )}
             </View>
         </View>
     );
@@ -70,5 +75,15 @@ const styles = StyleSheet.create({
     levelRange: {
         fontSize: 14,
         color: colours.textMuted,
+    },
+    progressText: {
+        fontSize: 12,
+        color: colours.textMuted,
+    },
+
+    nextRankText: {
+        fontSize: 12,
+        fontWeight: "600",
+        color: colours.primary,
     },
 });

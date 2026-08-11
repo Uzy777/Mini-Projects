@@ -8,3 +8,10 @@ export type RankDefinition = {
 };
 
 export type RankVisualStyle = "emblem" | "animal";
+
+export type RankProgress = {
+    currentLevel: number;
+    minimumLevel: number;
+    maximumLevel: number;
+    progressPercentage: number;
+};
