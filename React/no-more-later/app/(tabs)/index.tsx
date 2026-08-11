@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 
 import { calculateLevelProgress } from "../../utils/level";
@@ -16,6 +16,7 @@ import { calculateCurrentStreak, calculateTodayFocusSummary, findLatestUnfinishe
 import { colours, spacing } from "../../constants/design";
 import { RankDisplay } from "@/components/ranks/RankDisplay";
 import { RANK_VISUAL_STYLE } from "@/constants/rankConfig";
+import { supabase } from "@/lib/supabase";
 
 export default function HomeScreen() {
     const router = useRouter();
@@ -144,7 +145,6 @@ export default function HomeScreen() {
                 <HomeHeader currentStreak={currentStreak} />
 
                 <LevelProgressCard level={level} xpIntoLevel={xpIntoLevel} xpRequired={xpRequired} />
-
 
                 <TodaySummaryCard sessionCount={todaySessionCount} focusedMinutes={todayFocusedMinutes} />
 
