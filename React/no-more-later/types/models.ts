@@ -42,3 +42,9 @@ export type ActiveFocusSession = {
     isRunning: boolean;
     endTime: number | null;
 };
+
+export type Profile = {
+    id: string;
+    display_name: string | null;
+    created_at: string;
+};
