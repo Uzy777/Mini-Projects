@@ -11,11 +11,19 @@ export default function SignUpScreen() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [displayName, setDisplayName] = useState("");
     const [validationMessage, setValidationMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     async function handleSignUp() {
         const trimmedEmail = email.trim().toLowerCase();
+        const trimmedDisplayName = displayName.trim();
+
+        if (!trimmedDisplayName) {
+            setValidationMessage("Enter a display name.");
+
+            return;
+        }
 
         if (!trimmedEmail) {
             setValidationMessage("Enter your email address.");
@@ -45,7 +53,7 @@ export default function SignUpScreen() {
         setIsSubmitting(false);
 
         try {
-            const { data, error } = await signUpWithEmail(trimmedEmail, password);
+            const { data, error } = await signUpWithEmail(trimmedEmail, password, trimmedDisplayName);
 
             if (error) {
                 setValidationMessage(error.message);
@@ -78,6 +86,19 @@ export default function SignUpScreen() {
             </View>
 
             <View style={styles.form}>
+                <View style={styles.fieldGroup}>
+                    <Text style={styles.fieldLabel}>DISPLAY NAME</Text>
+
+                    <TextInput
+                        style={styles.input}
+                        value={displayName}
+                        onChangeText={setDisplayName}
+                        placeholder="How should we call you?"
+                        placeholderTextColor={colours.textMuted}
+                        autoCapitalize="words"
+                    />
+                </View>
+
                 <View style={styles.fieldGroup}>
                     <Text style={styles.fieldLabel}>EMAIL</Text>
 
