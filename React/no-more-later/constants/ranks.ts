@@ -1,4 +1,4 @@
-import { RankDefinition } from "@/types/ranks";
+import type { RankDefinition } from "@/types/ranks";
 
 export const FOCUS_RANKS: RankDefinition[] = [
     {
@@ -8,27 +8,147 @@ export const FOCUS_RANKS: RankDefinition[] = [
         maximumLevel: 4,
     },
     {
-        id: "hare",
-        name: "Hare",
+        id: "mouse",
+        name: "Mouse",
         minimumLevel: 5,
         maximumLevel: 9,
     },
     {
-        id: "fox",
-        name: "Fox",
+        id: "rabbit",
+        name: "Rabbit",
         minimumLevel: 10,
         maximumLevel: 14,
     },
     {
-        id: "wolf",
-        name: "Wolf",
+        id: "squirrel",
+        name: "Squirrel",
         minimumLevel: 15,
         maximumLevel: 19,
     },
     {
-        id: "panther",
-        name: "Panther",
+        id: "fox",
+        name: "Fox",
         minimumLevel: 20,
         maximumLevel: 24,
+    },
+    {
+        id: "raccoon",
+        name: "Raccoon",
+        minimumLevel: 25,
+        maximumLevel: 29,
+    },
+    {
+        id: "badger",
+        name: "Badger",
+        minimumLevel: 30,
+        maximumLevel: 34,
+    },
+    {
+        id: "wolf",
+        name: "Wolf",
+        minimumLevel: 35,
+        maximumLevel: 39,
+    },
+    {
+        id: "cheetah",
+        name: "Cheetah",
+        minimumLevel: 40,
+        maximumLevel: 44,
+    },
+    {
+        id: "lynx",
+        name: "Lynx",
+        minimumLevel: 45,
+        maximumLevel: 49,
+    },
+    {
+        id: "snow-leopard",
+        name: "Snow Leopard",
+        minimumLevel: 50,
+        maximumLevel: 54,
+    },
+    {
+        id: "puma",
+        name: "Puma",
+        minimumLevel: 55,
+        maximumLevel: 59,
+    },
+    {
+        id: "boar",
+        name: "Boar",
+        minimumLevel: 60,
+        maximumLevel: 64,
+    },
+    {
+        id: "black-bear",
+        name: "Black Bear",
+        minimumLevel: 65,
+        maximumLevel: 69,
+    },
+    {
+        id: "polar-bear",
+        name: "Polar Bear",
+        minimumLevel: 70,
+        maximumLevel: 74,
+    },
+    {
+        id: "eagle",
+        name: "Eagle",
+        minimumLevel: 75,
+        maximumLevel: 79,
+    },
+    {
+        id: "hawk-falcon",
+        name: "Hawk Falcon",
+        minimumLevel: 80,
+        maximumLevel: 84,
+    },
+    {
+        id: "owl",
+        name: "Owl",
+        minimumLevel: 85,
+        maximumLevel: 89,
+    },
+    {
+        id: "lion",
+        name: "Lion",
+        minimumLevel: 90,
+        maximumLevel: 94,
+    },
+    {
+        id: "tiger",
+        name: "Tiger",
+        minimumLevel: 95,
+        maximumLevel: 99,
+    },
+    {
+        id: "white-wolf",
+        name: "White Wolf",
+        minimumLevel: 100,
+        maximumLevel: 104,
+    },
+    {
+        id: "black-panther",
+        name: "Black Panther",
+        minimumLevel: 105,
+        maximumLevel: 109,
+    },
+    {
+        id: "dragon",
+        name: "Dragon",
+        minimumLevel: 110,
+        maximumLevel: 114,
+    },
+    {
+        id: "phoenix",
+        name: "Phoenix",
+        minimumLevel: 115,
+        maximumLevel: 119,
+    },
+    {
+        id: "griffin",
+        name: "Griffin",
+        minimumLevel: 120,
+        maximumLevel: null,
     },
 ];

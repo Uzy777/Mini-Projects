@@ -122,22 +122,4 @@ const styles = StyleSheet.create({
         backgroundColor: colours.primary,
         borderRadius: radius.pill,
     },
-
-    progressFooter: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: spacing.md,
-    },
-
-    remainingText: {
-        color: colours.textMuted,
-        fontSize: 13,
-    },
-
-    percentageText: {
-        color: colours.primary,
-        fontSize: 13,
-        fontWeight: "700",
-    },
 });

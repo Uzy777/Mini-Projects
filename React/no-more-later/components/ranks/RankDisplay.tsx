@@ -23,7 +23,9 @@ export function RankDisplay({ level, visualStyle }: RankDisplayProps) {
 
     return (
         <View style={styles.container}>
-            <Image source={image} style={styles.image} resizeMode="contain" />
+            <View style={styles.imageFrame}>
+                <Image source={image} style={styles.image} resizeMode="cover" />
+            </View>
 
             <View style={styles.details}>
                 <Text style={styles.label}>FOCUS RANK</Text>
@@ -49,11 +51,6 @@ const styles = StyleSheet.create({
         gap: spacing.md,
     },
 
-    image: {
-        width: 72,
-        height: 72,
-    },
-
     details: {
         flex: 1,
         gap: spacing.xs,
@@ -72,10 +69,6 @@ const styles = StyleSheet.create({
         color: colours.text,
     },
 
-    levelRange: {
-        fontSize: 14,
-        color: colours.textMuted,
-    },
     progressText: {
         fontSize: 12,
         color: colours.textMuted,
@@ -85,5 +78,22 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: "600",
         color: colours.primary,
+    },
+    imageFrame: {
+        width: 112,
+        height: 112,
+        borderRadius: 999,
+        borderWidth: 2,
+        borderColor: colours.primary,
+        backgroundColor: colours.primarySoft,
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+    },
+
+    image: {
+        width: 142,
+        height: 142,
+        borderRadius: 999,
     },
 });
