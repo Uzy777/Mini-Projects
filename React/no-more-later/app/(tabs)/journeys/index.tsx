@@ -12,6 +12,9 @@ import { getActiveFocusSession } from "../../../services/storage/activeFocusSess
 import { showMessage } from "../../../utils/showMessage";
 import { clearNoMoreLaterStorage } from "../../../services/storage/resetAppStorage";
 import { colours, spacing, radius } from "../../../constants/design";
+import { useAuth } from "@/contexts/AuthContext";
+import { getRemoteJourneys } from "@/services/journeys/journeyService";
+import { createRemoteJourney } from "@/services/journeys/journeyService";
 
 type JourneyFilter = "all" | "active" | "completed";
 
@@ -35,6 +38,7 @@ const journeyFilters: {
 
 export default function JourneyScreen() {
     const router = useRouter();
+    const { session } = useAuth();
 
     const [journeyTitle, setJourneyTitle] = useState("");
     const [journeys, setJourneys] = useState<Journey[]>([]);
@@ -43,17 +47,32 @@ export default function JourneyScreen() {
     useFocusEffect(
         useCallback(() => {
             async function loadJourneys() {
-                try {
-                    const currentJourneys = await getJourneys();
+                if (!session) {
+                    setJourneys([]);
+                    return;
+                }
 
-                    setJourneys(currentJourneys);
+                try {
+                    const { data, error } = await getRemoteJourneys(session.user.id);
+
+                    if (error) {
+                        console.error("Failed to load remote Journeys:", error);
+
+                        return;
+                    }
+
+                    const remoteJourneys = data ?? [];
+
+                    setJourneys(remoteJourneys);
+
+                    await saveJourneys(remoteJourneys);
                 } catch (error) {
                     console.error("Failed to load Journeys:", error);
                 }
             }
 
             loadJourneys();
-        }, []),
+        }, [session?.user.id]),
     );
 
     async function handleAddJourney() {
@@ -73,21 +92,31 @@ export default function JourneyScreen() {
             return;
         }
 
-        const newJourney: Journey = {
-            id: Date.now().toString(),
-            title: trimmedTitle,
-            status: "active",
-        };
-
-        const updatedJourneys = [...journeys, newJourney];
+        if (!session) {
+            return;
+        }
 
         try {
+            const { data, error } = await createRemoteJourney(session.user.id, trimmedTitle);
+
+            if (error || !data) {
+                console.error("Failed to create Journey:", error);
+
+                return;
+            }
+
+            const newJourney: Journey = data;
+
+            const updatedJourneys = [...journeys, newJourney];
+
             await saveJourneys(updatedJourneys);
 
             setJourneys(updatedJourneys);
             setJourneyTitle("");
+
+            console.log("Created Journey:", newJourney);
         } catch (error) {
-            console.error("Failed to save Journey:", error);
+            console.error("Failed to create Journey:", error);
         }
     }
 
