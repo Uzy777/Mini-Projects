@@ -18,9 +18,11 @@ import { RankDisplay } from "@/components/ranks/RankDisplay";
 import { RANK_VISUAL_STYLE } from "@/constants/rankConfig";
 import { supabase } from "@/lib/supabase";
 import { signOut } from "@/services/auth/authService";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function HomeScreen() {
     const router = useRouter();
+    const { profile } = useAuth();
 
     const [totalXp, setTotalXp] = useState(0);
     const [activeSession, setActiveSession] = useState<ActiveFocusSession | null>(null);
@@ -151,8 +153,8 @@ export default function HomeScreen() {
     return (
         <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
             <View style={styles.contentSections}>
-                <HomeHeader currentStreak={currentStreak} />
-                
+                <HomeHeader currentStreak={currentStreak} displayName={profile?.display_name ?? null} />
+
                 <Pressable style={styles.signOutButton} onPress={handleSignOut}>
                     <Text style={styles.signOutButtonText}>Sign out</Text>
                 </Pressable>

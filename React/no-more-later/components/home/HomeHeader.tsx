@@ -4,23 +4,24 @@ import { colours, radius, spacing } from "../../constants/design";
 
 type HomeHeaderProps = {
     currentStreak: number;
+    displayName: string | null;
 };
 
 function getGreeting(): string {
     const currentHour = new Date().getHours();
 
     if (currentHour < 12) {
-        return "Good morning";
+        return "Good morning,";
     }
 
     if (currentHour < 18) {
-        return "Good afternoon";
+        return "Good afternoon,";
     }
 
-    return "Good evening";
+    return "Good evening,";
 }
 
-export function HomeHeader({ currentStreak }: HomeHeaderProps) {
+export function HomeHeader({ currentStreak, displayName }: HomeHeaderProps) {
     const streakLabel = currentStreak === 1 ? "day streak" : "days streak";
 
     return (
@@ -29,7 +30,7 @@ export function HomeHeader({ currentStreak }: HomeHeaderProps) {
                 <View style={styles.headingContainer}>
                     <Text style={styles.appName}>NO MORE LATER</Text>
 
-                    <Text style={styles.title}>{getGreeting()}</Text>
+                    <Text style={styles.title}>{displayName ? `${getGreeting()} ${displayName}` : getGreeting()}</Text>
                 </View>
 
                 {currentStreak > 0 && (
