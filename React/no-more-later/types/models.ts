@@ -33,6 +33,8 @@ export type FocusSessionRecord = {
     completedAt: string;
 };
 
+export type CreateFocusSessionInput = Omit<FocusSessionRecord, "id">;
+
 export type ActiveFocusSession = {
     questId: string;
     journeyId: string;

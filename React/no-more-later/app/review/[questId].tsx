@@ -3,7 +3,7 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { StyleSheet, Text, ScrollView, View, Pressable } from "react-native";
 
 import { calculateLevel } from "../../utils/level";
-import type { SessionOutcome, FocusSessionRecord } from "../../types/models";
+import type { SessionOutcome, CreateFocusSessionInput } from "../../types/models";
 import { addFocusSession } from "../../services/storage/focusSessionsStorage";
 import { getTotalXp, saveTotalXp } from "../../services/storage/xpStorage";
 import { SessionOutcomeSelector } from "../../components/review/SessionOutcomeSelector";
@@ -15,9 +15,12 @@ import { updateReviewProgress } from "../../services/reviewProgressService";
 import { clearActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
 import { colours, radius, spacing } from "@/constants/design";
 import { getQuests } from "../../services/storage/questsStorage";
+import { useAuth } from "@/contexts/AuthContext";
+import { createRemoteFocusSession } from "@/services/focusSessions/focusSessionService";
 
 export default function ReviewSessionScreen() {
     const router = useRouter();
+    const { session } = useAuth();
 
     const { questId, questTitle, journeyId, plannedMinutes, actualSeconds, endedEarly } = useLocalSearchParams<{
         questId: string;
@@ -65,7 +68,6 @@ export default function ReviewSessionScreen() {
         }
 
         const trimmedAccomplishment = accomplishment.trim();
-
         const trimmedNextAction = nextAction.trim();
 
         const reviewValidationMessage = getReviewValidationMessage({
@@ -84,6 +86,18 @@ export default function ReviewSessionScreen() {
             return;
         }
 
+        if (selectedOutcome === "completed" && questDoneWhen && !finishLineConfirmed) {
+            setValidationMessage("Confirm that you genuinely met your Quest finish line.");
+
+            return;
+        }
+
+        if (!session) {
+            setValidationMessage("You need to be signed in to save this Review.");
+
+            return;
+        }
+
         setValidationMessage("");
         setIsSubmitting(true);
 
@@ -96,8 +110,7 @@ export default function ReviewSessionScreen() {
 
             const completedAt = new Date().toISOString();
 
-            const newSessionRecord: FocusSessionRecord = {
-                id: Date.now().toString(),
+            const newSessionRecord: CreateFocusSessionInput = {
                 journeyId,
                 questId,
                 questTitle: questTitle ?? "Untitled Quest",
@@ -109,6 +122,16 @@ export default function ReviewSessionScreen() {
                 earnedXp: sessionXp,
                 completedAt,
             };
+
+            const { data: remoteFocusSession, error: remoteFocusSessionError } = await createRemoteFocusSession(session.user.id, newSessionRecord);
+
+            if (remoteFocusSessionError || !remoteFocusSession) {
+                console.error("Failed to save remote Focus Session:", remoteFocusSessionError);
+
+                setValidationMessage("Could not save your Focus Session. Try again.");
+
+                return;
+            }
 
             const currentTotalXp = await getTotalXp();
 
@@ -128,7 +151,7 @@ export default function ReviewSessionScreen() {
                 nextAction: trimmedNextAction,
             });
 
-            await addFocusSession(newSessionRecord);
+            await addFocusSession(remoteFocusSession);
 
             await clearActiveFocusSession();
 
