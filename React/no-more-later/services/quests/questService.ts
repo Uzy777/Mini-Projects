@@ -94,3 +94,13 @@ export async function createRemoteQuest(
         error: null,
     };
 }
+
+export async function deleteRemoteQuest(questId: string): Promise<{
+    error: Error | null;
+}> {
+    const { error } = await supabase.from("quests").delete().eq("id", questId);
+
+    return {
+        error,
+    };
+}

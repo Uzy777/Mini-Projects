@@ -13,7 +13,7 @@ import { getActiveFocusSession } from "../../../services/storage/activeFocusSess
 import { showMessage } from "../../../utils/showMessage";
 import { syncJourneyStatusFromQuests } from "../../../services/journeyStatusService";
 import { colours, radius, spacing } from "@/constants/design";
-import { getRemoteQuests, createRemoteQuest } from "@/services/quests/questService";
+import { getRemoteQuests, createRemoteQuest, deleteRemoteQuest } from "@/services/quests/questService";
 
 type QuestFilter = "all" | "active" | "completed";
 
@@ -118,9 +118,17 @@ export default function JourneyDetailsScreen() {
     }
 
     async function handleDeleteQuest(questId: string) {
-        const updatedQuests = quests.filter((quest) => quest.id !== questId);
-
         try {
+            const { error } = await deleteRemoteQuest(questId);
+
+            if (error) {
+                console.error("Failed to delete remote Quest:", error);
+
+                return;
+            }
+
+            const updatedQuests = quests.filter((quest) => quest.id !== questId);
+
             await saveQuests(id, updatedQuests);
 
             await syncJourneyStatusFromQuests(id, updatedQuests);
@@ -130,7 +138,6 @@ export default function JourneyDetailsScreen() {
             console.error("Failed to delete Quest:", error);
         }
     }
-
     async function handleRequestDeleteQuest(quest: Quest) {
         try {
             const activeSession = await getActiveFocusSession();
