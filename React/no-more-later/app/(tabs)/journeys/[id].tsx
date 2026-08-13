@@ -13,7 +13,7 @@ import { getActiveFocusSession } from "../../../services/storage/activeFocusSess
 import { showMessage } from "../../../utils/showMessage";
 import { syncJourneyStatusFromQuests } from "../../../services/journeyStatusService";
 import { colours, radius, spacing } from "@/constants/design";
-import { getRemoteQuests, createRemoteQuest, deleteRemoteQuest } from "@/services/quests/questService";
+import { getRemoteQuests, createRemoteQuest, deleteRemoteQuest, updateRemoteQuestStatus } from "@/services/quests/questService";
 
 type QuestFilter = "all" | "active" | "completed";
 
@@ -192,6 +192,12 @@ export default function JourneyDetailsScreen() {
         });
 
         try {
+            const { error: remoteQuestUpdateError } = await updateRemoteQuestStatus(questId, "active");
+
+            if (remoteQuestUpdateError) {
+                throw remoteQuestUpdateError;
+            }
+
             await saveQuests(id, updatedQuests);
 
             await syncJourneyStatusFromQuests(id, updatedQuests);

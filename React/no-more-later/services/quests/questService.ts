@@ -155,3 +155,50 @@ export async function updateRemoteQuestProgress(
         error: null,
     };
 }
+
+export async function updateRemoteQuestStatus(
+    questId: string,
+    status: QuestStatus,
+): Promise<{
+    data: Quest | null;
+    error: Error | null;
+}> {
+    const { data, error } = await supabase
+        .from("quests")
+        .update({
+            status,
+        })
+        .eq("id", questId)
+        .select(
+            `
+                id,
+                title,
+                status,
+                done_when,
+                next_action,
+                last_accomplishment
+            `,
+        )
+        .single();
+
+    if (error) {
+        return {
+            data: null,
+            error,
+        };
+    }
+
+    const quest: Quest = {
+        id: data.id,
+        title: data.title,
+        status: data.status,
+        doneWhen: data.done_when ?? undefined,
+        nextAction: data.next_action ?? undefined,
+        lastAccomplishment: data.last_accomplishment ?? undefined,
+    };
+
+    return {
+        data: quest,
+        error: null,
+    };
+}
