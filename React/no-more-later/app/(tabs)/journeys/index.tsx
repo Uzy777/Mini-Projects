@@ -14,7 +14,7 @@ import { clearNoMoreLaterStorage } from "../../../services/storage/resetAppStora
 import { colours, spacing, radius } from "../../../constants/design";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteJourneys } from "@/services/journeys/journeyService";
-import { createRemoteJourney } from "@/services/journeys/journeyService";
+import { createRemoteJourney, deleteRemoteJourney } from "@/services/journeys/journeyService";
 
 type JourneyFilter = "all" | "active" | "completed";
 
@@ -121,12 +121,18 @@ export default function JourneyScreen() {
     }
 
     async function handleDeleteJourney(journeyId: string) {
-        const updatedJourneys = journeys.filter((journey) => journey.id !== journeyId);
-
         try {
+            const { error } = await deleteRemoteJourney(journeyId);
+
+            if (error) {
+                console.error("Failed to delete remote Journey:", error);
+                return;
+            }
+
+            const updatedJourneys = journeys.filter((journey) => journey.id !== journeyId);
+
             await saveJourneys(updatedJourneys);
 
-            await clearQuestsForJourney(journeyId);
             setJourneys(updatedJourneys);
         } catch (error) {
             console.error("Failed to delete Journey:", error);

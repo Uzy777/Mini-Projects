@@ -36,3 +36,13 @@ export async function createRemoteJourney(
         error,
     };
 }
+
+export async function deleteRemoteJourney(journeyId: string): Promise<{
+    error: Error | null;
+}> {
+    const { error } = await supabase.from("journeys").delete().eq("id", journeyId);
+
+    return {
+        error,
+    };
+}
