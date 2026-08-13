@@ -48,16 +48,22 @@ export default function JourneyDetailsScreen() {
         useCallback(() => {
             async function loadQuests() {
                 try {
-                    const currentQuests = await getQuests(id);
+                    const { data, error } = await getRemoteQuests(id);
 
-                    setQuests(currentQuests);
+                    if (error) {
+                        console.error("Failed to load remote Quests:", error);
+
+                        return;
+                    }
+
+                    const remoteQuests = data ?? [];
+
+                    setQuests(remoteQuests);
+
+                    await saveQuests(id, remoteQuests);
                 } catch (error) {
                     console.error("Failed to load Quests:", error);
                 }
-                const { data, error } = await getRemoteQuests(id);
-
-                console.log("Remote Quests:", data);
-                console.log("Remote Quests error:", error);
             }
 
             loadQuests();
