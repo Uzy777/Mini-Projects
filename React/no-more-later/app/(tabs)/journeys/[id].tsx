@@ -186,20 +186,7 @@ export default function JourneyDetailsScreen() {
         try {
             await saveQuests(id, updatedQuests);
 
-            const currentJourneys = await getJourneys();
-
-            const updatedJourneys = currentJourneys.map((journey) => {
-                if (journey.id !== id) {
-                    return journey;
-                }
-
-                return {
-                    ...journey,
-                    status: "active" as const,
-                };
-            });
-
-            await saveJourneys(updatedJourneys);
+            await syncJourneyStatusFromQuests(id, updatedQuests);
 
             setQuests(updatedQuests);
         } catch (error) {

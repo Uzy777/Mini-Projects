@@ -1,8 +1,7 @@
-import { getJourneys, saveJourneys } from "./storage/journeysStorage";
-
+import { syncJourneyStatusFromQuests } from "./journeyStatusService";
 import { getQuests, saveQuests } from "./storage/questsStorage";
 
-import type { Journey, JourneyStatus, Quest, QuestStatus, SessionOutcome } from "../types/models";
+import type { Quest, QuestStatus, SessionOutcome } from "../types/models";
 
 type UpdateReviewProgressInput = {
     journeyId: string;
@@ -32,22 +31,5 @@ export async function updateReviewProgress({ journeyId, questId, outcome, accomp
 
     await saveQuests(journeyId, updatedQuests);
 
-    const allQuestsCompleted = updatedQuests.length > 0 && updatedQuests.every((quest) => quest.status === "completed");
-
-    const currentJourneys = await getJourneys();
-
-    const updatedJourneyStatus: JourneyStatus = allQuestsCompleted ? "completed" : "active";
-
-    const updatedJourneys = currentJourneys.map((journey): Journey => {
-        if (journey.id !== journeyId) {
-            return journey;
-        }
-
-        return {
-            ...journey,
-            status: updatedJourneyStatus,
-        };
-    });
-
-    await saveJourneys(updatedJourneys);
+    await syncJourneyStatusFromQuests(journeyId, updatedQuests);
 }

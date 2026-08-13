@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 
-import type { Journey } from "@/types/models";
+import type { Journey, JourneyStatus } from "@/types/models";
 
 export async function getRemoteJourneys(userId: string): Promise<{
     data: Journey[] | null;
@@ -43,6 +43,28 @@ export async function deleteRemoteJourney(journeyId: string): Promise<{
     const { error } = await supabase.from("journeys").delete().eq("id", journeyId);
 
     return {
+        error,
+    };
+}
+
+export async function updateRemoteJourneyStatus(
+    journeyId: string,
+    status: JourneyStatus,
+): Promise<{
+    data: Journey | null;
+    error: Error | null;
+}> {
+    const { data, error } = await supabase
+        .from("journeys")
+        .update({
+            status,
+        })
+        .eq("id", journeyId)
+        .select("id, title, status")
+        .single();
+
+    return {
+        data,
         error,
     };
 }
