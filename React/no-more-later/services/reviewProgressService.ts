@@ -2,6 +2,7 @@ import { syncJourneyStatusFromQuests } from "./journeyStatusService";
 import { getQuests, saveQuests } from "./storage/questsStorage";
 
 import type { Quest, QuestStatus, SessionOutcome } from "../types/models";
+import { updateRemoteQuestProgress } from "./quests/questService";
 
 type UpdateReviewProgressInput = {
     journeyId: string;
@@ -15,6 +16,12 @@ export async function updateReviewProgress({ journeyId, questId, outcome, accomp
     const currentQuests = await getQuests(journeyId);
 
     const updatedQuestStatus: QuestStatus = outcome === "completed" ? "completed" : "active";
+
+    const { error: remoteQuestUpdateError } = await updateRemoteQuestProgress(questId, updatedQuestStatus, accomplishment, nextAction);
+
+    if (remoteQuestUpdateError) {
+        throw remoteQuestUpdateError;
+    }
 
     const updatedQuests = currentQuests.map((quest): Quest => {
         if (quest.id !== questId) {

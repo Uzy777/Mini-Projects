@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 
-import type { Quest } from "@/types/models";
+import type { Quest, QuestStatus } from "@/types/models";
 
 export async function getRemoteQuests(journeyId: string): Promise<{
     data: Quest[] | null;
@@ -102,5 +102,56 @@ export async function deleteRemoteQuest(questId: string): Promise<{
 
     return {
         error,
+    };
+}
+
+export async function updateRemoteQuestProgress(
+    questId: string,
+    status: QuestStatus,
+    accomplishment: string,
+    nextAction: string,
+): Promise<{
+    data: Quest | null;
+    error: Error | null;
+}> {
+    const { data, error } = await supabase
+        .from("quests")
+        .update({
+            status,
+            last_accomplishment: accomplishment || null,
+            next_action: status === "completed" ? null : nextAction || null,
+        })
+        .eq("id", questId)
+        .select(
+            `
+                id,
+                title,
+                status,
+                done_when,
+                next_action,
+                last_accomplishment
+            `,
+        )
+        .single();
+
+    if (error) {
+        return {
+            data: null,
+            error,
+        };
+    }
+
+    const quest: Quest = {
+        id: data.id,
+        title: data.title,
+        status: data.status,
+        doneWhen: data.done_when ?? undefined,
+        nextAction: data.next_action ?? undefined,
+        lastAccomplishment: data.last_accomplishment ?? undefined,
+    };
+
+    return {
+        data: quest,
+        error: null,
     };
 }
