@@ -67,3 +67,56 @@ export async function createRemoteFocusSession(
         error: null,
     };
 }
+
+export async function getRemoteFocusSessions(userId: string): Promise<{
+    data: FocusSessionRecord[] | null;
+    error: Error | null;
+}> {
+    const { data, error } = await supabase
+        .from("focus_sessions")
+        .select(
+            `
+                id,
+                journey_id,
+                quest_id,
+                quest_title,
+                planned_minutes,
+                actual_seconds,
+                outcome,
+                accomplishment,
+                next_action,
+                earned_xp,
+                completed_at
+            `,
+        )
+        .eq("user_id", userId)
+        .order("completed_at", {
+            ascending: false,
+        });
+
+    if (error) {
+        return {
+            data: null,
+            error,
+        };
+    }
+
+    const focusSessions: FocusSessionRecord[] = data.map((session) => ({
+        id: session.id,
+        journeyId: session.journey_id,
+        questId: session.quest_id,
+        questTitle: session.quest_title,
+        plannedMinutes: session.planned_minutes,
+        actualSeconds: session.actual_seconds ?? undefined,
+        outcome: session.outcome,
+        accomplishment: session.accomplishment,
+        nextAction: session.next_action,
+        earnedXp: session.earned_xp,
+        completedAt: session.completed_at,
+    }));
+
+    return {
+        data: focusSessions,
+        error: null,
+    };
+}

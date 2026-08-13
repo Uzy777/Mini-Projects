@@ -6,31 +6,46 @@ import type { FocusSessionRecord } from "../../types/models";
 import { getFocusSessions } from "../../services/storage/focusSessionsStorage";
 import { FocusSessionHistoryCard } from "../../components/history/FocusSessionHistoryCard";
 import { colours, radius, spacing } from "@/constants/design";
+import { useAuth } from "@/contexts/AuthContext";
+import { getRemoteFocusSessions } from "@/services/focusSessions/focusSessionService";
 
 export default function HistoryScreen() {
+    const { session } = useAuth();
+
     const [sessions, setSessions] = useState<FocusSessionRecord[]>([]);
 
     useFocusEffect(
         useCallback(() => {
             async function loadSessions() {
-                try {
-                    const currentSessions = await getFocusSessions();
+                if (!session) {
+                    setSessions([]);
+                    return;
+                }
 
-                    setSessions(currentSessions);
+                try {
+                    const { data, error } = await getRemoteFocusSessions(session.user.id);
+
+                    if (error) {
+                        console.error("Failed to load remote Focus Sessions:", error);
+
+                        return;
+                    }
+
+                    setSessions(data ?? []);
                 } catch (error) {
-                    console.error("Failed to load focus sessions:", error);
+                    console.error("Failed to load Focus Sessions:", error);
                 }
             }
 
             loadSessions();
-        }, []),
+        }, [session?.user.id]),
     );
 
     return (
         <View style={styles.screen}>
             <FlatList
                 data={sessions}
-                keyExtractor={(session, index) => `${session.completedAt}-${index}`}
+                keyExtractor={(session) => session.id}
                 renderItem={({ item }) => <FocusSessionHistoryCard session={item} />}
                 style={styles.list}
                 contentContainerStyle={styles.contentContainer}
