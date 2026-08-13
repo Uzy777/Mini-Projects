@@ -13,6 +13,7 @@ import { getActiveFocusSession } from "../../../services/storage/activeFocusSess
 import { showMessage } from "../../../utils/showMessage";
 import { syncJourneyStatusFromQuests } from "../../../services/journeyStatusService";
 import { colours, radius, spacing } from "@/constants/design";
+import { getRemoteQuests, createRemoteQuest } from "@/services/quests/questService";
 
 type QuestFilter = "all" | "active" | "completed";
 
@@ -53,6 +54,10 @@ export default function JourneyDetailsScreen() {
                 } catch (error) {
                     console.error("Failed to load Quests:", error);
                 }
+                const { data, error } = await getRemoteQuests(id);
+
+                console.log("Remote Quests:", data);
+                console.log("Remote Quests error:", error);
             }
 
             loadQuests();
@@ -81,32 +86,22 @@ export default function JourneyDetailsScreen() {
             return;
         }
 
-        const newQuest: Quest = {
-            id: Date.now().toString(),
-            title: trimmedTitle,
-            status: "active",
-            doneWhen: trimmedDoneWhen || undefined,
-        };
-
-        const updatedQuests = [...quests, newQuest];
-
         try {
+            const { data, error } = await createRemoteQuest(id, trimmedTitle, trimmedDoneWhen || undefined);
+
+            if (error || !data) {
+                console.error("Failed to create remote Quest:", error);
+
+                return;
+            }
+
+            const newQuest: Quest = data;
+
+            const updatedQuests = [...quests, newQuest];
+
             await saveQuests(id, updatedQuests);
 
-            const currentJourneys = await getJourneys();
-
-            const updatedJourneys = currentJourneys.map((journey) => {
-                if (journey.id !== id) {
-                    return journey;
-                }
-
-                return {
-                    ...journey,
-                    status: "active" as const,
-                };
-            });
-
-            await saveJourneys(updatedJourneys);
+            await syncJourneyStatusFromQuests(id, updatedQuests);
 
             setQuests(updatedQuests);
             setQuestTitle("");
