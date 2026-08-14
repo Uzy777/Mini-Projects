@@ -4,8 +4,6 @@ import { useFocusEffect, useRouter } from "expo-router";
 
 import { calculateLevelProgress } from "../../utils/level";
 import type { FocusSessionRecord, ActiveFocusSession } from "../../types/models";
-import { getFocusSessions } from "../../services/storage/focusSessionsStorage";
-import { getTotalXp } from "../../services/storage/xpStorage";
 import { getActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
 import { HomeHeader } from "../../components/home/HomeHeader";
 import { LevelProgressCard } from "../../components/home/LevelProgressCard";
@@ -14,15 +12,13 @@ import { ContinueQuestCard } from "../../components/home/ContinueQuestCard";
 import { ActiveFocusSessionCard } from "../../components/home/ActiveFocusSessionCard";
 import { calculateCurrentStreak, calculateTodayFocusSummary, findLatestUnfinishedSession } from "../../utils/focusSessionStats";
 import { colours, spacing, radius } from "../../constants/design";
-import { RankDisplay } from "@/components/ranks/RankDisplay";
-import { RANK_VISUAL_STYLE } from "@/constants/rankConfig";
-import { supabase } from "@/lib/supabase";
 import { signOut } from "@/services/auth/authService";
 import { useAuth } from "@/contexts/AuthContext";
+import { getRemoteTotalXp, getRemoteFocusSessions } from "@/services/focusSessions/focusSessionService";
 
 export default function HomeScreen() {
     const router = useRouter();
-    const { profile } = useAuth();
+    const { session, profile } = useAuth();
 
     const [totalXp, setTotalXp] = useState(0);
     const [activeSession, setActiveSession] = useState<ActiveFocusSession | null>(null);
@@ -32,7 +28,19 @@ export default function HomeScreen() {
         useCallback(() => {
             async function loadTotalXp() {
                 try {
-                    const currentTotalXp = await getTotalXp();
+                    if (!session) {
+                        return;
+                    }
+
+                    const { data: remoteTotalXp, error: remoteTotalXpError } = await getRemoteTotalXp(session.user.id);
+
+                    if (remoteTotalXpError) {
+                        console.error("Failed to load remote XP:", remoteTotalXpError);
+
+                        return;
+                    }
+
+                    const currentTotalXp = remoteTotalXp ?? 0;
 
                     setTotalXp(currentTotalXp);
                 } catch (error) {
@@ -65,19 +73,39 @@ export default function HomeScreen() {
     useFocusEffect(
         useCallback(() => {
             async function loadFocusSessions() {
-                try {
-                    const currentSessions = await getFocusSessions();
+                if (!session) {
+                    setFocusSessions([]);
+                    setTotalXp(0);
 
-                    setFocusSessions(currentSessions);
+                    return;
+                }
+
+                try {
+                    const { data: remoteFocusSessions, error: remoteFocusSessionsError } = await getRemoteFocusSessions(session.user.id);
+
+                    if (remoteFocusSessionsError) {
+                        console.error("Failed to load remote Focus Sessions:", remoteFocusSessionsError);
+
+                        return;
+                    }
+
+                    const currentFocusSessions = remoteFocusSessions ?? [];
+
+                    const currentTotalXp = currentFocusSessions.reduce((total, focusSession) => total + focusSession.earnedXp, 0);
+
+                    setFocusSessions(currentFocusSessions);
+
+                    setTotalXp(currentTotalXp);
                 } catch (error) {
                     console.error("Failed to load focus sessions:", error);
 
                     setFocusSessions([]);
+                    setTotalXp(0);
                 }
             }
 
             loadFocusSessions();
-        }, []),
+        }, [session?.user.id]),
     );
 
     const { level, xpIntoLevel, xpRequired } = calculateLevelProgress(totalXp);

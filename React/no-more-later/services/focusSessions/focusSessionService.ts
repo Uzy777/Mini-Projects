@@ -120,3 +120,24 @@ export async function getRemoteFocusSessions(userId: string): Promise<{
         error: null,
     };
 }
+
+export async function getRemoteTotalXp(userId: string): Promise<{
+    data: number | null;
+    error: Error | null;
+}> {
+    const { data, error } = await supabase.from("focus_sessions").select("earned_xp").eq("user_id", userId);
+
+    if (error) {
+        return {
+            data: null,
+            error,
+        };
+    }
+
+    const totalXp = data.reduce((total, session) => total + session.earned_xp, 0);
+
+    return {
+        data: totalXp,
+        error: null,
+    };
+}

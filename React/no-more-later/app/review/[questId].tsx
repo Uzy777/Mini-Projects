@@ -5,7 +5,7 @@ import { StyleSheet, Text, ScrollView, View, Pressable } from "react-native";
 import { calculateLevel } from "../../utils/level";
 import type { SessionOutcome, CreateFocusSessionInput } from "../../types/models";
 import { addFocusSession } from "../../services/storage/focusSessionsStorage";
-import { getTotalXp, saveTotalXp } from "../../services/storage/xpStorage";
+// import { getTotalXp, saveTotalXp } from "../../services/storage/xpStorage";
 import { SessionOutcomeSelector } from "../../components/review/SessionOutcomeSelector";
 import { ReviewResultCard } from "../../components/review/ReviewResultCard";
 import { ReviewForm } from "../../components/review/ReviewForm";
@@ -16,7 +16,7 @@ import { clearActiveFocusSession } from "../../services/storage/activeFocusSessi
 import { colours, radius, spacing } from "@/constants/design";
 import { getQuests } from "../../services/storage/questsStorage";
 import { useAuth } from "@/contexts/AuthContext";
-import { createRemoteFocusSession } from "@/services/focusSessions/focusSessionService";
+import { createRemoteFocusSession, getRemoteTotalXp } from "@/services/focusSessions/focusSessionService";
 
 export default function ReviewSessionScreen() {
     const router = useRouter();
@@ -133,15 +133,23 @@ export default function ReviewSessionScreen() {
                 return;
             }
 
-            const currentTotalXp = await getTotalXp();
+            const { data: remoteTotalXp, error: remoteTotalXpError } = await getRemoteTotalXp(session.user.id);
 
-            const updatedTotalXp = currentTotalXp + sessionXp;
+            if (remoteTotalXpError || remoteTotalXp === null) {
+                console.error("Failed to load remote XP:", remoteTotalXpError);
 
-            const previousLevel = calculateLevel(currentTotalXp);
+                setValidationMessage("Could not calculate your XP. Try again.");
+
+                return;
+            } 
+
+            const updatedTotalXp = remoteTotalXp;
+
+            const previousTotalXp = Math.max(0, updatedTotalXp - sessionXp);
+
+            const previousLevel = calculateLevel(previousTotalXp);
 
             const updatedLevel = calculateLevel(updatedTotalXp);
-
-            await saveTotalXp(updatedTotalXp);
 
             await updateReviewProgress({
                 journeyId,
