@@ -2,7 +2,6 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { colours, radius, spacing } from "../../constants/design";
 import { RankDisplay } from "@/components/ranks/RankDisplay";
-import { RANK_VISUAL_STYLE } from "@/constants/rankConfig";
 
 type LevelProgressCardProps = {
     level: number;
@@ -19,7 +18,7 @@ export function LevelProgressCard({ level, xpIntoLevel, xpRequired }: LevelProgr
         <View style={styles.card}>
             <View style={styles.topRow}>
                 <View style={styles.rankArea}>
-                    <RankDisplay level={level} visualStyle={RANK_VISUAL_STYLE} />
+                    <RankDisplay level={level} />
                 </View>
 
                 <View style={styles.levelBadge}>

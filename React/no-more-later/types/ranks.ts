@@ -1,29 +1,7 @@
+import { ranks } from "@/constants/ranks";
+
 export type RankId =
-    | "ant"
-    | "mouse"
-    | "rabbit"
-    | "squirrel"
-    | "fox"
-    | "raccoon"
-    | "badger"
-    | "wolf"
-    | "cheetah"
-    | "lynx"
-    | "snow-leopard"
-    | "puma"
-    | "boar"
-    | "black-bear"
-    | "polar-bear"
-    | "eagle"
-    | "hawk-falcon"
-    | "owl"
-    | "lion"
-    | "tiger"
-    | "white-wolf"
-    | "black-panther"
-    | "dragon"
-    | "phoenix"
-    | "griffin";
+    (typeof ranks)[number]["id"];
 
 export type RankDefinition = {
     id: RankId;
@@ -31,8 +9,6 @@ export type RankDefinition = {
     minimumLevel: number;
     maximumLevel: number | null;
 };
-
-export type RankVisualStyle = "emblem" | "animal";
 
 export type RankProgress = {
     currentLevel: number;

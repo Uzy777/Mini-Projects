@@ -1,67 +1,64 @@
 import type { ImageSourcePropType } from "react-native";
 
-import type { RankId } from "../types/ranks";
+import type { RankId } from "@/types/ranks";
 
-// export const EMBLEM_RANK_IMAGES: Record<RankId, ImageSourcePropType> = {
-//     ant: require("../assets/ranks/emblems/ant.png"),
-
-//     hare: require("../assets/ranks/emblems/hare.png"),
-
-//     fox: require("../assets/ranks/emblems/fox.png"),
-
-//     wolf: require("../assets/ranks/emblems/wolf.png"),
-
-//     panther: require("../assets/ranks/emblems/panther.png"),
-// };
-
-export const ANIMAL_RANK_IMAGES: Record<RankId, ImageSourcePropType> = {
-    ant: require("../assets/ranks/animals/01_ant_1-4.png"),
-
-    mouse: require("../assets/ranks/animals/02_mouse_5-9.png"),
-
-    rabbit: require("../assets/ranks/animals/03_rabbit_10-14.png"),
-
-    squirrel: require("../assets/ranks/animals/04_squirrel_15-19.png"),
-
-    fox: require("../assets/ranks/animals/05_fox_20-24.png"),
-
-    raccoon: require("../assets/ranks/animals/06_raccoon_25-29.png"),
-
-    badger: require("../assets/ranks/animals/07_badger_30-34.png"),
-
-    wolf: require("../assets/ranks/animals/08_wolf_35-39.png"),
-
-    cheetah: require("../assets/ranks/animals/09_cheetah_40-44.png"),
-
-    lynx: require("../assets/ranks/animals/10_lynx_45-49.png"),
-
-    "snow-leopard": require("../assets/ranks/animals/11_snow-leopard_50-54.png"),
-
-    puma: require("../assets/ranks/animals/12_puma_55-59.png"),
-
-    boar: require("../assets/ranks/animals/13_boar_60-64.png"),
-
-    "black-bear": require("../assets/ranks/animals/14_black-bear_65-69.png"),
-
-    "polar-bear": require("../assets/ranks/animals/15_polar-bear_70-74.png"),
-
-    eagle: require("../assets/ranks/animals/16_eagle_75-79.png"),
-
-    "hawk-falcon": require("../assets/ranks/animals/17_hawk-falcon_80-84.png"),
-
-    owl: require("../assets/ranks/animals/18_owl_85-89.png"),
-
-    lion: require("../assets/ranks/animals/19_lion_90-94.png"),
-
-    tiger: require("../assets/ranks/animals/20_tiger_95-99.png"),
-
-    "white-wolf": require("../assets/ranks/animals/21_white-wolf_100-104.png"),
-
-    "black-panther": require("../assets/ranks/animals/22_black-panther_105-109.png"),
-
-    dragon: require("../assets/ranks/animals/23_dragon_110-114.png"),
-
-    phoenix: require("../assets/ranks/animals/24_phoenix_115-119.png"),
-
-    griffin: require("../assets/ranks/animals/25_griffin_120plus.png"),
+export const ANIMAL_RANK_IMAGES: Record<
+    RankId,
+    ImageSourcePropType
+> = {
+    ant: require("../assets/ranks/animals/ant.png"),
+    bumblebee: require("../assets/ranks/animals/bumblebee.png"),
+    mouse: require("../assets/ranks/animals/mouse.png"),
+    frog: require("../assets/ranks/animals/frog.png"),
+    starfish: require("../assets/ranks/animals/starfish.png"),
+    seahorse: require("../assets/ranks/animals/seahorse.png"),
+    sloth: require("../assets/ranks/animals/sloth.png"),
+    hedgehog: require("../assets/ranks/animals/hedgehog.png"),
+    chameleon: require("../assets/ranks/animals/chameleon.png"),
+    meerkat: require("../assets/ranks/animals/meerkat.png"),
+    chicken: require("../assets/ranks/animals/chicken.png"),
+    flamingo: require("../assets/ranks/animals/flamingo.png"),
+    hare: require("../assets/ranks/animals/hare.png"),
+    red_panda: require("../assets/ranks/animals/red_panda.png"),
+    cat: require("../assets/ranks/animals/cat.png"),
+    dog: require("../assets/ranks/animals/dog.png"),
+    penguin: require("../assets/ranks/animals/penguin.png"),
+    seal: require("../assets/ranks/animals/seal.png"),
+    raccoon: require("../assets/ranks/animals/raccoon.png"),
+    deer: require("../assets/ranks/animals/deer.png"),
+    otter: require("../assets/ranks/animals/otter.png"),
+    koala: require("../assets/ranks/animals/koala.png"),
+    fox: require("../assets/ranks/animals/fox.png"),
+    owl: require("../assets/ranks/animals/owl.png"),
+    panda: require("../assets/ranks/animals/panda.png"),
+    monkey: require("../assets/ranks/animals/monkey.png"),
+    parrot: require("../assets/ranks/animals/parrot.png"),
+    kangaroo: require("../assets/ranks/animals/kangaroo.png"),
+    badger: require("../assets/ranks/animals/badger.png"),
+    boar: require("../assets/ranks/animals/boar.png"),
+    zebra: require("../assets/ranks/animals/zebra.png"),
+    octopus: require("../assets/ranks/animals/octopus.png"),
+    dolphin: require("../assets/ranks/animals/dolphin.png"),
+    lynx: require("../assets/ranks/animals/lynx.png"),
+    hyena: require("../assets/ranks/animals/hyena.png"),
+    wolf: require("../assets/ranks/animals/wolf.png"),
+    alligator: require("../assets/ranks/animals/alligator.png"),
+    moose: require("../assets/ranks/animals/moose.png"),
+    giraffe: require("../assets/ranks/animals/giraffe.png"),
+    turtle: require("../assets/ranks/animals/turtle.png"),
+    eagle: require("../assets/ranks/animals/eagle.png"),
+    cheetah: require("../assets/ranks/animals/cheetah.png"),
+    panther: require("../assets/ranks/animals/panther.png"),
+    gorilla: require("../assets/ranks/animals/gorilla.png"),
+    hippopotamus: require("../assets/ranks/animals/hippopotamus.png"),
+    lion: require("../assets/ranks/animals/lion.png"),
+    shark: require("../assets/ranks/animals/shark.png"),
+    tiger: require("../assets/ranks/animals/tiger.png"),
+    grizzly_bear: require("../assets/ranks/animals/grizzly_bear.png"),
+    rhino: require("../assets/ranks/animals/rhino.png"),
+    elephant: require("../assets/ranks/animals/elephant.png"),
+    whale: require("../assets/ranks/animals/whale.png"),
+    phoenix: require("../assets/ranks/animals/phoenix.png"),
+    dragon: require("../assets/ranks/animals/dragon.png"),
+    hydra: require("../assets/ranks/animals/hydra.png"),
 };

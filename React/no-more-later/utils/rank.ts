@@ -1,21 +1,31 @@
-import { FOCUS_RANKS } from "../constants/ranks";
+import { ranks } from "@/constants/ranks";
 
-import type { RankDefinition, RankProgress } from "../types/ranks";
+import type { RankDefinition, RankProgress } from "@/types/ranks";
 
 export function getFocusRank(level: number): RankDefinition | null {
-    const rank = FOCUS_RANKS.find((rank) => level >= rank.minimumLevel && level <= rank.maximumLevel);
+    const rank = ranks.find((rank) => {
+        const meetsMinimum = level >= rank.minimumLevel;
+
+        const meetsMaximum = rank.maximumLevel === null || level <= rank.maximumLevel;
+
+        return meetsMinimum && meetsMaximum;
+    });
 
     return rank ?? null;
 }
 
 export function getNextFocusRank(level: number): RankDefinition | null {
-    const currentRankIndex = FOCUS_RANKS.findIndex((rank) => level >= rank.minimumLevel && level <= rank.maximumLevel);
+    const currentRank = getFocusRank(level);
 
-    if (currentRankIndex === -1) {
+    if (!currentRank) {
         return null;
     }
 
-    return FOCUS_RANKS[currentRankIndex + 1] ?? null;
+    const currentRankIndex = ranks.findIndex((rank) => rank.id === currentRank.id);
+
+    const nextRank = ranks[currentRankIndex + 1];
+
+    return nextRank ?? null;
 }
 
 export function getRankProgress(level: number): RankProgress | null {
@@ -25,11 +35,15 @@ export function getRankProgress(level: number): RankProgress | null {
         return null;
     }
 
-    const levelsBetween = rank.maximumLevel - rank.minimumLevel;
+    if (rank.maximumLevel === null) {
+        return null;
+    }
 
-    const levelsProgressed = level - rank.minimumLevel;
+    const levelsInRank = rank.maximumLevel - rank.minimumLevel + 1;
 
-    const progressPercentage = levelsBetween > 0 ? (levelsProgressed / levelsBetween) * 100 : 100;
+    const levelsCompleted = level - rank.minimumLevel + 1;
+
+    const progressPercentage = (levelsCompleted / levelsInRank) * 100;
 
     return {
         currentLevel: level,
