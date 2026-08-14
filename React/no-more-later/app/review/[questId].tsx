@@ -14,9 +14,10 @@ import { getReviewValidationMessage } from "../../utils/reviewValidation";
 import { updateReviewProgress } from "../../services/reviewProgressService";
 import { clearActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
 import { colours, radius, spacing } from "@/constants/design";
-import { getQuests } from "../../services/storage/questsStorage";
+// import { getQuests } from "../../services/storage/questsStorage";
 import { useAuth } from "@/contexts/AuthContext";
 import { createRemoteFocusSession, getRemoteTotalXp } from "@/services/focusSessions/focusSessionService";
+import { getRemoteQuest } from "@/services/quests/questService";
 
 export default function ReviewSessionScreen() {
     const router = useRouter();
@@ -44,11 +45,17 @@ export default function ReviewSessionScreen() {
 
     useEffect(() => {
         async function loadQuest() {
-            const quests = await getQuests(journeyId);
+            const { data: remoteQuest, error: remoteQuestError } = await getRemoteQuest(journeyId, questId);
 
-            const quest = quests.find((quest) => quest.id === questId);
+            if (remoteQuestError) {
+                console.error("Failed to load remote Quest:", remoteQuestError);
 
-            setQuestDoneWhen(quest?.doneWhen?.trim() || null);
+                setQuestDoneWhen(null);
+
+                return;
+            }
+
+            setQuestDoneWhen(remoteQuest?.doneWhen?.trim() || null);
         }
 
         loadQuest();
@@ -141,7 +148,7 @@ export default function ReviewSessionScreen() {
                 setValidationMessage("Could not calculate your XP. Try again.");
 
                 return;
-            } 
+            }
 
             const updatedTotalXp = remoteTotalXp;
 

@@ -45,6 +45,58 @@ export async function getRemoteQuests(journeyId: string): Promise<{
     };
 }
 
+export async function getRemoteQuest(
+    journeyId: string,
+    questId: string,
+): Promise<{
+    data: Quest | null;
+    error: Error | null;
+}> {
+    const { data, error } = await supabase
+        .from("quests")
+        .select(
+            `
+                id,
+                title,
+                status,
+                done_when,
+                next_action,
+                last_accomplishment
+            `,
+        )
+        .eq("id", questId)
+        .eq("journey_id", journeyId)
+        .maybeSingle();
+
+    if (error) {
+        return {
+            data: null,
+            error,
+        };
+    }
+
+    if (!data) {
+        return {
+            data: null,
+            error: null,
+        };
+    }
+
+    const quest: Quest = {
+        id: data.id,
+        title: data.title,
+        status: data.status,
+        doneWhen: data.done_when ?? undefined,
+        nextAction: data.next_action ?? undefined,
+        lastAccomplishment: data.last_accomplishment ?? undefined,
+    };
+
+    return {
+        data: quest,
+        error: null,
+    };
+}
+
 export async function createRemoteQuest(
     journeyId: string,
     title: string,
