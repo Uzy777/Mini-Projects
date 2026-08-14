@@ -1,8 +1,8 @@
 import { syncJourneyStatusFromQuests } from "./journeyStatusService";
-import { getQuests, saveQuests } from "./storage/questsStorage";
+import { saveQuests } from "./storage/questsStorage";
 
-import type { Quest, QuestStatus, SessionOutcome } from "../types/models";
-import { updateRemoteQuestProgress } from "./quests/questService";
+import type { QuestStatus, SessionOutcome } from "../types/models";
+import { getRemoteQuests, updateRemoteQuestProgress } from "./quests/questService";
 
 type UpdateReviewProgressInput = {
     journeyId: string;
@@ -13,8 +13,6 @@ type UpdateReviewProgressInput = {
 };
 
 export async function updateReviewProgress({ journeyId, questId, outcome, accomplishment, nextAction }: UpdateReviewProgressInput): Promise<void> {
-    const currentQuests = await getQuests(journeyId);
-
     const updatedQuestStatus: QuestStatus = outcome === "completed" ? "completed" : "active";
 
     const { error: remoteQuestUpdateError } = await updateRemoteQuestProgress(questId, updatedQuestStatus, accomplishment, nextAction);
@@ -23,20 +21,13 @@ export async function updateReviewProgress({ journeyId, questId, outcome, accomp
         throw remoteQuestUpdateError;
     }
 
-    const updatedQuests = currentQuests.map((quest): Quest => {
-        if (quest.id !== questId) {
-            return quest;
-        }
+    const { data: remoteQuests, error: remoteQuestsError } = await getRemoteQuests(journeyId);
 
-        return {
-            ...quest,
-            status: updatedQuestStatus,
-            lastAccomplishment: accomplishment,
-            nextAction: outcome === "completed" ? "" : nextAction,
-        };
-    });
+    if (remoteQuestsError || remoteQuests === null) {
+        throw remoteQuestsError ?? new Error("Failed to load updated Quests.");
+    }
 
-    await saveQuests(journeyId, updatedQuests);
+    await saveQuests(journeyId, remoteQuests);
 
-    await syncJourneyStatusFromQuests(journeyId, updatedQuests);
+    await syncJourneyStatusFromQuests(journeyId, remoteQuests);
 }
