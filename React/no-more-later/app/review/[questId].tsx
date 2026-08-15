@@ -4,20 +4,16 @@ import { StyleSheet, Text, ScrollView, View, Pressable } from "react-native";
 
 import { calculateLevel } from "../../utils/level";
 import type { SessionOutcome, CreateFocusSessionInput } from "../../types/models";
-import { addFocusSession } from "../../services/storage/focusSessionsStorage";
-// import { getTotalXp, saveTotalXp } from "../../services/storage/xpStorage";
 import { SessionOutcomeSelector } from "../../components/review/SessionOutcomeSelector";
 import { ReviewResultCard } from "../../components/review/ReviewResultCard";
 import { ReviewForm } from "../../components/review/ReviewForm";
 import { calculateSessionXp } from "../../utils/sessionXp";
 import { getReviewValidationMessage } from "../../utils/reviewValidation";
-import { updateReviewProgress } from "../../services/reviewProgressService";
 import { clearActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
 import { colours, radius, spacing } from "@/constants/design";
-// import { getQuests } from "../../services/storage/questsStorage";
 import { useAuth } from "@/contexts/AuthContext";
-import { createRemoteFocusSession, getRemoteTotalXp } from "@/services/focusSessions/focusSessionService";
 import { getRemoteQuest } from "@/services/quests/questService";
+import { completeRemoteReview } from "@/services/reviews/reviewService";
 
 export default function ReviewSessionScreen() {
     const router = useRouter();
@@ -115,58 +111,32 @@ export default function ReviewSessionScreen() {
 
             const sessionXp = calculateSessionXp(sessionMinutes, selectedOutcome, trimmedNextAction);
 
-            const completedAt = new Date().toISOString();
-
-            const newSessionRecord: CreateFocusSessionInput = {
+            const { data: completedReview, error: completeReviewError } = await completeRemoteReview({
                 journeyId,
                 questId,
-                questTitle: questTitle ?? "Untitled Quest",
                 plannedMinutes: sessionMinutes,
                 actualSeconds: focusedSeconds,
                 outcome: selectedOutcome,
                 accomplishment: trimmedAccomplishment,
                 nextAction: trimmedNextAction,
                 earnedXp: sessionXp,
-                completedAt,
-            };
+            });
 
-            const { data: remoteFocusSession, error: remoteFocusSessionError } = await createRemoteFocusSession(session.user.id, newSessionRecord);
+            if (completeReviewError || !completedReview) {
+                console.error("Failed to complete remote Review:", completeReviewError);
 
-            if (remoteFocusSessionError || !remoteFocusSession) {
-                console.error("Failed to save remote Focus Session:", remoteFocusSessionError);
-
-                setValidationMessage("Could not save your Focus Session. Try again.");
+                setValidationMessage("Could not save your Review. Try again.");
 
                 return;
             }
 
-            const { data: remoteTotalXp, error: remoteTotalXpError } = await getRemoteTotalXp(session.user.id);
-
-            if (remoteTotalXpError || remoteTotalXp === null) {
-                console.error("Failed to load remote XP:", remoteTotalXpError);
-
-                setValidationMessage("Could not calculate your XP. Try again.");
-
-                return;
-            }
-
-            const updatedTotalXp = remoteTotalXp;
+            const updatedTotalXp = completedReview.totalXp;
 
             const previousTotalXp = Math.max(0, updatedTotalXp - sessionXp);
 
             const previousLevel = calculateLevel(previousTotalXp);
 
             const updatedLevel = calculateLevel(updatedTotalXp);
-
-            await updateReviewProgress({
-                journeyId,
-                questId,
-                outcome: selectedOutcome,
-                accomplishment: trimmedAccomplishment,
-                nextAction: trimmedNextAction,
-            });
-
-            await addFocusSession(remoteFocusSession);
 
             await clearActiveFocusSession();
 
