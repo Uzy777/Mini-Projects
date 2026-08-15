@@ -3,11 +3,10 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { StyleSheet, Text, ScrollView, View, Pressable } from "react-native";
 
 import { calculateLevel } from "../../utils/level";
-import type { SessionOutcome, CreateFocusSessionInput } from "../../types/models";
+import type { SessionOutcome } from "../../types/models";
 import { SessionOutcomeSelector } from "../../components/review/SessionOutcomeSelector";
 import { ReviewResultCard } from "../../components/review/ReviewResultCard";
 import { ReviewForm } from "../../components/review/ReviewForm";
-import { calculateSessionXp } from "../../utils/sessionXp";
 import { getReviewValidationMessage } from "../../utils/reviewValidation";
 import { clearActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
 import { colours, radius, spacing } from "@/constants/design";
@@ -109,8 +108,6 @@ export default function ReviewSessionScreen() {
 
             const focusedSeconds = Number(actualSeconds ?? sessionMinutes * 60);
 
-            const sessionXp = calculateSessionXp(sessionMinutes, selectedOutcome, trimmedNextAction);
-
             const { data: completedReview, error: completeReviewError } = await completeRemoteReview({
                 journeyId,
                 questId,
@@ -119,7 +116,6 @@ export default function ReviewSessionScreen() {
                 outcome: selectedOutcome,
                 accomplishment: trimmedAccomplishment,
                 nextAction: trimmedNextAction,
-                earnedXp: sessionXp,
             });
 
             if (completeReviewError || !completedReview) {
@@ -129,6 +125,8 @@ export default function ReviewSessionScreen() {
 
                 return;
             }
+
+            const sessionXp = completedReview.earnedXp;
 
             const updatedTotalXp = completedReview.totalXp;
 

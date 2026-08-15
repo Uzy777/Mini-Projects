@@ -10,12 +10,12 @@ type CompleteRemoteReviewInput = {
     outcome: SessionOutcome;
     accomplishment: string;
     nextAction: string;
-    earnedXp: number;
 };
 
 type CompleteRemoteReviewResult = {
     focusSessionId: string;
     questTitle: string;
+    earnedXp: number;
     totalXp: number;
     journeyStatus: "active" | "completed";
 };
@@ -32,7 +32,6 @@ export async function completeRemoteReview(input: CompleteRemoteReviewInput): Pr
         p_outcome: input.outcome,
         p_accomplishment: input.accomplishment,
         p_next_action: input.nextAction,
-        p_earned_xp: input.earnedXp,
     });
 
     if (error) {
@@ -55,6 +54,7 @@ export async function completeRemoteReview(input: CompleteRemoteReviewInput): Pr
         data: {
             focusSessionId: result.focus_session_id,
             questTitle: result.quest_title,
+            earnedXp: Number(result.earned_xp),
             totalXp: Number(result.total_xp),
             journeyStatus: result.journey_status,
         },

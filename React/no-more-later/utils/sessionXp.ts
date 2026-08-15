@@ -5,23 +5,25 @@ export function calculateSessionXp(plannedMinutes: number, outcome: SessionOutco
 
     if (outcome !== "stopped") {
         if (plannedMinutes === 15) {
-            totalXp += 5;
-        } else if (plannedMinutes === 25) {
-            totalXp += 10;
-        } else if (plannedMinutes === 50) {
             totalXp += 20;
+        } else if (plannedMinutes === 25) {
+            totalXp += 40;
+        } else if (plannedMinutes === 50) {
+            totalXp += 70;
         }
     }
 
     // Completing the Review.
-    totalXp += 5;
+    totalXp += 10;
 
+    // Completing the Quest.
     if (outcome === "completed") {
-        totalXp += 10;
+        totalXp += 20;
     }
 
+    // Setting a next action.
     if (outcome !== "completed" && nextAction.trim()) {
-        totalXp += 5;
+        totalXp += 10;
     }
 
     return totalXp;
