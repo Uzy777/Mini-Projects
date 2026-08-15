@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View, RefreshControl } from "react-native";
 import { useFocusEffect } from "expo-router";
 
 import { getLeaderboard, LeaderboardEntry } from "@/services/leaderboard/leaderboardService";
@@ -16,36 +16,40 @@ export default function LeaderboardScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+    const loadLeaderboard = useCallback(async () => {
+        setIsLoading(true);
+        setErrorMessage(null);
+
+        try {
+            const leaderboardData = await getLeaderboard();
+
+            setLeaderboard(leaderboardData);
+        } catch (error) {
+            console.error("Failed to load leaderboard:", error);
+
+            setErrorMessage("Unable to load the leaderboard.");
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
     useFocusEffect(
         useCallback(() => {
-            async function loadLeaderboard() {
-                setIsLoading(true);
-                setErrorMessage(null);
-
-                try {
-                    const leaderboardData = await getLeaderboard();
-
-                    setLeaderboard(leaderboardData);
-                } catch (error) {
-                    console.error("Failed to load leaderboard:", error);
-
-                    setErrorMessage("Unable to load the leaderboard.");
-                } finally {
-                    setIsLoading(false);
-                }
-            }
-
             loadLeaderboard();
-        }, []),
+        }, [loadLeaderboard]),
     );
 
     return (
-        <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
+        <ScrollView
+            style={styles.screen}
+            contentContainerStyle={styles.container}
+            refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadLeaderboard} tintColor={colours.primary} colors={[colours.primary]} />}
+        >
+            {" "}
             <View style={styles.header}>
                 <Text style={styles.title}>Leaderboard</Text>
                 <Text style={styles.subtitle}>Top 25 focused users</Text>
             </View>
-
             <View style={styles.leaderboardCard}>
                 {isLoading ? (
                     <View style={styles.messageContainer}>
