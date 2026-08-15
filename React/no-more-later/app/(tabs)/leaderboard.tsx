@@ -41,7 +41,9 @@ export default function LeaderboardScreen() {
         }, [loadLeaderboard]),
     );
 
-    const shouldShowMyPosition = myPosition !== null && myPosition.leaderboard_position > 25;
+    const myLevel = myPosition ? calculateLevel(myPosition.total_xp) : null;
+
+    const myRank = myLevel !== null ? getFocusRank(myLevel) : null;
 
     return (
         <ScrollView
@@ -54,7 +56,7 @@ export default function LeaderboardScreen() {
                 <Text style={styles.subtitle}>Top 25 focused users</Text>
             </View>
             <View style={styles.leaderboardCard}>
-                {shouldShowMyPosition && (
+                {myPosition && myPosition.leaderboard_position > 25 && myLevel !== null && (
                     <View style={styles.myPositionSection}>
                         <Text style={styles.sectionLabel}>YOUR POSITION</Text>
 
@@ -63,7 +65,7 @@ export default function LeaderboardScreen() {
                                 <Text style={styles.position}>{myPosition.leaderboard_position}</Text>
                             </View>
 
-                            <RankBadge level={calculateLevel(myPosition.total_xp)} />
+                            <RankBadge level={myLevel} />
 
                             <View style={styles.userInfo}>
                                 <View style={styles.nameRow}>
@@ -75,8 +77,8 @@ export default function LeaderboardScreen() {
                                 </View>
 
                                 <Text style={styles.details}>
-                                    Level {calculateLevel(myPosition.total_xp)}
-                                    {getFocusRank(calculateLevel(myPosition.total_xp)) ? ` · ${getFocusRank(calculateLevel(myPosition.total_xp))?.name}` : ""}
+                                    Level {myLevel}
+                                    {myRank ? ` · ${myRank.name}` : ""}
                                 </Text>
                             </View>
 
@@ -84,7 +86,6 @@ export default function LeaderboardScreen() {
                         </View>
                     </View>
                 )}
-
                 {isLoading ? (
                     <View style={styles.messageContainer}>
                         <Text style={styles.messageText}>Loading leaderboard...</Text>
