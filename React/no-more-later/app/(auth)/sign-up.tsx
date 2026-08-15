@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, View, Pressable } from "react-native";
-import { useRouter, Link } from "expo-router";
+import { useRouter, Link, useLocalSearchParams } from "expo-router";
 
 import { colours, radius, spacing } from "@/constants/design";
 import { signUpWithEmail } from "@/services/auth/authService";
@@ -8,7 +8,9 @@ import { signUpWithEmail } from "@/services/auth/authService";
 export default function SignUpScreen() {
     const router = useRouter();
 
-    const [email, setEmail] = useState("");
+    const { email: initialEmail } = useLocalSearchParams<{ email?: string }>();
+
+    const [email, setEmail] = useState(initialEmail ?? "");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [displayName, setDisplayName] = useState("");
@@ -50,7 +52,7 @@ export default function SignUpScreen() {
         }
 
         setValidationMessage("");
-        setIsSubmitting(false);
+        setIsSubmitting(true);
 
         try {
             const { data, error } = await signUpWithEmail(trimmedEmail, password, trimmedDisplayName);
@@ -87,7 +89,9 @@ export default function SignUpScreen() {
 
             <View style={styles.form}>
                 <View style={styles.fieldGroup}>
-                    <Text style={styles.fieldLabel}>DISPLAY NAME</Text>
+                    <Text style={styles.fieldLabel}>
+                        DISPLAY NAME <Text style={styles.requiredMark}>*</Text>
+                    </Text>
 
                     <TextInput
                         style={styles.input}
@@ -100,7 +104,9 @@ export default function SignUpScreen() {
                 </View>
 
                 <View style={styles.fieldGroup}>
-                    <Text style={styles.fieldLabel}>EMAIL</Text>
+                    <Text style={styles.fieldLabel}>
+                        EMAIL <Text style={styles.requiredMark}>*</Text>
+                    </Text>
 
                     <TextInput
                         style={styles.input}
@@ -115,7 +121,9 @@ export default function SignUpScreen() {
                 </View>
 
                 <View style={styles.fieldGroup}>
-                    <Text style={styles.fieldLabel}>PASSWORD</Text>
+                    <Text style={styles.fieldLabel}>
+                        PASSWORD <Text style={styles.requiredMark}>*</Text>
+                    </Text>
 
                     <TextInput
                         style={styles.input}
@@ -128,7 +136,9 @@ export default function SignUpScreen() {
                 </View>
 
                 <View style={styles.fieldGroup}>
-                    <Text style={styles.fieldLabel}>CONFIRM PASSWORD</Text>
+                    <Text style={styles.fieldLabel}>
+                        CONFIRM PASSWORD <Text style={styles.requiredMark}>*</Text>
+                    </Text>
 
                     <TextInput
                         style={styles.input}
@@ -291,5 +301,8 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: "700",
         color: colours.primary,
+    },
+    requiredMark: {
+        color: colours.danger,
     },
 });

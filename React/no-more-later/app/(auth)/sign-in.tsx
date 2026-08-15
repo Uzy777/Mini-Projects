@@ -115,8 +115,15 @@ export default function SignInScreen() {
 
                 <View style={styles.authLinkRow}>
                     <Text style={styles.authLinkText}>Don't have an account?</Text>
-
-                    <Link href="/sign-up" asChild>
+                    <Link
+                        href={{
+                            pathname: "/sign-up",
+                            params: {
+                                email: email.trim().toLowerCase(),
+                            },
+                        }}
+                        asChild
+                    >
                         <Pressable>
                             <Text style={styles.authLink}>Create one</Text>
                         </Pressable>
