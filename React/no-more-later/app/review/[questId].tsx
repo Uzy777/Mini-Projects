@@ -13,6 +13,7 @@ import { colours, radius, spacing } from "@/constants/design";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteQuest } from "@/services/quests/questService";
 import { completeRemoteReview } from "@/services/reviews/reviewService";
+import { LevelUpCelebration } from "@/components/level/LevelUpCelebration";
 
 export default function ReviewSessionScreen() {
     const router = useRouter();
@@ -28,6 +29,12 @@ export default function ReviewSessionScreen() {
         endedEarly?: string;
     }>();
 
+    type LevelUpDetails = {
+        previousLevel: number;
+        newLevel: number;
+        earnedXp: number;
+    };
+
     const [selectedOutcome, setSelectedOutcome] = useState<SessionOutcome | null>(endedEarly === "true" ? "stopped" : null);
     const [questDoneWhen, setQuestDoneWhen] = useState<string | null>(null);
     const [accomplishment, setAccomplishment] = useState("");
@@ -38,6 +45,7 @@ export default function ReviewSessionScreen() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [reachedLevel, setReachedLevel] = useState<number | null>(null);
     const [finishLineConfirmed, setFinishLineConfirmed] = useState(false);
+    const [levelUpDetails, setLevelUpDetails] = useState<LevelUpDetails | null>(null);
 
     useEffect(() => {
         async function loadQuest() {
@@ -147,8 +155,15 @@ export default function ReviewSessionScreen() {
 
             if (updatedLevel > previousLevel) {
                 setReachedLevel(updatedLevel);
+
+                setLevelUpDetails({
+                    previousLevel,
+                    newLevel: updatedLevel,
+                    earnedXp: sessionXp,
+                });
             } else {
                 setReachedLevel(null);
+                setLevelUpDetails(null);
             }
         } catch (error) {
             console.error("Failed to complete Review:", error);
@@ -167,6 +182,10 @@ export default function ReviewSessionScreen() {
         setValidationMessage("");
     }
 
+    function handleCloseLevelUpCelebration() {
+        setLevelUpDetails(null);
+    }
+
     return (
         <ScrollView
             style={styles.screen}
@@ -179,6 +198,15 @@ export default function ReviewSessionScreen() {
                     title: "Review",
                 }}
             />
+
+            {levelUpDetails && (
+                <LevelUpCelebration
+                    previousLevel={levelUpDetails.previousLevel}
+                    newLevel={levelUpDetails.newLevel}
+                    earnedXp={levelUpDetails.earnedXp}
+                    onContinue={handleCloseLevelUpCelebration}
+                />
+            )}
 
             <View style={styles.header}>
                 <Text style={styles.label}>SESSION REVIEW</Text>
