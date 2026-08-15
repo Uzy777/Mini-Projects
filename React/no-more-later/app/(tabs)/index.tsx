@@ -10,11 +10,12 @@ import { LevelProgressCard } from "../../components/home/LevelProgressCard";
 import { TodaySummaryCard } from "../../components/home/TodaySummaryCard";
 import { ContinueQuestCard } from "../../components/home/ContinueQuestCard";
 import { ActiveFocusSessionCard } from "../../components/home/ActiveFocusSessionCard";
-import { calculateCurrentStreak, calculateTodayFocusSummary, findLatestUnfinishedSession } from "../../utils/focusSessionStats";
+import { calculateCurrentStreak, calculateTodayFocusSummary, findLatestUnfinishedSession, calculateTotalFocusedSeconds } from "../../utils/focusSessionStats";
 import { colours, spacing, radius } from "../../constants/design";
 import { signOut } from "@/services/auth/authService";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteTotalXp, getRemoteFocusSessions } from "@/services/focusSessions/focusSessionService";
+import { TOTAL_XP_STORAGE_KEY } from "@/constants/storageKeys";
 
 export default function HomeScreen() {
     const router = useRouter();
@@ -113,6 +114,7 @@ export default function HomeScreen() {
     const activeSessionHasFinished = activeSession?.isRunning === true && activeSession.endTime !== null && activeSession.endTime <= Date.now();
 
     const { sessionCount: todaySessionCount, focusedMinutes: todayFocusedMinutes } = calculateTodayFocusSummary(focusSessions);
+    const totalFocusedSeconds = calculateTotalFocusedSeconds(focusSessions);
 
     const currentStreak = calculateCurrentStreak(focusSessions);
 
@@ -187,9 +189,16 @@ export default function HomeScreen() {
                     <Text style={styles.signOutButtonText}>Sign out</Text>
                 </Pressable>
 
-                <LevelProgressCard level={level} xpIntoLevel={xpIntoLevel} xpRequired={xpRequired} />
+                <LevelProgressCard
+                    level={level}
+                    xpIntoLevel={xpIntoLevel}
+                    xpRequired={xpRequired}
+                    currentStreak={currentStreak}
+                    totalFocusedSeconds={totalFocusedSeconds}
+                    totalXp={totalXp}
+                />
 
-                <TodaySummaryCard sessionCount={todaySessionCount} focusedMinutes={todayFocusedMinutes} />
+                {/* <TodaySummaryCard sessionCount={todaySessionCount} focusedMinutes={todayFocusedMinutes} /> */}
 
                 {activeSession && activeSessionStatus ? (
                     <ActiveFocusSessionCard questTitle={activeSession.questTitle} status={activeSessionStatus} onReturn={handleReturnToActiveSession} />

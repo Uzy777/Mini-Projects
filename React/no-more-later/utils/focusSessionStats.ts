@@ -38,6 +38,14 @@ export function calculateTodayFocusSummary(sessions: FocusSessionRecord[]): Toda
     };
 }
 
+export function calculateTotalFocusedSeconds(sessions: FocusSessionRecord[]) {
+    return sessions.reduce((total, session) => {
+        const sessionSeconds = session.actualSeconds ?? session.plannedMinutes * 60;
+
+        return total + sessionSeconds;
+    }, 0);
+}
+
 export function calculateCurrentStreak(sessions: FocusSessionRecord[]) {
     const sessionDateKeys = new Set(sessions.map((session) => getLocalDateKey(new Date(session.completedAt))));
 

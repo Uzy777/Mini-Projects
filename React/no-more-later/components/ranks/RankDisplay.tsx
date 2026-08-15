@@ -69,9 +69,9 @@ const styles = StyleSheet.create({
     },
 
     imageFrame: {
-        width: 112,
-        height: 112,
-        borderRadius: 999,
+        width: 96,
+        height: 96,
+        borderRadius: radius.pill,
         borderWidth: 2,
         borderColor: colours.primary,
         backgroundColor: colours.primarySoft,
@@ -80,52 +80,54 @@ const styles = StyleSheet.create({
         overflow: "hidden",
     },
     image: {
-        width: 82,
-        height: 82,
+        width: 70,
+        height: 70,
         transform: [{ translateY: -4 }],
     },
 
     details: {
         flex: 1,
-        gap: spacing.xs,
+        gap: 2,
     },
 
     label: {
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: "700",
         color: colours.textMuted,
         letterSpacing: 1,
     },
 
     name: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: "800",
         color: colours.text,
     },
 
     progressText: {
+        marginTop: 2,
         fontSize: 12,
         color: colours.textMuted,
     },
 
     nextRankText: {
+        marginTop: 2,
         fontSize: 12,
         fontWeight: "600",
         color: colours.primary,
     },
     badgeContainer: {
-        width: 112,
-        height: 124,
+        width: 96,
+        height: 108,
         position: "relative",
         alignItems: "center",
     },
 
     rankTray: {
         position: "absolute",
-        top: 99,
+        top: 84,
 
-        minHeight: 26,
-        paddingHorizontal: spacing.sm,
+        minHeight: 23,
+        paddingHorizontal: 6,
 
         flexDirection: "row",
         alignItems: "center",
@@ -139,15 +141,15 @@ const styles = StyleSheet.create({
     },
 
     rankDiamondSlot: {
-        width: 16,
-        height: 16,
+        width: 14,
+        height: 14,
         alignItems: "center",
         justifyContent: "center",
     },
 
     rankDiamond: {
-        width: 9,
-        height: 9,
+        width: 8,
+        height: 8,
         transform: [{ rotate: "45deg" }],
     },
 

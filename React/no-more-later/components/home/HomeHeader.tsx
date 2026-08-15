@@ -33,13 +33,13 @@ export function HomeHeader({ currentStreak, displayName }: HomeHeaderProps) {
                     <Text style={styles.title}>{displayName ? `${getGreeting()} ${displayName}` : getGreeting()}</Text>
                 </View>
 
-                {currentStreak > 0 && (
+                {/* {currentStreak > 0 && (
                     <View style={styles.streakBadge}>
                         <Text style={styles.streakNumber}>{currentStreak}</Text>
 
                         <Text style={styles.streakLabel}>{streakLabel}</Text>
                     </View>
-                )}
+                )} */}
             </View>
 
             <Text style={styles.subtitle}>Choose one thing and move it forward.</Text>
