@@ -1,6 +1,6 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 
-import { colours, spacing } from "@/constants/design";
+import { colours, spacing, radius } from "@/constants/design";
 import { getFocusRank, getNextFocusRank, getRankProgress } from "@/utils/rank";
 import { getRankImage } from "@/utils/rankImage";
 
@@ -21,10 +21,27 @@ export function RankDisplay({ level }: RankDisplayProps) {
 
     const rankProgress = getRankProgress(level);
 
+    const totalRankSteps = rank.maximumLevel !== null ? rank.maximumLevel - rank.minimumLevel : 0;
+    const completedRankSteps = level - rank.minimumLevel;
+
     return (
         <View style={styles.container}>
-            <View style={styles.imageFrame}>
-                <Image source={image} style={styles.image} resizeMode="contain" />
+            <View style={styles.badgeContainer}>
+                <View style={styles.imageFrame}>
+                    <Image source={image} style={styles.image} resizeMode="contain" />
+                </View>
+
+                <View style={styles.rankTray}>
+                    {Array.from({ length: totalRankSteps }).map((_, index) => {
+                        const isCompleted = index < completedRankSteps;
+
+                        return (
+                            <View key={index} style={styles.rankDiamondSlot}>
+                                <View style={[styles.rankDiamond, isCompleted ? styles.rankDiamondCompleted : styles.rankDiamondRemaining]} />
+                            </View>
+                        );
+                    })}
+                </View>
             </View>
 
             <View style={styles.details}>
@@ -62,10 +79,10 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         overflow: "hidden",
     },
-
     image: {
-        width: 92,
-        height: 92,
+        width: 82,
+        height: 82,
+        transform: [{ translateY: -4 }],
     },
 
     details: {
@@ -95,5 +112,54 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: "600",
         color: colours.primary,
+    },
+    badgeContainer: {
+        width: 112,
+        height: 124,
+        position: "relative",
+        alignItems: "center",
+    },
+
+    rankTray: {
+        position: "absolute",
+        top: 99,
+
+        minHeight: 26,
+        paddingHorizontal: spacing.sm,
+
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+
+        borderWidth: 2,
+        borderColor: colours.primary,
+        borderRadius: radius.pill,
+
+        backgroundColor: colours.surface,
+    },
+
+    rankDiamondSlot: {
+        width: 16,
+        height: 16,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    rankDiamond: {
+        width: 9,
+        height: 9,
+        transform: [{ rotate: "45deg" }],
+    },
+
+    rankDiamondCompleted: {
+        backgroundColor: colours.primary,
+        borderWidth: 1,
+        borderColor: colours.primary,
+    },
+
+    rankDiamondRemaining: {
+        backgroundColor: colours.surface,
+        borderWidth: 1,
+        borderColor: colours.primaryBorder,
     },
 });
