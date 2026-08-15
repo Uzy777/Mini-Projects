@@ -2,7 +2,7 @@ import { Tabs } from "expo-router";
 import React from "react";
 
 import { HapticTab } from "@/components/haptic-tab";
-import { House, Map, RotateCcwClock } from "lucide-react-native";
+import { House, Map, RotateCcwClock, Trophy } from "lucide-react-native";
 
 import { colours } from "../../constants/design";
 
@@ -52,6 +52,8 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen name="history" options={{ title: "History", tabBarIcon: ({ color, size }) => <RotateCcwClock size={size} color={color} /> }} />
+
+            <Tabs.Screen name="leaderboard" options={{ title: "Leaderboard", tabBarIcon: ({ color, size }) => <Trophy size={size} color={color} /> }} />
         </Tabs>
     );
 }
