@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { StyleSheet, Text, View, ScrollView } from "react-native";
 import { useAudioPlayer } from "expo-audio";
+import * as Crypto from "expo-crypto";
 
 import { ActiveFocusSession } from "../../types/models";
 import { clearActiveFocusSession, getActiveFocusSession, saveActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
@@ -25,6 +26,7 @@ export default function FocusScreen() {
         journeyId: string;
     }>();
 
+    const [sessionId, setSessionId] = useState<string | null>(null);
     const [selectedMinutes, setSelectedMinutes] = useState(25);
     const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
     const [isRunning, setIsRunning] = useState(false);
@@ -45,6 +47,20 @@ export default function FocusScreen() {
                     return;
                 }
 
+                const storedSessionId = storedSession.id || Crypto.randomUUID();
+
+                setSessionId(storedSessionId);
+
+                if (!storedSession.id) {
+                    await saveActiveFocusSession({
+                        ...storedSession,
+                        id: storedSessionId,
+                    });
+                }
+                if (storedSession.questId !== questId || storedSession.journeyId !== journeyId) {
+                    return;
+                }
+
                 setSelectedMinutes(storedSession.selectedMinutes);
 
                 if (storedSession.isRunning && storedSession.endTime !== null) {
@@ -58,6 +74,7 @@ export default function FocusScreen() {
 
                         await saveActiveFocusSession({
                             ...storedSession,
+                            id: storedSessionId,
                             remainingSeconds: 0,
                             isRunning: false,
                             endTime: null,
@@ -86,10 +103,11 @@ export default function FocusScreen() {
     }, [questId, journeyId]);
 
     useEffect(() => {
-        if (!isRunning || endTime === null) {
+        if (!isRunning || endTime === null || !sessionId) {
             return;
         }
 
+        const activeSessionId = sessionId;
         const activeEndTime = endTime;
 
         function updateRemainingTime() {
@@ -105,6 +123,7 @@ export default function FocusScreen() {
                 setEndTime(null);
 
                 saveActiveFocusSession({
+                    id: activeSessionId,
                     questId,
                     journeyId,
                     questTitle: questTitle ?? "Untitled Quest",
@@ -125,7 +144,7 @@ export default function FocusScreen() {
         return () => {
             clearInterval(intervalId);
         };
-    }, [isRunning, endTime, completionSoundPlayer]);
+    }, [isRunning, endTime, sessionId, completionSoundPlayer, questId, journeyId, questTitle, selectedMinutes]);
 
     async function handleStartSession() {
         setSessionMessage("");
@@ -175,11 +194,15 @@ export default function FocusScreen() {
 
             const calculatedEndTime = Date.now() + totalSeconds * 1000;
 
+            const newSessionId = Crypto.randomUUID();
+
+            setSessionId(newSessionId);
             setRemainingSeconds(totalSeconds);
             setEndTime(calculatedEndTime);
             setIsRunning(true);
 
             await saveActiveFocusSession({
+                id: newSessionId,
                 questId,
                 journeyId,
                 questTitle: questTitle ?? "Untitled Quest",
@@ -211,6 +234,9 @@ export default function FocusScreen() {
     }
 
     async function handleToggleTimer() {
+        if (!sessionId) {
+            return;
+        }
         if (isRunning) {
             const pausedRemainingSeconds = endTime !== null ? Math.max(0, Math.ceil((endTime - Date.now()) / 1000)) : (remainingSeconds ?? 0);
 
@@ -219,6 +245,8 @@ export default function FocusScreen() {
             setEndTime(null);
 
             await saveActiveFocusSession({
+                id: sessionId,
+
                 questId,
                 journeyId,
                 questTitle: questTitle ?? "Untitled Quest",
@@ -238,6 +266,7 @@ export default function FocusScreen() {
             setIsRunning(true);
 
             await saveActiveFocusSession({
+                id: sessionId,
                 questId,
                 journeyId,
                 questTitle: questTitle ?? "Untitled Quest",
@@ -250,6 +279,10 @@ export default function FocusScreen() {
     }
 
     async function handleEndSessionEarly() {
+        if (!sessionId) {
+            return;
+        }
+
         const actualSeconds = calculateActualFocusedSeconds({
             selectedMinutes,
             remainingSeconds,
@@ -259,9 +292,19 @@ export default function FocusScreen() {
 
         setIsRunning(false);
         setEndTime(null);
+        setRemainingSeconds(0);
 
         try {
-            await clearActiveFocusSession();
+            await saveActiveFocusSession({
+                id: sessionId,
+                questId,
+                journeyId,
+                questTitle: questTitle ?? "Untitled Quest",
+                selectedMinutes,
+                remainingSeconds: 0,
+                isRunning: false,
+                endTime: null,
+            });
 
             router.replace({
                 pathname: "/review/[questId]",
@@ -269,6 +312,7 @@ export default function FocusScreen() {
                     questId,
                     questTitle,
                     journeyId,
+                    focusSessionId: sessionId,
                     plannedMinutes: selectedMinutes.toString(),
                     actualSeconds: actualSeconds.toString(),
                     endedEarly: "true",
@@ -276,18 +320,23 @@ export default function FocusScreen() {
             });
         } catch (error) {
             console.error("Failed to end Focus Session early:", error);
-        }
 
-        setSessionMessage("The Focus Session could not be ended.");
+            setSessionMessage("The Focus Session could not be ended.");
+        }
     }
 
     function handleReviewSession() {
+        if (!sessionId) {
+            return;
+        }
+
         router.push({
             pathname: "/review/[questId]",
             params: {
                 questId,
                 questTitle,
                 journeyId,
+                focusSessionId: sessionId,
                 plannedMinutes: selectedMinutes.toString(),
                 actualSeconds: (selectedMinutes * 60).toString(),
             },

@@ -18,10 +18,11 @@ export default function ReviewSessionScreen() {
     const router = useRouter();
     const { session } = useAuth();
 
-    const { questId, questTitle, journeyId, plannedMinutes, actualSeconds, endedEarly } = useLocalSearchParams<{
+    const { questId, questTitle, journeyId, focusSessionId, plannedMinutes, actualSeconds, endedEarly } = useLocalSearchParams<{
         questId: string;
         questTitle?: string;
         journeyId: string;
+        focusSessionId: string;
         plannedMinutes?: string;
         actualSeconds?: string;
         endedEarly?: string;
@@ -108,7 +109,8 @@ export default function ReviewSessionScreen() {
 
             const focusedSeconds = Number(actualSeconds ?? sessionMinutes * 60);
 
-            const { data: completedReview, error: completeReviewError } = await completeRemoteReview({
+            const reviewInput = {
+                focusSessionId,
                 journeyId,
                 questId,
                 plannedMinutes: sessionMinutes,
@@ -116,7 +118,9 @@ export default function ReviewSessionScreen() {
                 outcome: selectedOutcome,
                 accomplishment: trimmedAccomplishment,
                 nextAction: trimmedNextAction,
-            });
+            };
+
+            const { data: completedReview, error: completeReviewError } = await completeRemoteReview(reviewInput);
 
             if (completeReviewError || !completedReview) {
                 console.error("Failed to complete remote Review:", completeReviewError);

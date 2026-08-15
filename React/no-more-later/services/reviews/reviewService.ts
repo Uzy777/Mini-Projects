@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import type { SessionOutcome } from "@/types/models";
 
 type CompleteRemoteReviewInput = {
+    focusSessionId: string;
     journeyId: string;
     questId: string;
     plannedMinutes: number;
@@ -25,6 +26,7 @@ export async function completeRemoteReview(input: CompleteRemoteReviewInput): Pr
     error: Error | null;
 }> {
     const { data, error } = await supabase.rpc("complete_review", {
+        p_focus_session_id: input.focusSessionId,
         p_journey_id: input.journeyId,
         p_quest_id: input.questId,
         p_planned_minutes: input.plannedMinutes,
