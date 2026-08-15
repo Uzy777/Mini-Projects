@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { ScrollView, StyleSheet, Text, View, RefreshControl } from "react-native";
 import { useFocusEffect } from "expo-router";
 
-import { getLeaderboard, LeaderboardEntry } from "@/services/leaderboard/leaderboardService";
+import { getLeaderboard, getMyLeaderboardPosition, LeaderboardEntry, MyLeaderboardPosition } from "@/services/leaderboard/leaderboardService";
 import { colours, radius, spacing } from "@/constants/design";
 import { calculateLevel } from "@/utils/level";
 import { getFocusRank } from "@/utils/rank";
@@ -15,15 +15,17 @@ export default function LeaderboardScreen() {
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [myPosition, setMyPosition] = useState<MyLeaderboardPosition | null>(null);
 
     const loadLeaderboard = useCallback(async () => {
         setIsLoading(true);
         setErrorMessage(null);
 
         try {
-            const leaderboardData = await getLeaderboard();
+            const [leaderboardData, myPositionData] = await Promise.all([getLeaderboard(), getMyLeaderboardPosition()]);
 
             setLeaderboard(leaderboardData);
+            setMyPosition(myPositionData);
         } catch (error) {
             console.error("Failed to load leaderboard:", error);
 
@@ -39,18 +41,50 @@ export default function LeaderboardScreen() {
         }, [loadLeaderboard]),
     );
 
+    const shouldShowMyPosition = myPosition !== null && myPosition.leaderboard_position > 25;
+
     return (
         <ScrollView
             style={styles.screen}
             contentContainerStyle={styles.container}
             refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadLeaderboard} tintColor={colours.primary} colors={[colours.primary]} />}
         >
-            {" "}
             <View style={styles.header}>
                 <Text style={styles.title}>Leaderboard</Text>
                 <Text style={styles.subtitle}>Top 25 focused users</Text>
             </View>
             <View style={styles.leaderboardCard}>
+                {shouldShowMyPosition && (
+                    <View style={styles.myPositionSection}>
+                        <Text style={styles.sectionLabel}>YOUR POSITION</Text>
+
+                        <View style={styles.myPositionCard}>
+                            <View style={styles.positionContainer}>
+                                <Text style={styles.position}>{myPosition.leaderboard_position}</Text>
+                            </View>
+
+                            <RankBadge level={calculateLevel(myPosition.total_xp)} />
+
+                            <View style={styles.userInfo}>
+                                <View style={styles.nameRow}>
+                                    <Text style={styles.name}>{myPosition.display_name}</Text>
+
+                                    <View style={styles.youBadge}>
+                                        <Text style={styles.youBadgeText}>You</Text>
+                                    </View>
+                                </View>
+
+                                <Text style={styles.details}>
+                                    Level {calculateLevel(myPosition.total_xp)}
+                                    {getFocusRank(calculateLevel(myPosition.total_xp)) ? ` · ${getFocusRank(calculateLevel(myPosition.total_xp))?.name}` : ""}
+                                </Text>
+                            </View>
+
+                            <Text style={styles.xp}>{myPosition.total_xp} XP</Text>
+                        </View>
+                    </View>
+                )}
+
                 {isLoading ? (
                     <View style={styles.messageContainer}>
                         <Text style={styles.messageText}>Loading leaderboard...</Text>
@@ -267,5 +301,30 @@ const styles = StyleSheet.create({
 
     thirdPositionText: {
         color: colours.leaderboardBronze,
+    },
+    myPositionSection: {
+        marginTop: spacing.lg,
+    },
+
+    sectionLabel: {
+        marginBottom: spacing.sm,
+        fontSize: 12,
+        fontWeight: "700",
+        letterSpacing: 1,
+        color: colours.textMuted,
+    },
+
+    myPositionCard: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: spacing.md,
+
+        padding: spacing.md,
+
+        borderWidth: 1,
+        borderColor: colours.primaryBorder,
+        borderRadius: radius.lg,
+
+        backgroundColor: colours.primarySoft,
     },
 });
