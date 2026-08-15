@@ -1,5 +1,5 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import { ChevronRight, LogOut, Palette, UserRound, UserRoundPen } from "lucide-react-native";
 
 import { colours, radius, spacing } from "@/constants/design";
@@ -43,16 +43,15 @@ export default function AccountScreen() {
                 <Text style={styles.sectionLabel}>SETTINGS</Text>
 
                 <View style={styles.settingsCard}>
-                    <Pressable style={styles.settingRow}>
+                    <Pressable style={styles.settingRow} onPress={() => router.push("/profile")}>
+                        {" "}
                         <View style={styles.settingIcon}>
                             <UserRoundPen size={19} color={colours.primary} />
                         </View>
-
                         <View style={styles.settingDetails}>
                             <Text style={styles.settingTitle}>Profile</Text>
                             <Text style={styles.settingDescription}>Update your account details</Text>
                         </View>
-
                         <ChevronRight size={18} color={colours.textMuted} />
                     </Pressable>
 

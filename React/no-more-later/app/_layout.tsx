@@ -83,6 +83,13 @@ function RootNavigator() {
                 />
 
                 <Stack.Screen
+                    name="profile"
+                    options={{
+                        title: "Profile",
+                    }}
+                />
+
+                <Stack.Screen
                     name="modal"
                     options={{
                         presentation: "modal",

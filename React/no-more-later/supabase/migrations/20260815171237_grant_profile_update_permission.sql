@@ -1,0 +1,1 @@
+grant update on public.profiles to authenticated;

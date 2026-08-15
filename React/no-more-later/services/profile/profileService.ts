@@ -13,3 +13,25 @@ export async function getProfile(userId: string): Promise<{
         error,
     };
 }
+
+export async function updateDisplayName(
+    userId: string,
+    displayName: string,
+): Promise<{
+    data: Profile | null;
+    error: Error | null;
+}> {
+    const { data, error } = await supabase
+        .from("profiles")
+        .update({
+            display_name: displayName,
+        })
+        .eq("id", userId)
+        .select("id, display_name, created_at")
+        .single();
+
+    return {
+        data,
+        error,
+    };
+}
