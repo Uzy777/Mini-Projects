@@ -220,7 +220,6 @@ export default function JourneyDetailsScreen() {
 
     return (
         <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-            {" "}
             <Stack.Screen options={{ title: "Journey" }} />
             <View style={styles.pageHeader}>
                 <Text style={styles.title}>{title ?? "Journey"}</Text>

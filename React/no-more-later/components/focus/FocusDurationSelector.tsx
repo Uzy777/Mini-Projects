@@ -16,7 +16,6 @@ export function FocusDurationSelector({ selectedMinutes, disabled = false, onSel
             <Text style={styles.label}>SESSION LENGTH</Text>
 
             <View style={[styles.durationOptions, disabled && styles.durationOptionsDisabled]}>
-                {" "}
                 {focusDurations.map((minutes) => {
                     const isSelected = selectedMinutes === minutes;
 

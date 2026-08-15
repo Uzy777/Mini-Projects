@@ -51,7 +51,6 @@ export function AddQuestForm({ questTitle, doneWhen, onChangeQuestTitle, onChang
                 onPress={onAddQuest}
                 disabled={titleIsEmpty}
             >
-                {" "}
                 <Text style={[styles.addButtonText, titleIsEmpty && styles.disabledButtonText]}>Add Quest</Text>
             </Pressable>
         </View>
