@@ -1,6 +1,10 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
-import { colours, radius, spacing } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
+import { useMemo } from "react";
 
 type ReviewFormProps = {
     accomplishment: string;
@@ -23,6 +27,10 @@ export function ReviewForm({
     isSubmitting,
     onSubmit,
 }: ReviewFormProps) {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     return (
         <View style={styles.formContainer}>
             <View style={styles.fieldGroup}>
@@ -81,79 +89,81 @@ export function ReviewForm({
     );
 }
 
-const styles = StyleSheet.create({
-    formContainer: {
-        width: "100%",
-        gap: spacing.lg,
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        formContainer: {
+            width: "100%",
+            gap: spacing.lg,
+        },
 
-    fieldGroup: {
-        width: "100%",
-    },
+        fieldGroup: {
+            width: "100%",
+        },
 
-    inputLabel: {
-        fontSize: 15,
-        fontWeight: "700",
-        color: colours.text,
-    },
+        inputLabel: {
+            fontSize: 15,
+            fontWeight: "700",
+            color: colours.text,
+        },
 
-    helperText: {
-        marginTop: spacing.xs,
-        fontSize: 13,
-        lineHeight: 19,
-        color: colours.textMuted,
-    },
+        helperText: {
+            marginTop: spacing.xs,
+            fontSize: 13,
+            lineHeight: 19,
+            color: colours.textMuted,
+        },
 
-    input: {
-        width: "100%",
-        marginTop: spacing.sm,
-        paddingVertical: 13,
-        paddingHorizontal: spacing.md,
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.md,
-        fontSize: 16,
-        lineHeight: 22,
-        color: colours.text,
-        backgroundColor: colours.surface,
-    },
+        input: {
+            width: "100%",
+            marginTop: spacing.sm,
+            paddingVertical: 13,
+            paddingHorizontal: spacing.md,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+            fontSize: 16,
+            lineHeight: 22,
+            color: colours.text,
+            backgroundColor: colours.surface,
+        },
 
-    multilineInput: {
-        minHeight: 110,
-    },
+        multilineInput: {
+            minHeight: 110,
+        },
 
-    errorBox: {
-        padding: spacing.md,
-        borderRadius: radius.md,
-        backgroundColor: colours.dangerSoft,
-    },
+        errorBox: {
+            padding: spacing.md,
+            borderRadius: radius.md,
+            backgroundColor: colours.dangerSoft,
+        },
 
-    errorMessage: {
-        fontSize: 14,
-        lineHeight: 20,
-        fontWeight: "600",
-        color: colours.danger,
-    },
+        errorMessage: {
+            fontSize: 14,
+            lineHeight: 20,
+            fontWeight: "600",
+            color: colours.danger,
+        },
 
-    submitButton: {
-        width: "100%",
-        alignItems: "center",
-        paddingVertical: 14,
-        borderRadius: radius.md,
-        backgroundColor: colours.primary,
-    },
+        submitButton: {
+            width: "100%",
+            alignItems: "center",
+            paddingVertical: 14,
+            borderRadius: radius.md,
+            backgroundColor: colours.primary,
+        },
 
-    submitButtonPressed: {
-        backgroundColor: colours.primaryPressed,
-    },
+        submitButtonPressed: {
+            backgroundColor: colours.primaryPressed,
+        },
 
-    submitButtonDisabled: {
-        opacity: 0.55,
-    },
+        submitButtonDisabled: {
+            opacity: 0.55,
+        },
 
-    submitButtonText: {
-        fontSize: 16,
-        fontWeight: "700",
-        color: colours.surface,
-    },
-});
+        submitButtonText: {
+            fontSize: 16,
+            fontWeight: "700",
+            color: colours.surface,
+        },
+    });
+}

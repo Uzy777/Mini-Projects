@@ -5,11 +5,19 @@ import { FlatList, StyleSheet, Text, View } from "react-native";
 import type { FocusSessionRecord } from "../../types/models";
 import { getFocusSessions } from "../../services/storage/focusSessionsStorage";
 import { FocusSessionHistoryCard } from "../../components/history/FocusSessionHistoryCard";
-import { colours, radius, spacing } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteFocusSessions } from "@/services/focusSessions/focusSessionService";
+import { useMemo } from "react";
 
 export default function HistoryScreen() {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     const { session } = useAuth();
 
     const [sessions, setSessions] = useState<FocusSessionRecord[]>([]);
@@ -70,71 +78,73 @@ export default function HistoryScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    screen: {
-        flex: 1,
-        backgroundColor: colours.background,
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        screen: {
+            flex: 1,
+            backgroundColor: colours.background,
+        },
 
-    list: {
-        flex: 1,
-    },
+        list: {
+            flex: 1,
+        },
 
-    contentContainer: {
-        width: "100%",
-        maxWidth: 720,
-        alignSelf: "center",
-        paddingHorizontal: spacing.lg,
-        paddingTop: spacing.lg,
-        paddingBottom: 48,
-    },
+        contentContainer: {
+            width: "100%",
+            maxWidth: 720,
+            alignSelf: "center",
+            paddingHorizontal: spacing.lg,
+            paddingTop: spacing.lg,
+            paddingBottom: 48,
+        },
 
-    header: {
-        marginBottom: spacing.xl,
-    },
+        header: {
+            marginBottom: spacing.xl,
+        },
 
-    title: {
-        fontSize: 30,
-        lineHeight: 36,
-        fontWeight: "800",
-        color: colours.text,
-    },
+        title: {
+            fontSize: 30,
+            lineHeight: 36,
+            fontWeight: "800",
+            color: colours.text,
+        },
 
-    description: {
-        marginTop: spacing.sm,
-        fontSize: 15,
-        lineHeight: 22,
-        color: colours.textMuted,
-    },
+        description: {
+            marginTop: spacing.sm,
+            fontSize: 15,
+            lineHeight: 22,
+            color: colours.textMuted,
+        },
 
-    separator: {
-        height: spacing.md,
-    },
+        separator: {
+            height: spacing.md,
+        },
 
-    emptyState: {
-        width: "100%",
-        alignItems: "center",
-        paddingVertical: spacing.xl,
-        paddingHorizontal: spacing.lg,
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.lg,
-        backgroundColor: colours.surface,
-    },
+        emptyState: {
+            width: "100%",
+            alignItems: "center",
+            paddingVertical: spacing.xl,
+            paddingHorizontal: spacing.lg,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
+            backgroundColor: colours.surface,
+        },
 
-    emptyTitle: {
-        fontSize: 17,
-        fontWeight: "700",
-        color: colours.text,
-        textAlign: "center",
-    },
+        emptyTitle: {
+            fontSize: 17,
+            fontWeight: "700",
+            color: colours.text,
+            textAlign: "center",
+        },
 
-    emptyDescription: {
-        marginTop: spacing.sm,
-        maxWidth: 320,
-        fontSize: 14,
-        lineHeight: 20,
-        color: colours.textMuted,
-        textAlign: "center",
-    },
-});
+        emptyDescription: {
+            marginTop: spacing.sm,
+            maxWidth: 320,
+            fontSize: 14,
+            lineHeight: 20,
+            color: colours.textMuted,
+            textAlign: "center",
+        },
+    });
+}

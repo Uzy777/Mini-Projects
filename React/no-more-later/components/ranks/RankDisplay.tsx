@@ -1,14 +1,22 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 
-import { colours, spacing, radius } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
 import { getFocusRank, getNextFocusRank, getRankProgress } from "@/utils/rank";
 import { getRankImage } from "@/utils/rankImage";
+import { useMemo } from "react";
 
 type RankDisplayProps = {
     level: number;
 };
 
 export function RankDisplay({ level }: RankDisplayProps) {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     const rank = getFocusRank(level);
 
     if (!rank) {
@@ -61,107 +69,109 @@ export function RankDisplay({ level }: RankDisplayProps) {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: spacing.md,
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        container: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.md,
+        },
 
-    imageFrame: {
-        width: 96,
-        height: 96,
-        borderRadius: radius.pill,
-        borderWidth: 2,
-        borderColor: colours.primary,
-        backgroundColor: colours.primarySoft,
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-    },
-    image: {
-        width: 70,
-        height: 70,
-        transform: [{ translateY: -4 }],
-    },
+        imageFrame: {
+            width: 96,
+            height: 96,
+            borderRadius: radius.pill,
+            borderWidth: 2,
+            borderColor: colours.primary,
+            backgroundColor: colours.primarySoft,
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+        },
+        image: {
+            width: 70,
+            height: 70,
+            transform: [{ translateY: -4 }],
+        },
 
-    details: {
-        flex: 1,
-        gap: 2,
-    },
+        details: {
+            flex: 1,
+            gap: 2,
+        },
 
-    label: {
-        fontSize: 11,
-        fontWeight: "700",
-        color: colours.textMuted,
-        letterSpacing: 1,
-    },
+        label: {
+            fontSize: 11,
+            fontWeight: "700",
+            color: colours.textMuted,
+            letterSpacing: 1,
+        },
 
-    name: {
-        fontSize: 22,
-        fontWeight: "800",
-        color: colours.text,
-    },
+        name: {
+            fontSize: 22,
+            fontWeight: "800",
+            color: colours.text,
+        },
 
-    progressText: {
-        marginTop: 2,
-        fontSize: 12,
-        color: colours.textMuted,
-    },
+        progressText: {
+            marginTop: 2,
+            fontSize: 12,
+            color: colours.textMuted,
+        },
 
-    nextRankText: {
-        marginTop: 2,
-        fontSize: 12,
-        fontWeight: "600",
-        color: colours.primary,
-    },
-    badgeContainer: {
-        width: 96,
-        height: 108,
-        position: "relative",
-        alignItems: "center",
-    },
+        nextRankText: {
+            marginTop: 2,
+            fontSize: 12,
+            fontWeight: "600",
+            color: colours.primary,
+        },
+        badgeContainer: {
+            width: 96,
+            height: 108,
+            position: "relative",
+            alignItems: "center",
+        },
 
-    rankTray: {
-        position: "absolute",
-        top: 84,
+        rankTray: {
+            position: "absolute",
+            top: 84,
 
-        minHeight: 23,
-        paddingHorizontal: 6,
+            minHeight: 23,
+            paddingHorizontal: 6,
 
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
 
-        borderWidth: 2,
-        borderColor: colours.primary,
-        borderRadius: radius.pill,
+            borderWidth: 2,
+            borderColor: colours.primary,
+            borderRadius: radius.pill,
 
-        backgroundColor: colours.surface,
-    },
+            backgroundColor: colours.surface,
+        },
 
-    rankDiamondSlot: {
-        width: 14,
-        height: 14,
-        alignItems: "center",
-        justifyContent: "center",
-    },
+        rankDiamondSlot: {
+            width: 14,
+            height: 14,
+            alignItems: "center",
+            justifyContent: "center",
+        },
 
-    rankDiamond: {
-        width: 8,
-        height: 8,
-        transform: [{ rotate: "45deg" }],
-    },
+        rankDiamond: {
+            width: 8,
+            height: 8,
+            transform: [{ rotate: "45deg" }],
+        },
 
-    rankDiamondCompleted: {
-        backgroundColor: colours.primary,
-        borderWidth: 1,
-        borderColor: colours.primary,
-    },
+        rankDiamondCompleted: {
+            backgroundColor: colours.primary,
+            borderWidth: 1,
+            borderColor: colours.primary,
+        },
 
-    rankDiamondRemaining: {
-        backgroundColor: colours.surface,
-        borderWidth: 1,
-        borderColor: colours.primaryBorder,
-    },
-});
+        rankDiamondRemaining: {
+            backgroundColor: colours.surface,
+            borderWidth: 1,
+            borderColor: colours.primaryBorder,
+        },
+    });
+}

@@ -1,6 +1,10 @@
 import { StyleSheet, Text, View } from "react-native";
 
-import { colours, radius, spacing } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
+import { useMemo } from "react";
 
 type FocusTimerDisplayProps = {
     seconds: number;
@@ -15,6 +19,10 @@ function formatTime(totalSeconds: number) {
 }
 
 export function FocusTimerDisplay({ seconds }: FocusTimerDisplayProps) {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     return (
         <View style={styles.timerSection}>
             <Text style={styles.label}>FOCUS TIME</Text>
@@ -28,46 +36,48 @@ export function FocusTimerDisplay({ seconds }: FocusTimerDisplayProps) {
     );
 }
 
-const styles = StyleSheet.create({
-    timerSection: {
-        width: "100%",
-        marginTop: spacing.xl,
-        alignItems: "center",
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        timerSection: {
+            width: "100%",
+            marginTop: spacing.xl,
+            alignItems: "center",
+        },
 
-    label: {
-        alignSelf: "flex-start",
-        fontSize: 12,
-        fontWeight: "700",
-        letterSpacing: 0.7,
-        color: colours.textMuted,
-    },
+        label: {
+            alignSelf: "flex-start",
+            fontSize: 12,
+            fontWeight: "700",
+            letterSpacing: 0.7,
+            color: colours.textMuted,
+        },
 
-    timerContainer: {
-        width: "100%",
-        marginTop: spacing.sm,
-        paddingVertical: spacing.xl,
-        paddingHorizontal: spacing.md,
-        borderRadius: radius.lg,
-        backgroundColor: colours.primarySoft,
-        alignItems: "center",
-        justifyContent: "center",
-    },
+        timerContainer: {
+            width: "100%",
+            marginTop: spacing.sm,
+            paddingVertical: spacing.xl,
+            paddingHorizontal: spacing.md,
+            borderRadius: radius.lg,
+            backgroundColor: colours.primarySoft,
+            alignItems: "center",
+            justifyContent: "center",
+        },
 
-    timerText: {
-        fontSize: 64,
-        lineHeight: 72,
-        fontWeight: "800",
-        fontVariant: ["tabular-nums"],
-        letterSpacing: 1,
-        color: colours.primary,
-    },
+        timerText: {
+            fontSize: 64,
+            lineHeight: 72,
+            fontWeight: "800",
+            fontVariant: ["tabular-nums"],
+            letterSpacing: 1,
+            color: colours.primary,
+        },
 
-    hint: {
-        marginTop: spacing.sm,
-        textAlign: "center",
-        fontSize: 13,
-        lineHeight: 19,
-        color: colours.textMuted,
-    },
-});
+        hint: {
+            marginTop: spacing.sm,
+            textAlign: "center",
+            fontSize: 13,
+            lineHeight: 19,
+            color: colours.textMuted,
+        },
+    });
+}

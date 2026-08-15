@@ -11,15 +11,22 @@ import { TodaySummaryCard } from "../../components/home/TodaySummaryCard";
 import { ContinueQuestCard } from "../../components/home/ContinueQuestCard";
 import { ActiveFocusSessionCard } from "../../components/home/ActiveFocusSessionCard";
 import { calculateCurrentStreak, calculateTodayFocusSummary, findLatestUnfinishedSession, calculateTotalFocusedSeconds } from "../../utils/focusSessionStats";
-import { colours, spacing, radius } from "../../constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
 import { signOut } from "@/services/auth/authService";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteTotalXp, getRemoteFocusSessions } from "@/services/focusSessions/focusSessionService";
 import { TOTAL_XP_STORAGE_KEY } from "@/constants/storageKeys";
+import { useMemo } from "react";
 
 export default function HomeScreen() {
     const router = useRouter();
     const { session, profile } = useAuth();
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
 
     const [totalXp, setTotalXp] = useState(0);
     const [activeSession, setActiveSession] = useState<ActiveFocusSession | null>(null);
@@ -224,48 +231,50 @@ export default function HomeScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    contentContainer: {
-        width: "100%",
-        maxWidth: 720,
-        alignSelf: "center",
-        paddingHorizontal: spacing.lg,
-        paddingTop: spacing.lg,
-        paddingBottom: 48,
-    },
-    startButton: {
-        paddingHorizontal: 24,
-        paddingVertical: 14,
-        borderRadius: 10,
-        backgroundColor: "#222222",
-    },
-    startButtonText: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: "#ffffff",
-        textAlign: "center",
-    },
-    contentSections: {
-        gap: spacing.md,
-    },
-    screen: {
-        flex: 1,
-        backgroundColor: colours.background,
-    },
-    signOutButton: {
-        alignSelf: "flex-start",
-        paddingHorizontal: spacing.md,
-        paddingVertical: spacing.sm,
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.md,
-        backgroundColor: colours.surface,
-        marginTop: -25,
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        contentContainer: {
+            width: "100%",
+            maxWidth: 720,
+            alignSelf: "center",
+            paddingHorizontal: spacing.lg,
+            paddingTop: spacing.lg,
+            paddingBottom: 48,
+        },
+        startButton: {
+            paddingHorizontal: 24,
+            paddingVertical: 14,
+            borderRadius: 10,
+            backgroundColor: "#222222",
+        },
+        startButtonText: {
+            fontSize: 16,
+            fontWeight: "600",
+            color: "#ffffff",
+            textAlign: "center",
+        },
+        contentSections: {
+            gap: spacing.md,
+        },
+        screen: {
+            flex: 1,
+            backgroundColor: colours.background,
+        },
+        signOutButton: {
+            alignSelf: "flex-start",
+            paddingHorizontal: spacing.md,
+            paddingVertical: spacing.sm,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+            backgroundColor: colours.surface,
+            marginTop: -25,
+        },
 
-    signOutButtonText: {
-        fontSize: 14,
-        fontWeight: "700",
-        color: colours.textMuted,
-    },
-});
+        signOutButtonText: {
+            fontSize: 14,
+            fontWeight: "700",
+            color: colours.textMuted,
+        },
+    });
+}

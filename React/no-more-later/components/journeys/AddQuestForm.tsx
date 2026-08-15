@@ -1,6 +1,10 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
-import { colours, radius, spacing } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
+import { useMemo } from "react";
 
 type AddQuestFormProps = {
     questTitle: string;
@@ -11,6 +15,10 @@ type AddQuestFormProps = {
 };
 
 export function AddQuestForm({ questTitle, doneWhen, onChangeQuestTitle, onChangeDoneWhen, onAddQuest }: AddQuestFormProps) {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     const titleIsEmpty = !questTitle.trim();
 
     return (
@@ -57,89 +65,91 @@ export function AddQuestForm({ questTitle, doneWhen, onChangeQuestTitle, onChang
     );
 }
 
-const styles = StyleSheet.create({
-    formCard: {
-        width: "100%",
-        padding: spacing.lg,
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.lg,
-        backgroundColor: colours.surface,
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        formCard: {
+            width: "100%",
+            padding: spacing.lg,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
+            backgroundColor: colours.surface,
+        },
 
-    formLabel: {
-        fontSize: 12,
-        fontWeight: "700",
-        letterSpacing: 0.7,
-        color: colours.primary,
-    },
+        formLabel: {
+            fontSize: 12,
+            fontWeight: "700",
+            letterSpacing: 0.7,
+            color: colours.primary,
+        },
 
-    formDescription: {
-        marginTop: spacing.sm,
-        fontSize: 14,
-        lineHeight: 20,
-        color: colours.textMuted,
-    },
+        formDescription: {
+            marginTop: spacing.sm,
+            fontSize: 14,
+            lineHeight: 20,
+            color: colours.textMuted,
+        },
 
-    input: {
-        width: "100%",
-        marginTop: spacing.md,
-        paddingVertical: 13,
-        paddingHorizontal: spacing.md,
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.md,
-        fontSize: 16,
-        color: colours.text,
-        backgroundColor: colours.background,
-    },
+        input: {
+            width: "100%",
+            marginTop: spacing.md,
+            paddingVertical: 13,
+            paddingHorizontal: spacing.md,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+            fontSize: 16,
+            color: colours.text,
+            backgroundColor: colours.background,
+        },
 
-    addButton: {
-        marginTop: spacing.md,
-        alignItems: "center",
-        paddingVertical: 13,
-        borderRadius: radius.md,
-        backgroundColor: colours.primary,
-    },
+        addButton: {
+            marginTop: spacing.md,
+            alignItems: "center",
+            paddingVertical: 13,
+            borderRadius: radius.md,
+            backgroundColor: colours.primary,
+        },
 
-    addButtonPressed: {
-        backgroundColor: colours.primaryPressed,
-    },
+        addButtonPressed: {
+            backgroundColor: colours.primaryPressed,
+        },
 
-    addButtonText: {
-        fontSize: 15,
-        fontWeight: "700",
-        color: colours.surface,
-    },
+        addButtonText: {
+            fontSize: 15,
+            fontWeight: "700",
+            color: colours.surface,
+        },
 
-    disabledButton: {
-        backgroundColor: colours.primarySoft,
-    },
+        disabledButton: {
+            backgroundColor: colours.primarySoft,
+        },
 
-    disabledButtonText: {
-        color: colours.textMuted,
-    },
-    fieldGroup: {
-        marginTop: spacing.md,
-        gap: spacing.sm,
-    },
+        disabledButtonText: {
+            color: colours.textMuted,
+        },
+        fieldGroup: {
+            marginTop: spacing.md,
+            gap: spacing.sm,
+        },
 
-    fieldLabel: {
-        fontSize: 12,
-        fontWeight: "700",
-        letterSpacing: 0.7,
-        color: colours.text,
-    },
+        fieldLabel: {
+            fontSize: 12,
+            fontWeight: "700",
+            letterSpacing: 0.7,
+            color: colours.text,
+        },
 
-    helperText: {
-        fontSize: 13,
-        lineHeight: 18,
-        color: colours.textMuted,
-    },
+        helperText: {
+            fontSize: 13,
+            lineHeight: 18,
+            color: colours.textMuted,
+        },
 
-    doneWhenInput: {
-        marginTop: 0,
-        minHeight: 90,
-        paddingTop: spacing.md,
-    },
-});
+        doneWhenInput: {
+            marginTop: 0,
+            minHeight: 90,
+            paddingTop: spacing.md,
+        },
+    });
+}

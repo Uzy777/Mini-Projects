@@ -1,14 +1,22 @@
 import { Image, StyleSheet, View } from "react-native";
 
-import { colours, radius } from "@/constants/design";
+import { radius } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
 import { getFocusRank } from "@/utils/rank";
 import { getRankImage } from "@/utils/rankImage";
+import { useMemo } from "react";
 
 type RankBadgeProps = {
     level: number;
 };
 
 export function RankBadge({ level }: RankBadgeProps) {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     const rank = getFocusRank(level);
 
     if (!rank) {
@@ -24,21 +32,23 @@ export function RankBadge({ level }: RankBadgeProps) {
     );
 }
 
-const styles = StyleSheet.create({
-    frame: {
-        width: 56,
-        height: 56,
-        borderRadius: radius.pill,
-        borderWidth: 2,
-        borderColor: colours.primaryBorder,
-        backgroundColor: colours.primarySoft,
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        frame: {
+            width: 56,
+            height: 56,
+            borderRadius: radius.pill,
+            borderWidth: 2,
+            borderColor: colours.primaryBorder,
+            backgroundColor: colours.primarySoft,
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+        },
 
-    image: {
-        width: 48,
-        height: 48,
-    },
-});
+        image: {
+            width: 48,
+            height: 48,
+        },
+    });
+}

@@ -1,7 +1,11 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import type { Quest } from "../../types/models";
-import { colours, radius, spacing } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
+import { useMemo } from "react";
 
 type QuestCardProps = {
     quest: Quest;
@@ -11,6 +15,10 @@ type QuestCardProps = {
 };
 
 export function QuestCard({ quest, onStartSession, onReopenQuest, onDeleteQuest }: QuestCardProps) {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     const isCompleted = quest.status === "completed";
 
     return (
@@ -66,173 +74,175 @@ export function QuestCard({ quest, onStartSession, onReopenQuest, onDeleteQuest 
     );
 }
 
-const styles = StyleSheet.create({
-    card: {
-        width: "100%",
-        marginTop: spacing.md,
-        padding: spacing.lg,
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.lg,
-        backgroundColor: colours.surface,
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        card: {
+            width: "100%",
+            marginTop: spacing.md,
+            padding: spacing.lg,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
+            backgroundColor: colours.surface,
+        },
 
-    header: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: spacing.md,
-    },
+        header: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: spacing.md,
+        },
 
-    statusBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: radius.pill,
-    },
+        statusBadge: {
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            borderRadius: radius.pill,
+        },
 
-    activeBadge: {
-        backgroundColor: colours.primarySoft,
-    },
+        activeBadge: {
+            backgroundColor: colours.primarySoft,
+        },
 
-    completedBadge: {
-        backgroundColor: colours.successSoft,
-    },
+        completedBadge: {
+            backgroundColor: colours.successSoft,
+        },
 
-    statusText: {
-        fontSize: 11,
-        fontWeight: "800",
-        letterSpacing: 0.6,
-    },
+        statusText: {
+            fontSize: 11,
+            fontWeight: "800",
+            letterSpacing: 0.6,
+        },
 
-    activeStatusText: {
-        color: colours.primary,
-    },
+        activeStatusText: {
+            color: colours.primary,
+        },
 
-    completedStatusText: {
-        color: colours.success,
-    },
+        completedStatusText: {
+            color: colours.success,
+        },
 
-    title: {
-        marginTop: spacing.md,
-        fontSize: 20,
-        lineHeight: 26,
-        fontWeight: "800",
-        color: colours.text,
-    },
+        title: {
+            marginTop: spacing.md,
+            fontSize: 20,
+            lineHeight: 26,
+            fontWeight: "800",
+            color: colours.text,
+        },
 
-    deleteButton: {
-        paddingHorizontal: spacing.sm,
-        paddingVertical: 5,
-        borderRadius: radius.sm,
-    },
+        deleteButton: {
+            paddingHorizontal: spacing.sm,
+            paddingVertical: 5,
+            borderRadius: radius.sm,
+        },
 
-    deleteButtonPressed: {
-        backgroundColor: colours.dangerSoft,
-    },
+        deleteButtonPressed: {
+            backgroundColor: colours.dangerSoft,
+        },
 
-    deleteText: {
-        fontSize: 13,
-        fontWeight: "700",
-        color: colours.danger,
-    },
+        deleteText: {
+            fontSize: 13,
+            fontWeight: "700",
+            color: colours.danger,
+        },
 
-    accomplishmentBox: {
-        marginTop: spacing.md,
-        padding: spacing.md,
-        borderRadius: radius.md,
-        backgroundColor: colours.background,
-    },
+        accomplishmentBox: {
+            marginTop: spacing.md,
+            padding: spacing.md,
+            borderRadius: radius.md,
+            backgroundColor: colours.background,
+        },
 
-    detailLabel: {
-        fontSize: 12,
-        fontWeight: "700",
-        color: colours.textMuted,
-    },
+        detailLabel: {
+            fontSize: 12,
+            fontWeight: "700",
+            color: colours.textMuted,
+        },
 
-    detailText: {
-        marginTop: spacing.xs,
-        fontSize: 14,
-        lineHeight: 20,
-        color: colours.text,
-    },
+        detailText: {
+            marginTop: spacing.xs,
+            fontSize: 14,
+            lineHeight: 20,
+            color: colours.text,
+        },
 
-    nextActionBox: {
-        marginTop: spacing.md,
-        padding: spacing.md,
-        borderRadius: radius.md,
-        backgroundColor: colours.primarySoft,
-    },
+        nextActionBox: {
+            marginTop: spacing.md,
+            padding: spacing.md,
+            borderRadius: radius.md,
+            backgroundColor: colours.primarySoft,
+        },
 
-    nextActionLabel: {
-        fontSize: 11,
-        fontWeight: "800",
-        letterSpacing: 0.6,
-        color: colours.primary,
-    },
+        nextActionLabel: {
+            fontSize: 11,
+            fontWeight: "800",
+            letterSpacing: 0.6,
+            color: colours.primary,
+        },
 
-    nextActionText: {
-        marginTop: spacing.xs,
-        fontSize: 15,
-        lineHeight: 21,
-        fontWeight: "600",
-        color: colours.text,
-    },
+        nextActionText: {
+            marginTop: spacing.xs,
+            fontSize: 15,
+            lineHeight: 21,
+            fontWeight: "600",
+            color: colours.text,
+        },
 
-    primaryButton: {
-        marginTop: spacing.lg,
-        alignItems: "center",
-        paddingVertical: 13,
-        borderRadius: radius.md,
-        backgroundColor: colours.primary,
-    },
+        primaryButton: {
+            marginTop: spacing.lg,
+            alignItems: "center",
+            paddingVertical: 13,
+            borderRadius: radius.md,
+            backgroundColor: colours.primary,
+        },
 
-    primaryButtonPressed: {
-        backgroundColor: colours.primaryPressed,
-    },
+        primaryButtonPressed: {
+            backgroundColor: colours.primaryPressed,
+        },
 
-    primaryButtonText: {
-        fontSize: 15,
-        fontWeight: "700",
-        color: colours.surface,
-    },
+        primaryButtonText: {
+            fontSize: 15,
+            fontWeight: "700",
+            color: colours.surface,
+        },
 
-    secondaryButton: {
-        marginTop: spacing.lg,
-        alignItems: "center",
-        paddingVertical: 13,
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.md,
-        backgroundColor: colours.surface,
-    },
+        secondaryButton: {
+            marginTop: spacing.lg,
+            alignItems: "center",
+            paddingVertical: 13,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+            backgroundColor: colours.surface,
+        },
 
-    secondaryButtonPressed: {
-        backgroundColor: colours.background,
-    },
+        secondaryButtonPressed: {
+            backgroundColor: colours.background,
+        },
 
-    secondaryButtonText: {
-        fontSize: 15,
-        fontWeight: "700",
-        color: colours.text,
-    },
-    doneWhenBox: {
-        marginTop: spacing.md,
-        padding: spacing.md,
-        borderRadius: radius.md,
-        backgroundColor: colours.primarySoft,
-    },
+        secondaryButtonText: {
+            fontSize: 15,
+            fontWeight: "700",
+            color: colours.text,
+        },
+        doneWhenBox: {
+            marginTop: spacing.md,
+            padding: spacing.md,
+            borderRadius: radius.md,
+            backgroundColor: colours.primarySoft,
+        },
 
-    doneWhenLabel: {
-        fontSize: 11,
-        fontWeight: "800",
-        letterSpacing: 0.6,
-        color: colours.primary,
-    },
+        doneWhenLabel: {
+            fontSize: 11,
+            fontWeight: "800",
+            letterSpacing: 0.6,
+            color: colours.primary,
+        },
 
-    doneWhenText: {
-        marginTop: spacing.xs,
-        fontSize: 14,
-        lineHeight: 20,
-        color: colours.text,
-    },
-});
+        doneWhenText: {
+            marginTop: spacing.xs,
+            fontSize: 14,
+            lineHeight: 20,
+            color: colours.text,
+        },
+    });
+}

@@ -9,13 +9,21 @@ import { ReviewResultCard } from "../../components/review/ReviewResultCard";
 import { ReviewForm } from "../../components/review/ReviewForm";
 import { getReviewValidationMessage } from "../../utils/reviewValidation";
 import { clearActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
-import { colours, radius, spacing } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteQuest } from "@/services/quests/questService";
 import { completeRemoteReview } from "@/services/reviews/reviewService";
 import { LevelUpCelebration } from "@/components/level/LevelUpCelebration";
+import { useMemo } from "react";
 
 export default function ReviewSessionScreen() {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     const router = useRouter();
     const { session } = useAuth();
 
@@ -264,124 +272,126 @@ export default function ReviewSessionScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    screen: {
-        flex: 1,
-        backgroundColor: colours.background,
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        screen: {
+            flex: 1,
+            backgroundColor: colours.background,
+        },
 
-    contentContainer: {
-        width: "100%",
-        maxWidth: 720,
-        alignSelf: "center",
-        paddingHorizontal: spacing.lg,
-        paddingTop: spacing.lg,
-        paddingBottom: 48,
-    },
+        contentContainer: {
+            width: "100%",
+            maxWidth: 720,
+            alignSelf: "center",
+            paddingHorizontal: spacing.lg,
+            paddingTop: spacing.lg,
+            paddingBottom: 48,
+        },
 
-    header: {
-        width: "100%",
-        marginBottom: spacing.xl,
-    },
+        header: {
+            width: "100%",
+            marginBottom: spacing.xl,
+        },
 
-    label: {
-        fontSize: 12,
-        fontWeight: "800",
-        letterSpacing: 0.8,
-        color: colours.primary,
-    },
+        label: {
+            fontSize: 12,
+            fontWeight: "800",
+            letterSpacing: 0.8,
+            color: colours.primary,
+        },
 
-    title: {
-        marginTop: spacing.sm,
-        fontSize: 30,
-        lineHeight: 36,
-        fontWeight: "800",
-        color: colours.text,
-    },
+        title: {
+            marginTop: spacing.sm,
+            fontSize: 30,
+            lineHeight: 36,
+            fontWeight: "800",
+            color: colours.text,
+        },
 
-    sessionBadge: {
-        alignSelf: "flex-start",
-        marginTop: spacing.md,
-        paddingHorizontal: 12,
-        paddingVertical: 7,
-        borderRadius: radius.pill,
-        backgroundColor: colours.primarySoft,
-    },
+        sessionBadge: {
+            alignSelf: "flex-start",
+            marginTop: spacing.md,
+            paddingHorizontal: 12,
+            paddingVertical: 7,
+            borderRadius: radius.pill,
+            backgroundColor: colours.primarySoft,
+        },
 
-    sessionLength: {
-        fontSize: 13,
-        fontWeight: "700",
-        color: colours.primary,
-    },
+        sessionLength: {
+            fontSize: 13,
+            fontWeight: "700",
+            color: colours.primary,
+        },
 
-    reviewSections: {
-        width: "100%",
-        gap: spacing.xl,
-    },
-    finishLineCard: {
-        width: "100%",
-        padding: spacing.lg,
-        borderWidth: 1,
-        borderColor: colours.primaryBorder,
-        borderRadius: radius.lg,
-        backgroundColor: colours.primarySoft,
-    },
+        reviewSections: {
+            width: "100%",
+            gap: spacing.xl,
+        },
+        finishLineCard: {
+            width: "100%",
+            padding: spacing.lg,
+            borderWidth: 1,
+            borderColor: colours.primaryBorder,
+            borderRadius: radius.lg,
+            backgroundColor: colours.primarySoft,
+        },
 
-    finishLineLabel: {
-        fontSize: 11,
-        fontWeight: "800",
-        letterSpacing: 0.8,
-        color: colours.primary,
-    },
+        finishLineLabel: {
+            fontSize: 11,
+            fontWeight: "800",
+            letterSpacing: 0.8,
+            color: colours.primary,
+        },
 
-    finishLineDescription: {
-        marginTop: spacing.sm,
-        fontSize: 13,
-        lineHeight: 19,
-        color: colours.textMuted,
-    },
+        finishLineDescription: {
+            marginTop: spacing.sm,
+            fontSize: 13,
+            lineHeight: 19,
+            color: colours.textMuted,
+        },
 
-    finishLineText: {
-        marginTop: spacing.sm,
-        fontSize: 16,
-        lineHeight: 23,
-        fontWeight: "600",
-        color: colours.text,
-    },
-    confirmationRow: {
-        marginTop: spacing.lg,
-        flexDirection: "row",
-        alignItems: "center",
-        gap: spacing.sm,
-    },
+        finishLineText: {
+            marginTop: spacing.sm,
+            fontSize: 16,
+            lineHeight: 23,
+            fontWeight: "600",
+            color: colours.text,
+        },
+        confirmationRow: {
+            marginTop: spacing.lg,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.sm,
+        },
 
-    checkbox: {
-        width: 22,
-        height: 22,
-        alignItems: "center",
-        justifyContent: "center",
-        borderWidth: 2,
-        borderColor: colours.primaryBorder,
-        borderRadius: 6,
-        backgroundColor: colours.surface,
-    },
+        checkbox: {
+            width: 22,
+            height: 22,
+            alignItems: "center",
+            justifyContent: "center",
+            borderWidth: 2,
+            borderColor: colours.primaryBorder,
+            borderRadius: 6,
+            backgroundColor: colours.surface,
+        },
 
-    checkboxConfirmed: {
-        borderColor: colours.primary,
-        backgroundColor: colours.primary,
-    },
+        checkboxConfirmed: {
+            borderColor: colours.primary,
+            backgroundColor: colours.primary,
+        },
 
-    checkmark: {
-        fontSize: 14,
-        fontWeight: "800",
-        color: colours.surface,
-    },
+        checkmark: {
+            fontSize: 14,
+            fontWeight: "800",
+            color: colours.surface,
+        },
 
-    confirmationText: {
-        flex: 1,
-        fontSize: 14,
-        lineHeight: 20,
-        fontWeight: "600",
-        color: colours.text,
-    },
-});
+        confirmationText: {
+            flex: 1,
+            fontSize: 14,
+            lineHeight: 20,
+            fontWeight: "600",
+            color: colours.text,
+        },
+    });
+}

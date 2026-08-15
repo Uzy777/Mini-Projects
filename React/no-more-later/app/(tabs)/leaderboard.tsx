@@ -3,13 +3,21 @@ import { ScrollView, StyleSheet, Text, View, RefreshControl } from "react-native
 import { useFocusEffect } from "expo-router";
 
 import { getLeaderboard, getMyLeaderboardPosition, LeaderboardEntry, MyLeaderboardPosition } from "@/services/leaderboard/leaderboardService";
-import { colours, radius, spacing } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
 import { calculateLevel } from "@/utils/level";
 import { getFocusRank } from "@/utils/rank";
 import { RankBadge } from "@/components/ranks/RankBadge";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMemo } from "react";
 
 export default function LeaderboardScreen() {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     const { session } = useAuth();
 
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -159,173 +167,175 @@ export default function LeaderboardScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    screen: {
-        flex: 1,
-        backgroundColor: colours.background,
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        screen: {
+            flex: 1,
+            backgroundColor: colours.background,
+        },
 
-    container: {
-        padding: spacing.lg,
-    },
+        container: {
+            padding: spacing.lg,
+        },
 
-    header: {
-        marginBottom: spacing.lg,
-    },
+        header: {
+            marginBottom: spacing.lg,
+        },
 
-    title: {
-        fontSize: 28,
-        fontWeight: "700",
-        color: colours.text,
-    },
+        title: {
+            fontSize: 28,
+            fontWeight: "700",
+            color: colours.text,
+        },
 
-    subtitle: {
-        marginTop: spacing.xs,
-        fontSize: 15,
-        color: colours.textMuted,
-    },
+        subtitle: {
+            marginTop: spacing.xs,
+            fontSize: 15,
+            color: colours.textMuted,
+        },
 
-    leaderboardCard: {
-        backgroundColor: colours.surface,
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.lg,
-        overflow: "hidden",
-    },
+        leaderboardCard: {
+            backgroundColor: colours.surface,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
+            overflow: "hidden",
+        },
 
-    row: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: spacing.md,
-        paddingVertical: spacing.md,
-        gap: spacing.md,
-    },
+        row: {
+            flexDirection: "row",
+            alignItems: "center",
+            paddingHorizontal: spacing.md,
+            paddingVertical: spacing.md,
+            gap: spacing.md,
+        },
 
-    rowBorder: {
-        borderBottomWidth: 1,
-        borderBottomColor: colours.border,
-    },
+        rowBorder: {
+            borderBottomWidth: 1,
+            borderBottomColor: colours.border,
+        },
 
-    positionContainer: {
-        width: 36,
-        height: 36,
-        borderRadius: radius.pill,
-        backgroundColor: colours.primarySoft,
-        alignItems: "center",
-        justifyContent: "center",
-    },
+        positionContainer: {
+            width: 36,
+            height: 36,
+            borderRadius: radius.pill,
+            backgroundColor: colours.primarySoft,
+            alignItems: "center",
+            justifyContent: "center",
+        },
 
-    position: {
-        fontSize: 15,
-        fontWeight: "700",
-        color: colours.primary,
-    },
+        position: {
+            fontSize: 15,
+            fontWeight: "700",
+            color: colours.primary,
+        },
 
-    userInfo: {
-        flex: 1,
-    },
+        userInfo: {
+            flex: 1,
+        },
 
-    name: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: colours.text,
-    },
+        name: {
+            fontSize: 16,
+            fontWeight: "600",
+            color: colours.text,
+        },
 
-    details: {
-        marginTop: spacing.xs,
-        fontSize: 14,
-        color: colours.textMuted,
-    },
-    xp: {
-        fontSize: 14,
-        fontWeight: "700",
-        color: colours.primary,
-    },
-    currentUserRow: {
-        backgroundColor: colours.primarySoft,
-    },
+        details: {
+            marginTop: spacing.xs,
+            fontSize: 14,
+            color: colours.textMuted,
+        },
+        xp: {
+            fontSize: 14,
+            fontWeight: "700",
+            color: colours.primary,
+        },
+        currentUserRow: {
+            backgroundColor: colours.primarySoft,
+        },
 
-    nameRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: spacing.sm,
-    },
+        nameRow: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.sm,
+        },
 
-    youBadge: {
-        paddingHorizontal: spacing.sm,
-        paddingVertical: spacing.xs,
-        borderRadius: radius.pill,
-        borderWidth: 1,
-        borderColor: colours.primaryBorder,
-        backgroundColor: colours.surface,
-    },
+        youBadge: {
+            paddingHorizontal: spacing.sm,
+            paddingVertical: spacing.xs,
+            borderRadius: radius.pill,
+            borderWidth: 1,
+            borderColor: colours.primaryBorder,
+            backgroundColor: colours.surface,
+        },
 
-    youBadgeText: {
-        fontSize: 11,
-        fontWeight: "700",
-        color: colours.primary,
-    },
-    messageContainer: {
-        padding: spacing.lg,
-        alignItems: "center",
-    },
+        youBadgeText: {
+            fontSize: 11,
+            fontWeight: "700",
+            color: colours.primary,
+        },
+        messageContainer: {
+            padding: spacing.lg,
+            alignItems: "center",
+        },
 
-    messageText: {
-        fontSize: 14,
-        color: colours.textMuted,
-    },
+        messageText: {
+            fontSize: 14,
+            color: colours.textMuted,
+        },
 
-    errorText: {
-        fontSize: 14,
-        color: colours.danger,
-    },
+        errorText: {
+            fontSize: 14,
+            color: colours.danger,
+        },
 
-    firstPosition: {
-        backgroundColor: colours.leaderboardGoldSoft,
-    },
+        firstPosition: {
+            backgroundColor: colours.leaderboardGoldSoft,
+        },
 
-    firstPositionText: {
-        color: colours.leaderboardGold,
-    },
+        firstPositionText: {
+            color: colours.leaderboardGold,
+        },
 
-    secondPosition: {
-        backgroundColor: colours.leaderboardSilverSoft,
-    },
+        secondPosition: {
+            backgroundColor: colours.leaderboardSilverSoft,
+        },
 
-    secondPositionText: {
-        color: colours.leaderboardSilver,
-    },
+        secondPositionText: {
+            color: colours.leaderboardSilver,
+        },
 
-    thirdPosition: {
-        backgroundColor: colours.leaderboardBronzeSoft,
-    },
+        thirdPosition: {
+            backgroundColor: colours.leaderboardBronzeSoft,
+        },
 
-    thirdPositionText: {
-        color: colours.leaderboardBronze,
-    },
-    myPositionSection: {
-        marginTop: spacing.lg,
-    },
+        thirdPositionText: {
+            color: colours.leaderboardBronze,
+        },
+        myPositionSection: {
+            marginTop: spacing.lg,
+        },
 
-    sectionLabel: {
-        marginBottom: spacing.sm,
-        fontSize: 12,
-        fontWeight: "700",
-        letterSpacing: 1,
-        color: colours.textMuted,
-    },
+        sectionLabel: {
+            marginBottom: spacing.sm,
+            fontSize: 12,
+            fontWeight: "700",
+            letterSpacing: 1,
+            color: colours.textMuted,
+        },
 
-    myPositionCard: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: spacing.md,
+        myPositionCard: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.md,
 
-        padding: spacing.md,
+            padding: spacing.md,
 
-        borderWidth: 1,
-        borderColor: colours.primaryBorder,
-        borderRadius: radius.lg,
+            borderWidth: 1,
+            borderColor: colours.primaryBorder,
+            borderRadius: radius.lg,
 
-        backgroundColor: colours.primarySoft,
-    },
-});
+            backgroundColor: colours.primarySoft,
+        },
+    });
+}

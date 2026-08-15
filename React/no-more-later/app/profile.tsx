@@ -1,14 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Stack } from "expo-router";
 import { UserRound } from "lucide-react-native";
 
-import { colours, radius, spacing } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
 import { useAuth } from "@/contexts/AuthContext";
 import { updateDisplayName } from "@/services/profile/profileService";
 
 export default function ProfileScreen() {
     const { session, profile, refreshProfile } = useAuth();
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
 
     const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
     const [isSaving, setIsSaving] = useState(false);
@@ -39,14 +45,14 @@ export default function ProfileScreen() {
 
         const { error } = await updateDisplayName(session.user.id, trimmedDisplayName);
 
-if (error) {
-    console.error("Failed to update display name:", error);
+        if (error) {
+            console.error("Failed to update display name:", error);
 
-    setErrorMessage("Unable to update your display name.");
-    setIsSaving(false);
+            setErrorMessage("Unable to update your display name.");
+            setIsSaving(false);
 
-    return;
-}
+            return;
+        }
 
         await refreshProfile();
 
@@ -108,175 +114,135 @@ if (error) {
     );
 }
 
-const styles = StyleSheet.create({
-    screen: {
-        flex: 1,
-        backgroundColor: colours.background,
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        screen: {
+            flex: 1,
+            backgroundColor: colours.background,
+        },
 
-    contentContainer: {
-        width: "100%",
-        maxWidth: 640,
-        alignSelf: "center",
-        padding: spacing.lg,
-        paddingBottom: 48,
-    },
+        contentContainer: {
+            width: "100%",
+            maxWidth: 640,
+            alignSelf: "center",
+            padding: spacing.lg,
+            paddingBottom: 48,
+        },
 
-    header: {
-        marginBottom: spacing.xl,
-    },
+        header: {
+            marginBottom: spacing.xl,
+        },
 
-    label: {
-        fontSize: 12,
-        fontWeight: "800",
-        letterSpacing: 0.8,
-        color: colours.primary,
-    },
+        label: {
+            fontSize: 12,
+            fontWeight: "800",
+            letterSpacing: 0.8,
+            color: colours.primary,
+        },
 
-    title: {
-        marginTop: spacing.sm,
-        fontSize: 30,
-        lineHeight: 36,
-        fontWeight: "800",
-        color: colours.text,
-    },
+        title: {
+            marginTop: spacing.sm,
+            fontSize: 30,
+            lineHeight: 36,
+            fontWeight: "800",
+            color: colours.text,
+        },
 
-    description: {
-        marginTop: spacing.sm,
-        fontSize: 15,
-        lineHeight: 22,
-        color: colours.textMuted,
-    },
+        description: {
+            marginTop: spacing.sm,
+            fontSize: 15,
+            lineHeight: 22,
+            color: colours.textMuted,
+        },
 
-    profileCard: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: spacing.md,
+        formCard: {
+            gap: spacing.lg,
+            padding: spacing.lg,
 
-        padding: spacing.lg,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
 
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.lg,
+            backgroundColor: colours.surface,
+        },
 
-        backgroundColor: colours.surface,
-    },
+        field: {
+            gap: spacing.sm,
+        },
 
-    profileIcon: {
-        width: 48,
-        height: 48,
-        alignItems: "center",
-        justifyContent: "center",
+        fieldLabel: {
+            fontSize: 11,
+            fontWeight: "700",
+            letterSpacing: 0.8,
+            color: colours.textMuted,
+        },
 
-        borderRadius: radius.pill,
-        backgroundColor: colours.primarySoft,
-    },
+        input: {
+            minHeight: 48,
+            paddingHorizontal: spacing.md,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+            fontSize: 15,
+            color: colours.text,
+            backgroundColor: colours.background,
+        },
 
-    profileDetails: {
-        flex: 1,
-    },
+        readOnlyInput: {
+            minHeight: 48,
+            justifyContent: "center",
 
-    profileName: {
-        fontSize: 17,
-        fontWeight: "700",
-        color: colours.text,
-    },
+            paddingHorizontal: spacing.md,
 
-    profileEmail: {
-        marginTop: spacing.xs,
-        fontSize: 13,
-        color: colours.textMuted,
-    },
-    formCard: {
-        gap: spacing.lg,
-        padding: spacing.lg,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
 
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.lg,
+            backgroundColor: colours.background,
+        },
 
-        backgroundColor: colours.surface,
-    },
+        readOnlyText: {
+            fontSize: 15,
+            color: colours.textMuted,
+        },
 
-    field: {
-        gap: spacing.sm,
-    },
+        helperText: {
+            fontSize: 12,
+            color: colours.textMuted,
+        },
 
-    fieldLabel: {
-        fontSize: 11,
-        fontWeight: "700",
-        letterSpacing: 0.8,
-        color: colours.textMuted,
-    },
+        errorText: {
+            fontSize: 13,
+            color: colours.danger,
+        },
 
-    input: {
-        minHeight: 48,
+        successText: {
+            fontSize: 13,
+            color: colours.success,
+        },
 
-        paddingHorizontal: spacing.md,
+        saveButton: {
+            minHeight: 48,
 
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.md,
+            alignItems: "center",
+            justifyContent: "center",
 
-        fontSize: 15,
-        color: colours.text,
-        backgroundColor: colours.background,
-    },
+            borderRadius: radius.md,
+            backgroundColor: colours.primary,
+        },
 
-    readOnlyInput: {
-        minHeight: 48,
-        justifyContent: "center",
+        saveButtonPressed: {
+            backgroundColor: colours.primaryPressed,
+        },
 
-        paddingHorizontal: spacing.md,
+        saveButtonDisabled: {
+            opacity: 0.6,
+        },
 
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.md,
-
-        backgroundColor: colours.background,
-    },
-
-    readOnlyText: {
-        fontSize: 15,
-        color: colours.textMuted,
-    },
-
-    helperText: {
-        fontSize: 12,
-        color: colours.textMuted,
-    },
-
-    errorText: {
-        fontSize: 13,
-        color: colours.danger,
-    },
-
-    successText: {
-        fontSize: 13,
-        color: colours.success,
-    },
-
-    saveButton: {
-        minHeight: 48,
-
-        alignItems: "center",
-        justifyContent: "center",
-
-        borderRadius: radius.md,
-        backgroundColor: colours.primary,
-    },
-
-    saveButtonPressed: {
-        backgroundColor: colours.primaryPressed,
-    },
-
-    saveButtonDisabled: {
-        opacity: 0.6,
-    },
-
-    saveButtonText: {
-        fontSize: 15,
-        fontWeight: "700",
-        color: colours.surface,
-    },
-});
+        saveButtonText: {
+            fontSize: 15,
+            fontWeight: "700",
+            color: colours.surface,
+        },
+    });
+}

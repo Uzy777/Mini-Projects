@@ -4,9 +4,11 @@ import React from "react";
 import { HapticTab } from "@/components/haptic-tab";
 import { House, Map, RotateCcwClock, Trophy } from "lucide-react-native";
 
-import { colours } from "../../constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
 
 export default function TabLayout() {
+    const { colours } = useAppearance();
+
     return (
         <Tabs
             screenOptions={{

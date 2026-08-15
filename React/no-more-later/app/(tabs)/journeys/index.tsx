@@ -11,10 +11,14 @@ import { clearQuestsForJourney } from "../../../services/storage/questsStorage";
 import { getActiveFocusSession } from "../../../services/storage/activeFocusSessionStorage";
 import { showMessage } from "../../../utils/showMessage";
 import { clearNoMoreLaterStorage } from "../../../services/storage/resetAppStorage";
-import { colours, spacing, radius } from "../../../constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteJourneys } from "@/services/journeys/journeyService";
 import { createRemoteJourney, deleteRemoteJourney } from "@/services/journeys/journeyService";
+import { useMemo } from "react";
 
 type JourneyFilter = "all" | "active" | "completed";
 
@@ -37,6 +41,10 @@ const journeyFilters: {
 ];
 
 export default function JourneyScreen() {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     const router = useRouter();
     const { session } = useAuth();
 
@@ -247,77 +255,79 @@ export default function JourneyScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    emptyText: {
-        marginTop: 24,
-        textAlign: "center",
-        fontSize: 15,
-        lineHeight: 22,
-        color: "#737373",
-    },
-    screen: {
-        flex: 1,
-        backgroundColor: colours.background,
-    },
-    contentContainer: {
-        width: "100%",
-        maxWidth: 720,
-        alignSelf: "center",
-        paddingHorizontal: spacing.lg,
-        paddingTop: spacing.lg,
-        paddingBottom: 48,
-    },
-    header: {
-        marginBottom: spacing.lg,
-    },
-    title: {
-        fontSize: 30,
-        lineHeight: 36,
-        fontWeight: "800",
-        color: colours.text,
-    },
-    subtitle: {
-        marginTop: spacing.sm,
-        fontSize: 15,
-        lineHeight: 22,
-        color: colours.textMuted,
-    },
-    journeyList: {
-        gap: spacing.md,
-        marginTop: spacing.md,
-    },
-    filterContainer: {
-        width: "100%",
-        flexDirection: "row",
-        gap: spacing.xs,
-        marginTop: spacing.lg,
-        padding: spacing.xs,
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.md,
-        backgroundColor: colours.surface,
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        emptyText: {
+            marginTop: 24,
+            textAlign: "center",
+            fontSize: 15,
+            lineHeight: 22,
+            color: "#737373",
+        },
+        screen: {
+            flex: 1,
+            backgroundColor: colours.background,
+        },
+        contentContainer: {
+            width: "100%",
+            maxWidth: 720,
+            alignSelf: "center",
+            paddingHorizontal: spacing.lg,
+            paddingTop: spacing.lg,
+            paddingBottom: 48,
+        },
+        header: {
+            marginBottom: spacing.lg,
+        },
+        title: {
+            fontSize: 30,
+            lineHeight: 36,
+            fontWeight: "800",
+            color: colours.text,
+        },
+        subtitle: {
+            marginTop: spacing.sm,
+            fontSize: 15,
+            lineHeight: 22,
+            color: colours.textMuted,
+        },
+        journeyList: {
+            gap: spacing.md,
+            marginTop: spacing.md,
+        },
+        filterContainer: {
+            width: "100%",
+            flexDirection: "row",
+            gap: spacing.xs,
+            marginTop: spacing.lg,
+            padding: spacing.xs,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+            backgroundColor: colours.surface,
+        },
 
-    filterButton: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        paddingVertical: 10,
-        paddingHorizontal: spacing.sm,
-        borderRadius: radius.sm,
-    },
+        filterButton: {
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+            paddingVertical: 10,
+            paddingHorizontal: spacing.sm,
+            borderRadius: radius.sm,
+        },
 
-    filterButtonSelected: {
-        backgroundColor: colours.primary,
-    },
+        filterButtonSelected: {
+            backgroundColor: colours.primary,
+        },
 
-    filterButtonText: {
-        fontSize: 13,
-        fontWeight: "700",
-        color: colours.textMuted,
-    },
+        filterButtonText: {
+            fontSize: 13,
+            fontWeight: "700",
+            color: colours.textMuted,
+        },
 
-    filterButtonTextSelected: {
-        color: colours.surface,
-    },
-});
+        filterButtonTextSelected: {
+            color: colours.surface,
+        },
+    });
+}

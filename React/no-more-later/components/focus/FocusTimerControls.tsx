@@ -1,6 +1,10 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { colours, radius, spacing } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
+import { useMemo } from "react";
 
 type FocusTimerControlsProps = {
     hasStarted: boolean;
@@ -13,6 +17,10 @@ type FocusTimerControlsProps = {
 };
 
 export function FocusTimerControls({ hasStarted, hasFinished, isRunning, onStart, onToggleTimer, onEndEarly, onReview }: FocusTimerControlsProps) {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     if (!hasStarted) {
         return (
             <Pressable style={({ pressed }) => [styles.primaryButton, pressed && styles.primaryButtonPressed]} onPress={onStart}>
@@ -59,116 +67,118 @@ export function FocusTimerControls({ hasStarted, hasFinished, isRunning, onStart
     );
 }
 
-const styles = StyleSheet.create({
-    controlsContainer: {
-        width: "100%",
-        marginTop: spacing.lg,
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        controlsContainer: {
+            width: "100%",
+            marginTop: spacing.lg,
+        },
 
-    primaryButton: {
-        width: "100%",
-        alignItems: "center",
-        justifyContent: "center",
-        paddingVertical: 14,
-        paddingHorizontal: spacing.md,
-        borderRadius: radius.md,
-        backgroundColor: colours.primary,
-    },
+        primaryButton: {
+            width: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+            paddingVertical: 14,
+            paddingHorizontal: spacing.md,
+            borderRadius: radius.md,
+            backgroundColor: colours.primary,
+        },
 
-    primaryButtonPressed: {
-        backgroundColor: colours.primaryPressed,
-    },
+        primaryButtonPressed: {
+            backgroundColor: colours.primaryPressed,
+        },
 
-    primaryButtonText: {
-        fontSize: 16,
-        fontWeight: "700",
-        color: colours.surface,
-    },
+        primaryButtonText: {
+            fontSize: 16,
+            fontWeight: "700",
+            color: colours.surface,
+        },
 
-    secondaryButton: {
-        width: "100%",
-        alignItems: "center",
-        justifyContent: "center",
-        paddingVertical: 14,
-        paddingHorizontal: spacing.md,
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.md,
-        backgroundColor: colours.surface,
-    },
+        secondaryButton: {
+            width: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+            paddingVertical: 14,
+            paddingHorizontal: spacing.md,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+            backgroundColor: colours.surface,
+        },
 
-    secondaryButtonPressed: {
-        backgroundColor: colours.background,
-    },
+        secondaryButtonPressed: {
+            backgroundColor: colours.background,
+        },
 
-    secondaryButtonText: {
-        fontSize: 16,
-        fontWeight: "700",
-        color: colours.text,
-    },
+        secondaryButtonText: {
+            fontSize: 16,
+            fontWeight: "700",
+            color: colours.text,
+        },
 
-    endEarlyButton: {
-        alignSelf: "center",
-        marginTop: spacing.sm,
-        paddingHorizontal: spacing.md,
-        paddingVertical: 10,
-        borderRadius: radius.sm,
-    },
+        endEarlyButton: {
+            alignSelf: "center",
+            marginTop: spacing.sm,
+            paddingHorizontal: spacing.md,
+            paddingVertical: 10,
+            borderRadius: radius.sm,
+        },
 
-    endEarlyButtonPressed: {
-        backgroundColor: colours.dangerSoft,
-    },
+        endEarlyButtonPressed: {
+            backgroundColor: colours.dangerSoft,
+        },
 
-    endEarlyButtonText: {
-        fontSize: 14,
-        fontWeight: "700",
-        color: colours.danger,
-    },
+        endEarlyButtonText: {
+            fontSize: 14,
+            fontWeight: "700",
+            color: colours.danger,
+        },
 
-    completedContainer: {
-        width: "100%",
-        marginTop: spacing.lg,
-        padding: spacing.lg,
-        alignItems: "center",
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.lg,
-        backgroundColor: colours.surface,
-    },
+        completedContainer: {
+            width: "100%",
+            marginTop: spacing.lg,
+            padding: spacing.lg,
+            alignItems: "center",
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
+            backgroundColor: colours.surface,
+        },
 
-    completedBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: radius.pill,
-        backgroundColor: colours.successSoft,
-    },
+        completedBadge: {
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            borderRadius: radius.pill,
+            backgroundColor: colours.successSoft,
+        },
 
-    completedBadgeText: {
-        fontSize: 11,
-        fontWeight: "800",
-        letterSpacing: 0.6,
-        color: colours.success,
-    },
+        completedBadgeText: {
+            fontSize: 11,
+            fontWeight: "800",
+            letterSpacing: 0.6,
+            color: colours.success,
+        },
 
-    completedTitle: {
-        marginTop: spacing.md,
-        fontSize: 22,
-        lineHeight: 28,
-        fontWeight: "800",
-        textAlign: "center",
-        color: colours.text,
-    },
+        completedTitle: {
+            marginTop: spacing.md,
+            fontSize: 22,
+            lineHeight: 28,
+            fontWeight: "800",
+            textAlign: "center",
+            color: colours.text,
+        },
 
-    completedMessage: {
-        marginTop: spacing.sm,
-        maxWidth: 360,
-        fontSize: 15,
-        lineHeight: 22,
-        textAlign: "center",
-        color: colours.textMuted,
-    },
+        completedMessage: {
+            marginTop: spacing.sm,
+            maxWidth: 360,
+            fontSize: 15,
+            lineHeight: 22,
+            textAlign: "center",
+            color: colours.textMuted,
+        },
 
-    reviewButton: {
-        marginTop: spacing.lg,
-    },
-});
+        reviewButton: {
+            marginTop: spacing.lg,
+        },
+    });
+}

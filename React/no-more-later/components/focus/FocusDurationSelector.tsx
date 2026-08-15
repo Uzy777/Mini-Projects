@@ -1,6 +1,10 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { colours, radius, spacing } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
+import { useMemo } from "react";
 
 type FocusDurationSelectorProps = {
     selectedMinutes: number;
@@ -11,6 +15,10 @@ type FocusDurationSelectorProps = {
 const focusDurations = [15, 25, 50];
 
 export function FocusDurationSelector({ selectedMinutes, disabled = false, onSelectMinutes }: FocusDurationSelectorProps) {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     return (
         <View style={styles.container}>
             <Text style={styles.label}>SESSION LENGTH</Text>
@@ -41,58 +49,60 @@ export function FocusDurationSelector({ selectedMinutes, disabled = false, onSel
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        width: "100%",
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        container: {
+            width: "100%",
+        },
 
-    label: {
-        fontSize: 12,
-        fontWeight: "700",
-        letterSpacing: 0.7,
-        color: colours.textMuted,
-    },
+        label: {
+            fontSize: 12,
+            fontWeight: "700",
+            letterSpacing: 0.7,
+            color: colours.textMuted,
+        },
 
-    durationOptions: {
-        width: "100%",
-        flexDirection: "row",
-        gap: spacing.xs,
-        marginTop: spacing.sm,
-        padding: spacing.xs,
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.md,
-        backgroundColor: colours.surface,
-    },
+        durationOptions: {
+            width: "100%",
+            flexDirection: "row",
+            gap: spacing.xs,
+            marginTop: spacing.sm,
+            padding: spacing.xs,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+            backgroundColor: colours.surface,
+        },
 
-    durationOptionsDisabled: {
-        opacity: 0.6,
-    },
+        durationOptionsDisabled: {
+            opacity: 0.6,
+        },
 
-    durationButton: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        paddingVertical: 12,
-        paddingHorizontal: spacing.sm,
-        borderRadius: radius.sm,
-    },
+        durationButton: {
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+            paddingVertical: 12,
+            paddingHorizontal: spacing.sm,
+            borderRadius: radius.sm,
+        },
 
-    durationButtonPressed: {
-        backgroundColor: colours.background,
-    },
+        durationButtonPressed: {
+            backgroundColor: colours.background,
+        },
 
-    selectedDurationButton: {
-        backgroundColor: colours.primary,
-    },
+        selectedDurationButton: {
+            backgroundColor: colours.primary,
+        },
 
-    durationButtonText: {
-        fontSize: 14,
-        fontWeight: "700",
-        color: colours.textMuted,
-    },
+        durationButtonText: {
+            fontSize: 14,
+            fontWeight: "700",
+            color: colours.textMuted,
+        },
 
-    selectedDurationButtonText: {
-        color: colours.surface,
-    },
-});
+        selectedDurationButtonText: {
+            color: colours.surface,
+        },
+    });
+}

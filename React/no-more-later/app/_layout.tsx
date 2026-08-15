@@ -1,28 +1,56 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useMemo } from "react";
 import "react-native-reanimated";
 
-import { useColorScheme } from "@/hooks/use-color-scheme";
-import { colours } from "@/constants/design";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { AppearanceProvider, useAppearance } from "@/contexts/AppearanceContext";
 
 export default function RootLayout() {
-    const colorScheme = useColorScheme();
+    return (
+        <AppearanceProvider>
+            <AuthProvider>
+                <AppShell />
+            </AuthProvider>
+        </AppearanceProvider>
+    );
+}
+
+function AppShell() {
+    const { colours, resolvedColourMode } = useAppearance();
+
+    const navigationTheme = useMemo(() => {
+        const baseTheme = resolvedColourMode === "light" ? DefaultTheme : DarkTheme;
+
+        return {
+            ...baseTheme,
+
+            colors: {
+                ...baseTheme.colors,
+
+                primary: colours.primary,
+                background: colours.background,
+                card: colours.surface,
+                text: colours.text,
+                border: colours.border,
+                notification: colours.danger,
+            },
+        };
+    }, [colours, resolvedColourMode]);
 
     return (
-        <AuthProvider>
-            <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-                <RootNavigator />
+        <ThemeProvider value={navigationTheme}>
+            <RootNavigator />
 
-                <StatusBar style="auto" />
-            </ThemeProvider>
-        </AuthProvider>
+            <StatusBar style={resolvedColourMode === "light" ? "dark" : "light"} />
+        </ThemeProvider>
     );
 }
 
 function RootNavigator() {
     const { session, isLoading } = useAuth();
+    const { colours } = useAppearance();
 
     if (isLoading) {
         return null;
@@ -86,6 +114,13 @@ function RootNavigator() {
                     name="profile"
                     options={{
                         title: "Profile",
+                    }}
+                />
+
+                <Stack.Screen
+                    name="appearance"
+                    options={{
+                        title: "Appearance",
                     }}
                 />
 

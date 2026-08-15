@@ -12,8 +12,12 @@ import { confirmDelete } from "../../../utils/confirmDelete";
 import { getActiveFocusSession } from "../../../services/storage/activeFocusSessionStorage";
 import { showMessage } from "../../../utils/showMessage";
 import { syncJourneyStatusFromQuests } from "../../../services/journeyStatusService";
-import { colours, radius, spacing } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
 import { getRemoteQuests, createRemoteQuest, deleteRemoteQuest, updateRemoteQuestStatus } from "@/services/quests/questService";
+import { useMemo } from "react";
 
 type QuestFilter = "all" | "active" | "completed";
 
@@ -36,6 +40,10 @@ const questFilters: {
 ];
 
 export default function JourneyDetailsScreen() {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     const router = useRouter();
 
     const { id, title } = useLocalSearchParams<{ id: string; title?: string }>();
@@ -281,89 +289,91 @@ export default function JourneyDetailsScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    screen: {
-        flex: 1,
-        backgroundColor: colours.background,
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        screen: {
+            flex: 1,
+            backgroundColor: colours.background,
+        },
 
-    contentContainer: {
-        width: "100%",
-        maxWidth: 720,
-        alignSelf: "center",
-        paddingHorizontal: spacing.lg,
-        paddingTop: spacing.lg,
-        paddingBottom: 48,
-    },
+        contentContainer: {
+            width: "100%",
+            maxWidth: 720,
+            alignSelf: "center",
+            paddingHorizontal: spacing.lg,
+            paddingTop: spacing.lg,
+            paddingBottom: 48,
+        },
 
-    pageHeader: {
-        marginBottom: spacing.lg,
-    },
+        pageHeader: {
+            marginBottom: spacing.lg,
+        },
 
-    title: {
-        fontSize: 30,
-        lineHeight: 36,
-        fontWeight: "800",
-        color: colours.text,
-    },
+        title: {
+            fontSize: 30,
+            lineHeight: 36,
+            fontWeight: "800",
+            color: colours.text,
+        },
 
-    description: {
-        marginTop: spacing.sm,
-        fontSize: 15,
-        lineHeight: 22,
-        color: colours.textMuted,
-    },
+        description: {
+            marginTop: spacing.sm,
+            fontSize: 15,
+            lineHeight: 22,
+            color: colours.textMuted,
+        },
 
-    filterContainer: {
-        width: "100%",
-        flexDirection: "row",
-        gap: spacing.xs,
-        padding: spacing.xs,
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.md,
-        backgroundColor: colours.surface,
-    },
+        filterContainer: {
+            width: "100%",
+            flexDirection: "row",
+            gap: spacing.xs,
+            padding: spacing.xs,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+            backgroundColor: colours.surface,
+        },
 
-    filterButton: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        paddingVertical: 10,
-        paddingHorizontal: spacing.sm,
-        borderRadius: radius.sm,
-    },
+        filterButton: {
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+            paddingVertical: 10,
+            paddingHorizontal: spacing.sm,
+            borderRadius: radius.sm,
+        },
 
-    filterButtonPressed: {
-        backgroundColor: colours.background,
-    },
+        filterButtonPressed: {
+            backgroundColor: colours.background,
+        },
 
-    filterButtonSelected: {
-        backgroundColor: colours.primary,
-    },
+        filterButtonSelected: {
+            backgroundColor: colours.primary,
+        },
 
-    filterButtonText: {
-        fontSize: 13,
-        fontWeight: "700",
-        color: colours.textMuted,
-    },
+        filterButtonText: {
+            fontSize: 13,
+            fontWeight: "700",
+            color: colours.textMuted,
+        },
 
-    filterButtonTextSelected: {
-        color: colours.surface,
-    },
+        filterButtonTextSelected: {
+            color: colours.surface,
+        },
 
-    questList: {
-        gap: spacing.md,
-    },
+        questList: {
+            gap: spacing.md,
+        },
 
-    emptyText: {
-        paddingVertical: spacing.xl,
-        textAlign: "center",
-        fontSize: 15,
-        lineHeight: 22,
-        color: colours.textMuted,
-    },
-    sections: {
-        gap: spacing.md,
-    },
-});
+        emptyText: {
+            paddingVertical: spacing.xl,
+            textAlign: "center",
+            fontSize: 15,
+            lineHeight: 22,
+            color: colours.textMuted,
+        },
+        sections: {
+            gap: spacing.md,
+        },
+    });
+}

@@ -2,10 +2,18 @@ import { useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, View, Pressable } from "react-native";
 import { useRouter, Link, useLocalSearchParams } from "expo-router";
 
-import { colours, radius, spacing } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
 import { signUpWithEmail } from "@/services/auth/authService";
+import { useMemo } from "react";
 
 export default function SignUpScreen() {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     const router = useRouter();
 
     const { email: initialEmail } = useLocalSearchParams<{ email?: string }>();
@@ -182,127 +190,129 @@ export default function SignUpScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    screen: {
-        flex: 1,
-        backgroundColor: colours.background,
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        screen: {
+            flex: 1,
+            backgroundColor: colours.background,
+        },
 
-    contentContainer: {
-        width: "100%",
-        maxWidth: 520,
-        alignSelf: "center",
-        paddingHorizontal: spacing.lg,
-        paddingTop: 64,
-        paddingBottom: 48,
-    },
+        contentContainer: {
+            width: "100%",
+            maxWidth: 520,
+            alignSelf: "center",
+            paddingHorizontal: spacing.lg,
+            paddingTop: 64,
+            paddingBottom: 48,
+        },
 
-    header: {
-        marginBottom: spacing.xl,
-    },
+        header: {
+            marginBottom: spacing.xl,
+        },
 
-    label: {
-        fontSize: 12,
-        fontWeight: "800",
-        letterSpacing: 0.8,
-        color: colours.primary,
-    },
+        label: {
+            fontSize: 12,
+            fontWeight: "800",
+            letterSpacing: 0.8,
+            color: colours.primary,
+        },
 
-    title: {
-        marginTop: spacing.sm,
-        fontSize: 30,
-        lineHeight: 36,
-        fontWeight: "800",
-        color: colours.text,
-    },
+        title: {
+            marginTop: spacing.sm,
+            fontSize: 30,
+            lineHeight: 36,
+            fontWeight: "800",
+            color: colours.text,
+        },
 
-    description: {
-        marginTop: spacing.sm,
-        fontSize: 15,
-        lineHeight: 22,
-        color: colours.textMuted,
-    },
+        description: {
+            marginTop: spacing.sm,
+            fontSize: 15,
+            lineHeight: 22,
+            color: colours.textMuted,
+        },
 
-    form: {
-        padding: spacing.lg,
-        gap: spacing.lg,
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.lg,
-        backgroundColor: colours.surface,
-    },
+        form: {
+            padding: spacing.lg,
+            gap: spacing.lg,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
+            backgroundColor: colours.surface,
+        },
 
-    fieldGroup: {
-        gap: spacing.sm,
-    },
+        fieldGroup: {
+            gap: spacing.sm,
+        },
 
-    fieldLabel: {
-        fontSize: 12,
-        fontWeight: "700",
-        letterSpacing: 0.7,
-        color: colours.text,
-    },
+        fieldLabel: {
+            fontSize: 12,
+            fontWeight: "700",
+            letterSpacing: 0.7,
+            color: colours.text,
+        },
 
-    input: {
-        width: "100%",
-        paddingHorizontal: spacing.md,
-        paddingVertical: 13,
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.md,
-        fontSize: 16,
-        color: colours.text,
-        backgroundColor: colours.background,
-    },
-    errorBox: {
-        padding: spacing.md,
-        borderRadius: radius.md,
-        backgroundColor: colours.dangerSoft,
-    },
+        input: {
+            width: "100%",
+            paddingHorizontal: spacing.md,
+            paddingVertical: 13,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+            fontSize: 16,
+            color: colours.text,
+            backgroundColor: colours.background,
+        },
+        errorBox: {
+            padding: spacing.md,
+            borderRadius: radius.md,
+            backgroundColor: colours.dangerSoft,
+        },
 
-    errorText: {
-        fontSize: 14,
-        lineHeight: 20,
-        color: colours.danger,
-    },
+        errorText: {
+            fontSize: 14,
+            lineHeight: 20,
+            color: colours.danger,
+        },
 
-    submitButton: {
-        alignItems: "center",
-        paddingVertical: 14,
-        borderRadius: radius.md,
-        backgroundColor: colours.primary,
-    },
+        submitButton: {
+            alignItems: "center",
+            paddingVertical: 14,
+            borderRadius: radius.md,
+            backgroundColor: colours.primary,
+        },
 
-    submitButtonPressed: {
-        backgroundColor: colours.primaryPressed,
-    },
+        submitButtonPressed: {
+            backgroundColor: colours.primaryPressed,
+        },
 
-    submitButtonText: {
-        fontSize: 15,
-        fontWeight: "700",
-        color: colours.surface,
-    },
-    submitButtonDisabled: {
-        opacity: 0.6,
-    },
-    authLinkRow: {
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: spacing.xs,
-    },
+        submitButtonText: {
+            fontSize: 15,
+            fontWeight: "700",
+            color: colours.surface,
+        },
+        submitButtonDisabled: {
+            opacity: 0.6,
+        },
+        authLinkRow: {
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: spacing.xs,
+        },
 
-    authLinkText: {
-        fontSize: 14,
-        color: colours.textMuted,
-    },
+        authLinkText: {
+            fontSize: 14,
+            color: colours.textMuted,
+        },
 
-    authLink: {
-        fontSize: 14,
-        fontWeight: "700",
-        color: colours.primary,
-    },
-    requiredMark: {
-        color: colours.danger,
-    },
-});
+        authLink: {
+            fontSize: 14,
+            fontWeight: "700",
+            color: colours.primary,
+        },
+        requiredMark: {
+            color: colours.danger,
+        },
+    });
+}

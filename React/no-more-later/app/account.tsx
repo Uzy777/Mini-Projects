@@ -2,12 +2,20 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Stack, router } from "expo-router";
 import { ChevronRight, LogOut, Palette, UserRound, UserRoundPen } from "lucide-react-native";
 
-import { colours, radius, spacing } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
 import { useAuth } from "@/contexts/AuthContext";
 import { signOut } from "@/services/auth/authService";
+import { useMemo } from "react";
 
 export default function AccountScreen() {
     const { session, profile } = useAuth();
+
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
 
     async function handleSignOut() {
         const { error } = await signOut();
@@ -44,7 +52,6 @@ export default function AccountScreen() {
 
                 <View style={styles.settingsCard}>
                     <Pressable style={styles.settingRow} onPress={() => router.push("/profile")}>
-                        {" "}
                         <View style={styles.settingIcon}>
                             <UserRoundPen size={19} color={colours.primary} />
                         </View>
@@ -57,7 +64,7 @@ export default function AccountScreen() {
 
                     <View style={styles.rowDivider} />
 
-                    <Pressable style={styles.settingRow}>
+                    <Pressable style={styles.settingRow} onPress={() => router.push("/appearance")}>
                         <View style={styles.settingIcon}>
                             <Palette size={19} color={colours.primary} />
                         </View>
@@ -81,168 +88,170 @@ export default function AccountScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    screen: {
-        flex: 1,
-        backgroundColor: colours.background,
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        screen: {
+            flex: 1,
+            backgroundColor: colours.background,
+        },
 
-    contentContainer: {
-        width: "100%",
-        maxWidth: 640,
-        alignSelf: "center",
-        padding: spacing.lg,
-        paddingBottom: 48,
-    },
+        contentContainer: {
+            width: "100%",
+            maxWidth: 640,
+            alignSelf: "center",
+            padding: spacing.lg,
+            paddingBottom: 48,
+        },
 
-    header: {
-        marginBottom: spacing.xl,
-    },
+        header: {
+            marginBottom: spacing.xl,
+        },
 
-    label: {
-        fontSize: 12,
-        fontWeight: "800",
-        letterSpacing: 0.8,
-        color: colours.primary,
-    },
+        label: {
+            fontSize: 12,
+            fontWeight: "800",
+            letterSpacing: 0.8,
+            color: colours.primary,
+        },
 
-    title: {
-        marginTop: spacing.sm,
-        fontSize: 30,
-        lineHeight: 36,
-        fontWeight: "800",
-        color: colours.text,
-    },
+        title: {
+            marginTop: spacing.sm,
+            fontSize: 30,
+            lineHeight: 36,
+            fontWeight: "800",
+            color: colours.text,
+        },
 
-    description: {
-        marginTop: spacing.sm,
-        fontSize: 15,
-        lineHeight: 22,
-        color: colours.textMuted,
-    },
+        description: {
+            marginTop: spacing.sm,
+            fontSize: 15,
+            lineHeight: 22,
+            color: colours.textMuted,
+        },
 
-    profileCard: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: spacing.md,
+        profileCard: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.md,
 
-        padding: spacing.lg,
+            padding: spacing.lg,
 
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.lg,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
 
-        backgroundColor: colours.surface,
-    },
+            backgroundColor: colours.surface,
+        },
 
-    profileIcon: {
-        width: 48,
-        height: 48,
+        profileIcon: {
+            width: 48,
+            height: 48,
 
-        alignItems: "center",
-        justifyContent: "center",
+            alignItems: "center",
+            justifyContent: "center",
 
-        borderRadius: radius.pill,
-        backgroundColor: colours.primarySoft,
-    },
+            borderRadius: radius.pill,
+            backgroundColor: colours.primarySoft,
+        },
 
-    profileDetails: {
-        flex: 1,
-    },
+        profileDetails: {
+            flex: 1,
+        },
 
-    profileName: {
-        fontSize: 17,
-        fontWeight: "700",
-        color: colours.text,
-    },
+        profileName: {
+            fontSize: 17,
+            fontWeight: "700",
+            color: colours.text,
+        },
 
-    profileEmail: {
-        marginTop: spacing.xs,
-        fontSize: 13,
-        color: colours.textMuted,
-    },
+        profileEmail: {
+            marginTop: spacing.xs,
+            fontSize: 13,
+            color: colours.textMuted,
+        },
 
-    section: {
-        marginTop: spacing.xl,
-    },
+        section: {
+            marginTop: spacing.xl,
+        },
 
-    sectionLabel: {
-        marginBottom: spacing.sm,
-        fontSize: 11,
-        fontWeight: "700",
-        letterSpacing: 0.8,
-        color: colours.textMuted,
-    },
+        sectionLabel: {
+            marginBottom: spacing.sm,
+            fontSize: 11,
+            fontWeight: "700",
+            letterSpacing: 0.8,
+            color: colours.textMuted,
+        },
 
-    settingsCard: {
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.lg,
-        backgroundColor: colours.surface,
-        overflow: "hidden",
-    },
+        settingsCard: {
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
+            backgroundColor: colours.surface,
+            overflow: "hidden",
+        },
 
-    settingRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: spacing.md,
-        padding: spacing.md,
-    },
+        settingRow: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.md,
+            padding: spacing.md,
+        },
 
-    settingIcon: {
-        width: 38,
-        height: 38,
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: radius.md,
-        backgroundColor: colours.primarySoft,
-    },
+        settingIcon: {
+            width: 38,
+            height: 38,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: radius.md,
+            backgroundColor: colours.primarySoft,
+        },
 
-    settingDetails: {
-        flex: 1,
-    },
+        settingDetails: {
+            flex: 1,
+        },
 
-    settingTitle: {
-        fontSize: 15,
-        fontWeight: "700",
-        color: colours.text,
-    },
+        settingTitle: {
+            fontSize: 15,
+            fontWeight: "700",
+            color: colours.text,
+        },
 
-    settingDescription: {
-        marginTop: 2,
-        fontSize: 12,
-        color: colours.textMuted,
-    },
+        settingDescription: {
+            marginTop: 2,
+            fontSize: 12,
+            color: colours.textMuted,
+        },
 
-    rowDivider: {
-        height: 1,
-        marginLeft: 70,
-        backgroundColor: colours.border,
-    },
+        rowDivider: {
+            height: 1,
+            marginLeft: 70,
+            backgroundColor: colours.border,
+        },
 
-    signOutButton: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: spacing.sm,
+        signOutButton: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: spacing.sm,
 
-        marginTop: spacing.xl,
-        paddingVertical: 14,
+            marginTop: spacing.xl,
+            paddingVertical: 14,
 
-        borderWidth: 1,
-        borderColor: colours.danger,
-        borderRadius: radius.md,
+            borderWidth: 1,
+            borderColor: colours.danger,
+            borderRadius: radius.md,
 
-        backgroundColor: colours.surface,
-    },
+            backgroundColor: colours.surface,
+        },
 
-    signOutButtonPressed: {
-        backgroundColor: colours.dangerSoft,
-    },
+        signOutButtonPressed: {
+            backgroundColor: colours.dangerSoft,
+        },
 
-    signOutText: {
-        fontSize: 15,
-        fontWeight: "700",
-        color: colours.danger,
-    },
-});
+        signOutText: {
+            fontSize: 15,
+            fontWeight: "700",
+            color: colours.danger,
+        },
+    });
+}

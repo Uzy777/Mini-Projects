@@ -1,8 +1,10 @@
 import { Stack } from "expo-router";
 
-import { colours } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
 
 export default function JourneysLayout() {
+    const { colours } = useAppearance();
+
     return (
         <Stack
             screenOptions={{

@@ -1,7 +1,11 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import type { Journey } from "../../types/models";
-import { colours, radius, spacing } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
+import { useMemo } from "react";
 
 type JourneyCardProps = {
     journey: Journey;
@@ -10,6 +14,10 @@ type JourneyCardProps = {
 };
 
 export function JourneyCard({ journey, onOpen, onDelete }: JourneyCardProps) {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     const isCompleted = journey.status === "completed";
 
     return (
@@ -41,105 +49,107 @@ export function JourneyCard({ journey, onOpen, onDelete }: JourneyCardProps) {
     );
 }
 
-const styles = StyleSheet.create({
-    card: {
-        width: "100%",
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.lg,
-        backgroundColor: colours.surface,
-        overflow: "hidden",
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        card: {
+            width: "100%",
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
+            backgroundColor: colours.surface,
+            overflow: "hidden",
+        },
 
-    openArea: {
-        padding: spacing.lg,
-    },
+        openArea: {
+            padding: spacing.lg,
+        },
 
-    openAreaPressed: {
-        backgroundColor: colours.primarySoft,
-    },
+        openAreaPressed: {
+            backgroundColor: colours.primarySoft,
+        },
 
-    topRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: spacing.md,
-    },
+        topRow: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: spacing.md,
+        },
 
-    statusBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: radius.pill,
-    },
+        statusBadge: {
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            borderRadius: radius.pill,
+        },
 
-    activeBadge: {
-        backgroundColor: colours.primarySoft,
-    },
+        activeBadge: {
+            backgroundColor: colours.primarySoft,
+        },
 
-    completedBadge: {
-        backgroundColor: colours.successSoft,
-    },
+        completedBadge: {
+            backgroundColor: colours.successSoft,
+        },
 
-    statusText: {
-        fontSize: 11,
-        fontWeight: "800",
-        letterSpacing: 0.6,
-    },
+        statusText: {
+            fontSize: 11,
+            fontWeight: "800",
+            letterSpacing: 0.6,
+        },
 
-    activeStatusText: {
-        color: colours.primary,
-    },
+        activeStatusText: {
+            color: colours.primary,
+        },
 
-    completedStatusText: {
-        color: colours.success,
-    },
+        completedStatusText: {
+            color: colours.success,
+        },
 
-    openText: {
-        fontSize: 14,
-        fontWeight: "700",
-        color: colours.primary,
-    },
+        openText: {
+            fontSize: 14,
+            fontWeight: "700",
+            color: colours.primary,
+        },
 
-    title: {
-        marginTop: spacing.md,
-        fontSize: 20,
-        lineHeight: 26,
-        fontWeight: "800",
-        color: colours.text,
-    },
+        title: {
+            marginTop: spacing.md,
+            fontSize: 20,
+            lineHeight: 26,
+            fontWeight: "800",
+            color: colours.text,
+        },
 
-    description: {
-        marginTop: spacing.sm,
-        fontSize: 14,
-        lineHeight: 20,
-        color: colours.textMuted,
-    },
+        description: {
+            marginTop: spacing.sm,
+            fontSize: 14,
+            lineHeight: 20,
+            color: colours.textMuted,
+        },
 
-    divider: {
-        height: 1,
-        backgroundColor: colours.border,
-    },
+        divider: {
+            height: 1,
+            backgroundColor: colours.border,
+        },
 
-    footer: {
-        flexDirection: "row",
-        justifyContent: "flex-end",
-        paddingHorizontal: spacing.lg,
-        paddingVertical: 12,
-    },
+        footer: {
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            paddingHorizontal: spacing.lg,
+            paddingVertical: 12,
+        },
 
-    deleteButton: {
-        paddingHorizontal: spacing.sm,
-        paddingVertical: 4,
-        borderRadius: radius.sm,
-    },
+        deleteButton: {
+            paddingHorizontal: spacing.sm,
+            paddingVertical: 4,
+            borderRadius: radius.sm,
+        },
 
-    deleteButtonPressed: {
-        backgroundColor: colours.dangerSoft,
-    },
+        deleteButtonPressed: {
+            backgroundColor: colours.dangerSoft,
+        },
 
-    deleteText: {
-        fontSize: 13,
-        fontWeight: "700",
-        color: colours.danger,
-    },
-});
+        deleteText: {
+            fontSize: 13,
+            fontWeight: "700",
+            color: colours.danger,
+        },
+    });
+}

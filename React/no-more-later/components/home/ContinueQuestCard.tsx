@@ -1,6 +1,10 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { colours, radius, spacing } from "../../constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
+import { useMemo } from "react";
 
 type ContinueQuestCardProps = {
     questTitle: string;
@@ -9,6 +13,10 @@ type ContinueQuestCardProps = {
 };
 
 export function ContinueQuestCard({ questTitle, nextAction, onContinue }: ContinueQuestCardProps) {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     return (
         <Pressable style={({ pressed }) => [styles.card, pressed && styles.cardPressed]} onPress={onContinue}>
             <Text style={styles.label}>CONTINUE WHERE YOU LEFT OFF</Text>
@@ -32,71 +40,73 @@ export function ContinueQuestCard({ questTitle, nextAction, onContinue }: Contin
     );
 }
 
-const styles = StyleSheet.create({
-    card: {
-        width: "100%",
-        padding: spacing.lg,
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.lg,
-        backgroundColor: colours.surface,
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        card: {
+            width: "100%",
+            padding: spacing.lg,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
+            backgroundColor: colours.surface,
+        },
 
-    cardPressed: {
-        opacity: 0.75,
-    },
+        cardPressed: {
+            opacity: 0.75,
+        },
 
-    label: {
-        fontSize: 12,
-        fontWeight: "700",
-        letterSpacing: 0.7,
-        color: colours.textMuted,
-    },
+        label: {
+            fontSize: 12,
+            fontWeight: "700",
+            letterSpacing: 0.7,
+            color: colours.textMuted,
+        },
 
-    title: {
-        marginTop: spacing.sm,
-        fontSize: 20,
-        lineHeight: 26,
-        fontWeight: "700",
-        color: colours.text,
-    },
+        title: {
+            marginTop: spacing.sm,
+            fontSize: 20,
+            lineHeight: 26,
+            fontWeight: "700",
+            color: colours.text,
+        },
 
-    nextActionContainer: {
-        marginTop: spacing.md,
-        padding: spacing.md,
-        borderRadius: radius.md,
-        backgroundColor: colours.background,
-    },
+        nextActionContainer: {
+            marginTop: spacing.md,
+            padding: spacing.md,
+            borderRadius: radius.md,
+            backgroundColor: colours.background,
+        },
 
-    nextActionLabel: {
-        marginBottom: spacing.xs,
-        fontSize: 12,
-        fontWeight: "700",
-        color: colours.textMuted,
-    },
+        nextActionLabel: {
+            marginBottom: spacing.xs,
+            fontSize: 12,
+            fontWeight: "700",
+            color: colours.textMuted,
+        },
 
-    nextActionText: {
-        fontSize: 15,
-        lineHeight: 21,
-        color: colours.text,
-    },
+        nextActionText: {
+            fontSize: 15,
+            lineHeight: 21,
+            color: colours.text,
+        },
 
-    actionRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        marginTop: spacing.lg,
-    },
+        actionRow: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginTop: spacing.lg,
+        },
 
-    actionText: {
-        fontSize: 15,
-        fontWeight: "700",
-        color: colours.primary,
-    },
+        actionText: {
+            fontSize: 15,
+            fontWeight: "700",
+            color: colours.primary,
+        },
 
-    arrow: {
-        fontSize: 21,
-        fontWeight: "700",
-        color: colours.primary,
-    },
-});
+        arrow: {
+            fontSize: 21,
+            fontWeight: "700",
+            color: colours.primary,
+        },
+    });
+}

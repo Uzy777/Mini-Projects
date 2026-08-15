@@ -1,6 +1,10 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { colours, radius, spacing } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
+import { useMemo } from "react";
 
 type ActiveSessionNoticeProps = {
     message: string;
@@ -9,6 +13,10 @@ type ActiveSessionNoticeProps = {
 };
 
 export function ActiveSessionNotice({ message, showReturnButton, onReturn }: ActiveSessionNoticeProps) {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     if (!message && !showReturnButton) {
         return null;
     }
@@ -28,46 +36,48 @@ export function ActiveSessionNotice({ message, showReturnButton, onReturn }: Act
     );
 }
 
-const styles = StyleSheet.create({
-    notice: {
-        width: "100%",
-        padding: spacing.md,
-        borderWidth: 1,
-        borderColor: colours.warningBorder,
-        borderRadius: radius.md,
-        backgroundColor: colours.warningSoft,
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        notice: {
+            width: "100%",
+            padding: spacing.md,
+            borderWidth: 1,
+            borderColor: colours.warningBorder,
+            borderRadius: radius.md,
+            backgroundColor: colours.warningSoft,
+        },
 
-    label: {
-        fontSize: 11,
-        fontWeight: "800",
-        letterSpacing: 0.7,
-        color: colours.warning,
-    },
+        label: {
+            fontSize: 11,
+            fontWeight: "800",
+            letterSpacing: 0.7,
+            color: colours.warning,
+        },
 
-    message: {
-        marginTop: spacing.xs,
-        fontSize: 14,
-        lineHeight: 20,
-        color: colours.text,
-    },
+        message: {
+            marginTop: spacing.xs,
+            fontSize: 14,
+            lineHeight: 20,
+            color: colours.text,
+        },
 
-    returnButton: {
-        marginTop: spacing.md,
-        alignItems: "center",
-        paddingVertical: 12,
-        paddingHorizontal: spacing.md,
-        borderRadius: radius.md,
-        backgroundColor: colours.warning,
-    },
+        returnButton: {
+            marginTop: spacing.md,
+            alignItems: "center",
+            paddingVertical: 12,
+            paddingHorizontal: spacing.md,
+            borderRadius: radius.md,
+            backgroundColor: colours.warning,
+        },
 
-    returnButtonPressed: {
-        opacity: 0.82,
-    },
+        returnButtonPressed: {
+            opacity: 0.82,
+        },
 
-    returnButtonText: {
-        fontSize: 14,
-        fontWeight: "700",
-        color: colours.surface,
-    },
-});
+        returnButtonText: {
+            fontSize: 14,
+            fontWeight: "700",
+            color: colours.surface,
+        },
+    });
+}

@@ -1,7 +1,11 @@
 import { StyleSheet, Text, View } from "react-native";
 
 import type { FocusSessionRecord, SessionOutcome } from "../../types/models";
-import { colours, radius, spacing } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
+import { useMemo } from "react";
 
 type FocusSessionHistoryCardProps = {
     session: FocusSessionRecord;
@@ -31,6 +35,10 @@ function formatFocusedTime(totalSeconds: number) {
 }
 
 export function FocusSessionHistoryCard({ session }: FocusSessionHistoryCardProps) {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     const focusedSeconds = session.actualSeconds ?? session.plannedMinutes * 60;
 
     const questWasCompleted = session.outcome === "completed";
@@ -86,156 +94,158 @@ export function FocusSessionHistoryCard({ session }: FocusSessionHistoryCardProp
     );
 }
 
-const styles = StyleSheet.create({
-    card: {
-        width: "100%",
-        padding: spacing.lg,
-        borderWidth: 1,
-        borderColor: colours.border,
-        borderRadius: radius.lg,
-        backgroundColor: colours.surface,
-    },
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        card: {
+            width: "100%",
+            padding: spacing.lg,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
+            backgroundColor: colours.surface,
+        },
 
-    header: {
-        flexDirection: "row",
-        alignItems: "flex-start",
-        justifyContent: "space-between",
-        gap: spacing.md,
-    },
+        header: {
+            flexDirection: "row",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: spacing.md,
+        },
 
-    questTitle: {
-        flex: 1,
-        fontSize: 20,
-        lineHeight: 26,
-        fontWeight: "800",
-        color: colours.text,
-    },
+        questTitle: {
+            flex: 1,
+            fontSize: 20,
+            lineHeight: 26,
+            fontWeight: "800",
+            color: colours.text,
+        },
 
-    xpBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: radius.pill,
-        backgroundColor: colours.primarySoft,
-    },
+        xpBadge: {
+            paddingHorizontal: 10,
+            paddingVertical: 6,
+            borderRadius: radius.pill,
+            backgroundColor: colours.primarySoft,
+        },
 
-    xpText: {
-        fontSize: 12,
-        fontWeight: "800",
-        color: colours.primary,
-    },
+        xpText: {
+            fontSize: 12,
+            fontWeight: "800",
+            color: colours.primary,
+        },
 
-    outcomeBadge: {
-        alignSelf: "flex-start",
-        marginTop: spacing.sm,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: radius.pill,
-    },
+        outcomeBadge: {
+            alignSelf: "flex-start",
+            marginTop: spacing.sm,
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            borderRadius: radius.pill,
+        },
 
-    defaultOutcomeBadge: {
-        backgroundColor: colours.primarySoft,
-    },
+        defaultOutcomeBadge: {
+            backgroundColor: colours.primarySoft,
+        },
 
-    completedOutcomeBadge: {
-        backgroundColor: colours.successSoft,
-    },
+        completedOutcomeBadge: {
+            backgroundColor: colours.successSoft,
+        },
 
-    outcomeText: {
-        fontSize: 11,
-        fontWeight: "800",
-        letterSpacing: 0.6,
-    },
+        outcomeText: {
+            fontSize: 11,
+            fontWeight: "800",
+            letterSpacing: 0.6,
+        },
 
-    defaultOutcomeText: {
-        color: colours.primary,
-    },
+        defaultOutcomeText: {
+            color: colours.primary,
+        },
 
-    completedOutcomeText: {
-        color: colours.success,
-    },
+        completedOutcomeText: {
+            color: colours.success,
+        },
 
-    durationSection: {
-        marginTop: spacing.lg,
-        flexDirection: "row",
-        alignItems: "flex-end",
-        justifyContent: "space-between",
-        gap: spacing.lg,
-    },
+        durationSection: {
+            marginTop: spacing.lg,
+            flexDirection: "row",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            gap: spacing.lg,
+        },
 
-    focusedValue: {
-        fontSize: 24,
-        lineHeight: 30,
-        fontWeight: "800",
-        color: colours.text,
-    },
+        focusedValue: {
+            fontSize: 24,
+            lineHeight: 30,
+            fontWeight: "800",
+            color: colours.text,
+        },
 
-    focusedLabel: {
-        marginTop: 2,
-        fontSize: 13,
-        color: colours.textMuted,
-    },
+        focusedLabel: {
+            marginTop: 2,
+            fontSize: 13,
+            color: colours.textMuted,
+        },
 
-    plannedSection: {
-        alignItems: "flex-end",
-    },
+        plannedSection: {
+            alignItems: "flex-end",
+        },
 
-    plannedValue: {
-        marginTop: spacing.xs,
-        fontSize: 15,
-        fontWeight: "700",
-        color: colours.text,
-    },
+        plannedValue: {
+            marginTop: spacing.xs,
+            fontSize: 15,
+            fontWeight: "700",
+            color: colours.text,
+        },
 
-    divider: {
-        height: 1,
-        marginVertical: spacing.lg,
-        backgroundColor: colours.border,
-    },
+        divider: {
+            height: 1,
+            marginVertical: spacing.lg,
+            backgroundColor: colours.border,
+        },
 
-    accomplishmentBox: {
-        padding: spacing.md,
-        borderRadius: radius.md,
-        backgroundColor: colours.background,
-    },
+        accomplishmentBox: {
+            padding: spacing.md,
+            borderRadius: radius.md,
+            backgroundColor: colours.background,
+        },
 
-    detailLabel: {
-        fontSize: 12,
-        fontWeight: "700",
-        color: colours.textMuted,
-    },
+        detailLabel: {
+            fontSize: 12,
+            fontWeight: "700",
+            color: colours.textMuted,
+        },
 
-    detailText: {
-        marginTop: spacing.xs,
-        fontSize: 14,
-        lineHeight: 20,
-        color: colours.text,
-    },
+        detailText: {
+            marginTop: spacing.xs,
+            fontSize: 14,
+            lineHeight: 20,
+            color: colours.text,
+        },
 
-    nextActionBox: {
-        marginTop: spacing.md,
-        padding: spacing.md,
-        borderRadius: radius.md,
-        backgroundColor: colours.primarySoft,
-    },
+        nextActionBox: {
+            marginTop: spacing.md,
+            padding: spacing.md,
+            borderRadius: radius.md,
+            backgroundColor: colours.primarySoft,
+        },
 
-    nextActionLabel: {
-        fontSize: 11,
-        fontWeight: "800",
-        letterSpacing: 0.6,
-        color: colours.primary,
-    },
+        nextActionLabel: {
+            fontSize: 11,
+            fontWeight: "800",
+            letterSpacing: 0.6,
+            color: colours.primary,
+        },
 
-    nextActionText: {
-        marginTop: spacing.xs,
-        fontSize: 14,
-        lineHeight: 20,
-        fontWeight: "600",
-        color: colours.text,
-    },
+        nextActionText: {
+            marginTop: spacing.xs,
+            fontSize: 14,
+            lineHeight: 20,
+            fontWeight: "600",
+            color: colours.text,
+        },
 
-    completedDate: {
-        marginTop: spacing.md,
-        fontSize: 12,
-        color: colours.textMuted,
-    },
-});
+        completedDate: {
+            marginTop: spacing.md,
+            fontSize: 12,
+            color: colours.textMuted,
+        },
+    });
+}

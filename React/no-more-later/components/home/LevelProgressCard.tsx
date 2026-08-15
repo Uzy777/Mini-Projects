@@ -1,8 +1,12 @@
 import { StyleSheet, Text, View } from "react-native";
 
-import { colours, radius, spacing } from "../../constants/design";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
 import { RankDisplay } from "@/components/ranks/RankDisplay";
 import { Clock3, Flame, Zap } from "lucide-react-native";
+import { useMemo } from "react";
 
 type LevelProgressCardProps = {
     level: number;
@@ -14,6 +18,10 @@ type LevelProgressCardProps = {
 };
 
 export function LevelProgressCard({ level, xpIntoLevel, xpRequired, currentStreak, totalFocusedSeconds, totalXp }: LevelProgressCardProps) {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     const progressPercentage = xpRequired > 0 ? Math.min(Math.max((xpIntoLevel / xpRequired) * 100, 0), 100) : 0;
 
     const totalFocusedHours = Math.floor(totalFocusedSeconds / 3600);
@@ -95,128 +103,130 @@ export function LevelProgressCard({ level, xpIntoLevel, xpRequired, currentStrea
         </View>
     );
 }
-const styles = StyleSheet.create({
-    card: {
-        position: "relative",
-        overflow: "hidden",
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        card: {
+            position: "relative",
+            overflow: "hidden",
 
-        backgroundColor: colours.surface,
-        borderRadius: radius.lg,
-        borderWidth: 1,
-        borderColor: colours.border,
+            backgroundColor: colours.surface,
+            borderRadius: radius.lg,
+            borderWidth: 1,
+            borderColor: colours.border,
 
-        padding: spacing.lg,
-        gap: spacing.md,
-    },
+            padding: spacing.lg,
+            gap: spacing.md,
+        },
 
-    topRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: spacing.md,
-    },
+        topRow: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.md,
+        },
 
-    rankArea: {
-        flex: 1,
-        minWidth: 0,
-    },
+        rankArea: {
+            flex: 1,
+            minWidth: 0,
+        },
 
-    levelBadge: {
-        backgroundColor: colours.primarySoft,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: radius.pill,
-        alignSelf: "flex-start",
-    },
+        levelBadge: {
+            backgroundColor: colours.primarySoft,
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            borderRadius: radius.pill,
+            alignSelf: "flex-start",
+        },
 
-    levelBadgeText: {
-        color: colours.primary,
-        fontSize: 13,
-        fontWeight: "700",
-    },
+        levelBadgeText: {
+            color: colours.primary,
+            fontSize: 13,
+            fontWeight: "700",
+        },
 
-    progressXp: {
-        color: colours.text,
-        fontSize: 13,
-        fontWeight: "700",
-    },
+        progressXp: {
+            color: colours.text,
+            fontSize: 13,
+            fontWeight: "700",
+        },
 
-    progressTrack: {
-        width: "100%",
-        height: 8,
-        backgroundColor: colours.primarySoft,
-        borderRadius: radius.pill,
-        overflow: "hidden",
-    },
+        progressTrack: {
+            width: "100%",
+            height: 8,
+            backgroundColor: colours.primarySoft,
+            borderRadius: radius.pill,
+            overflow: "hidden",
+        },
 
-    progressFill: {
-        height: "100%",
-        backgroundColor: colours.primary,
-        borderRadius: radius.pill,
-    },
-    levelArea: {
-        alignItems: "flex-end",
-        gap: spacing.sm,
-    },
-    topAccent: {
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
+        progressFill: {
+            height: "100%",
+            backgroundColor: colours.primary,
+            borderRadius: radius.pill,
+        },
+        levelArea: {
+            alignItems: "flex-end",
+            gap: spacing.sm,
+        },
+        topAccent: {
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
 
-        height: 3,
+            height: 3,
 
-        backgroundColor: colours.primary,
-    },
+            backgroundColor: colours.primary,
+        },
 
-    statsSection: {
-        flexDirection: "row",
-        alignItems: "flex-start",
+        statsSection: {
+            flexDirection: "row",
+            alignItems: "flex-start",
 
-        paddingTop: spacing.md,
+            paddingTop: spacing.md,
 
-        borderTopWidth: 1,
-        borderTopColor: colours.border,
-    },
+            borderTopWidth: 1,
+            borderTopColor: colours.border,
+        },
 
-    stat: {
-        flex: 1,
-        minWidth: 0,
+        stat: {
+            flex: 1,
+            minWidth: 0,
 
-        alignItems: "center",
-        justifyContent: "flex-start",
-    },
+            alignItems: "center",
+            justifyContent: "flex-start",
+        },
 
-    statIcon: {
-        width: 32,
-        height: 32,
+        statIcon: {
+            width: 32,
+            height: 32,
 
-        alignItems: "center",
-        justifyContent: "center",
+            alignItems: "center",
+            justifyContent: "center",
 
-        marginBottom: spacing.xs,
+            marginBottom: spacing.xs,
 
-        borderRadius: radius.pill,
-        backgroundColor: colours.primarySoft,
-    },
+            borderRadius: radius.pill,
+            backgroundColor: colours.primarySoft,
+        },
 
-    statLabel: {
-        width: "100%",
+        statLabel: {
+            width: "100%",
 
-        fontSize: 10,
-        fontWeight: "700",
-        letterSpacing: 0.5,
+            fontSize: 10,
+            fontWeight: "700",
+            letterSpacing: 0.5,
 
-        textAlign: "center",
-        color: colours.textMuted,
-    },
+            textAlign: "center",
+            color: colours.textMuted,
+        },
 
-    statValue: {
-        marginTop: 2,
+        statValue: {
+            marginTop: 2,
 
-        fontSize: 14,
-        fontWeight: "700",
+            fontSize: 14,
+            fontWeight: "700",
 
-        textAlign: "center",
-        color: colours.text,
-    },
-});
+            textAlign: "center",
+            color: colours.text,
+        },
+    });
+}

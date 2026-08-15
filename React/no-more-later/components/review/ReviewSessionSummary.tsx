@@ -1,4 +1,9 @@
 import { StyleSheet, Text, View } from "react-native";
+import { useMemo } from "react";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+
+import type { AppColours } from "@/constants/appearanceColours";
 
 type ReviewSessionSummaryProps = {
     questTitle: string;
@@ -24,6 +29,10 @@ function formatFocusedTime(totalSeconds: number) {
 }
 
 export function ReviewSessionSummary({ questTitle, plannedMinutes, actualSeconds, endedEarly }: ReviewSessionSummaryProps) {
+    const { colours } = useAppearance();
+
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
     return (
         <View style={styles.summaryCard}>
             <Text style={styles.label}>Current Quest</Text>
@@ -49,47 +58,49 @@ export function ReviewSessionSummary({ questTitle, plannedMinutes, actualSeconds
     );
 }
 
-const styles = StyleSheet.create({
-    summaryCard: {
-        width: "100%",
-        padding: 18,
-        borderRadius: 12,
-        backgroundColor: "#ffffff",
-    },
-    label: {
-        fontSize: 13,
-        fontWeight: "600",
-        color: "#666666",
-    },
-    questTitle: {
-        marginTop: 6,
-        fontSize: 24,
-        fontWeight: "700",
-    },
-    durationRow: {
-        marginTop: 18,
-        flexDirection: "row",
-        gap: 12,
-    },
-    durationItem: {
-        flex: 1,
-        padding: 12,
-        borderRadius: 8,
-        backgroundColor: "#f2f2f2",
-    },
-    durationLabel: {
-        fontSize: 12,
-        fontWeight: "600",
-        color: "#666666",
-    },
-    durationValue: {
-        marginTop: 4,
-        fontSize: 16,
-        fontWeight: "700",
-    },
-    endedEarlyText: {
-        marginTop: 14,
-        fontSize: 14,
-        color: "#b42318",
-    },
-});
+function createStyles(colours: AppColours) {
+    return StyleSheet.create({
+        summaryCard: {
+            width: "100%",
+            padding: 18,
+            borderRadius: 12,
+            backgroundColor: "#ffffff",
+        },
+        label: {
+            fontSize: 13,
+            fontWeight: "600",
+            color: "#666666",
+        },
+        questTitle: {
+            marginTop: 6,
+            fontSize: 24,
+            fontWeight: "700",
+        },
+        durationRow: {
+            marginTop: 18,
+            flexDirection: "row",
+            gap: 12,
+        },
+        durationItem: {
+            flex: 1,
+            padding: 12,
+            borderRadius: 8,
+            backgroundColor: "#f2f2f2",
+        },
+        durationLabel: {
+            fontSize: 12,
+            fontWeight: "600",
+            color: "#666666",
+        },
+        durationValue: {
+            marginTop: 4,
+            fontSize: 16,
+            fontWeight: "700",
+        },
+        endedEarlyText: {
+            marginTop: 14,
+            fontSize: 14,
+            color: "#b42318",
+        },
+    });
+}
