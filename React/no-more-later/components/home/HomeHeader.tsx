@@ -1,10 +1,12 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Pressable } from "react-native";
 
 import { colours, radius, spacing } from "../../constants/design";
+import { Menu } from "lucide-react-native";
 
 type HomeHeaderProps = {
     currentStreak: number;
     displayName: string | null;
+    onPressMenu: () => void;
 };
 
 function getGreeting(): string {
@@ -21,7 +23,7 @@ function getGreeting(): string {
     return "Good evening,";
 }
 
-export function HomeHeader({ currentStreak, displayName }: HomeHeaderProps) {
+export function HomeHeader({ currentStreak, displayName, onPressMenu }: HomeHeaderProps) {
     const streakLabel = currentStreak === 1 ? "day streak" : "days streak";
 
     return (
@@ -33,16 +35,12 @@ export function HomeHeader({ currentStreak, displayName }: HomeHeaderProps) {
                     <Text style={styles.title}>{displayName ? `${getGreeting()} ${displayName}` : getGreeting()}</Text>
                 </View>
 
-                {/* {currentStreak > 0 && (
-                    <View style={styles.streakBadge}>
-                        <Text style={styles.streakNumber}>{currentStreak}</Text>
-
-                        <Text style={styles.streakLabel}>{streakLabel}</Text>
-                    </View>
-                )} */}
+                <Pressable style={({ pressed }) => [styles.menuButton, pressed && styles.menuButtonPressed]} onPress={onPressMenu}>
+                    <Menu size={22} color={colours.primary} />
+                </Pressable>
             </View>
 
-            <Text style={styles.subtitle}>Choose one thing and move it forward.</Text>
+            <Text style={styles.subtitle}>Turn "later" into today.</Text>
         </View>
     );
 }
@@ -87,25 +85,21 @@ const styles = StyleSheet.create({
         color: colours.textMuted,
     },
 
-    streakBadge: {
-        minWidth: 76,
+    menuButton: {
+        width: 42,
+        height: 42,
+
         alignItems: "center",
-        paddingHorizontal: spacing.md,
-        paddingVertical: 10,
+        justifyContent: "center",
+
+        borderWidth: 1,
+        borderColor: colours.primaryBorder,
         borderRadius: radius.md,
+
         backgroundColor: colours.primarySoft,
     },
 
-    streakNumber: {
-        fontSize: 19,
-        fontWeight: "800",
-        color: colours.primary,
-    },
-
-    streakLabel: {
-        marginTop: 1,
-        fontSize: 11,
-        fontWeight: "600",
-        color: colours.primary,
+    menuButtonPressed: {
+        opacity: 0.7,
     },
 });

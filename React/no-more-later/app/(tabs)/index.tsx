@@ -180,14 +180,18 @@ export default function HomeScreen() {
         }
     }
 
+    function handleOpenMenu() {
+        router.push("/account");
+    }
+
     return (
         <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
             <View style={styles.contentSections}>
-                <HomeHeader currentStreak={currentStreak} displayName={profile?.display_name ?? null} />
+                <HomeHeader currentStreak={currentStreak} displayName={profile?.display_name ?? null} onPressMenu={handleOpenMenu} />
 
-                <Pressable style={styles.signOutButton} onPress={handleSignOut}>
+                {/* <Pressable style={styles.signOutButton} onPress={handleSignOut}>
                     <Text style={styles.signOutButtonText}>Sign out</Text>
-                </Pressable>
+                </Pressable> */}
 
                 <LevelProgressCard
                     level={level}
