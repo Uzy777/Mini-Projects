@@ -75,8 +75,24 @@ export default function LeaderboardScreen() {
                                 key={entry.user_id}
                                 style={[styles.row, index < leaderboard.length - 1 && styles.rowBorder, isCurrentUser && styles.currentUserRow]}
                             >
-                                <View style={styles.positionContainer}>
-                                    <Text style={styles.position}>{index + 1}</Text>
+                                <View
+                                    style={[
+                                        styles.positionContainer,
+                                        index === 0 && styles.firstPosition,
+                                        index === 1 && styles.secondPosition,
+                                        index === 2 && styles.thirdPosition,
+                                    ]}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.position,
+                                            index === 0 && styles.firstPositionText,
+                                            index === 1 && styles.secondPositionText,
+                                            index === 2 && styles.thirdPositionText,
+                                        ]}
+                                    >
+                                        {index + 1}
+                                    </Text>
                                 </View>
 
                                 <RankBadge level={level} />
@@ -227,5 +243,29 @@ const styles = StyleSheet.create({
     errorText: {
         fontSize: 14,
         color: colours.danger,
+    },
+
+    firstPosition: {
+        backgroundColor: colours.leaderboardGoldSoft,
+    },
+
+    firstPositionText: {
+        color: colours.leaderboardGold,
+    },
+
+    secondPosition: {
+        backgroundColor: colours.leaderboardSilverSoft,
+    },
+
+    secondPositionText: {
+        color: colours.leaderboardSilver,
+    },
+
+    thirdPosition: {
+        backgroundColor: colours.leaderboardBronzeSoft,
+    },
+
+    thirdPositionText: {
+        color: colours.leaderboardBronze,
     },
 });

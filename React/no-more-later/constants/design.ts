@@ -21,6 +21,15 @@ export const colours = {
 
     danger: "#b91c1c",
     dangerSoft: "#fee2e2",
+
+    leaderboardGold: "#a16207",
+    leaderboardGoldSoft: "#fef3c7",
+
+    leaderboardSilver: "#64748b",
+    leaderboardSilverSoft: "#f1f5f9",
+
+    leaderboardBronze: "#9a5b2f",
+    leaderboardBronzeSoft: "#ffedd5",
 } as const;
 
 export const spacing = {
