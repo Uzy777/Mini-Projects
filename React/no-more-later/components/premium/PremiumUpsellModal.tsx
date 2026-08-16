@@ -10,11 +10,12 @@ import type { AppColours } from "@/constants/appearanceColours";
 
 type PremiumUpsellModalProps = {
     visible: boolean;
+    requestedFeature: string | null;
     onClose: () => void;
     onUnlock: () => void;
 };
 
-export function PremiumUpsellModal({ visible, onClose, onUnlock }: PremiumUpsellModalProps) {
+export function PremiumUpsellModal({ visible, requestedFeature, onClose, onUnlock }: PremiumUpsellModalProps) {
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -31,10 +32,13 @@ export function PremiumUpsellModal({ visible, onClose, onUnlock }: PremiumUpsell
                         <Crown size={28} color={colours.primary} />
                     </View>
 
-                    <Text style={styles.title}>Unlock Premium</Text>
+                    <Text style={styles.title}>{requestedFeature ? `Unlock ${requestedFeature}` : "Unlock Premium"}</Text>
 
-                    <Text style={styles.description}>Personalise No More Later with additional appearance options.</Text>
-
+                    <Text style={styles.description}>
+                        {requestedFeature
+                            ? `${requestedFeature} is part of No More Later Premium.`
+                            : "Personalise No More Later with additional Premium features."}
+                    </Text>
                     <View style={styles.features}>
                         <FeatureRow text="System appearance" colours={colours} styles={styles} />
 

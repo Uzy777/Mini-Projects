@@ -12,7 +12,7 @@ import { PremiumUpsellModal } from "@/components/premium/PremiumUpsellModal";
 
 export default function AppearanceScreen() {
     const { colourMode, accentColour, colours, setColourMode, setAccentColour } = useAppearance();
-    const [isPremiumModalVisible, setIsPremiumModalVisible] = useState(false);
+    const [premiumFeature, setPremiumFeature] = useState<string | null>(null);
     const { hasPremium, setDevelopmentPremium } = usePremium();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -43,9 +43,15 @@ export default function AppearanceScreen() {
                                     style={({ pressed }) => [styles.modeRow, isLocked && styles.lockedOption, pressed && !isLocked && styles.optionPressed]}
                                     onPress={() => {
                                         if (isLocked) {
-                                            setIsPremiumModalVisible(true);
+                                            const featureName =
+                                                option.id === "system" ? "System appearance" : option.id === "amoled" ? "AMOLED mode" : `${option.name} mode`;
+
+                                            setPremiumFeature(featureName);
+
                                             return;
                                         }
+
+                                        setColourMode(option.id);
 
                                         setColourMode(option.id);
                                     }}
@@ -91,7 +97,8 @@ export default function AppearanceScreen() {
                                     ]}
                                     onPress={() => {
                                         if (isLocked) {
-                                            setIsPremiumModalVisible(true);
+                                            setPremiumFeature(`${option.name} accent`);
+
                                             return;
                                         }
 
@@ -164,10 +171,11 @@ export default function AppearanceScreen() {
             )}
 
             <PremiumUpsellModal
-                visible={isPremiumModalVisible}
-                onClose={() => setIsPremiumModalVisible(false)}
+                visible={premiumFeature !== null}
+                requestedFeature={premiumFeature}
+                onClose={() => setPremiumFeature(null)}
                 onUnlock={() => {
-                    console.log("Premium purchase will start here.");
+                    console.log("Premium purchase will start here later.", premiumFeature);
                 }}
             />
         </ScrollView>
