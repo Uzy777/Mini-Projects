@@ -14,6 +14,7 @@ type AppearanceContextValue = {
     accentColour: AccentColourId;
     resolvedColourMode: ResolvedColourMode;
     colours: AppColours;
+    isAppearanceLoading: boolean;
 
     setColourMode: (mode: ColourMode) => void;
     setAccentColour: (accent: AccentColourId) => void;
@@ -89,6 +90,7 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
                 accentColour,
                 resolvedColourMode,
                 colours,
+                isAppearanceLoading: !hasLoadedPreferences,
                 setColourMode,
                 setAccentColour,
             }}

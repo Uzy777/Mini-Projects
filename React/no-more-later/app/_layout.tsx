@@ -1,11 +1,14 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import "react-native-reanimated";
+import * as SplashScreen from "expo-splash-screen";
 
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AppearanceProvider, useAppearance } from "@/contexts/AppearanceContext";
+
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
     return (
@@ -18,7 +21,9 @@ export default function RootLayout() {
 }
 
 function AppShell() {
-    const { colours, resolvedColourMode } = useAppearance();
+    const { colours, resolvedColourMode, isAppearanceLoading } = useAppearance();
+
+    const { isLoading: isAuthLoading } = useAuth();
 
     const navigationTheme = useMemo(() => {
         const baseTheme = resolvedColourMode === "light" ? DefaultTheme : DarkTheme;
@@ -38,6 +43,16 @@ function AppShell() {
             },
         };
     }, [colours, resolvedColourMode]);
+
+    useEffect(() => {
+        if (!isAppearanceLoading && !isAuthLoading) {
+            SplashScreen.hideAsync();
+        }
+    }, [isAppearanceLoading, isAuthLoading]);
+
+    if (isAppearanceLoading || isAuthLoading) {
+        return null;
+    }
 
     return (
         <ThemeProvider value={navigationTheme}>
