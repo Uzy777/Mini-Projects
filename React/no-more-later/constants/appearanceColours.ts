@@ -215,6 +215,8 @@ const DARK_ACCENTS: Record<AccentColourId, AccentColours> = {
     },
 };
 
+export const AUTH_COLOURS = getAppColours("light", "indigo");
+
 export function getAppColours(mode: ResolvedColourMode, accent: AccentColourId): AppColours {
     const modeColours = MODE_COLOURS[mode];
 
@@ -225,3 +227,4 @@ export function getAppColours(mode: ResolvedColourMode, accent: AccentColourId):
         ...accentColours,
     };
 }
+

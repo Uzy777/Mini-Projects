@@ -3,16 +3,16 @@ import { ScrollView, StyleSheet, Text, TextInput, View, Pressable } from "react-
 import { useRouter, Link, useLocalSearchParams } from "expo-router";
 
 import { radius, spacing } from "@/constants/design";
-import { useAppearance } from "@/contexts/AppearanceContext";
+// import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
+import { AUTH_COLOURS } from "@/constants/appearanceColours";
 import { signUpWithEmail } from "@/services/auth/authService";
-import { useMemo } from "react";
+// import { useMemo } from "react";
 
 export default function SignUpScreen() {
-    const { colours } = useAppearance();
-
-    const styles = useMemo(() => createStyles(colours), [colours]);
+    const colours = AUTH_COLOURS;
+    const styles = createStyles(colours);
 
     const router = useRouter();
 

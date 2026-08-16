@@ -1,10 +1,13 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
+
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useMemo, useEffect } from "react";
-import "react-native-reanimated";
+import { useEffect, useMemo } from "react";
 import * as SplashScreen from "expo-splash-screen";
 
+import "react-native-reanimated";
+
+import { AUTH_COLOURS } from "@/constants/appearanceColours";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AppearanceProvider, useAppearance } from "@/contexts/AppearanceContext";
 
@@ -23,10 +26,14 @@ export default function RootLayout() {
 function AppShell() {
     const { colours, resolvedColourMode, isAppearanceLoading } = useAppearance();
 
-    const { isLoading: isAuthLoading } = useAuth();
+    const { session, isLoading: isAuthLoading } = useAuth();
+
+    const shellColours = session ? colours : AUTH_COLOURS;
+
+    const shellColourMode = session ? resolvedColourMode : "light";
 
     const navigationTheme = useMemo(() => {
-        const baseTheme = resolvedColourMode === "light" ? DefaultTheme : DarkTheme;
+        const baseTheme = shellColourMode === "light" ? DefaultTheme : DarkTheme;
 
         return {
             ...baseTheme,
@@ -34,15 +41,15 @@ function AppShell() {
             colors: {
                 ...baseTheme.colors,
 
-                primary: colours.primary,
-                background: colours.background,
-                card: colours.surface,
-                text: colours.text,
-                border: colours.border,
-                notification: colours.danger,
+                primary: shellColours.primary,
+                background: shellColours.background,
+                card: shellColours.surface,
+                text: shellColours.text,
+                border: shellColours.border,
+                notification: shellColours.danger,
             },
         };
-    }, [colours, resolvedColourMode]);
+    }, [shellColours, shellColourMode]);
 
     useEffect(() => {
         if (!isAppearanceLoading && !isAuthLoading) {
@@ -58,7 +65,7 @@ function AppShell() {
         <ThemeProvider value={navigationTheme}>
             <RootNavigator />
 
-            <StatusBar style={resolvedColourMode === "light" ? "dark" : "light"} />
+            <StatusBar style={shellColourMode === "light" ? "dark" : "light"} />
         </ThemeProvider>
     );
 }
