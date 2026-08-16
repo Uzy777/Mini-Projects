@@ -84,7 +84,7 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
         return () => {
             isMounted = false;
         };
-    }, [hasPremium]);
+    }, []);
 
     useEffect(() => {
         if (!hasLoadedPreferences) {

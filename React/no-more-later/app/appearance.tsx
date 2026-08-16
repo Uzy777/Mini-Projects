@@ -9,10 +9,23 @@ import { useMemo, useState } from "react";
 import type { AppColours } from "@/constants/appearanceColours";
 import { usePremium } from "@/contexts/PremiumContext";
 import { PremiumUpsellModal } from "@/components/premium/PremiumUpsellModal";
+import type { AccentColourId, ColourMode } from "@/types/appearance";
+
+type RequestedPremiumFeature =
+    | {
+          type: "mode";
+          id: ColourMode;
+          label: string;
+      }
+    | {
+          type: "accent";
+          id: AccentColourId;
+          label: string;
+      };
 
 export default function AppearanceScreen() {
     const { colourMode, accentColour, colours, setColourMode, setAccentColour } = useAppearance();
-    const [premiumFeature, setPremiumFeature] = useState<string | null>(null);
+    const [requestedPremiumFeature, setRequestedPremiumFeature] = useState<RequestedPremiumFeature | null>(null);
     const { hasPremium, setDevelopmentPremium } = usePremium();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -43,15 +56,17 @@ export default function AppearanceScreen() {
                                     style={({ pressed }) => [styles.modeRow, isLocked && styles.lockedOption, pressed && !isLocked && styles.optionPressed]}
                                     onPress={() => {
                                         if (isLocked) {
-                                            const featureName =
+                                            const label =
                                                 option.id === "system" ? "System appearance" : option.id === "amoled" ? "AMOLED mode" : `${option.name} mode`;
 
-                                            setPremiumFeature(featureName);
+                                            setRequestedPremiumFeature({
+                                                type: "mode",
+                                                id: option.id,
+                                                label,
+                                            });
 
                                             return;
                                         }
-
-                                        setColourMode(option.id);
 
                                         setColourMode(option.id);
                                     }}
@@ -97,7 +112,11 @@ export default function AppearanceScreen() {
                                     ]}
                                     onPress={() => {
                                         if (isLocked) {
-                                            setPremiumFeature(`${option.name} accent`);
+                                            setRequestedPremiumFeature({
+                                                type: "accent",
+                                                id: option.id,
+                                                label: `${option.name} accent`,
+                                            });
 
                                             return;
                                         }
@@ -171,11 +190,25 @@ export default function AppearanceScreen() {
             )}
 
             <PremiumUpsellModal
-                visible={premiumFeature !== null}
-                requestedFeature={premiumFeature}
-                onClose={() => setPremiumFeature(null)}
+                visible={requestedPremiumFeature !== null}
+                requestedFeature={requestedPremiumFeature?.label ?? null}
+                onClose={() => {
+                    setRequestedPremiumFeature(null);
+                }}
                 onUnlock={() => {
-                    console.log("Premium purchase will start here later.", premiumFeature);
+                    if (!requestedPremiumFeature) {
+                        return;
+                    }
+
+                    setDevelopmentPremium(true);
+
+                    if (requestedPremiumFeature.type === "mode") {
+                        setColourMode(requestedPremiumFeature.id);
+                    } else {
+                        setAccentColour(requestedPremiumFeature.id);
+                    }
+
+                    setRequestedPremiumFeature(null);
                 }}
             />
         </ScrollView>
