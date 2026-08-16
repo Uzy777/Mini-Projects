@@ -1,9 +1,10 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState } from "react";
 
 import type { ReactNode } from "react";
 
 type PremiumContextValue = {
     hasPremium: boolean;
+    setDevelopmentPremium: (hasPremium: boolean) => void;
 };
 
 const PremiumContext = createContext<PremiumContextValue | undefined>(undefined);
@@ -13,14 +14,21 @@ type PremiumProviderProps = {
 };
 
 export function PremiumProvider({ children }: PremiumProviderProps) {
-    // Development value for now.
-    // RevenueCat will replace this later.
-    const hasPremium = false;
+    const [hasPremium, setHasPremium] = useState(false);
+
+    function setDevelopmentPremium(value: boolean) {
+        if (!__DEV__) {
+            return;
+        }
+
+        setHasPremium(value);
+    }
 
     return (
         <PremiumContext.Provider
             value={{
                 hasPremium,
+                setDevelopmentPremium,
             }}
         >
             {children}
