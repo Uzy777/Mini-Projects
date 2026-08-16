@@ -142,6 +142,8 @@ function RootNavigator() {
                     }}
                 />
 
+                <Stack.Screen name="premium" options={{ title: "Premium" }} />
+
                 <Stack.Screen
                     name="appearance"
                     options={{

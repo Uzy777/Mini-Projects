@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Pressable } from "react-native";
 
 import { Check, Crown } from "lucide-react-native";
 
@@ -7,15 +7,18 @@ import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { usePremium } from "@/contexts/PremiumContext";
+import { useRouter } from "expo-router";
 
 export function PremiumStatusCard() {
+    const router = useRouter();
+
     const { colours } = useAppearance();
     const { hasPremium } = usePremium();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
 
     return (
-        <View style={styles.card}>
+        <Pressable style={({ pressed }) => [styles.card, pressed && styles.cardPressed]} onPress={() => router.push("/premium")}>
             <View style={styles.headerRow}>
                 <View style={styles.iconContainer}>
                     <Crown size={20} color={colours.primary} />
@@ -35,7 +38,7 @@ export function PremiumStatusCard() {
                     <Text style={[styles.statusText, hasPremium && styles.premiumStatusText]}>{hasPremium ? "Premium" : "Free"}</Text>
                 </View>
             </View>
-        </View>
+        </Pressable>
     );
 }
 
@@ -120,6 +123,9 @@ function createStyles(colours: AppColours) {
 
         premiumStatusText: {
             color: colours.primary,
+        },
+        cardPressed: {
+            opacity: 0.75,
         },
     });
 }
