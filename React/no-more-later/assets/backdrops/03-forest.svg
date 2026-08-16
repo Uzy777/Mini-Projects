@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+    width="1080" height="1920" viewBox="0 0 1080 1920"
+    fill="none" color="#4f46e5">
+  <defs>
+    <linearGradient id="mistA" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="currentColor" stop-opacity="0"/>
+      <stop offset="0.25" stop-color="currentColor" stop-opacity="0.08"/>
+      <stop offset="0.55" stop-color="currentColor" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="currentColor" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="mistB" x1="1" y1="0" x2="0" y2="0">
+      <stop offset="0" stop-color="currentColor" stop-opacity="0"/>
+      <stop offset="0.35" stop-color="currentColor" stop-opacity="0.07"/>
+      <stop offset="0.7" stop-color="currentColor" stop-opacity="0.1"/>
+      <stop offset="1" stop-color="currentColor" stop-opacity="0"/>
+    </linearGradient>
+
+    <symbol id="pine" viewBox="0 0 90 220">
+      <path d="M45 0L18 52H31L8 93H26L0 142H25L9 177H37V220H53V177H81L65 142H90L64 93H82L59 52H72L45 0Z"
+            fill="currentColor"/>
+    </symbol>
+
+    <symbol id="pine-soft" viewBox="0 0 90 220">
+      <path d="M45 0C40 20 32 37 18 57H31C25 68 17 81 8 95H26C20 108 11 123 0 143H25C20 154 14 166 9 177H37V220H53V177H81C76 166 70 154 65 143H90C79 123 70 108 64 95H82C73 81 65 68 59 57H72C58 37 50 20 45 0Z"
+            fill="currentColor"/>
+    </symbol>
+  </defs>
+
+  <!-- Distant mountain layers: deliberately faint so app UI stays dominant -->
+  <path d="M0 1005L130 900L230 940L355 795L480 930L610 835L735 905L860 760L1080 985V1215H0V1005Z"
+        fill="currentColor" opacity="0.045"/>
+  <path d="M0 1090L175 960L285 1018L430 900L565 1010L710 920L840 1005L960 895L1080 990V1255H0V1090Z"
+        fill="currentColor" opacity="0.065"/>
+  <path d="M0 1170L140 1080L275 1115L410 1030L555 1120L680 1050L840 1130L980 1045L1080 1110V1320H0V1170Z"
+        fill="currentColor" opacity="0.085"/>
+
+  <!-- Atmospheric mist -->
+  <path d="M-120 1050C120 980 310 1095 530 1038C745 982 895 920 1210 1015V1135C910 1060 760 1122 535 1175C320 1226 90 1128-120 1200V1050Z"
+        fill="url(#mistA)"/>
+  <path d="M-90 1210C150 1145 300 1240 510 1198C735 1153 900 1090 1160 1170V1290C900 1220 760 1280 525 1320C315 1355 115 1275-90 1340V1210Z"
+        fill="url(#mistB)"/>
+
+  <!-- Mid-distance forest ridges -->
+  <path d="M0 1345C140 1265 275 1295 390 1248C510 1198 640 1245 760 1210C870 1178 960 1205 1080 1155V1510H0V1345Z"
+        fill="currentColor" opacity="0.075"/>
+  <path d="M0 1455C120 1380 250 1405 375 1360C510 1312 630 1362 770 1315C905 1270 980 1312 1080 1265V1585H0V1455Z"
+        fill="currentColor" opacity="0.105"/>
+
+  <!-- Mid forest -->
+  <g opacity="0.13">
+    <use href="#pine-soft" x="25" y="1220" width="95" height="232"/>
+    <use href="#pine-soft" x="110" y="1260" width="78" height="191"/>
+    <use href="#pine-soft" x="190" y="1205" width="105" height="257"/>
+    <use href="#pine-soft" x="300" y="1285" width="70" height="171"/>
+    <use href="#pine-soft" x="365" y="1235" width="88" height="215"/>
+    <use href="#pine-soft" x="455" y="1295" width="72" height="176"/>
+    <use href="#pine-soft" x="520" y="1220" width="100" height="244"/>
+    <use href="#pine-soft" x="625" y="1275" width="76" height="186"/>
+    <use href="#pine-soft" x="700" y="1218" width="97" height="237"/>
+    <use href="#pine-soft" x="800" y="1280" width="73" height="178"/>
+    <use href="#pine-soft" x="865" y="1200" width="108" height="264"/>
+    <use href="#pine-soft" x="970" y="1250" width="86" height="210"/>
+  </g>
+
+  <!-- Quiet central opening behind cards -->
+  <path d="M185 1395C320 1350 425 1390 540 1365C660 1338 760 1342 900 1387C770 1422 650 1445 535 1445C410 1445 300 1428 185 1395Z"
+        fill="currentColor" opacity="0.035"/>
+
+  <!-- Stronger lower forest -->
+  <g opacity="0.22">
+    <use href="#pine" x="-30" y="1410" width="135" height="330"/>
+    <use href="#pine" x="75" y="1490" width="100" height="244"/>
+    <use href="#pine" x="160" y="1435" width="122" height="298"/>
+    <use href="#pine" x="265" y="1510" width="92" height="225"/>
+    <use href="#pine" x="340" y="1460" width="115" height="281"/>
+    <use href="#pine" x="445" y="1535" width="82" height="200"/>
+    <use href="#pine" x="515" y="1455" width="118" height="288"/>
+    <use href="#pine" x="625" y="1505" width="96" height="234"/>
+    <use href="#pine" x="710" y="1440" width="125" height="306"/>
+    <use href="#pine" x="825" y="1520" width="90" height="220"/>
+    <use href="#pine" x="900" y="1430" width="130" height="318"/>
+    <use href="#pine" x="1010" y="1495" width="105" height="257"/>
+  </g>
+
+  <!-- Foreground side framing: kept away from screen centre -->
+  <path d="M0 0V860C70 820 108 757 133 690C160 617 180 545 238 475C174 505 126 545 85 600C110 510 112 422 97 330C65 390 39 445 0 483V0Z"
+        fill="currentColor" opacity="0.16"/>
+  <path d="M1080 430C1035 488 1014 565 1005 640C980 600 947 570 905 548C945 610 962 675 966 748C930 712 890 688 848 673C901 744 941 815 962 900C1008 855 1045 800 1080 742V430Z"
+        fill="currentColor" opacity="0.13"/>
+
+  <!-- Bottom ground and foliage -->
+  <path d="M0 1690C130 1645 245 1668 350 1710C470 1758 620 1762 760 1715C890 1670 985 1665 1080 1708V1920H0V1690Z"
+        fill="currentColor" opacity="0.24"/>
+  <path d="M0 1820C80 1785 145 1780 215 1815C285 1850 350 1840 405 1805C365 1855 310 1885 255 1920H0V1820Z"
+        fill="currentColor" opacity="0.32"/>
+  <path d="M1080 1790C1005 1765 940 1775 875 1818C825 1850 770 1852 720 1828C770 1872 835 1900 895 1920H1080V1790Z"
+        fill="currentColor" opacity="0.3"/>
+
+  <!-- Minimal grasses / leaf clusters -->
+  <g stroke="currentColor" stroke-width="8" stroke-linecap="round" opacity="0.28">
+    <path d="M70 1840C85 1795 100 1760 112 1722"/>
+    <path d="M92 1845C122 1805 144 1775 171 1750"/>
+    <path d="M1010 1848C998 1807 985 1772 970 1735"/>
+    <path d="M990 1852C960 1815 940 1785 912 1758"/>
+  </g>
+
+  <g fill="currentColor" opacity="0.26">
+    <ellipse cx="114" cy="1778" rx="17" ry="8" transform="rotate(-35 114 1778)"/>
+    <ellipse cx="151" cy="1780" rx="18" ry="8" transform="rotate(28 151 1780)"/>
+    <ellipse cx="968" cy="1788" rx="17" ry="8" transform="rotate(34 968 1788)"/>
+    <ellipse cx="930" cy="1790" rx="18" ry="8" transform="rotate(-28 930 1790)"/>
+  </g>
+
+  <!-- Tiny birds high enough not to compete with UI -->
+  <g stroke="currentColor" stroke-width="6" stroke-linecap="round" opacity="0.15">
+    <path d="M720 560Q736 545 752 560Q768 545 784 560"/>
+    <path d="M790 610Q803 598 816 610Q829 598 842 610"/>
+  </g>
+</svg>

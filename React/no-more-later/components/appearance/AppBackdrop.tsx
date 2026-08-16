@@ -1,8 +1,8 @@
-import { useMemo } from "react";
-import { StyleSheet, View } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 
-import type { AppColours } from "@/constants/appearanceColours";
+import { BACKDROP_IMAGES } from "@/constants/backdropImages";
 import { useAppearance } from "@/contexts/AppearanceContext";
+
 import type { BackdropId } from "@/types/appearance";
 
 type AppBackdropProps = {
@@ -15,102 +15,55 @@ export function AppBackdrop({ backdropOverride, preview = false }: AppBackdropPr
 
     const activeBackdrop = backdropOverride ?? backdrop;
 
-    const styles = useMemo(() => createStyles(colours, resolvedColourMode, preview), [colours, resolvedColourMode, preview]);
-
     if (activeBackdrop === "none") {
         return null;
     }
 
-    if (activeBackdrop === "hills") {
-        return (
-            <View pointerEvents="none" style={styles.container}>
-                <View style={styles.hillBack} />
-                <View style={styles.hillMiddle} />
-                <View style={styles.hillFront} />
-            </View>
-        );
-    }
+    const imageOpacity = preview ? 0.8 : resolvedColourMode === "light" ? 0.3 : resolvedColourMode === "dark" ? 0.22 : 0.16;
 
-    return null;
+    const accentOpacity = preview ? 0.16 : resolvedColourMode === "light" ? 0.1 : resolvedColourMode === "dark" ? 0.12 : 0.08;
+
+    return (
+        <View pointerEvents="none" style={styles.container}>
+            <Image
+                source={BACKDROP_IMAGES[activeBackdrop]}
+                resizeMode="cover"
+                style={[
+                    styles.image,
+                    {
+                        opacity: imageOpacity,
+                    },
+                ]}
+            />
+
+            <View
+                style={[
+                    styles.accentOverlay,
+                    {
+                        backgroundColor: colours.primary,
+                        opacity: accentOpacity,
+                    },
+                ]}
+            />
+        </View>
+    );
 }
 
-type ResolvedMode = "light" | "dark" | "amoled";
+const styles = StyleSheet.create({
+    container: {
+        ...StyleSheet.absoluteFillObject,
 
-function createStyles(colours: AppColours, resolvedColourMode: ResolvedMode, preview: boolean) {
-    const isLight = resolvedColourMode === "light";
+        overflow: "hidden",
+    },
 
-    const isAmoled = resolvedColourMode === "amoled";
+    image: {
+        ...StyleSheet.absoluteFillObject,
 
-    return StyleSheet.create({
-        container: {
-            ...StyleSheet.absoluteFillObject,
+        width: "100%",
+        height: "100%",
+    },
 
-            overflow: "hidden",
-        },
-
-        hillBack: {
-            position: "absolute",
-
-            top: preview ? 6 : 115,
-            left: "-20%",
-
-            width: "115%",
-            height: preview ? 70 : 230,
-
-            borderRadius: 999,
-
-            backgroundColor: colours.primarySoft,
-
-            opacity: isLight ? 0.75 : isAmoled ? 0.18 : 0.3,
-
-            transform: [
-                {
-                    rotate: "-7deg",
-                },
-            ],
-        },
-        hillMiddle: {
-            position: "absolute",
-
-            top: preview ? 28 : 170,
-            right: "-28%",
-
-            width: "120%",
-            height: preview ? 65 : 210,
-
-            borderRadius: 999,
-
-            backgroundColor: colours.primary,
-
-            opacity: isLight ? 0.06 : isAmoled ? 0.035 : 0.05,
-
-            transform: [
-                {
-                    rotate: "8deg",
-                },
-            ],
-        },
-
-        hillFront: {
-            position: "absolute",
-
-            top: preview ? 48 : 225,
-            left: "-15%",
-
-            width: "120%",
-            height: preview ? 60 : 200,
-
-            borderRadius: 999,
-
-            backgroundColor: colours.primary,
-
-            opacity: isLight ? 0.035 : isAmoled ? 0.025 : 0.04,
-
-            transform: [
-                {
-                    rotate: "-4deg",
-                },
-            ],
-        },
-    });
-}
+    accentOverlay: {
+        ...StyleSheet.absoluteFillObject,
+    },
+});
