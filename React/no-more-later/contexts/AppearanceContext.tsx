@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useMemo, useState, useEffect } from "react";
 
 import type { ReactNode } from "react";
 
@@ -7,6 +7,7 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import type { AccentColourId, ColourMode, ResolvedColourMode } from "@/types/appearance";
 import { getAppColours } from "@/constants/appearanceColours";
 import type { AppColours } from "@/constants/appearanceColours";
+import { loadAppearancePreferences, saveAppearancePreferences } from "@/services/storage/appearanceStorage";
 
 type AppearanceContextValue = {
     colourMode: ColourMode;
@@ -29,6 +30,45 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
 
     const [colourMode, setColourMode] = useState<ColourMode>("light");
     const [accentColour, setAccentColour] = useState<AccentColourId>("indigo");
+    const [hasLoadedPreferences, setHasLoadedPreferences] = useState(false);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        async function loadPreferences() {
+            const preferences = await loadAppearancePreferences();
+
+            if (!isMounted) {
+                return;
+            }
+
+            if (preferences) {
+                setColourMode(preferences.colourMode);
+                setAccentColour(preferences.accentColour);
+            }
+
+            setHasLoadedPreferences(true);
+        }
+
+        loadPreferences();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!hasLoadedPreferences) {
+            return;
+        }
+
+        saveAppearancePreferences({
+            colourMode,
+            accentColour,
+        }).catch((error) => {
+            console.error("Failed to save appearance preferences:", error);
+        });
+    }, [colourMode, accentColour, hasLoadedPreferences]);
 
     const resolvedColourMode = useMemo<ResolvedColourMode>(() => {
         if (colourMode === "system") {

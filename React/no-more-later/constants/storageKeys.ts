@@ -6,6 +6,8 @@ export const TOTAL_XP_STORAGE_KEY = "no-more-later-total-xp";
 
 export const ACTIVE_FOCUS_SESSION_STORAGE_KEY = "no-more-later-active-focus-session";
 
+export const APPEARANCE_STORAGE_KEY = "@no-more-later/appearance";
+
 export function getQuestsStorageKey(journeyId: string) {
     return `no-more-later-quests-${journeyId}`;
 }
