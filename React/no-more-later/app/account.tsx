@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { signOut } from "@/services/auth/authService";
 import { useMemo } from "react";
 import { DevelopmentPremiumControls } from "@/components/premium/DevelopmentPremiumControls";
+import { PremiumStatusCard } from "@/components/premium/PremiumStatusCard";
 
 export default function AccountScreen() {
     const { session, profile } = useAuth();
@@ -48,6 +49,12 @@ export default function AccountScreen() {
                 </View>
             </View>
 
+            <View style={styles.section}>
+                <Text style={styles.sectionLabel}>PLAN</Text>
+
+                <PremiumStatusCard />
+            </View>
+            
             <View style={styles.section}>
                 <Text style={styles.sectionLabel}>SETTINGS</Text>
 
