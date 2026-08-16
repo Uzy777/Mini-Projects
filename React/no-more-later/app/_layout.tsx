@@ -10,16 +10,19 @@ import "react-native-reanimated";
 import { AUTH_COLOURS } from "@/constants/appearanceColours";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AppearanceProvider, useAppearance } from "@/contexts/AppearanceContext";
+import { PremiumProvider } from "@/contexts/PremiumContext";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
     return (
-        <AppearanceProvider>
-            <AuthProvider>
-                <AppShell />
-            </AuthProvider>
-        </AppearanceProvider>
+        <AuthProvider>
+            <PremiumProvider>
+                <AppearanceProvider>
+                    <AppShell />
+                </AppearanceProvider>
+            </PremiumProvider>
+        </AuthProvider>
     );
 }
 

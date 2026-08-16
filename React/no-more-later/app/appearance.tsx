@@ -1,15 +1,17 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Stack } from "expo-router";
-import { Check } from "lucide-react-native";
+import { Check, LockKeyhole } from "lucide-react-native";
 
 import { ACCENT_COLOUR_OPTIONS, COLOUR_MODE_OPTIONS } from "@/constants/appearance";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useMemo } from "react";
 import type { AppColours } from "@/constants/appearanceColours";
+import { usePremium } from "@/contexts/PremiumContext";
 
 export default function AppearanceScreen() {
     const { colourMode, accentColour, colours, setColourMode, setAccentColour } = useAppearance();
+    const { hasPremium } = usePremium();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
 
@@ -31,17 +33,33 @@ export default function AppearanceScreen() {
                 <View style={styles.modeCard}>
                     {COLOUR_MODE_OPTIONS.map((option, index) => {
                         const isSelected = option.id === colourMode;
+                        const isLocked = option.requiresPremium && !hasPremium;
 
                         return (
                             <View key={option.id}>
-                                <Pressable style={({ pressed }) => [styles.modeRow, pressed && styles.optionPressed]} onPress={() => setColourMode(option.id)}>
-                                    <View style={[styles.radio, isSelected && styles.radioSelected]}>{isSelected && <View style={styles.radioDot} />}</View>
+                                <Pressable
+                                    style={({ pressed }) => [styles.modeRow, isLocked && styles.lockedOption, pressed && !isLocked && styles.optionPressed]}
+                                    onPress={() => {
+                                        if (isLocked) {
+                                            return;
+                                        }
 
+                                        setColourMode(option.id);
+                                    }}
+                                >
+                                    <View style={[styles.radio, isSelected && styles.radioSelected]}>{isSelected && <View style={styles.radioDot} />}</View>
                                     <View style={styles.modeDetails}>
                                         <Text style={styles.modeName}>{option.name}</Text>
 
                                         <Text style={styles.modeDescription}>{option.description}</Text>
                                     </View>
+                                    {isLocked && (
+                                        <View style={styles.lockBadge}>
+                                            <LockKeyhole size={14} color={colours.textMuted} />
+
+                                            <Text style={styles.lockText}>Premium</Text>
+                                        </View>
+                                    )}
                                 </Pressable>
 
                                 {index < COLOUR_MODE_OPTIONS.length - 1 && <View style={styles.divider} />}
@@ -58,12 +76,23 @@ export default function AppearanceScreen() {
                     <View style={styles.accentGrid}>
                         {ACCENT_COLOUR_OPTIONS.map((option) => {
                             const isSelected = option.id === accentColour;
+                            const isLocked = option.requiresPremium && !hasPremium;
 
                             return (
                                 <Pressable
                                     key={option.id}
-                                    style={({ pressed }) => [styles.accentOption, pressed && styles.accentOptionPressed]}
-                                    onPress={() => setAccentColour(option.id)}
+                                    style={({ pressed }) => [
+                                        styles.accentOption,
+                                        isLocked && styles.lockedAccentOption,
+                                        pressed && !isLocked && styles.accentOptionPressed,
+                                    ]}
+                                    onPress={() => {
+                                        if (isLocked) {
+                                            return;
+                                        }
+
+                                        setAccentColour(option.id);
+                                    }}
                                 >
                                     <View
                                         style={[
@@ -81,11 +110,19 @@ export default function AppearanceScreen() {
                                                 },
                                             ]}
                                         >
-                                            {isSelected && <Check size={16} strokeWidth={3} color="#ffffff" />}
+                                            {isLocked ? (
+                                                <View style={styles.accentLock}>
+                                                    <LockKeyhole size={15} strokeWidth={2.5} color="#ffffff" />
+                                                </View>
+                                            ) : (
+                                                isSelected && <Check size={16} strokeWidth={3} color="#ffffff" />
+                                            )}
                                         </View>
                                     </View>
 
                                     <Text style={[styles.accentName, isSelected && styles.accentNameSelected]}>{option.name}</Text>
+
+                                    {isLocked && <Text style={styles.premiumAccentLabel}>Premium</Text>}
                                 </Pressable>
                             );
                         })}
@@ -263,6 +300,55 @@ function createStyles(colours: AppColours) {
 
         accentOptionPressed: {
             opacity: 0.7,
+        },
+
+        lockedOption: {
+            opacity: 0.6,
+        },
+
+        lockBadge: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.xs,
+
+            paddingHorizontal: spacing.sm,
+            paddingVertical: spacing.xs,
+
+            borderRadius: radius.pill,
+
+            backgroundColor: colours.background,
+        },
+
+        lockText: {
+            fontSize: 10,
+            fontWeight: "700",
+
+            color: colours.textMuted,
+        },
+
+        lockedAccentOption: {
+            opacity: 0.65,
+        },
+
+        accentLock: {
+            width: 26,
+            height: 26,
+
+            alignItems: "center",
+            justifyContent: "center",
+
+            borderRadius: radius.pill,
+
+            backgroundColor: "rgba(0, 0, 0, 0.28)",
+        },
+
+        premiumAccentLabel: {
+            marginTop: 2,
+
+            fontSize: 9,
+            fontWeight: "700",
+
+            color: colours.textMuted,
         },
     });
 }

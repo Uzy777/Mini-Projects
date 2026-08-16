@@ -5,7 +5,7 @@ export const COLOUR_MODE_OPTIONS: ColourModeOption[] = [
         id: "system",
         name: "System",
         description: "Follow your device appearance",
-        requiresPremium: false,
+        requiresPremium: true,
     },
     {
         id: "light",
@@ -17,13 +17,13 @@ export const COLOUR_MODE_OPTIONS: ColourModeOption[] = [
         id: "dark",
         name: "Dark",
         description: "Use a dark appearance",
-        requiresPremium: false,
+        requiresPremium: true,
     },
     {
         id: "amoled",
         name: "AMOLED",
         description: "Use a deep black appearance",
-        requiresPremium: false,
+        requiresPremium: true,
     },
 ];
 
@@ -38,30 +38,30 @@ export const ACCENT_COLOUR_OPTIONS: AccentColourOption[] = [
         id: "blue",
         name: "Blue",
         previewColour: "#2563eb",
-        requiresPremium: false,
+        requiresPremium: true,
     },
     {
         id: "emerald",
         name: "Emerald",
         previewColour: "#059669",
-        requiresPremium: false,
+        requiresPremium: true,
     },
     {
         id: "amber",
         name: "Amber",
         previewColour: "#d97706",
-        requiresPremium: false,
+        requiresPremium: true,
     },
     {
         id: "rose",
         name: "Rose",
         previewColour: "#e11d48",
-        requiresPremium: false,
+        requiresPremium: true,
     },
     {
         id: "violet",
         name: "Violet",
         previewColour: "#7c3aed",
-        requiresPremium: false,
+        requiresPremium: true,
     },
 ];
