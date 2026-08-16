@@ -51,13 +51,17 @@ function canUseAccentColour(accent: AccentColourId, hasPremium: boolean) {
 
 export function AppearanceProvider({ children }: AppearanceProviderProps) {
     const deviceColourScheme = useColorScheme();
-    const { hasPremium } = usePremium();
+    const { hasPremium, isPremiumLoading } = usePremium();
 
     const [colourMode, setColourMode] = useState<ColourMode>("light");
     const [accentColour, setAccentColour] = useState<AccentColourId>("indigo");
     const [hasLoadedPreferences, setHasLoadedPreferences] = useState(false);
 
     useEffect(() => {
+        if (isPremiumLoading) {
+            return;
+        }
+
         let isMounted = true;
 
         async function loadPreferences() {
@@ -132,7 +136,7 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
                 accentColour,
                 resolvedColourMode,
                 colours,
-                isAppearanceLoading: !hasLoadedPreferences,
+                isAppearanceLoading: isPremiumLoading || !hasLoadedPreferences,
                 setColourMode,
                 setAccentColour,
             }}

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 type PremiumContextValue = {
     hasPremium: boolean;
+    isPremiumLoading: boolean;
     setDevelopmentPremium: (hasPremium: boolean) => void;
 };
 
@@ -15,6 +16,7 @@ type PremiumProviderProps = {
 
 export function PremiumProvider({ children }: PremiumProviderProps) {
     const [hasPremium, setHasPremium] = useState(false);
+    const isPremiumLoading = false;
 
     function setDevelopmentPremium(value: boolean) {
         if (!__DEV__) {
@@ -28,6 +30,7 @@ export function PremiumProvider({ children }: PremiumProviderProps) {
         <PremiumContext.Provider
             value={{
                 hasPremium,
+                isPremiumLoading,
                 setDevelopmentPremium,
             }}
         >
