@@ -1,5 +1,5 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { Check, LockKeyhole } from "lucide-react-native";
 
 import { ACCENT_COLOUR_OPTIONS, COLOUR_MODE_OPTIONS } from "@/constants/appearance";
@@ -24,9 +24,11 @@ type RequestedPremiumFeature =
       };
 
 export default function AppearanceScreen() {
+    const router = useRouter();
+
     const { colourMode, accentColour, colours, setColourMode, setAccentColour } = useAppearance();
     const [requestedPremiumFeature, setRequestedPremiumFeature] = useState<RequestedPremiumFeature | null>(null);
-    const { hasPremium, setDevelopmentPremium } = usePremium();
+    const { hasPremium } = usePremium();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
 
@@ -167,19 +169,8 @@ export default function AppearanceScreen() {
                     setRequestedPremiumFeature(null);
                 }}
                 onUnlock={() => {
-                    if (!requestedPremiumFeature) {
-                        return;
-                    }
-
-                    setDevelopmentPremium(true);
-
-                    if (requestedPremiumFeature.type === "mode") {
-                        setColourMode(requestedPremiumFeature.id);
-                    } else {
-                        setAccentColour(requestedPremiumFeature.id);
-                    }
-
                     setRequestedPremiumFeature(null);
+                    router.push("/premium");
                 }}
             />
         </ScrollView>
