@@ -1,4 +1,4 @@
-import type { AccentColourOption, ColourModeOption } from "@/types/appearance";
+import type { AccentColourOption, ColourModeOption, BackdropOption } from "@/types/appearance";
 
 export const COLOUR_MODE_OPTIONS: ColourModeOption[] = [
     {
@@ -62,6 +62,63 @@ export const ACCENT_COLOUR_OPTIONS: AccentColourOption[] = [
         id: "violet",
         name: "Violet",
         previewColour: "#7c3aed",
+        requiresPremium: true,
+    },
+];
+
+export const BACKDROP_OPTIONS: BackdropOption[] = [
+    {
+        id: "none",
+        name: "None",
+        description: "Keep the background clean and minimal.",
+        requiresPremium: false,
+    },
+    {
+        id: "mist",
+        name: "Mist",
+        description: "Soft atmospheric shapes.",
+        requiresPremium: true,
+    },
+    {
+        id: "hills",
+        name: "Hills",
+        description: "Gentle layered rolling hills.",
+        requiresPremium: true,
+    },
+    {
+        id: "forest",
+        name: "Forest",
+        description: "Subtle trees around the background.",
+        requiresPremium: true,
+    },
+    {
+        id: "waves",
+        name: "Waves",
+        description: "Calm flowing background shapes.",
+        requiresPremium: true,
+    },
+    {
+        id: "meadow",
+        name: "Meadow",
+        description: "Light grass and natural scenery.",
+        requiresPremium: true,
+    },
+    {
+        id: "mountains",
+        name: "Mountains",
+        description: "Faint distant mountain silhouettes.",
+        requiresPremium: true,
+    },
+    {
+        id: "leaves",
+        name: "Leaves",
+        description: "Minimal foliage around the edges.",
+        requiresPremium: true,
+    },
+    {
+        id: "sky",
+        name: "Sky",
+        description: "A subtle open-sky atmosphere.",
         requiresPremium: true,
     },
 ];

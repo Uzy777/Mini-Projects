@@ -3,17 +3,25 @@ import { StyleSheet, View } from "react-native";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import type { BackdropId } from "@/types/appearance";
 
-export function AppBackdrop() {
+type AppBackdropProps = {
+    backdropOverride?: BackdropId;
+    preview?: boolean;
+};
+
+export function AppBackdrop({ backdropOverride, preview = false }: AppBackdropProps) {
     const { backdrop, colours, resolvedColourMode } = useAppearance();
 
-    const styles = useMemo(() => createStyles(colours, resolvedColourMode), [colours, resolvedColourMode]);
+    const activeBackdrop = backdropOverride ?? backdrop;
 
-    if (backdrop === "none") {
+    const styles = useMemo(() => createStyles(colours, resolvedColourMode, preview), [colours, resolvedColourMode, preview]);
+
+    if (activeBackdrop === "none") {
         return null;
     }
 
-    if (backdrop === "hills") {
+    if (activeBackdrop === "hills") {
         return (
             <View pointerEvents="none" style={styles.container}>
                 <View style={styles.hillBack} />
@@ -28,7 +36,7 @@ export function AppBackdrop() {
 
 type ResolvedMode = "light" | "dark" | "amoled";
 
-function createStyles(colours: AppColours, resolvedColourMode: ResolvedMode) {
+function createStyles(colours: AppColours, resolvedColourMode: ResolvedMode, preview: boolean) {
     const isLight = resolvedColourMode === "light";
 
     const isAmoled = resolvedColourMode === "amoled";
@@ -43,11 +51,11 @@ function createStyles(colours: AppColours, resolvedColourMode: ResolvedMode) {
         hillBack: {
             position: "absolute",
 
-            top: 115,
+            top: preview ? 6 : 115,
             left: "-20%",
 
             width: "115%",
-            height: 230,
+            height: preview ? 70 : 230,
 
             borderRadius: 999,
 
@@ -61,15 +69,14 @@ function createStyles(colours: AppColours, resolvedColourMode: ResolvedMode) {
                 },
             ],
         },
-
         hillMiddle: {
             position: "absolute",
 
-            top: 170,
+            top: preview ? 28 : 170,
             right: "-28%",
 
             width: "120%",
-            height: 210,
+            height: preview ? 65 : 210,
 
             borderRadius: 999,
 
@@ -87,11 +94,11 @@ function createStyles(colours: AppColours, resolvedColourMode: ResolvedMode) {
         hillFront: {
             position: "absolute",
 
-            top: 225,
+            top: preview ? 48 : 225,
             left: "-15%",
 
             width: "120%",
-            height: 200,
+            height: preview ? 60 : 200,
 
             borderRadius: 999,
 

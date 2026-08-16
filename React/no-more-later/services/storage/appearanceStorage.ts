@@ -15,7 +15,17 @@ function isColourMode(value: unknown): value is ColourMode {
 }
 
 function isBackdropId(value: unknown): value is BackdropId {
-    return value === "none" || value === "mist" || value === "hills" || value === "forest" || value === "waves";
+    return (
+        value === "none" ||
+        value === "mist" ||
+        value === "hills" ||
+        value === "forest" ||
+        value === "waves" ||
+        value === "meadow" ||
+        value === "mountains" ||
+        value === "leaves" ||
+        value === "sky"
+    );
 }
 
 function isAccentColourId(value: unknown): value is AccentColourId {

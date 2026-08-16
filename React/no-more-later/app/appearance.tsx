@@ -2,7 +2,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { Check, LockKeyhole } from "lucide-react-native";
 
-import { ACCENT_COLOUR_OPTIONS, COLOUR_MODE_OPTIONS } from "@/constants/appearance";
+import { ACCENT_COLOUR_OPTIONS, COLOUR_MODE_OPTIONS, BACKDROP_OPTIONS } from "@/constants/appearance";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useMemo, useState } from "react";
@@ -10,6 +10,7 @@ import type { AppColours } from "@/constants/appearanceColours";
 import { usePremium } from "@/contexts/PremiumContext";
 import { PremiumUpsellModal } from "@/components/premium/PremiumUpsellModal";
 import type { AccentColourId, ColourMode } from "@/types/appearance";
+import { AppBackdrop } from "@/components/appearance/AppBackdrop";
 
 type RequestedPremiumFeature =
     | {
@@ -26,7 +27,7 @@ type RequestedPremiumFeature =
 export default function AppearanceScreen() {
     const router = useRouter();
 
-    const { colourMode, accentColour, colours, setColourMode, setAccentColour, setBackdrop } = useAppearance();
+    const { colourMode, accentColour, backdrop, colours, setColourMode, setAccentColour, setBackdrop } = useAppearance();
     const [requestedPremiumFeature, setRequestedPremiumFeature] = useState<RequestedPremiumFeature | null>(null);
     const { hasPremium } = usePremium();
 
@@ -174,9 +175,43 @@ export default function AppearanceScreen() {
                 }}
             />
 
-            <Pressable onPress={() => setBackdrop("hills")}>
-                <Text style={{ color: colours.text }}>Test Hills</Text>
-            </Pressable>
+            <View style={styles.section}>
+                <Text style={styles.sectionLabel}>BACKDROP</Text>
+
+                <Text style={styles.backdropSectionDescription}>Add a subtle background style across the app.</Text>
+
+                <View style={styles.backdropGrid}>
+                    {BACKDROP_OPTIONS.map((option) => {
+                        const isSelected = option.id === backdrop;
+
+                        return (
+                            <Pressable
+                                key={option.id}
+                                style={({ pressed }) => [
+                                    styles.backdropOption,
+
+                                    isSelected && styles.backdropOptionSelected,
+
+                                    pressed && styles.backdropOptionPressed,
+                                ]}
+                                onPress={() => setBackdrop(option.id)}
+                            >
+                                <View style={[styles.backdropPreview, isSelected && styles.backdropPreviewSelected]}>
+                                    <AppBackdrop backdropOverride={option.id} preview />
+
+                                    {isSelected && (
+                                        <View style={styles.backdropCheck}>
+                                            <Check size={13} strokeWidth={3} color="#ffffff" />
+                                        </View>
+                                    )}
+                                </View>
+
+                                <Text style={[styles.backdropName, isSelected && styles.backdropNameSelected]}>{option.name}</Text>
+                            </Pressable>
+                        );
+                    })}
+                </View>
+            </View>
         </ScrollView>
     );
 }
@@ -397,6 +432,123 @@ function createStyles(colours: AppColours) {
             fontWeight: "700",
 
             color: colours.textMuted,
+        },
+
+        backdropCard: {
+            overflow: "hidden",
+
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
+
+            backgroundColor: colours.surface,
+        },
+
+        backdropRow: {
+            flexDirection: "row",
+            alignItems: "center",
+
+            gap: spacing.md,
+
+            padding: spacing.md,
+        },
+
+        backdropDetails: {
+            flex: 1,
+
+            gap: spacing.xs,
+        },
+
+        backdropDescription: {
+            fontSize: 12,
+            lineHeight: 17,
+
+            color: colours.textMuted,
+        },
+        backdropSectionDescription: {
+            marginTop: -spacing.xs,
+
+            fontSize: 12,
+            lineHeight: 18,
+
+            color: colours.textMuted,
+        },
+
+        backdropGrid: {
+            flexDirection: "row",
+            flexWrap: "wrap",
+
+            gap: spacing.md,
+        },
+
+        backdropOption: {
+            width: "47%",
+
+            gap: spacing.sm,
+
+            padding: spacing.sm,
+
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
+
+            backgroundColor: colours.surface,
+        },
+
+        backdropOptionSelected: {
+            borderColor: colours.primary,
+            backgroundColor: colours.primarySoft,
+        },
+
+        backdropOptionPressed: {
+            opacity: 0.75,
+        },
+
+        backdropPreview: {
+            position: "relative",
+
+            height: 90,
+
+            overflow: "hidden",
+
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+
+            backgroundColor: colours.background,
+        },
+
+        backdropPreviewSelected: {
+            borderColor: colours.primaryBorder,
+        },
+
+        backdropCheck: {
+            position: "absolute",
+
+            top: spacing.sm,
+            right: spacing.sm,
+
+            width: 24,
+            height: 24,
+
+            alignItems: "center",
+            justifyContent: "center",
+
+            borderRadius: radius.pill,
+
+            backgroundColor: colours.primary,
+        },
+
+        backdropName: {
+            fontSize: 13,
+            fontWeight: "700",
+            textAlign: "center",
+
+            color: colours.textMuted,
+        },
+
+        backdropNameSelected: {
+            color: colours.primary,
         },
     });
 }

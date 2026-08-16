@@ -18,4 +18,11 @@ export type AccentColourOption = {
 
 export type ResolvedColourMode = "light" | "dark" | "amoled";
 
-export type BackdropId = "none" | "mist" | "hills" | "forest" | "waves";
+export type BackdropId = "none" | "mist" | "hills" | "forest" | "waves" | "meadow" | "mountains" | "leaves" | "sky";
+
+export type BackdropOption = {
+    id: BackdropId;
+    name: string;
+    description: string;
+    requiresPremium: boolean;
+};
