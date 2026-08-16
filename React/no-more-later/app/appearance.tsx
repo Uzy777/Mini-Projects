@@ -26,7 +26,7 @@ type RequestedPremiumFeature =
 export default function AppearanceScreen() {
     const router = useRouter();
 
-    const { colourMode, accentColour, colours, setColourMode, setAccentColour } = useAppearance();
+    const { colourMode, accentColour, colours, setColourMode, setAccentColour, setBackdrop } = useAppearance();
     const [requestedPremiumFeature, setRequestedPremiumFeature] = useState<RequestedPremiumFeature | null>(null);
     const { hasPremium } = usePremium();
 
@@ -173,6 +173,10 @@ export default function AppearanceScreen() {
                     router.push("/premium");
                 }}
             />
+
+            <Pressable onPress={() => setBackdrop("hills")}>
+                <Text style={{ color: colours.text }}>Test Hills</Text>
+            </Pressable>
         </ScrollView>
     );
 }

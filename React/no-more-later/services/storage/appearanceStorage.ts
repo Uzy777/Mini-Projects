@@ -2,15 +2,20 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { APPEARANCE_STORAGE_KEY } from "@/constants/storageKeys";
 
-import type { AccentColourId, ColourMode } from "@/types/appearance";
+import type { AccentColourId, ColourMode, BackdropId } from "@/types/appearance";
 
 export type AppearancePreferences = {
     colourMode: ColourMode;
     accentColour: AccentColourId;
+    backdrop: BackdropId;
 };
 
 function isColourMode(value: unknown): value is ColourMode {
     return value === "system" || value === "light" || value === "dark" || value === "amoled";
+}
+
+function isBackdropId(value: unknown): value is BackdropId {
+    return value === "none" || value === "mist" || value === "hills" || value === "forest" || value === "waves";
 }
 
 function isAccentColourId(value: unknown): value is AccentColourId {
@@ -34,6 +39,7 @@ export async function loadAppearancePreferences(): Promise<AppearancePreferences
         return {
             colourMode: parsedPreferences.colourMode,
             accentColour: parsedPreferences.accentColour,
+            backdrop: isBackdropId(parsedPreferences.backdrop) ? parsedPreferences.backdrop : "none",
         };
     } catch {
         return null;

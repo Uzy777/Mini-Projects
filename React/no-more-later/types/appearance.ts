@@ -17,3 +17,5 @@ export type AccentColourOption = {
 };
 
 export type ResolvedColourMode = "light" | "dark" | "amoled";
+
+export type BackdropId = "none" | "mist" | "hills" | "forest" | "waves";
