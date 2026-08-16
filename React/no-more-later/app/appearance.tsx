@@ -159,35 +159,6 @@ export default function AppearanceScreen() {
                     </View>
                 </View>
             </View>
-            {__DEV__ && (
-                <View style={styles.section}>
-                    <Text style={styles.sectionLabel}>DEVELOPMENT</Text>
-
-                    <View style={styles.developmentCard}>
-                        <View style={styles.developmentDetails}>
-                            <Text style={styles.developmentTitle}>Premium status</Text>
-
-                            <Text style={styles.developmentDescription}>Simulate free and Premium users while developing.</Text>
-                        </View>
-
-                        <View style={styles.developmentButtons}>
-                            <Pressable
-                                style={[styles.developmentButton, !hasPremium && styles.developmentButtonSelected]}
-                                onPress={() => setDevelopmentPremium(false)}
-                            >
-                                <Text style={[styles.developmentButtonText, !hasPremium && styles.developmentButtonTextSelected]}>Free</Text>
-                            </Pressable>
-
-                            <Pressable
-                                style={[styles.developmentButton, hasPremium && styles.developmentButtonSelected]}
-                                onPress={() => setDevelopmentPremium(true)}
-                            >
-                                <Text style={[styles.developmentButtonText, hasPremium && styles.developmentButtonTextSelected]}>Premium</Text>
-                            </Pressable>
-                        </View>
-                    </View>
-                </View>
-            )}
 
             <PremiumUpsellModal
                 visible={requestedPremiumFeature !== null}
@@ -431,72 +402,6 @@ function createStyles(colours: AppColours) {
             fontWeight: "700",
 
             color: colours.textMuted,
-        },
-
-        developmentCard: {
-            gap: spacing.md,
-
-            padding: spacing.md,
-
-            borderWidth: 1,
-            borderColor: colours.border,
-            borderRadius: radius.lg,
-
-            backgroundColor: colours.surface,
-        },
-
-        developmentDetails: {
-            gap: spacing.xs,
-        },
-
-        developmentTitle: {
-            fontSize: 15,
-            fontWeight: "700",
-
-            color: colours.text,
-        },
-
-        developmentDescription: {
-            fontSize: 12,
-            lineHeight: 18,
-
-            color: colours.textMuted,
-        },
-
-        developmentButtons: {
-            flexDirection: "row",
-            gap: spacing.sm,
-        },
-
-        developmentButton: {
-            flex: 1,
-
-            alignItems: "center",
-            justifyContent: "center",
-
-            minHeight: 40,
-
-            borderWidth: 1,
-            borderColor: colours.border,
-            borderRadius: radius.md,
-
-            backgroundColor: colours.background,
-        },
-
-        developmentButtonSelected: {
-            borderColor: colours.primary,
-            backgroundColor: colours.primarySoft,
-        },
-
-        developmentButtonText: {
-            fontSize: 13,
-            fontWeight: "700",
-
-            color: colours.textMuted,
-        },
-
-        developmentButtonTextSelected: {
-            color: colours.primary,
         },
     });
 }

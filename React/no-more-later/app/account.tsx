@@ -9,6 +9,7 @@ import type { AppColours } from "@/constants/appearanceColours";
 import { useAuth } from "@/contexts/AuthContext";
 import { signOut } from "@/services/auth/authService";
 import { useMemo } from "react";
+import { DevelopmentPremiumControls } from "@/components/premium/DevelopmentPremiumControls";
 
 export default function AccountScreen() {
     const { session, profile } = useAuth();
@@ -78,6 +79,8 @@ export default function AccountScreen() {
                     </Pressable>
                 </View>
             </View>
+
+            <DevelopmentPremiumControls />
 
             <Pressable style={({ pressed }) => [styles.signOutButton, pressed && styles.signOutButtonPressed]} onPress={handleSignOut}>
                 <LogOut size={18} color={colours.danger} />
