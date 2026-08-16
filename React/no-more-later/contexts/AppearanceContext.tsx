@@ -8,6 +8,9 @@ import type { AccentColourId, ColourMode, ResolvedColourMode } from "@/types/app
 import { getAppColours } from "@/constants/appearanceColours";
 import type { AppColours } from "@/constants/appearanceColours";
 import { loadAppearancePreferences, saveAppearancePreferences } from "@/services/storage/appearanceStorage";
+import { usePremium } from "@/contexts/PremiumContext";
+
+import { ACCENT_COLOUR_OPTIONS, COLOUR_MODE_OPTIONS } from "@/constants/appearance";
 
 type AppearanceContextValue = {
     colourMode: ColourMode;
@@ -26,8 +29,29 @@ type AppearanceProviderProps = {
     children: ReactNode;
 };
 
+function canUseColourMode(mode: ColourMode, hasPremium: boolean) {
+    const option = COLOUR_MODE_OPTIONS.find((option) => option.id === mode);
+
+    if (!option) {
+        return false;
+    }
+
+    return !option.requiresPremium || hasPremium;
+}
+
+function canUseAccentColour(accent: AccentColourId, hasPremium: boolean) {
+    const option = ACCENT_COLOUR_OPTIONS.find((option) => option.id === accent);
+
+    if (!option) {
+        return false;
+    }
+
+    return !option.requiresPremium || hasPremium;
+}
+
 export function AppearanceProvider({ children }: AppearanceProviderProps) {
     const deviceColourScheme = useColorScheme();
+    const { hasPremium } = usePremium();
 
     const [colourMode, setColourMode] = useState<ColourMode>("light");
     const [accentColour, setAccentColour] = useState<AccentColourId>("indigo");
@@ -42,10 +66,14 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
             if (!isMounted) {
                 return;
             }
-
             if (preferences) {
-                setColourMode(preferences.colourMode);
-                setAccentColour(preferences.accentColour);
+                const allowedColourMode = canUseColourMode(preferences.colourMode, hasPremium);
+
+                const allowedAccentColour = canUseAccentColour(preferences.accentColour, hasPremium);
+
+                setColourMode(allowedColourMode ? preferences.colourMode : "light");
+
+                setAccentColour(allowedAccentColour ? preferences.accentColour : "indigo");
             }
 
             setHasLoadedPreferences(true);
@@ -56,7 +84,7 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
         return () => {
             isMounted = false;
         };
-    }, []);
+    }, [hasPremium]);
 
     useEffect(() => {
         if (!hasLoadedPreferences) {
@@ -70,6 +98,20 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
             console.error("Failed to save appearance preferences:", error);
         });
     }, [colourMode, accentColour, hasLoadedPreferences]);
+
+    useEffect(() => {
+        if (!hasLoadedPreferences || hasPremium) {
+            return;
+        }
+
+        if (!canUseColourMode(colourMode, hasPremium)) {
+            setColourMode("light");
+        }
+
+        if (!canUseAccentColour(accentColour, hasPremium)) {
+            setAccentColour("indigo");
+        }
+    }, [hasPremium, hasLoadedPreferences, colourMode, accentColour]);
 
     const resolvedColourMode = useMemo<ResolvedColourMode>(() => {
         if (colourMode === "system") {
