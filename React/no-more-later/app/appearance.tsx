@@ -5,12 +5,14 @@ import { Check, LockKeyhole } from "lucide-react-native";
 import { ACCENT_COLOUR_OPTIONS, COLOUR_MODE_OPTIONS } from "@/constants/appearance";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { AppColours } from "@/constants/appearanceColours";
 import { usePremium } from "@/contexts/PremiumContext";
+import { PremiumUpsellModal } from "@/components/premium/PremiumUpsellModal";
 
 export default function AppearanceScreen() {
     const { colourMode, accentColour, colours, setColourMode, setAccentColour } = useAppearance();
+    const [isPremiumModalVisible, setIsPremiumModalVisible] = useState(false);
     const { hasPremium } = usePremium();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -41,6 +43,7 @@ export default function AppearanceScreen() {
                                     style={({ pressed }) => [styles.modeRow, isLocked && styles.lockedOption, pressed && !isLocked && styles.optionPressed]}
                                     onPress={() => {
                                         if (isLocked) {
+                                            setIsPremiumModalVisible(true);
                                             return;
                                         }
 
@@ -88,6 +91,7 @@ export default function AppearanceScreen() {
                                     ]}
                                     onPress={() => {
                                         if (isLocked) {
+                                            setIsPremiumModalVisible(true);
                                             return;
                                         }
 
@@ -129,6 +133,13 @@ export default function AppearanceScreen() {
                     </View>
                 </View>
             </View>
+            <PremiumUpsellModal
+                visible={isPremiumModalVisible}
+                onClose={() => setIsPremiumModalVisible(false)}
+                onUnlock={() => {
+                    console.log("Premium purchase will start here.");
+                }}
+            />
         </ScrollView>
     );
 }
