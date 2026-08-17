@@ -9,7 +9,7 @@ import { useMemo, useState } from "react";
 import type { AppColours } from "@/constants/appearanceColours";
 import { usePremium } from "@/contexts/PremiumContext";
 import { PremiumUpsellModal } from "@/components/premium/PremiumUpsellModal";
-import type { AccentColourId, ColourMode } from "@/types/appearance";
+import type { AccentColourId, ColourMode, BackdropId } from "@/types/appearance";
 import { AppBackdrop } from "@/components/appearance/AppBackdrop";
 
 type RequestedPremiumFeature =
@@ -21,6 +21,11 @@ type RequestedPremiumFeature =
     | {
           type: "accent";
           id: AccentColourId;
+          label: string;
+      }
+    | {
+          type: "backdrop";
+          id: BackdropId;
           label: string;
       };
 
@@ -182,6 +187,8 @@ export default function AppearanceScreen() {
 
                 <View style={styles.backdropGrid}>
                     {BACKDROP_OPTIONS.map((option) => {
+                        const isLocked = option.requiresPremium && !hasPremium;
+
                         const isSelected = option.id === backdrop;
 
                         return (
@@ -192,14 +199,34 @@ export default function AppearanceScreen() {
 
                                     isSelected && styles.backdropOptionSelected,
 
-                                    pressed && styles.backdropOptionPressed,
+                                    isLocked && styles.backdropOptionLocked,
+
+                                    pressed && !isLocked && styles.backdropOptionPressed,
                                 ]}
-                                onPress={() => setBackdrop(option.id)}
+                                onPress={() => {
+                                    if (isLocked) {
+                                        setRequestedPremiumFeature({
+                                            type: "backdrop",
+                                            id: option.id,
+                                            label: `${option.name} backdrop`,
+                                        });
+
+                                        return;
+                                    }
+
+                                    setBackdrop(option.id);
+                                }}
                             >
                                 <View style={[styles.backdropPreview, isSelected && styles.backdropPreviewSelected]}>
                                     <AppBackdrop backdropOverride={option.id} preview />
 
-                                    {isSelected && (
+                                    {isLocked && (
+                                        <View style={styles.backdropLock}>
+                                            <LockKeyhole size={16} strokeWidth={2.5} color="#ffffff" />
+                                        </View>
+                                    )}
+
+                                    {isSelected && !isLocked && (
                                         <View style={styles.backdropCheck}>
                                             <Check size={13} strokeWidth={3} color="#ffffff" />
                                         </View>
@@ -207,6 +234,8 @@ export default function AppearanceScreen() {
                                 </View>
 
                                 <Text style={[styles.backdropName, isSelected && styles.backdropNameSelected]}>{option.name}</Text>
+
+                                {isLocked && <Text style={styles.backdropPremiumLabel}>Premium</Text>}
                             </Pressable>
                         );
                     })}
@@ -549,6 +578,36 @@ function createStyles(colours: AppColours) {
 
         backdropNameSelected: {
             color: colours.primary,
+        },
+        backdropOptionLocked: {
+            opacity: 0.7,
+        },
+
+        backdropLock: {
+            position: "absolute",
+
+            top: spacing.sm,
+            right: spacing.sm,
+
+            width: 28,
+            height: 28,
+
+            alignItems: "center",
+            justifyContent: "center",
+
+            borderRadius: radius.pill,
+
+            backgroundColor: "rgba(0, 0, 0, 0.45)",
+        },
+
+        backdropPremiumLabel: {
+            marginTop: -spacing.xs,
+
+            fontSize: 9,
+            fontWeight: "700",
+            textAlign: "center",
+
+            color: colours.textMuted,
         },
     });
 }

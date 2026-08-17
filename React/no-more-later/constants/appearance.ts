@@ -74,8 +74,8 @@ export const BACKDROP_OPTIONS: BackdropOption[] = [
         requiresPremium: false,
     },
     {
-        id: "mist",
-        name: "Mist",
+        id: "wheat",
+        name: "Wheat",
         description: "Soft atmospheric shapes.",
         requiresPremium: true,
     },
@@ -92,8 +92,8 @@ export const BACKDROP_OPTIONS: BackdropOption[] = [
         requiresPremium: true,
     },
     {
-        id: "waves",
-        name: "Waves",
+        id: "ocean",
+        name: "Ocean",
         description: "Calm flowing background shapes.",
         requiresPremium: true,
     },
@@ -110,8 +110,8 @@ export const BACKDROP_OPTIONS: BackdropOption[] = [
         requiresPremium: true,
     },
     {
-        id: "leaves",
-        name: "Leaves",
+        id: "desert",
+        name: "Desert",
         description: "Minimal foliage around the edges.",
         requiresPremium: true,
     },
@@ -119,6 +119,12 @@ export const BACKDROP_OPTIONS: BackdropOption[] = [
         id: "sky",
         name: "Sky",
         description: "A subtle open-sky atmosphere.",
+        requiresPremium: true,
+    },
+    {
+        id: "jungle",
+        name: "Jungle",
+        description: "A subtle jungle atmosphere.",
         requiresPremium: true,
     },
 ];

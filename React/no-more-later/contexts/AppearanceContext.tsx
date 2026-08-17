@@ -10,7 +10,7 @@ import type { AppColours } from "@/constants/appearanceColours";
 import { loadAppearancePreferences, saveAppearancePreferences } from "@/services/storage/appearanceStorage";
 import { usePremium } from "@/contexts/PremiumContext";
 
-import { ACCENT_COLOUR_OPTIONS, COLOUR_MODE_OPTIONS } from "@/constants/appearance";
+import { ACCENT_COLOUR_OPTIONS, COLOUR_MODE_OPTIONS, BACKDROP_OPTIONS } from "@/constants/appearance";
 
 type AppearanceContextValue = {
     colourMode: ColourMode;
@@ -51,6 +51,16 @@ function canUseAccentColour(accent: AccentColourId, hasPremium: boolean) {
     return !option.requiresPremium || hasPremium;
 }
 
+function canUseBackdrop(backdrop: BackdropId, hasPremium: boolean) {
+    const option = BACKDROP_OPTIONS.find((option) => option.id === backdrop);
+
+    if (!option) {
+        return false;
+    }
+
+    return !option.requiresPremium || hasPremium;
+}
+
 export function AppearanceProvider({ children }: AppearanceProviderProps) {
     const deviceColourScheme = useColorScheme();
     const { hasPremium, isPremiumLoading } = usePremium();
@@ -78,9 +88,11 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
 
                 const allowedAccentColour = canUseAccentColour(preferences.accentColour, hasPremium);
 
+                const allowedBackdrop = canUseBackdrop(preferences.backdrop, hasPremium);
+
                 setColourMode(allowedColourMode ? preferences.colourMode : "light");
                 setAccentColour(allowedAccentColour ? preferences.accentColour : "indigo");
-                setBackdrop(preferences.backdrop);
+                setBackdrop(allowedBackdrop ? preferences.backdrop : "none");
             }
 
             setHasLoadedPreferences(true);
@@ -119,7 +131,11 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
         if (!canUseAccentColour(accentColour, hasPremium)) {
             setAccentColour("indigo");
         }
-    }, [hasPremium, hasLoadedPreferences, colourMode, accentColour]);
+
+        if (!canUseBackdrop(backdrop, hasPremium)) {
+            setBackdrop("none");
+        }
+    }, [hasPremium, hasLoadedPreferences, colourMode, accentColour, backdrop]);
 
     const resolvedColourMode = useMemo<ResolvedColourMode>(() => {
         if (colourMode === "system") {

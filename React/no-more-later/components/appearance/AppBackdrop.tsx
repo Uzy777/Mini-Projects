@@ -9,7 +9,7 @@ type AppBackdropProps = {
     backdropOverride?: BackdropId;
     preview?: boolean;
 };
-
+ 
 export function AppBackdrop({ backdropOverride, preview = false }: AppBackdropProps) {
     const { width, height } = useWindowDimensions();
 

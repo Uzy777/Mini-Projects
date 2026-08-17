@@ -17,14 +17,15 @@ function isColourMode(value: unknown): value is ColourMode {
 function isBackdropId(value: unknown): value is BackdropId {
     return (
         value === "none" ||
-        value === "mist" ||
+        value === "wheat" ||
         value === "hills" ||
         value === "forest" ||
-        value === "waves" ||
+        value === "ocean" ||
         value === "meadow" ||
         value === "mountains" ||
-        value === "leaves" ||
-        value === "sky"
+        value === "desert" ||
+        value === "sky" ||
+        value === "jungle"
     );
 }
 
