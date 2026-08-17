@@ -18,6 +18,7 @@ import { getRemoteQuest } from "@/services/quests/questService";
 import { completeRemoteReview } from "@/services/reviews/reviewService";
 import { LevelUpCelebration } from "@/components/level/LevelUpCelebration";
 import { useMemo } from "react";
+import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 
 export default function ReviewSessionScreen() {
     const { colours } = useAppearance();
@@ -195,80 +196,82 @@ export default function ReviewSessionScreen() {
     }
 
     return (
-        <ScrollView
-            style={styles.screen}
-            contentContainerStyle={styles.contentContainer}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-        >
-            <Stack.Screen
-                options={{
-                    title: "Review",
-                }}
-            />
-
-            {levelUpDetails && (
-                <LevelUpCelebration
-                    previousLevel={levelUpDetails.previousLevel}
-                    newLevel={levelUpDetails.newLevel}
-                    earnedXp={levelUpDetails.earnedXp}
-                    onContinue={handleCloseLevelUpCelebration}
+        <AppScreenBackground>
+            <ScrollView
+                style={styles.scrollView}
+                contentContainerStyle={styles.contentContainer}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+            >
+                <Stack.Screen
+                    options={{
+                        title: "Review",
+                    }}
                 />
-            )}
 
-            <View style={styles.header}>
-                <Text style={styles.label}>SESSION REVIEW</Text>
-
-                <Text style={styles.title}>{questTitle ?? "Untitled Quest"}</Text>
-
-                <View style={styles.sessionBadge}>
-                    <Text style={styles.sessionLength}>{plannedMinutes ?? "0"} minute Focus Session</Text>
-                </View>
-            </View>
-
-            {earnedXp !== null && totalXp !== null ? (
-                <ReviewResultCard
-                    earnedXp={earnedXp}
-                    totalXp={totalXp}
-                    reachedLevel={reachedLevel}
-                    onReturnToJourneys={handleReturnToJourneys}
-                    onViewHistory={handleViewHistory}
-                />
-            ) : (
-                <View style={styles.reviewSections}>
-                    <SessionOutcomeSelector selectedOutcome={selectedOutcome} onSelectOutcome={handleSelectOutcome} />
-
-                    {selectedOutcome === "completed" && questDoneWhen && (
-                        <View style={styles.finishLineCard}>
-                            <Text style={styles.finishLineLabel}>YOUR FINISH LINE</Text>
-
-                            <Text style={styles.finishLineDescription}>You said this Quest would be complete when:</Text>
-
-                            <Text style={styles.finishLineText}>{questDoneWhen}</Text>
-
-                            <Pressable style={styles.confirmationRow} onPress={() => setFinishLineConfirmed((currentValue) => !currentValue)}>
-                                <View style={[styles.checkbox, finishLineConfirmed && styles.checkboxConfirmed]}>
-                                    {finishLineConfirmed && <Text style={styles.checkmark}>✓</Text>}
-                                </View>
-
-                                <Text style={styles.confirmationText}>I genuinely met this finish line.</Text>
-                            </Pressable>
-                        </View>
-                    )}
-
-                    <ReviewForm
-                        accomplishment={accomplishment}
-                        nextAction={nextAction}
-                        showNextAction={showNextAction}
-                        errorMessage={validationMessage}
-                        onChangeAccomplishment={setAccomplishment}
-                        onChangeNextAction={setNextAction}
-                        isSubmitting={isSubmitting}
-                        onSubmit={handleCompleteReview}
+                {levelUpDetails && (
+                    <LevelUpCelebration
+                        previousLevel={levelUpDetails.previousLevel}
+                        newLevel={levelUpDetails.newLevel}
+                        earnedXp={levelUpDetails.earnedXp}
+                        onContinue={handleCloseLevelUpCelebration}
                     />
+                )}
+
+                <View style={styles.header}>
+                    <Text style={styles.label}>SESSION REVIEW</Text>
+
+                    <Text style={styles.title}>{questTitle ?? "Untitled Quest"}</Text>
+
+                    <View style={styles.sessionBadge}>
+                        <Text style={styles.sessionLength}>{plannedMinutes ?? "0"} minute Focus Session</Text>
+                    </View>
                 </View>
-            )}
-        </ScrollView>
+
+                {earnedXp !== null && totalXp !== null ? (
+                    <ReviewResultCard
+                        earnedXp={earnedXp}
+                        totalXp={totalXp}
+                        reachedLevel={reachedLevel}
+                        onReturnToJourneys={handleReturnToJourneys}
+                        onViewHistory={handleViewHistory}
+                    />
+                ) : (
+                    <View style={styles.reviewSections}>
+                        <SessionOutcomeSelector selectedOutcome={selectedOutcome} onSelectOutcome={handleSelectOutcome} />
+
+                        {selectedOutcome === "completed" && questDoneWhen && (
+                            <View style={styles.finishLineCard}>
+                                <Text style={styles.finishLineLabel}>YOUR FINISH LINE</Text>
+
+                                <Text style={styles.finishLineDescription}>You said this Quest would be complete when:</Text>
+
+                                <Text style={styles.finishLineText}>{questDoneWhen}</Text>
+
+                                <Pressable style={styles.confirmationRow} onPress={() => setFinishLineConfirmed((currentValue) => !currentValue)}>
+                                    <View style={[styles.checkbox, finishLineConfirmed && styles.checkboxConfirmed]}>
+                                        {finishLineConfirmed && <Text style={styles.checkmark}>✓</Text>}
+                                    </View>
+
+                                    <Text style={styles.confirmationText}>I genuinely met this finish line.</Text>
+                                </Pressable>
+                            </View>
+                        )}
+
+                        <ReviewForm
+                            accomplishment={accomplishment}
+                            nextAction={nextAction}
+                            showNextAction={showNextAction}
+                            errorMessage={validationMessage}
+                            onChangeAccomplishment={setAccomplishment}
+                            onChangeNextAction={setNextAction}
+                            isSubmitting={isSubmitting}
+                            onSubmit={handleCompleteReview}
+                        />
+                    </View>
+                )}
+            </ScrollView>
+        </AppScreenBackground>
     );
 }
 
@@ -392,6 +395,10 @@ function createStyles(colours: AppColours) {
             lineHeight: 20,
             fontWeight: "600",
             color: colours.text,
+        },
+        scrollView: {
+            flex: 1,
+            backgroundColor: "transparent",
         },
     });
 }

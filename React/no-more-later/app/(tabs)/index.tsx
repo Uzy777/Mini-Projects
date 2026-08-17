@@ -21,6 +21,7 @@ import { getRemoteTotalXp, getRemoteFocusSessions } from "@/services/focusSessio
 import { TOTAL_XP_STORAGE_KEY } from "@/constants/storageKeys";
 import { useMemo } from "react";
 import { AppBackdrop } from "@/components/appearance/AppBackdrop";
+import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 
 export default function HomeScreen() {
     const router = useRouter();
@@ -194,44 +195,44 @@ export default function HomeScreen() {
 
     return (
         <View style={styles.screen}>
-            <AppBackdrop />
+            <AppScreenBackground>
+                <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+                    <View style={styles.contentSections}>
+                        <HomeHeader currentStreak={currentStreak} displayName={profile?.display_name ?? null} onPressMenu={handleOpenMenu} />
 
-            <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-                <View style={styles.contentSections}>
-                    <HomeHeader currentStreak={currentStreak} displayName={profile?.display_name ?? null} onPressMenu={handleOpenMenu} />
-
-                    {/* <Pressable style={styles.signOutButton} onPress={handleSignOut}>
+                        {/* <Pressable style={styles.signOutButton} onPress={handleSignOut}>
                     <Text style={styles.signOutButtonText}>Sign out</Text>
                 </Pressable> */}
 
-                    <LevelProgressCard
-                        level={level}
-                        xpIntoLevel={xpIntoLevel}
-                        xpRequired={xpRequired}
-                        currentStreak={currentStreak}
-                        totalFocusedSeconds={totalFocusedSeconds}
-                        totalXp={totalXp}
-                    />
-
-                    {/* <TodaySummaryCard sessionCount={todaySessionCount} focusedMinutes={todayFocusedMinutes} /> */}
-
-                    {activeSession && activeSessionStatus ? (
-                        <ActiveFocusSessionCard questTitle={activeSession.questTitle} status={activeSessionStatus} onReturn={handleReturnToActiveSession} />
-                    ) : latestUnfinishedSession ? (
-                        <ContinueQuestCard
-                            questTitle={latestUnfinishedSession.questTitle}
-                            nextAction={latestUnfinishedSession.nextAction}
-                            onContinue={handleContinueQuest}
+                        <LevelProgressCard
+                            level={level}
+                            xpIntoLevel={xpIntoLevel}
+                            xpRequired={xpRequired}
+                            currentStreak={currentStreak}
+                            totalFocusedSeconds={totalFocusedSeconds}
+                            totalXp={totalXp}
                         />
-                    ) : null}
 
-                    {!activeSession && (
-                        <Pressable style={styles.startButton} onPress={handleStartSession}>
-                            <Text style={styles.startButtonText}>Start a focus session</Text>
-                        </Pressable>
-                    )}
-                </View>
-            </ScrollView>
+                        {/* <TodaySummaryCard sessionCount={todaySessionCount} focusedMinutes={todayFocusedMinutes} /> */}
+
+                        {activeSession && activeSessionStatus ? (
+                            <ActiveFocusSessionCard questTitle={activeSession.questTitle} status={activeSessionStatus} onReturn={handleReturnToActiveSession} />
+                        ) : latestUnfinishedSession ? (
+                            <ContinueQuestCard
+                                questTitle={latestUnfinishedSession.questTitle}
+                                nextAction={latestUnfinishedSession.nextAction}
+                                onContinue={handleContinueQuest}
+                            />
+                        ) : null}
+
+                        {!activeSession && (
+                            <Pressable style={styles.startButton} onPress={handleStartSession}>
+                                <Text style={styles.startButtonText}>Start a focus session</Text>
+                            </Pressable>
+                        )}
+                    </View>
+                </ScrollView>
+            </AppScreenBackground>
         </View>
     );
 }

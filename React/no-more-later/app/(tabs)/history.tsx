@@ -12,6 +12,7 @@ import type { AppColours } from "@/constants/appearanceColours";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteFocusSessions } from "@/services/focusSessions/focusSessionService";
 import { useMemo } from "react";
+import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 
 export default function HistoryScreen() {
     const { colours } = useAppearance();
@@ -50,41 +51,38 @@ export default function HistoryScreen() {
     );
 
     return (
-        <View style={styles.screen}>
-            <FlatList
-                data={sessions}
-                keyExtractor={(session) => session.id}
-                renderItem={({ item }) => <FocusSessionHistoryCard session={item} />}
-                style={styles.list}
-                contentContainerStyle={styles.contentContainer}
-                showsVerticalScrollIndicator={false}
-                ItemSeparatorComponent={() => <View style={styles.separator} />}
-                ListHeaderComponent={
-                    <View style={styles.header}>
-                        <Text style={styles.title}>History</Text>
+        <AppScreenBackground>
+            <View style={styles.scrollView}>
+                <FlatList
+                    data={sessions}
+                    keyExtractor={(session) => session.id}
+                    renderItem={({ item }) => <FocusSessionHistoryCard session={item} />}
+                    style={styles.list}
+                    contentContainerStyle={styles.contentContainer}
+                    showsVerticalScrollIndicator={false}
+                    ItemSeparatorComponent={() => <View style={styles.separator} />}
+                    ListHeaderComponent={
+                        <View style={styles.header}>
+                            <Text style={styles.title}>History</Text>
 
-                        <Text style={styles.description}>Review the focused progress you have made.</Text>
-                    </View>
-                }
-                ListEmptyComponent={
-                    <View style={styles.emptyState}>
-                        <Text style={styles.emptyTitle}>No Focus Sessions yet</Text>
+                            <Text style={styles.description}>Review the focused progress you have made.</Text>
+                        </View>
+                    }
+                    ListEmptyComponent={
+                        <View style={styles.emptyState}>
+                            <Text style={styles.emptyTitle}>No Focus Sessions yet</Text>
 
-                        <Text style={styles.emptyDescription}>Complete a Focus Session and its Review to see it here.</Text>
-                    </View>
-                }
-            />
-        </View>
+                            <Text style={styles.emptyDescription}>Complete a Focus Session and its Review to see it here.</Text>
+                        </View>
+                    }
+                />
+            </View>
+        </AppScreenBackground>
     );
 }
 
 function createStyles(colours: AppColours) {
     return StyleSheet.create({
-        screen: {
-            flex: 1,
-            backgroundColor: colours.background,
-        },
-
         list: {
             flex: 1,
         },
@@ -145,6 +143,10 @@ function createStyles(colours: AppColours) {
             lineHeight: 20,
             color: colours.textMuted,
             textAlign: "center",
+        },
+        scrollView: {
+            flex: 1,
+            backgroundColor: "transparent",
         },
     });
 }

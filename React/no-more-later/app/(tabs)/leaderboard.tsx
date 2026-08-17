@@ -12,6 +12,7 @@ import { getFocusRank } from "@/utils/rank";
 import { RankBadge } from "@/components/ranks/RankBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMemo } from "react";
+import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 
 export default function LeaderboardScreen() {
     const { colours } = useAppearance();
@@ -54,126 +55,123 @@ export default function LeaderboardScreen() {
     const myRank = myLevel !== null ? getFocusRank(myLevel) : null;
 
     return (
-        <ScrollView
-            style={styles.screen}
-            contentContainerStyle={styles.container}
-            refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadLeaderboard} tintColor={colours.primary} colors={[colours.primary]} />}
-        >
-            <View style={styles.header}>
-                <Text style={styles.title}>Leaderboard</Text>
-                <Text style={styles.subtitle}>Top 25 focused users</Text>
-            </View>
-            <View style={styles.leaderboardCard}>
-                {myPosition && myPosition.leaderboard_position > 25 && myLevel !== null && (
-                    <View style={styles.myPositionSection}>
-                        <Text style={styles.sectionLabel}>YOUR POSITION</Text>
+        <AppScreenBackground>
+            <ScrollView
+                style={styles.scrollView}
+                contentContainerStyle={styles.container}
+                refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadLeaderboard} tintColor={colours.primary} colors={[colours.primary]} />}
+            >
+                <View style={styles.header}>
+                    <Text style={styles.title}>Leaderboard</Text>
+                    <Text style={styles.subtitle}>Top 25 focused users</Text>
+                </View>
+                <View style={styles.leaderboardCard}>
+                    {myPosition && myPosition.leaderboard_position > 25 && myLevel !== null && (
+                        <View style={styles.myPositionSection}>
+                            <Text style={styles.sectionLabel}>YOUR POSITION</Text>
 
-                        <View style={styles.myPositionCard}>
-                            <View style={styles.positionContainer}>
-                                <Text style={styles.position}>{myPosition.leaderboard_position}</Text>
-                            </View>
-
-                            <RankBadge level={myLevel} />
-
-                            <View style={styles.userInfo}>
-                                <View style={styles.nameRow}>
-                                    <Text style={styles.name}>{myPosition.display_name}</Text>
-
-                                    <View style={styles.youBadge}>
-                                        <Text style={styles.youBadgeText}>You</Text>
-                                    </View>
+                            <View style={styles.myPositionCard}>
+                                <View style={styles.positionContainer}>
+                                    <Text style={styles.position}>{myPosition.leaderboard_position}</Text>
                                 </View>
 
-                                <Text style={styles.details}>
-                                    Level {myLevel}
-                                    {myRank ? ` · ${myRank.name}` : ""}
-                                </Text>
-                            </View>
-
-                            <Text style={styles.xp}>{myPosition.total_xp} XP</Text>
-                        </View>
-                    </View>
-                )}
-                {isLoading ? (
-                    <View style={styles.messageContainer}>
-                        <Text style={styles.messageText}>Loading leaderboard...</Text>
-                    </View>
-                ) : errorMessage ? (
-                    <View style={styles.messageContainer}>
-                        <Text style={styles.errorText}>{errorMessage}</Text>
-                    </View>
-                ) : leaderboard.length === 0 ? (
-                    <View style={styles.messageContainer}>
-                        <Text style={styles.messageText}>No leaderboard entries yet.</Text>
-                    </View>
-                ) : (
-                    leaderboard.map((entry, index) => {
-                        const level = calculateLevel(entry.total_xp);
-                        const rank = getFocusRank(level);
-
-                        const isCurrentUser = entry.user_id === session?.user.id;
-
-                        return (
-                            <View
-                                key={entry.user_id}
-                                style={[styles.row, index < leaderboard.length - 1 && styles.rowBorder, isCurrentUser && styles.currentUserRow]}
-                            >
-                                <View
-                                    style={[
-                                        styles.positionContainer,
-                                        index === 0 && styles.firstPosition,
-                                        index === 1 && styles.secondPosition,
-                                        index === 2 && styles.thirdPosition,
-                                    ]}
-                                >
-                                    <Text
-                                        style={[
-                                            styles.position,
-                                            index === 0 && styles.firstPositionText,
-                                            index === 1 && styles.secondPositionText,
-                                            index === 2 && styles.thirdPositionText,
-                                        ]}
-                                    >
-                                        {index + 1}
-                                    </Text>
-                                </View>
-
-                                <RankBadge level={level} />
+                                <RankBadge level={myLevel} />
 
                                 <View style={styles.userInfo}>
                                     <View style={styles.nameRow}>
-                                        <Text style={styles.name}>{entry.display_name}</Text>
+                                        <Text style={styles.name}>{myPosition.display_name}</Text>
 
-                                        {isCurrentUser && (
-                                            <View style={styles.youBadge}>
-                                                <Text style={styles.youBadgeText}>You</Text>
-                                            </View>
-                                        )}
+                                        <View style={styles.youBadge}>
+                                            <Text style={styles.youBadgeText}>You</Text>
+                                        </View>
                                     </View>
 
                                     <Text style={styles.details}>
-                                        Level {level}
-                                        {rank ? ` · ${rank.name}` : ""}
+                                        Level {myLevel}
+                                        {myRank ? ` · ${myRank.name}` : ""}
                                     </Text>
                                 </View>
 
-                                <Text style={styles.xp}>{entry.total_xp} XP</Text>
+                                <Text style={styles.xp}>{myPosition.total_xp} XP</Text>
                             </View>
-                        );
-                    })
-                )}
-            </View>
-        </ScrollView>
+                        </View>
+                    )}
+                    {isLoading ? (
+                        <View style={styles.messageContainer}>
+                            <Text style={styles.messageText}>Loading leaderboard...</Text>
+                        </View>
+                    ) : errorMessage ? (
+                        <View style={styles.messageContainer}>
+                            <Text style={styles.errorText}>{errorMessage}</Text>
+                        </View>
+                    ) : leaderboard.length === 0 ? (
+                        <View style={styles.messageContainer}>
+                            <Text style={styles.messageText}>No leaderboard entries yet.</Text>
+                        </View>
+                    ) : (
+                        leaderboard.map((entry, index) => {
+                            const level = calculateLevel(entry.total_xp);
+                            const rank = getFocusRank(level);
+
+                            const isCurrentUser = entry.user_id === session?.user.id;
+
+                            return (
+                                <View
+                                    key={entry.user_id}
+                                    style={[styles.row, index < leaderboard.length - 1 && styles.rowBorder, isCurrentUser && styles.currentUserRow]}
+                                >
+                                    <View
+                                        style={[
+                                            styles.positionContainer,
+                                            index === 0 && styles.firstPosition,
+                                            index === 1 && styles.secondPosition,
+                                            index === 2 && styles.thirdPosition,
+                                        ]}
+                                    >
+                                        <Text
+                                            style={[
+                                                styles.position,
+                                                index === 0 && styles.firstPositionText,
+                                                index === 1 && styles.secondPositionText,
+                                                index === 2 && styles.thirdPositionText,
+                                            ]}
+                                        >
+                                            {index + 1}
+                                        </Text>
+                                    </View>
+
+                                    <RankBadge level={level} />
+
+                                    <View style={styles.userInfo}>
+                                        <View style={styles.nameRow}>
+                                            <Text style={styles.name}>{entry.display_name}</Text>
+
+                                            {isCurrentUser && (
+                                                <View style={styles.youBadge}>
+                                                    <Text style={styles.youBadgeText}>You</Text>
+                                                </View>
+                                            )}
+                                        </View>
+
+                                        <Text style={styles.details}>
+                                            Level {level}
+                                            {rank ? ` · ${rank.name}` : ""}
+                                        </Text>
+                                    </View>
+
+                                    <Text style={styles.xp}>{entry.total_xp} XP</Text>
+                                </View>
+                            );
+                        })
+                    )}
+                </View>
+            </ScrollView>
+        </AppScreenBackground>
     );
 }
 
 function createStyles(colours: AppColours) {
     return StyleSheet.create({
-        screen: {
-            flex: 1,
-            backgroundColor: colours.background,
-        },
-
         container: {
             padding: spacing.lg,
         },
@@ -336,6 +334,10 @@ function createStyles(colours: AppColours) {
             borderRadius: radius.lg,
 
             backgroundColor: colours.primarySoft,
+        },
+        scrollView: {
+            flex: 1,
+            backgroundColor: "transparent",
         },
     });
 }

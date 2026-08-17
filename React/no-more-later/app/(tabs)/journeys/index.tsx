@@ -19,6 +19,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteJourneys } from "@/services/journeys/journeyService";
 import { createRemoteJourney, deleteRemoteJourney } from "@/services/journeys/journeyService";
 import { useMemo } from "react";
+import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 
 type JourneyFilter = "all" | "active" | "completed";
 
@@ -200,58 +201,52 @@ export default function JourneyScreen() {
     }
 
     return (
-        <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-            {/* <Pressable
-                onPress={() => {
-                    void clearNoMoreLaterStorage();
-                }}
-            >
-                <Text>Reset all app data</Text>
-            </Pressable> */}
+        <AppScreenBackground>
+            <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+                <View style={styles.header}>
+                    <Text style={styles.title}>Journeys</Text>
 
-            <View style={styles.header}>
-                <Text style={styles.title}>Journeys</Text>
+                    <Text style={styles.subtitle}>Choose a goal and keep moving it forward.</Text>
+                </View>
 
-                <Text style={styles.subtitle}>Choose a goal and keep moving it forward.</Text>
-            </View>
+                <AddJourneyForm journeyTitle={journeyTitle} onChangeJourneyTitle={setJourneyTitle} onAddJourney={handleAddJourney} />
 
-            <AddJourneyForm journeyTitle={journeyTitle} onChangeJourneyTitle={setJourneyTitle} onAddJourney={handleAddJourney} />
+                <View style={styles.filterContainer}>
+                    {journeyFilters.map((filter) => {
+                        const isSelected = selectedFilter === filter.value;
 
-            <View style={styles.filterContainer}>
-                {journeyFilters.map((filter) => {
-                    const isSelected = selectedFilter === filter.value;
+                        return (
+                            <Pressable
+                                key={filter.value}
+                                style={[styles.filterButton, isSelected && styles.filterButtonSelected]}
+                                onPress={() => setSelectedFilter(filter.value)}
+                            >
+                                <Text style={[styles.filterButtonText, isSelected && styles.filterButtonTextSelected]}>{filter.label}</Text>
+                            </Pressable>
+                        );
+                    })}
+                </View>
 
-                    return (
-                        <Pressable
-                            key={filter.value}
-                            style={[styles.filterButton, isSelected && styles.filterButtonSelected]}
-                            onPress={() => setSelectedFilter(filter.value)}
-                        >
-                            <Text style={[styles.filterButtonText, isSelected && styles.filterButtonTextSelected]}>{filter.label}</Text>
-                        </Pressable>
-                    );
-                })}
-            </View>
-
-            <View style={styles.journeyList}>
-                {journeys.length === 0 ? (
-                    <Text style={styles.emptyText}>No Journeys yet.</Text>
-                ) : filteredJourneys.length === 0 ? (
-                    <Text style={styles.emptyText}>{selectedFilter === "completed" ? "No completed Journeys." : "No active Journeys."}</Text>
-                ) : (
-                    filteredJourneys.map((journey) => (
-                        <JourneyCard
-                            key={journey.id}
-                            journey={journey}
-                            onOpen={() => handleOpenJourney(journey)}
-                            onDelete={() => {
-                                void handleRequestDeleteJourney(journey);
-                            }}
-                        />
-                    ))
-                )}
-            </View>
-        </ScrollView>
+                <View style={styles.journeyList}>
+                    {journeys.length === 0 ? (
+                        <Text style={styles.emptyText}>No Journeys yet.</Text>
+                    ) : filteredJourneys.length === 0 ? (
+                        <Text style={styles.emptyText}>{selectedFilter === "completed" ? "No completed Journeys." : "No active Journeys."}</Text>
+                    ) : (
+                        filteredJourneys.map((journey) => (
+                            <JourneyCard
+                                key={journey.id}
+                                journey={journey}
+                                onOpen={() => handleOpenJourney(journey)}
+                                onDelete={() => {
+                                    void handleRequestDeleteJourney(journey);
+                                }}
+                            />
+                        ))
+                    )}
+                </View>
+            </ScrollView>
+        </AppScreenBackground>
     );
 }
 
@@ -264,10 +259,7 @@ function createStyles(colours: AppColours) {
             lineHeight: 22,
             color: "#737373",
         },
-        screen: {
-            flex: 1,
-            backgroundColor: colours.background,
-        },
+
         contentContainer: {
             width: "100%",
             maxWidth: 720,
@@ -328,6 +320,10 @@ function createStyles(colours: AppColours) {
 
         filterButtonTextSelected: {
             color: colours.surface,
+        },
+        scrollView: {
+            flex: 1,
+            backgroundColor: "transparent",
         },
     });
 }

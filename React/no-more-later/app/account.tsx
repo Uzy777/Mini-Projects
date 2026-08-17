@@ -54,7 +54,7 @@ export default function AccountScreen() {
 
                 <PremiumStatusCard />
             </View>
-            
+
             <View style={styles.section}>
                 <Text style={styles.sectionLabel}>SETTINGS</Text>
 

@@ -16,6 +16,7 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { useMemo } from "react";
+import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 
 const focusCompleteSound = require("../../assets/sounds/focus-complete.mp3");
 
@@ -356,39 +357,41 @@ export default function FocusScreen() {
     const hasSessionFinished = remainingSeconds === 0;
 
     return (
-        <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-            <Stack.Screen
-                options={{
-                    title: "Focus",
-                }}
-            />
-
-            <View style={styles.header}>
-                <Text style={styles.label}>CURRENT QUEST</Text>
-
-                <Text style={styles.title}>{questTitle ?? "Untitled Quest"}</Text>
-
-                <Text style={styles.subtitle}>Give this one thing your attention.</Text>
-            </View>
-
-            <View style={styles.sessionContent}>
-                <FocusDurationSelector selectedMinutes={selectedMinutes} onSelectMinutes={setSelectedMinutes} disabled={hasSessionStarted} />
-
-                <ActiveSessionNotice message={sessionMessage} showReturnButton={existingActiveSession !== null} onReturn={handleReturnToActiveSession} />
-
-                {remainingSeconds !== null && <FocusTimerDisplay seconds={remainingSeconds} />}
-
-                <FocusTimerControls
-                    hasStarted={hasSessionStarted}
-                    hasFinished={hasSessionFinished}
-                    isRunning={isRunning}
-                    onStart={handleStartSession}
-                    onToggleTimer={handleToggleTimer}
-                    onEndEarly={handleEndSessionEarly}
-                    onReview={handleReviewSession}
+        <AppScreenBackground>
+            <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+                <Stack.Screen
+                    options={{
+                        title: "Focus",
+                    }}
                 />
-            </View>
-        </ScrollView>
+
+                <View style={styles.header}>
+                    <Text style={styles.label}>CURRENT QUEST</Text>
+
+                    <Text style={styles.title}>{questTitle ?? "Untitled Quest"}</Text>
+
+                    <Text style={styles.subtitle}>Give this one thing your attention.</Text>
+                </View>
+
+                <View style={styles.sessionContent}>
+                    <FocusDurationSelector selectedMinutes={selectedMinutes} onSelectMinutes={setSelectedMinutes} disabled={hasSessionStarted} />
+
+                    <ActiveSessionNotice message={sessionMessage} showReturnButton={existingActiveSession !== null} onReturn={handleReturnToActiveSession} />
+
+                    {remainingSeconds !== null && <FocusTimerDisplay seconds={remainingSeconds} />}
+
+                    <FocusTimerControls
+                        hasStarted={hasSessionStarted}
+                        hasFinished={hasSessionFinished}
+                        isRunning={isRunning}
+                        onStart={handleStartSession}
+                        onToggleTimer={handleToggleTimer}
+                        onEndEarly={handleEndSessionEarly}
+                        onReview={handleReviewSession}
+                    />
+                </View>
+            </ScrollView>
+        </AppScreenBackground>
     );
 }
 function createStyles(colours: AppColours) {
@@ -437,6 +440,11 @@ function createStyles(colours: AppColours) {
         sessionContent: {
             width: "100%",
             gap: spacing.xl,
+        },
+
+        scrollView: {
+            flex: 1,
+            backgroundColor: "transparent",
         },
     });
 }
