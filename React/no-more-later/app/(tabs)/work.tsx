@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text } from "react-native";
 
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
@@ -6,11 +6,22 @@ import type { AppColours } from "@/constants/appearanceColours";
 import { spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { WorkQuickActions } from "@/components/work/WorkQuickActions";
+import { WorkToolbar, type WorkViewFilter } from "@/components/work/WorkToolbar";
 
 export default function WorkScreen() {
+    const [selectedFilter, setSelectedFilter] = useState<WorkViewFilter>("all");
+
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
+
+    function handleSearch() {
+        console.log("Search");
+    }
+
+    function handleStatusFilter() {
+        console.log("Status filter");
+    }
 
     function handleNewQuest() {
         console.log("New Quest");
@@ -34,6 +45,8 @@ export default function WorkScreen() {
                 <Text style={styles.subtitle}>Everything you want to get done.</Text>
 
                 <WorkQuickActions onNewQuest={handleNewQuest} onNewJourney={handleNewJourney} onQuickStart={handleQuickStart} />
+
+                <WorkToolbar selectedFilter={selectedFilter} onSelectFilter={setSelectedFilter} onSearch={handleSearch} onStatusFilter={handleStatusFilter} />
             </ScrollView>
         </AppScreenBackground>
     );
