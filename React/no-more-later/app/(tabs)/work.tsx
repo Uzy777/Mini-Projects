@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View, TextInput } from "react-native";
 
 import { Folder } from "lucide-react-native";
 
@@ -81,6 +81,9 @@ export default function WorkScreen() {
 
     const [selectedFilter, setSelectedFilter] = useState<WorkViewFilter>("all");
     const [statusFilter, setStatusFilter] = useState<WorkStatusFilter>("active");
+    const [isSearchVisible, setIsSearchVisible] = useState(false);
+
+    const [searchQuery, setSearchQuery] = useState("");
 
     const [quests, setQuests] = useState<WorkQuest[]>(exampleQuests);
     const [journeys, setJourneys] = useState<WorkJourney[]>(exampleJourneys);
@@ -88,6 +91,8 @@ export default function WorkScreen() {
     const [isCreateJourneyVisible, setIsCreateJourneyVisible] = useState(false);
 
     const [isCreateQuestVisible, setIsCreateQuestVisible] = useState(false);
+
+    const normalisedSearchQuery = searchQuery.trim().toLowerCase();
 
     const visibleQuests = quests.filter((quest) => {
         if (quest.status !== statusFilter) {
@@ -102,17 +107,36 @@ export default function WorkScreen() {
             return false;
         }
 
+        if (normalisedSearchQuery && !quest.title.toLowerCase().includes(normalisedSearchQuery)) {
+            return false;
+        }
+
         return true;
     });
 
-    const visibleJourneys = journeys.filter((journey) => journey.status === statusFilter);
+    const visibleJourneys = journeys.filter((journey) => {
+        if (journey.status !== statusFilter) {
+            return false;
+        }
 
+        if (normalisedSearchQuery && !journey.title.toLowerCase().includes(normalisedSearchQuery)) {
+            return false;
+        }
+
+        return true;
+    });
     const showQuests = selectedFilter !== "journeys" || selectedFilter === "journeys";
 
     const showJourneys = selectedFilter === "all" || selectedFilter === "journeys";
 
     function handleSearch() {
-        console.log("Search");
+        setIsSearchVisible((currentValue) => {
+            if (currentValue) {
+                setSearchQuery("");
+            }
+
+            return !currentValue;
+        });
     }
 
     function handleStatusFilter() {
@@ -184,6 +208,21 @@ export default function WorkScreen() {
                     onSearch={handleSearch}
                     onStatusFilter={handleStatusFilter}
                 />
+
+                {isSearchVisible && (
+                    <View style={styles.searchContainer}>
+                        <TextInput
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            style={styles.searchInput}
+                            placeholder="Search Journeys and Quests"
+                            placeholderTextColor={colours.textMuted}
+                            selectionColor={colours.primary}
+                            autoFocus
+                        />
+                    </View>
+                )}
+
                 <View style={styles.questSection}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>{statusFilter === "active" ? "ACTIVE QUESTS" : "COMPLETED QUESTS"}</Text>
@@ -353,6 +392,25 @@ function createStyles(colours: AppColours) {
             flexWrap: "wrap",
 
             gap: spacing.md,
+        },
+        searchContainer: {
+            marginTop: spacing.md,
+        },
+
+        searchInput: {
+            minHeight: 48,
+
+            paddingHorizontal: spacing.md,
+            paddingVertical: 12,
+
+            borderWidth: 1,
+            borderColor: colours.primaryBorder,
+            borderRadius: radius.md,
+
+            backgroundColor: colours.surface,
+
+            fontSize: 15,
+            color: colours.text,
         },
     });
 }
