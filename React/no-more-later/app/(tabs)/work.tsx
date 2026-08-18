@@ -19,9 +19,7 @@ import { WorkQuestActionsModal } from "@/components/work/WorkQuestActionsModal";
 import { confirmDelete } from "@/utils/confirmDelete";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
-import { updateRemoteQuestStatus } from "@/services/quests/questService";
 import { syncJourneyStatusFromQuests } from "@/services/journeyStatusService";
-
 import {
     createRemoteWorkJourney,
     createRemoteWorkQuest,
@@ -29,6 +27,9 @@ import {
     getRemoteWorkQuests,
     updateRemoteWorkQuestJourney,
 } from "@/services/work/workService";
+import { deleteRemoteQuest, updateRemoteQuestStatus } from "@/services/quests/questService";
+import { getActiveFocusSession } from "@/services/storage/activeFocusSessionStorage";
+import { showMessage } from "@/utils/showMessage";
 
 export default function WorkScreen() {
     const { colours } = useAppearance();
@@ -277,22 +278,75 @@ export default function WorkScreen() {
         }
     }
 
-    function handleDeleteQuest() {
+    async function handleDeleteQuest() {
         if (!selectedQuest) {
             return;
         }
 
         const questToDelete = selectedQuest;
 
-        setSelectedQuest(null);
+        try {
+            const activeSession = await getActiveFocusSession();
 
-        confirmDelete({
-            title: "Delete Quest?",
-            message: `Are you sure you want to delete "${questToDelete.title}"?`,
-            onConfirm: () => {
-                setQuests((currentQuests) => currentQuests.filter((quest) => quest.id !== questToDelete.id));
-            },
-        });
+            const questHasActiveSession = activeSession?.questId === questToDelete.id;
+
+            if (questHasActiveSession) {
+                showMessage("Quest has an active session", `End or review the Focus Session for "${questToDelete.title}" before deleting this Quest.`);
+
+                return;
+            }
+
+            setSelectedQuest(null);
+
+            confirmDelete({
+                title: "Delete Quest?",
+                message: `Are you sure you want to delete "${questToDelete.title}"?`,
+                onConfirm: () => {
+                    void deleteWorkQuest(questToDelete);
+                },
+            });
+        } catch (error) {
+            console.error("Failed to check active Focus Session:", error);
+
+            showMessage("Quest could not be deleted", "The active Focus Session could not be checked. Please try again.");
+        }
+    }
+
+    async function deleteWorkQuest(questToDelete: WorkQuest) {
+        try {
+            const { error } = await deleteRemoteQuest(questToDelete.id);
+
+            if (error) {
+                console.error("Failed to delete Work Quest:", error);
+
+                return;
+            }
+
+            const updatedQuests = quests.filter((quest) => quest.id !== questToDelete.id);
+
+            setQuests(updatedQuests);
+
+            if (questToDelete.journeyId) {
+                const journeyQuests = updatedQuests.filter((quest) => quest.journeyId === questToDelete.journeyId);
+
+                const updatedJourneyStatus = await syncJourneyStatusFromQuests(questToDelete.journeyId, journeyQuests);
+
+                setJourneys((currentJourneys) =>
+                    currentJourneys.map((journey) => {
+                        if (journey.id !== questToDelete.journeyId) {
+                            return journey;
+                        }
+
+                        return {
+                            ...journey,
+                            status: updatedJourneyStatus,
+                        };
+                    }),
+                );
+            }
+        } catch (error) {
+            console.error("Failed to delete Work Quest:", error);
+        }
     }
 
     function getJourneyName(journeyId?: string) {
