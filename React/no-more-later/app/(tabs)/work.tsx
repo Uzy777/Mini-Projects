@@ -156,6 +156,9 @@ export default function WorkScreen() {
 
         return true;
     });
+
+    const emptyJourneyMessage = statusFilter === "active" ? "No active Journeys yet." : "No completed Journeys yet.";
+
     const showQuests = selectedFilter !== "journeys" || selectedFilter === "journeys";
 
     const showJourneys = selectedFilter === "all" || selectedFilter === "journeys";
@@ -613,24 +616,31 @@ export default function WorkScreen() {
                             </View>
                         </View>
 
-                        <View style={styles.journeyGrid}>
-                            {visibleJourneys.map((journey) => {
-                                const journeyQuests = quests.filter((quest) => quest.journeyId === journey.id);
+                        {visibleJourneys.length > 0 ? (
+                            <View style={styles.journeyGrid}>
+                                {visibleJourneys.map((journey) => {
+                                    const journeyQuests = quests.filter((quest) => quest.journeyId === journey.id);
 
-                                const completedQuestCount = journeyQuests.filter((quest) => quest.status === "completed").length;
+                                    const completedQuestCount = journeyQuests.filter((quest) => quest.status === "completed").length;
 
-                                return (
-                                    <WorkJourneyCard
-                                        title={journey.title}
-                                        assetId={journey.assetId}
-                                        completedQuestCount={completedQuestCount}
-                                        totalQuestCount={journeyQuests.length}
-                                        onPress={() => handleOpenJourney(journey.id)}
-                                        onMore={() => setJourneyForActions(journey)}
-                                    />
-                                );
-                            })}
-                        </View>
+                                    return (
+                                        <WorkJourneyCard
+                                            key={journey.id}
+                                            title={journey.title}
+                                            assetId={journey.assetId}
+                                            completedQuestCount={completedQuestCount}
+                                            totalQuestCount={journeyQuests.length}
+                                            onPress={() => handleOpenJourney(journey.id)}
+                                            onMore={() => setJourneyForActions(journey)}
+                                        />
+                                    );
+                                })}
+                            </View>
+                        ) : (
+                            <View style={styles.emptyState}>
+                                <Text style={styles.emptyStateText}>{emptyJourneyMessage}</Text>
+                            </View>
+                        )}
                     </View>
                 )}
             </ScrollView>
