@@ -173,7 +173,17 @@ export default function WorkScreen() {
     }
 
     function handleQuickStart() {
-        const nextQuest = quests.find((quest) => quest.status === "active");
+        const nextQuest = quests.find((quest) => {
+            if (quest.status !== "active") {
+                return false;
+            }
+
+            if (selectedJourneyId && quest.journeyId !== selectedJourneyId) {
+                return false;
+            }
+
+            return true;
+        });
 
         if (!nextQuest) {
             setIsCreateQuestVisible(true);
