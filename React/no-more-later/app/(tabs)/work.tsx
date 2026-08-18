@@ -521,6 +521,7 @@ export default function WorkScreen() {
             params: {
                 questId: quest.id,
                 questTitle: quest.title,
+                source: "work",
                 ...(quest.journeyId
                     ? {
                           journeyId: quest.journeyId,

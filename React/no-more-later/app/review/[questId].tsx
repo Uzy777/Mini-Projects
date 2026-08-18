@@ -28,7 +28,7 @@ export default function ReviewSessionScreen() {
     const router = useRouter();
     const { session } = useAuth();
 
-    const { questId, questTitle, journeyId, focusSessionId, plannedMinutes, actualSeconds, endedEarly } = useLocalSearchParams<{
+    const { questId, questTitle, journeyId, focusSessionId, plannedMinutes, actualSeconds, endedEarly, source } = useLocalSearchParams<{
         questId: string;
         questTitle?: string;
         journeyId?: string;
@@ -36,6 +36,7 @@ export default function ReviewSessionScreen() {
         plannedMinutes?: string;
         actualSeconds?: string;
         endedEarly?: string;
+        source?: "work";
     }>();
 
     type LevelUpDetails = {
@@ -75,6 +76,11 @@ export default function ReviewSessionScreen() {
     }, [journeyId, questId]);
 
     function handleReturnToJourneys() {
+        if (source === "work") {
+            router.replace("/work");
+            return;
+        }
+
         router.replace("/journeys");
     }
 

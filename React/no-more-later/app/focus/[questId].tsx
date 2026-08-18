@@ -29,10 +29,11 @@ export default function FocusScreen() {
 
     const completionSoundPlayer = useAudioPlayer(focusCompleteSound);
 
-    const { questId, questTitle, journeyId } = useLocalSearchParams<{
+    const { questId, questTitle, journeyId, source } = useLocalSearchParams<{
         questId: string;
         questTitle?: string;
         journeyId?: string;
+        source?: "work";
     }>();
 
     const [sessionId, setSessionId] = useState<string | null>(null);
@@ -325,6 +326,7 @@ export default function FocusScreen() {
                     questId,
                     questTitle,
                     ...(journeyId ? { journeyId } : {}),
+                    ...(source ? { source } : {}),
                     focusSessionId: sessionId,
                     plannedMinutes: selectedMinutes.toString(),
                     actualSeconds: actualSeconds.toString(),
@@ -349,6 +351,7 @@ export default function FocusScreen() {
                 questId,
                 questTitle,
                 ...(journeyId ? { journeyId } : {}),
+                ...(source ? { source } : {}),
                 focusSessionId: sessionId,
                 plannedMinutes: selectedMinutes.toString(),
                 actualSeconds: (selectedMinutes * 60).toString(),
