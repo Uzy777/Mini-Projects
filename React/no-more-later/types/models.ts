@@ -44,6 +44,7 @@ export type ActiveFocusSession = {
     remainingSeconds: number;
     isRunning: boolean;
     endTime: number | null;
+    source?: "work";
 };
 
 export type Profile = {

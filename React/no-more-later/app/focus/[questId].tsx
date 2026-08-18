@@ -88,6 +88,7 @@ export default function FocusScreen() {
                             remainingSeconds: 0,
                             isRunning: false,
                             endTime: null,
+                            ...(source ? { source } : {}),
                         });
 
                         return;
@@ -141,6 +142,7 @@ export default function FocusScreen() {
                     remainingSeconds: 0,
                     isRunning: false,
                     endTime: null,
+                    ...(source ? { source } : {}),
                 }).catch((error) => {
                     console.error("Failed to save completed Focus Session:", error);
                 });
@@ -220,6 +222,7 @@ export default function FocusScreen() {
                 remainingSeconds: totalSeconds,
                 isRunning: true,
                 endTime: calculatedEndTime,
+                ...(source ? { source } : {}),
             });
         } catch (error) {
             console.error("Failed to start Focus Session:", error);
@@ -241,6 +244,11 @@ export default function FocusScreen() {
                 ...(existingActiveSession.journeyId
                     ? {
                           journeyId: existingActiveSession.journeyId,
+                      }
+                    : {}),
+                ...(existingActiveSession.source
+                    ? {
+                          source: existingActiveSession.source,
                       }
                     : {}),
             },
@@ -268,6 +276,7 @@ export default function FocusScreen() {
                 remainingSeconds: pausedRemainingSeconds,
                 isRunning: false,
                 endTime: null,
+                ...(source ? { source } : {}),
             });
 
             return;
@@ -288,6 +297,7 @@ export default function FocusScreen() {
                 remainingSeconds,
                 isRunning: true,
                 endTime: resumedEndTime,
+                ...(source ? { source } : {}),
             });
         }
     }
@@ -318,6 +328,7 @@ export default function FocusScreen() {
                 remainingSeconds: 0,
                 isRunning: false,
                 endTime: null,
+                ...(source ? { source } : {}),
             });
 
             router.replace({

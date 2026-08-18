@@ -166,6 +166,11 @@ export default function HomeScreen() {
                           journeyId: activeSession.journeyId,
                       }
                     : {}),
+                ...(activeSession.source
+                    ? {
+                          source: activeSession.source,
+                      }
+                    : {}),
             },
         });
     }
