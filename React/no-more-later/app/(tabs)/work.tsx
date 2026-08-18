@@ -14,6 +14,7 @@ import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import type { WorkJourney, WorkQuest } from "@/types/work";
+import { CreateWorkJourneyModal } from "@/components/work/CreateWorkJourneyModal";
 
 const exampleQuests: WorkQuest[] = [
     {
@@ -73,6 +74,9 @@ export default function WorkScreen() {
     const [selectedFilter, setSelectedFilter] = useState<WorkViewFilter>("all");
 
     const [quests, setQuests] = useState<WorkQuest[]>(exampleQuests);
+    const [journeys, setJourneys] = useState<WorkJourney[]>(exampleJourneys);
+
+    const [isCreateJourneyVisible, setIsCreateJourneyVisible] = useState(false);
 
     const [isCreateQuestVisible, setIsCreateQuestVisible] = useState(false);
 
@@ -91,7 +95,7 @@ export default function WorkScreen() {
     }
 
     function handleNewJourney() {
-        console.log("New Journey");
+        setIsCreateJourneyVisible(true);
     }
 
     function handleQuickStart() {
@@ -111,12 +115,24 @@ export default function WorkScreen() {
         setIsCreateQuestVisible(false);
     }
 
+    function handleCreateJourney(title: string) {
+        const newJourney: WorkJourney = {
+            id: Date.now().toString(),
+            title,
+            status: "active",
+        };
+
+        setJourneys((currentJourneys) => [newJourney, ...currentJourneys]);
+
+        setIsCreateJourneyVisible(false);
+    }
+
     function getJourneyName(journeyId?: string) {
         if (!journeyId) {
             return undefined;
         }
 
-        return exampleJourneys.find((journey) => journey.id === journeyId)?.title;
+        return journeys.find((journey) => journey.id === journeyId)?.title;
     }
 
     return (
@@ -165,12 +181,12 @@ export default function WorkScreen() {
                         <Text style={styles.sectionTitle}>JOURNEYS</Text>
 
                         <View style={styles.countBadge}>
-                            <Text style={styles.countText}>{exampleJourneys.length}</Text>
+                            <Text style={styles.countText}>{journeys.length}</Text>
                         </View>
                     </View>
 
                     <View style={styles.journeyGrid}>
-                        {exampleJourneys.map((journey) => {
+                        {journeys.map((journey) => {
                             const journeyQuests = quests.filter((quest) => quest.journeyId === journey.id);
 
                             const completedQuestCount = journeyQuests.filter((quest) => quest.status === "completed").length;
@@ -192,10 +208,11 @@ export default function WorkScreen() {
             </ScrollView>
             <CreateWorkQuestModal
                 visible={isCreateQuestVisible}
-                journeys={exampleJourneys}
+                journeys={journeys}
                 onClose={() => setIsCreateQuestVisible(false)}
                 onCreate={handleCreateQuest}
             />
+            <CreateWorkJourneyModal visible={isCreateJourneyVisible} onClose={() => setIsCreateJourneyVisible(false)} onCreate={handleCreateJourney} />
         </AppScreenBackground>
     );
 }
