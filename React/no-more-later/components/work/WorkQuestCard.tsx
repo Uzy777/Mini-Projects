@@ -46,11 +46,11 @@ export function WorkQuestCard({ title, journeyName, assetId, onFocus, onMore }: 
                     </Text>
                 </View>
 
-                <View style={styles.metaRow}>
+                {/* <View style={styles.metaRow}>
                     <Clock3 size={14} color={colours.textMuted} />
 
                     <Text style={styles.metaText}>No time set</Text>
-                </View>
+                </View> */}
             </View>
 
             <Pressable style={({ pressed }) => [styles.focusButton, pressed && styles.pressed]} onPress={onFocus}>
