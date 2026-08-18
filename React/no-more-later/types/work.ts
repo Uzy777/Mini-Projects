@@ -11,4 +11,7 @@ export type WorkQuest = {
     title: string;
     status: WorkStatus;
     journeyId?: string;
+    assetId: WorkAssetId;
 };
+
+export type WorkAssetId = "task" | "laptop" | "book" | "fitness" | "home" | "cloud" | "shield" | "creative";

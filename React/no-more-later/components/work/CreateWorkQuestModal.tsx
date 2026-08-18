@@ -6,19 +6,22 @@ import { X } from "lucide-react-native";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
-import type { WorkJourney } from "@/types/work";
+import { WORK_QUEST_ASSETS, WorkAssetIcon } from "@/components/work/WorkAssetIcon";
+
+import type { WorkAssetId, WorkJourney } from "@/types/work";
 
 type CreateWorkQuestModalProps = {
     visible: boolean;
     journeys: WorkJourney[];
     onClose: () => void;
-    onCreate: (title: string, journeyId?: string) => void;
+    onCreate: (title: string, assetId: WorkAssetId, journeyId?: string) => void;
 };
 
 export function CreateWorkQuestModal({ visible, journeys, onClose, onCreate }: CreateWorkQuestModalProps) {
     const { colours } = useAppearance();
 
     const [title, setTitle] = useState("");
+    const [selectedAssetId, setSelectedAssetId] = useState<WorkAssetId>("task");
     const [selectedJourneyId, setSelectedJourneyId] = useState<string | undefined>(undefined);
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -27,6 +30,7 @@ export function CreateWorkQuestModal({ visible, journeys, onClose, onCreate }: C
         if (visible) {
             setTitle("");
             setSelectedJourneyId(undefined);
+            setSelectedAssetId("task");
         }
     }, [visible]);
 
@@ -38,7 +42,7 @@ export function CreateWorkQuestModal({ visible, journeys, onClose, onCreate }: C
             return;
         }
 
-        onCreate(trimmedTitle, selectedJourneyId);
+        onCreate(trimmedTitle, selectedAssetId, selectedJourneyId);
     }
 
     return (
@@ -72,6 +76,28 @@ export function CreateWorkQuestModal({ visible, journeys, onClose, onCreate }: C
                         returnKeyType="done"
                         onSubmitEditing={handleCreate}
                     />
+
+                    <View style={styles.field}>
+                        <Text style={styles.fieldLabel}>ICON</Text>
+
+                        <View style={styles.assetGrid}>
+                            {WORK_QUEST_ASSETS.map((asset) => {
+                                const isSelected = selectedAssetId === asset.id;
+
+                                return (
+                                    <Pressable
+                                        key={asset.id}
+                                        style={[styles.assetOption, isSelected && styles.assetOptionSelected]}
+                                        onPress={() => setSelectedAssetId(asset.id)}
+                                    >
+                                        <WorkAssetIcon assetId={asset.id} size={20} color={isSelected ? colours.primary : colours.textMuted} />
+
+                                        <Text style={[styles.assetText, isSelected && styles.assetTextSelected]}>{asset.label}</Text>
+                                    </Pressable>
+                                );
+                            })}
+                        </View>
+                    </View>
 
                     <View style={styles.field}>
                         <Text style={styles.fieldLabel}>JOURNEY (OPTIONAL)</Text>
@@ -309,6 +335,46 @@ function createStyles(colours: AppColours) {
         },
 
         journeyOptionTextSelected: {
+            color: colours.primary,
+        },
+
+        assetGrid: {
+            flexDirection: "row",
+            flexWrap: "wrap",
+            gap: spacing.sm,
+        },
+
+        assetOption: {
+            minWidth: 110,
+
+            flexDirection: "row",
+            alignItems: "center",
+
+            gap: spacing.sm,
+
+            paddingHorizontal: spacing.md,
+            paddingVertical: 10,
+
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+
+            backgroundColor: colours.background,
+        },
+
+        assetOptionSelected: {
+            borderColor: colours.primaryBorder,
+            backgroundColor: colours.primarySoft,
+        },
+
+        assetText: {
+            fontSize: 13,
+            fontWeight: "700",
+
+            color: colours.textMuted,
+        },
+
+        assetTextSelected: {
             color: colours.primary,
         },
     });

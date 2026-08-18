@@ -6,15 +6,18 @@ import { Clock3, Folder, Laptop, MoreVertical, Play } from "lucide-react-native"
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import { WorkAssetIcon } from "@/components/work/WorkAssetIcon";
+import type { WorkAssetId } from "@/types/work";
 
 type WorkQuestCardProps = {
     title: string;
     journeyName?: string;
+    assetId: WorkAssetId;
     onFocus: () => void;
     onMore: () => void;
 };
 
-export function WorkQuestCard({ title, journeyName, onFocus, onMore }: WorkQuestCardProps) {
+export function WorkQuestCard({ title, journeyName, assetId, onFocus, onMore }: WorkQuestCardProps) {
     const { width } = useWindowDimensions();
     const { colours } = useAppearance();
 
@@ -27,7 +30,7 @@ export function WorkQuestCard({ title, journeyName, onFocus, onMore }: WorkQuest
             <View style={styles.statusDot} />
 
             <View style={styles.iconContainer}>
-                <Laptop size={24} color={colours.primary} />
+                <WorkAssetIcon assetId={assetId} size={24} color={colours.primary} />
             </View>
 
             <View style={styles.details}>

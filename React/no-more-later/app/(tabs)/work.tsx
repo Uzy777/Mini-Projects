@@ -13,8 +13,8 @@ import { WorkToolbar, type WorkViewFilter } from "@/components/work/WorkToolbar"
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
-import type { WorkJourney, WorkQuest } from "@/types/work";
 import { CreateWorkJourneyModal } from "@/components/work/CreateWorkJourneyModal";
+import type { WorkAssetId, WorkJourney, WorkQuest } from "@/types/work";
 
 const exampleQuests: WorkQuest[] = [
     {
@@ -22,29 +22,34 @@ const exampleQuests: WorkQuest[] = [
         title: "Finish authentication screen",
         status: "active",
         journeyId: "portfolio",
+        assetId: "laptop",
     },
     {
         id: "iam",
         title: "Revise IAM policies",
         status: "active",
         journeyId: "aws",
+        assetId: "cloud",
     },
     {
         id: "clean-desk",
         title: "Clean the desk",
         status: "active",
+        assetId: "home",
     },
     {
         id: "projects-section",
         title: "Build projects section",
         status: "completed",
         journeyId: "portfolio",
+        assetId: "laptop",
     },
     {
         id: "dark-mode",
         title: "Add dark mode",
         status: "completed",
         journeyId: "portfolio",
+        assetId: "creative",
     },
 ];
 
@@ -102,11 +107,12 @@ export default function WorkScreen() {
         console.log("Quick Start");
     }
 
-    function handleCreateQuest(title: string, journeyId?: string) {
+    function handleCreateQuest(title: string, assetId: WorkAssetId, journeyId?: string) {
         const newQuest: WorkQuest = {
             id: Date.now().toString(),
             title,
             status: "active",
+            assetId,
             ...(journeyId ? { journeyId } : {}),
         };
 
@@ -162,6 +168,7 @@ export default function WorkScreen() {
                             <WorkQuestCard
                                 key={quest.id}
                                 title={quest.title}
+                                assetId={quest.assetId}
                                 journeyName={getJourneyName(quest.journeyId)}
                                 onFocus={() => {
                                     console.log("Focus:", quest.title);
