@@ -6,15 +6,17 @@ import { CheckCircle2, RotateCcw, X } from "lucide-react-native";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
-import type { WorkQuest } from "@/types/work";
+import type { WorkJourney, WorkQuest } from "@/types/work";
 
 type WorkQuestActionsModalProps = {
     quest: WorkQuest | null;
+    journeys: WorkJourney[];
     onClose: () => void;
+    onAssignJourney: (journeyId?: string) => void;
     onToggleComplete: () => void;
 };
 
-export function WorkQuestActionsModal({ quest, onClose, onToggleComplete }: WorkQuestActionsModalProps) {
+export function WorkQuestActionsModal({ quest, journeys, onClose, onAssignJourney, onToggleComplete }: WorkQuestActionsModalProps) {
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -39,6 +41,39 @@ export function WorkQuestActionsModal({ quest, onClose, onToggleComplete }: Work
                         <Pressable style={styles.closeButton} onPress={onClose}>
                             <X size={19} color={colours.textMuted} />
                         </Pressable>
+                    </View>
+
+                    <View style={styles.journeySection}>
+                        <Text style={styles.sectionTitle}>MOVE TO JOURNEY</Text>
+
+                        <Text style={styles.sectionDescription}>Keep this Quest standalone or organise it inside a Journey.</Text>
+
+                        <View style={styles.journeyOptions}>
+                            <Pressable
+                                style={[styles.journeyOption, !quest?.journeyId && styles.journeyOptionSelected]}
+                                onPress={() => onAssignJourney(undefined)}
+                            >
+                                <Text style={[styles.journeyOptionText, !quest?.journeyId && styles.journeyOptionTextSelected]}>No Journey</Text>
+                            </Pressable>
+
+                            {journeys
+                                .filter((journey) => journey.status === "active")
+                                .map((journey) => {
+                                    const isSelected = quest?.journeyId === journey.id;
+
+                                    return (
+                                        <Pressable
+                                            key={journey.id}
+                                            style={[styles.journeyOption, isSelected && styles.journeyOptionSelected]}
+                                            onPress={() => onAssignJourney(journey.id)}
+                                        >
+                                            <Text style={[styles.journeyOptionText, isSelected && styles.journeyOptionTextSelected]} numberOfLines={1}>
+                                                {journey.title}
+                                            </Text>
+                                        </Pressable>
+                                    );
+                                })}
+                        </View>
                     </View>
 
                     <View style={styles.divider} />
@@ -164,6 +199,61 @@ function createStyles(colours: AppColours) {
 
         pressed: {
             opacity: 0.65,
+        },
+
+        journeySection: {
+            gap: spacing.sm,
+        },
+
+        sectionTitle: {
+            fontSize: 11,
+            fontWeight: "900",
+            letterSpacing: 1,
+
+            color: colours.textMuted,
+        },
+
+        sectionDescription: {
+            fontSize: 13,
+            lineHeight: 18,
+
+            color: colours.textMuted,
+        },
+
+        journeyOptions: {
+            flexDirection: "row",
+            flexWrap: "wrap",
+
+            gap: spacing.sm,
+        },
+
+        journeyOption: {
+            maxWidth: "100%",
+
+            paddingHorizontal: spacing.md,
+            paddingVertical: 10,
+
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.pill,
+
+            backgroundColor: colours.background,
+        },
+
+        journeyOptionSelected: {
+            borderColor: colours.primaryBorder,
+            backgroundColor: colours.primarySoft,
+        },
+
+        journeyOptionText: {
+            fontSize: 13,
+            fontWeight: "700",
+
+            color: colours.textMuted,
+        },
+
+        journeyOptionTextSelected: {
+            color: colours.primary,
         },
     });
 }

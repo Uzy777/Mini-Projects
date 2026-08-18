@@ -205,6 +205,33 @@ export default function WorkScreen() {
         setSelectedQuest(null);
     }
 
+    function handleAssignQuestJourney(journeyId?: string) {
+        if (!selectedQuest) {
+            return;
+        }
+
+        setQuests((currentQuests) =>
+            currentQuests.map((quest) => {
+                if (quest.id !== selectedQuest.id) {
+                    return quest;
+                }
+
+                if (!journeyId) {
+                    const { journeyId: _currentJourneyId, ...standaloneQuest } = quest;
+
+                    return standaloneQuest;
+                }
+
+                return {
+                    ...quest,
+                    journeyId,
+                };
+            }),
+        );
+
+        setSelectedQuest(null);
+    }
+
     function getJourneyName(journeyId?: string) {
         if (!journeyId) {
             return undefined;
@@ -313,8 +340,13 @@ export default function WorkScreen() {
                 onCreate={handleCreateQuest}
             />
             <CreateWorkJourneyModal visible={isCreateJourneyVisible} onClose={() => setIsCreateJourneyVisible(false)} onCreate={handleCreateJourney} />
-
-            <WorkQuestActionsModal quest={selectedQuest} onClose={() => setSelectedQuest(null)} onToggleComplete={handleToggleQuestComplete} />
+            <WorkQuestActionsModal
+                quest={selectedQuest}
+                journeys={journeys}
+                onClose={() => setSelectedQuest(null)}
+                onAssignJourney={handleAssignQuestJourney}
+                onToggleComplete={handleToggleQuestComplete}
+            />
         </AppScreenBackground>
     );
 }
