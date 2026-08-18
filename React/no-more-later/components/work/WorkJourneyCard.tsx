@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { ChevronRight } from "lucide-react-native";
+import { ChevronRight, MoreVertical } from "lucide-react-native";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
@@ -15,9 +15,10 @@ type WorkJourneyCardProps = {
     completedQuestCount: number;
     totalQuestCount: number;
     onPress: () => void;
+    onMore: () => void;
 };
 
-export function WorkJourneyCard({ title, assetId, completedQuestCount, totalQuestCount, onPress }: WorkJourneyCardProps) {
+export function WorkJourneyCard({ title, assetId, completedQuestCount, totalQuestCount, onPress, onMore }: WorkJourneyCardProps) {
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -34,6 +35,10 @@ export function WorkJourneyCard({ title, assetId, completedQuestCount, totalQues
                 <Text style={styles.title} numberOfLines={2}>
                     {title}
                 </Text>
+
+                <Pressable onPress={onMore} hitSlop={8} style={styles.moreButton}>
+                    <MoreVertical size={20} color={colours.textMuted} />
+                </Pressable>
             </View>
 
             <View style={styles.progressSection}>
@@ -186,6 +191,13 @@ function createStyles(colours: AppColours) {
 
         pressed: {
             opacity: 0.7,
+        },
+        moreButton: {
+            width: 36,
+            height: 36,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: radius.pill,
         },
     });
 }

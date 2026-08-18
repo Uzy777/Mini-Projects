@@ -23,6 +23,7 @@ import { syncJourneyStatusFromQuests } from "@/services/journeyStatusService";
 import {
     createRemoteWorkJourney,
     createRemoteWorkQuest,
+    deleteRemoteWorkJourney,
     getRemoteWorkJourneys,
     getRemoteWorkQuests,
     updateRemoteWorkQuestJourney,
@@ -30,6 +31,7 @@ import {
 import { deleteRemoteQuest, updateRemoteQuestStatus } from "@/services/quests/questService";
 import { getActiveFocusSession } from "@/services/storage/activeFocusSessionStorage";
 import { showMessage } from "@/utils/showMessage";
+import { WorkJourneyActionsModal } from "@/components/work/WorkJourneyActionsModal";
 
 export default function WorkScreen() {
     const { colours } = useAppearance();
@@ -55,6 +57,7 @@ export default function WorkScreen() {
     const [isCreateQuestVisible, setIsCreateQuestVisible] = useState(false);
     const [selectedJourneyId, setSelectedJourneyId] = useState<string | null>(null);
     const selectedJourney = journeys.find((journey) => journey.id === selectedJourneyId);
+    const [journeyForActions, setJourneyForActions] = useState<WorkJourney | null>(null);
 
     const normalisedSearchQuery = searchQuery.trim().toLowerCase();
 
@@ -412,6 +415,57 @@ export default function WorkScreen() {
         }
     }
 
+    function handleDeleteJourney() {
+        if (!journeyForActions) {
+            return;
+        }
+
+        const journeyToDelete = journeyForActions;
+
+        setJourneyForActions(null);
+
+        confirmDelete({
+            title: "Delete Journey?",
+            message: `Delete "${journeyToDelete.title}"? Its Quests will be kept and moved to No Journey.`,
+            onConfirm: () => {
+                void deleteWorkJourney(journeyToDelete);
+            },
+        });
+    }
+
+    async function deleteWorkJourney(journeyToDelete: WorkJourney) {
+        try {
+            const { error } = await deleteRemoteWorkJourney(journeyToDelete.id);
+
+            if (error) {
+                console.error("Failed to delete Work Journey:", error);
+
+                return;
+            }
+
+            setJourneys((currentJourneys) => currentJourneys.filter((journey) => journey.id !== journeyToDelete.id));
+
+            setQuests((currentQuests) =>
+                currentQuests.map((quest) => {
+                    if (quest.journeyId !== journeyToDelete.id) {
+                        return quest;
+                    }
+
+                    const { journeyId: _journeyId, ...standaloneQuest } = quest;
+
+                    return standaloneQuest;
+                }),
+            );
+
+            if (selectedJourneyId === journeyToDelete.id) {
+                setSelectedJourneyId(null);
+                setSelectedFilter("all");
+            }
+        } catch (error) {
+            console.error("Failed to delete Work Journey:", error);
+        }
+    }
+
     function getJourneyName(journeyId?: string) {
         if (!journeyId) {
             return undefined;
@@ -530,6 +584,7 @@ export default function WorkScreen() {
                                         completedQuestCount={completedQuestCount}
                                         totalQuestCount={journeyQuests.length}
                                         onPress={() => handleOpenJourney(journey.id)}
+                                        onMore={() => setJourneyForActions(journey)}
                                     />
                                 );
                             })}
@@ -552,6 +607,12 @@ export default function WorkScreen() {
                 onToggleComplete={handleToggleQuestComplete}
                 onDelete={handleDeleteQuest}
             />
+
+            <WorkJourneyActionsModal
+    journey={journeyForActions}
+    onClose={() => setJourneyForActions(null)}
+    onDelete={handleDeleteJourney}
+/>
         </AppScreenBackground>
     );
 }

@@ -234,3 +234,13 @@ export async function updateRemoteWorkQuestJourney(
         error: null,
     };
 }
+
+export async function deleteRemoteWorkJourney(journeyId: string): Promise<{
+    error: Error | null;
+}> {
+    const { error } = await supabase.from("journeys").delete().eq("id", journeyId);
+
+    return {
+        error,
+    };
+}
