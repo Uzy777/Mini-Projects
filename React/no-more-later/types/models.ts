@@ -38,7 +38,7 @@ export type CreateFocusSessionInput = Omit<FocusSessionRecord, "id">;
 export type ActiveFocusSession = {
     id: string;
     questId: string;
-    journeyId: string;
+    journeyId?: string;
     questTitle: string;
     selectedMinutes: number;
     remainingSeconds: number;

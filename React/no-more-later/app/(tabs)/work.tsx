@@ -155,7 +155,14 @@ export default function WorkScreen() {
     }
 
     function handleQuickStart() {
-        console.log("Quick Start");
+        const nextQuest = quests.find((quest) => quest.status === "active");
+
+        if (!nextQuest) {
+            setIsCreateQuestVisible(true);
+            return;
+        }
+
+        handleFocusQuest(nextQuest);
     }
 
     function handleCreateQuest(title: string, assetId: WorkAssetId, journeyId?: string) {
@@ -259,6 +266,10 @@ export default function WorkScreen() {
         return journeys.find((journey) => journey.id === journeyId)?.title;
     }
 
+    function handleFocusQuest(quest: WorkQuest) {
+        console.log("Focus:", quest.title);
+    }
+
     return (
         <AppScreenBackground>
             <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -307,9 +318,7 @@ export default function WorkScreen() {
                                 title={quest.title}
                                 assetId={quest.assetId}
                                 journeyName={getJourneyName(quest.journeyId)}
-                                onFocus={() => {
-                                    console.log("Focus:", quest.title);
-                                }}
+                                onFocus={() => handleFocusQuest(quest)}
                                 onMore={() => {
                                     setSelectedQuest(quest);
                                 }}

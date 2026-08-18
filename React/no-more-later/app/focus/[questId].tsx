@@ -32,7 +32,7 @@ export default function FocusScreen() {
     const { questId, questTitle, journeyId } = useLocalSearchParams<{
         questId: string;
         questTitle?: string;
-        journeyId: string;
+        journeyId?: string;
     }>();
 
     const [sessionId, setSessionId] = useState<string | null>(null);
@@ -236,8 +236,12 @@ export default function FocusScreen() {
             pathname: "/focus/[questId]",
             params: {
                 questId: existingActiveSession.questId,
-                journeyId: existingActiveSession.journeyId,
                 questTitle: existingActiveSession.questTitle,
+                ...(existingActiveSession.journeyId
+                    ? {
+                          journeyId: existingActiveSession.journeyId,
+                      }
+                    : {}),
             },
         });
     }
