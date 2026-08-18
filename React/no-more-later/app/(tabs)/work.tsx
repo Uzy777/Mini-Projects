@@ -261,8 +261,17 @@ export default function WorkScreen() {
             return;
         }
 
+        const questToMove = selectedQuest;
+        const previousJourneyId = questToMove.journeyId;
+
+        // Nothing is actually changing.
+        if (previousJourneyId === journeyId) {
+            setSelectedQuest(null);
+            return;
+        }
+
         try {
-            const { data, error } = await updateRemoteWorkQuestJourney(selectedQuest.id, journeyId);
+            const { data, error } = await updateRemoteWorkQuestJourney(questToMove.id, journeyId);
 
             if (error || !data) {
                 console.error("Failed to move Work Quest:", error);
@@ -270,7 +279,45 @@ export default function WorkScreen() {
                 return;
             }
 
-            setQuests((currentQuests) => currentQuests.map((quest) => (quest.id === data.id ? data : quest)));
+            const updatedQuests: WorkQuest[] = quests.map((quest) => (quest.id === data.id ? data : quest));
+
+            setQuests(updatedQuests);
+
+            // Recalculate the Journey the Quest moved OUT of.
+            if (previousJourneyId) {
+                const previousJourneyQuests = updatedQuests.filter((quest) => quest.journeyId === previousJourneyId);
+
+                const previousJourneyStatus = await syncJourneyStatusFromQuests(previousJourneyId, previousJourneyQuests);
+
+                setJourneys((currentJourneys) =>
+                    currentJourneys.map((journey) =>
+                        journey.id === previousJourneyId
+                            ? {
+                                  ...journey,
+                                  status: previousJourneyStatus,
+                              }
+                            : journey,
+                    ),
+                );
+            }
+
+            // Recalculate the Journey the Quest moved INTO.
+            if (journeyId) {
+                const newJourneyQuests = updatedQuests.filter((quest) => quest.journeyId === journeyId);
+
+                const newJourneyStatus = await syncJourneyStatusFromQuests(journeyId, newJourneyQuests);
+
+                setJourneys((currentJourneys) =>
+                    currentJourneys.map((journey) =>
+                        journey.id === journeyId
+                            ? {
+                                  ...journey,
+                                  status: newJourneyStatus,
+                              }
+                            : journey,
+                    ),
+                );
+            }
 
             setSelectedQuest(null);
         } catch (error) {
