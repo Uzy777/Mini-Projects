@@ -13,12 +13,14 @@ import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { CreateWorkJourneyModal } from "@/components/work/CreateWorkJourneyModal";
-import type { WorkAssetId, WorkJourney, WorkQuest } from "@/types/work";
+import type { WorkAssetId, WorkJourney, WorkQuest, WorkStatus } from "@/types/work";
 import { WorkToolbar, type WorkStatusFilter, type WorkViewFilter } from "@/components/work/WorkToolbar";
 import { WorkQuestActionsModal } from "@/components/work/WorkQuestActionsModal";
 import { confirmDelete } from "@/utils/confirmDelete";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
+import { updateRemoteQuestStatus } from "@/services/quests/questService";
+import { syncJourneyStatusFromQuests } from "@/services/journeyStatusService";
 
 import {
     createRemoteWorkJourney,
@@ -197,25 +199,60 @@ export default function WorkScreen() {
         }
     }
 
-    function handleToggleQuestComplete() {
+    async function handleToggleQuestComplete() {
         if (!selectedQuest) {
             return;
         }
 
-        setQuests((currentQuests) =>
-            currentQuests.map((quest) => {
-                if (quest.id !== selectedQuest.id) {
+        const questToUpdate = selectedQuest;
+
+        const nextStatus: WorkStatus = questToUpdate.status === "completed" ? "active" : "completed";
+
+        try {
+            const { error } = await updateRemoteQuestStatus(questToUpdate.id, nextStatus);
+
+            if (error) {
+                console.error("Failed to update Work Quest status:", error);
+
+                return;
+            }
+
+            const updatedQuests: WorkQuest[] = quests.map((quest) => {
+                if (quest.id !== questToUpdate.id) {
                     return quest;
                 }
 
                 return {
                     ...quest,
-                    status: quest.status === "completed" ? "active" : "completed",
+                    status: nextStatus,
                 };
-            }),
-        );
+            });
 
-        setSelectedQuest(null);
+            setQuests(updatedQuests);
+
+            if (questToUpdate.journeyId) {
+                const journeyQuests = updatedQuests.filter((quest) => quest.journeyId === questToUpdate.journeyId);
+
+                const updatedJourneyStatus = await syncJourneyStatusFromQuests(questToUpdate.journeyId, journeyQuests);
+
+                setJourneys((currentJourneys) =>
+                    currentJourneys.map((journey) => {
+                        if (journey.id !== questToUpdate.journeyId) {
+                            return journey;
+                        }
+
+                        return {
+                            ...journey,
+                            status: updatedJourneyStatus,
+                        };
+                    }),
+                );
+            }
+
+            setSelectedQuest(null);
+        } catch (error) {
+            console.error("Failed to update Work Quest:", error);
+        }
     }
 
     async function handleAssignQuestJourney(journeyId?: string) {
