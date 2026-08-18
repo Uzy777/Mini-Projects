@@ -185,6 +185,8 @@ export default function HomeScreen() {
             params: {
                 questId: latestUnfinishedSession.questId,
                 questTitle: latestUnfinishedSession.questTitle,
+                source: "work",
+
                 ...(latestUnfinishedSession.journeyId
                     ? {
                           journeyId: latestUnfinishedSession.journeyId,
