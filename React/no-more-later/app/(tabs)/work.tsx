@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from "react";
-import { ScrollView, StyleSheet, Text, View, TextInput } from "react-native";
+import { ScrollView, StyleSheet, Text, View, TextInput, Pressable } from "react-native";
 
 import { Folder } from "lucide-react-native";
 
@@ -53,6 +53,8 @@ export default function WorkScreen() {
     const [isCreateJourneyVisible, setIsCreateJourneyVisible] = useState(false);
 
     const [isCreateQuestVisible, setIsCreateQuestVisible] = useState(false);
+    const [selectedJourneyId, setSelectedJourneyId] = useState<string | null>(null);
+    const selectedJourney = journeys.find((journey) => journey.id === selectedJourneyId);
 
     const normalisedSearchQuery = searchQuery.trim().toLowerCase();
 
@@ -93,6 +95,10 @@ export default function WorkScreen() {
             return false;
         }
 
+        if (selectedJourneyId && quest.journeyId !== selectedJourneyId) {
+            return false;
+        }
+
         if (selectedFilter === "journeys" && !quest.journeyId) {
             return false;
         }
@@ -122,6 +128,16 @@ export default function WorkScreen() {
     const showQuests = selectedFilter !== "journeys" || selectedFilter === "journeys";
 
     const showJourneys = selectedFilter === "all" || selectedFilter === "journeys";
+
+    function handleOpenJourney(journeyId: string) {
+        setSelectedJourneyId(journeyId);
+        setSelectedFilter("journeys");
+    }
+
+    function handleCloseJourney() {
+        setSelectedJourneyId(null);
+        setSelectedFilter("all");
+    }
 
     function handleSearch() {
         setIsSearchVisible((currentValue) => {
@@ -452,6 +468,20 @@ export default function WorkScreen() {
                     </View>
                 )}
 
+                {selectedJourney && (
+                    <View style={styles.openJourneyHeader}>
+                        <View style={styles.openJourneyTitleSection}>
+                            <Folder size={18} color={colours.primary} />
+
+                            <Text style={styles.openJourneyTitle}>{selectedJourney.title}</Text>
+                        </View>
+
+                        <Pressable onPress={handleCloseJourney} style={styles.backToJourneysButton}>
+                            <Text style={styles.backToJourneysText}>All Journeys</Text>
+                        </Pressable>
+                    </View>
+                )}
+
                 <View style={styles.questSection}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>{statusFilter === "active" ? "ACTIVE QUESTS" : "COMPLETED QUESTS"}</Text>
@@ -476,7 +506,7 @@ export default function WorkScreen() {
                     </View>
                 </View>
 
-                {showJourneys && (
+                {showJourneys && !selectedJourneyId && (
                     <View style={styles.journeySection}>
                         <View style={styles.sectionHeader}>
                             <Folder size={19} color={colours.primary} />
@@ -495,14 +525,11 @@ export default function WorkScreen() {
 
                                 return (
                                     <WorkJourneyCard
-                                        key={journey.id}
                                         title={journey.title}
                                         assetId={journey.assetId}
                                         completedQuestCount={completedQuestCount}
                                         totalQuestCount={journeyQuests.length}
-                                        onPress={() => {
-                                            console.log("Open Journey:", journey.title);
-                                        }}
+                                        onPress={() => handleOpenJourney(journey.id)}
                                     />
                                 );
                             })}
@@ -645,6 +672,41 @@ function createStyles(colours: AppColours) {
             backgroundColor: colours.surface,
 
             fontSize: 15,
+            color: colours.text,
+        },
+
+        openJourneyHeader: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: spacing.md,
+            marginBottom: spacing.md,
+        },
+
+        openJourneyTitleSection: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.sm,
+        },
+
+        openJourneyTitle: {
+            fontSize: 20,
+            fontWeight: "800",
+            color: colours.text,
+        },
+
+        backToJourneysButton: {
+            paddingHorizontal: spacing.md,
+            paddingVertical: spacing.sm,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.pill,
+            backgroundColor: colours.surface,
+        },
+
+        backToJourneysText: {
+            fontSize: 13,
+            fontWeight: "700",
             color: colours.text,
         },
     });
