@@ -160,8 +160,12 @@ export default function HomeScreen() {
             pathname: "/focus/[questId]",
             params: {
                 questId: activeSession.questId,
-                journeyId: activeSession.journeyId,
                 questTitle: activeSession.questTitle,
+                ...(activeSession.journeyId
+                    ? {
+                          journeyId: activeSession.journeyId,
+                      }
+                    : {}),
             },
         });
     }
@@ -175,8 +179,12 @@ export default function HomeScreen() {
             pathname: "/focus/[questId]",
             params: {
                 questId: latestUnfinishedSession.questId,
-                journeyId: latestUnfinishedSession.journeyId,
                 questTitle: latestUnfinishedSession.questTitle,
+                ...(latestUnfinishedSession.journeyId
+                    ? {
+                          journeyId: latestUnfinishedSession.journeyId,
+                      }
+                    : {}),
             },
         });
     }

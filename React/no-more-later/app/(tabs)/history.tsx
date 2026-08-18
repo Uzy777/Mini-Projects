@@ -3,7 +3,6 @@ import { useCallback, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import type { FocusSessionRecord } from "../../types/models";
-import { getFocusSessions } from "../../services/storage/focusSessionsStorage";
 import { FocusSessionHistoryCard } from "../../components/history/FocusSessionHistoryCard";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";

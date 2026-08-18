@@ -46,27 +46,33 @@ export async function getRemoteQuests(journeyId: string): Promise<{
 }
 
 export async function getRemoteQuest(
-    journeyId: string,
+    journeyId: string | undefined,
     questId: string,
 ): Promise<{
     data: Quest | null;
     error: Error | null;
 }> {
-    const { data, error } = await supabase
+    let query = supabase
         .from("quests")
         .select(
             `
-                id,
-                title,
-                status,
-                done_when,
-                next_action,
-                last_accomplishment
-            `,
+            id,
+            title,
+            status,
+            done_when,
+            next_action,
+            last_accomplishment
+        `,
         )
-        .eq("id", questId)
-        .eq("journey_id", journeyId)
-        .maybeSingle();
+        .eq("id", questId);
+
+    if (journeyId) {
+        query = query.eq("journey_id", journeyId);
+    } else {
+        query = query.is("journey_id", null);
+    }
+
+    const { data, error } = await query.maybeSingle();
 
     if (error) {
         return {
@@ -98,6 +104,7 @@ export async function getRemoteQuest(
 }
 
 export async function createRemoteQuest(
+    userId: string,
     journeyId: string,
     title: string,
     doneWhen?: string,
@@ -108,6 +115,7 @@ export async function createRemoteQuest(
     const { data, error } = await supabase
         .from("quests")
         .insert({
+            user_id: userId,
             journey_id: journeyId,
             title,
             status: "active",

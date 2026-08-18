@@ -4,7 +4,7 @@ import type { SessionOutcome } from "@/types/models";
 
 type CompleteRemoteReviewInput = {
     focusSessionId: string;
-    journeyId: string;
+    journeyId?: string;
     questId: string;
     plannedMinutes: number;
     actualSeconds: number;
@@ -18,7 +18,7 @@ type CompleteRemoteReviewResult = {
     questTitle: string;
     earnedXp: number;
     totalXp: number;
-    journeyStatus: "active" | "completed";
+    journeyStatus: "active" | "completed" | null;
 };
 
 export async function completeRemoteReview(input: CompleteRemoteReviewInput): Promise<{
@@ -27,7 +27,7 @@ export async function completeRemoteReview(input: CompleteRemoteReviewInput): Pr
 }> {
     const { data, error } = await supabase.rpc("complete_review", {
         p_focus_session_id: input.focusSessionId,
-        p_journey_id: input.journeyId,
+        p_journey_id: input.journeyId ?? null,
         p_quest_id: input.questId,
         p_planned_minutes: input.plannedMinutes,
         p_actual_seconds: input.actualSeconds,

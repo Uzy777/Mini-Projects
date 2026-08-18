@@ -31,7 +31,7 @@ export default function ReviewSessionScreen() {
     const { questId, questTitle, journeyId, focusSessionId, plannedMinutes, actualSeconds, endedEarly } = useLocalSearchParams<{
         questId: string;
         questTitle?: string;
-        journeyId: string;
+        journeyId?: string;
         focusSessionId: string;
         plannedMinutes?: string;
         actualSeconds?: string;

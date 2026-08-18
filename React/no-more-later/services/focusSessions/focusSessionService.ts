@@ -13,7 +13,7 @@ export async function createRemoteFocusSession(
         .from("focus_sessions")
         .insert({
             user_id: userId,
-            journey_id: session.journeyId,
+            journey_id: session.journeyId ?? null,
             quest_id: session.questId,
             quest_title: session.questTitle,
             planned_minutes: session.plannedMinutes,
@@ -50,7 +50,7 @@ export async function createRemoteFocusSession(
 
     const focusSession: FocusSessionRecord = {
         id: data.id,
-        journeyId: data.journey_id,
+        journeyId: data.journey_id ?? undefined,
         questId: data.quest_id,
         questTitle: data.quest_title,
         plannedMinutes: data.planned_minutes,
@@ -103,7 +103,7 @@ export async function getRemoteFocusSessions(userId: string): Promise<{
 
     const focusSessions: FocusSessionRecord[] = data.map((session) => ({
         id: session.id,
-        journeyId: session.journey_id,
+        journeyId: session.journey_id ?? undefined,
         questId: session.quest_id,
         questTitle: session.quest_title,
         plannedMinutes: session.planned_minutes,

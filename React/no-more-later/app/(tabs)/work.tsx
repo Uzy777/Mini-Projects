@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { ScrollView, StyleSheet, Text, View, TextInput } from "react-native";
 
 import { Folder } from "lucide-react-native";
@@ -17,67 +17,14 @@ import type { WorkAssetId, WorkJourney, WorkQuest } from "@/types/work";
 import { WorkToolbar, type WorkStatusFilter, type WorkViewFilter } from "@/components/work/WorkToolbar";
 import { WorkQuestActionsModal } from "@/components/work/WorkQuestActionsModal";
 import { confirmDelete } from "@/utils/confirmDelete";
+import { useFocusEffect } from "expo-router";
+import { useAuth } from "@/contexts/AuthContext";
 
-const exampleQuests: WorkQuest[] = [
-    {
-        id: "auth",
-        title: "Finish authentication screen",
-        status: "active",
-        journeyId: "portfolio",
-        assetId: "laptop",
-    },
-    {
-        id: "iam",
-        title: "Revise IAM policies",
-        status: "active",
-        journeyId: "aws",
-        assetId: "cloud",
-    },
-    {
-        id: "clean-desk",
-        title: "Clean the desk",
-        status: "active",
-        assetId: "home",
-    },
-    {
-        id: "projects-section",
-        title: "Build projects section",
-        status: "completed",
-        journeyId: "portfolio",
-        assetId: "laptop",
-    },
-    {
-        id: "dark-mode",
-        title: "Add dark mode",
-        status: "completed",
-        journeyId: "portfolio",
-        assetId: "creative",
-    },
-];
-
-const exampleJourneys: WorkJourney[] = [
-    {
-        id: "portfolio",
-        title: "Portfolio Website",
-        status: "active",
-        assetId: "work",
-    },
-    {
-        id: "aws",
-        title: "AWS Certification",
-        status: "active",
-        assetId: "study",
-    },
-    {
-        id: "fitness",
-        title: "Health & Fitness",
-        status: "active",
-        assetId: "health",
-    },
-];
+import { createRemoteWorkJourney, createRemoteWorkQuest, getRemoteWorkJourneys, getRemoteWorkQuests } from "@/services/work/workService";
 
 export default function WorkScreen() {
     const { colours } = useAppearance();
+    const { session } = useAuth();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
 
@@ -88,14 +35,47 @@ export default function WorkScreen() {
 
     const [searchQuery, setSearchQuery] = useState("");
 
-    const [quests, setQuests] = useState<WorkQuest[]>(exampleQuests);
-    const [journeys, setJourneys] = useState<WorkJourney[]>(exampleJourneys);
+    const [quests, setQuests] = useState<WorkQuest[]>([]);
+
+    const [journeys, setJourneys] = useState<WorkJourney[]>([]);
 
     const [isCreateJourneyVisible, setIsCreateJourneyVisible] = useState(false);
 
     const [isCreateQuestVisible, setIsCreateQuestVisible] = useState(false);
 
     const normalisedSearchQuery = searchQuery.trim().toLowerCase();
+
+    useFocusEffect(
+        useCallback(() => {
+            async function loadWork() {
+                if (!session) {
+                    setJourneys([]);
+                    setQuests([]);
+                    return;
+                }
+
+                try {
+                    const [journeysResult, questsResult] = await Promise.all([getRemoteWorkJourneys(session.user.id), getRemoteWorkQuests(session.user.id)]);
+
+                    if (journeysResult.error) {
+                        console.error("Failed to load Work Journeys:", journeysResult.error);
+                    } else {
+                        setJourneys(journeysResult.data ?? []);
+                    }
+
+                    if (questsResult.error) {
+                        console.error("Failed to load Work Quests:", questsResult.error);
+                    } else {
+                        setQuests(questsResult.data ?? []);
+                    }
+                } catch (error) {
+                    console.error("Failed to load Work:", error);
+                }
+            }
+
+            loadWork();
+        }, [session?.user.id]),
+    );
 
     const visibleQuests = quests.filter((quest) => {
         if (quest.status !== statusFilter) {
@@ -165,31 +145,48 @@ export default function WorkScreen() {
         handleFocusQuest(nextQuest);
     }
 
-    function handleCreateQuest(title: string, assetId: WorkAssetId, journeyId?: string) {
-        const newQuest: WorkQuest = {
-            id: Date.now().toString(),
-            title,
-            status: "active",
-            assetId,
-            ...(journeyId ? { journeyId } : {}),
-        };
+    async function handleCreateQuest(title: string, assetId: WorkAssetId, journeyId?: string) {
+        if (!session) {
+            return;
+        }
 
-        setQuests((currentQuests) => [newQuest, ...currentQuests]);
+        try {
+            const { data, error } = await createRemoteWorkQuest(session.user.id, title, assetId, journeyId);
 
-        setIsCreateQuestVisible(false);
+            if (error || !data) {
+                console.error("Failed to create Work Quest:", error);
+
+                return;
+            }
+
+            setQuests((currentQuests) => [data, ...currentQuests]);
+
+            setIsCreateQuestVisible(false);
+        } catch (error) {
+            console.error("Failed to create Work Quest:", error);
+        }
     }
 
-    function handleCreateJourney(title: string, assetId: WorkAssetId) {
-        const newJourney: WorkJourney = {
-            id: Date.now().toString(),
-            title,
-            status: "active",
-            assetId,
-        };
+    async function handleCreateJourney(title: string, assetId: WorkAssetId) {
+        if (!session) {
+            return;
+        }
 
-        setJourneys((currentJourneys) => [newJourney, ...currentJourneys]);
+        try {
+            const { data, error } = await createRemoteWorkJourney(session.user.id, title, assetId);
 
-        setIsCreateJourneyVisible(false);
+            if (error || !data) {
+                console.error("Failed to create Work Journey:", error);
+
+                return;
+            }
+
+            setJourneys((currentJourneys) => [data, ...currentJourneys]);
+
+            setIsCreateJourneyVisible(false);
+        } catch (error) {
+            console.error("Failed to create Work Journey:", error);
+        }
     }
 
     function handleToggleQuestComplete() {

@@ -21,7 +21,7 @@ export type Quest = {
 
 export type FocusSessionRecord = {
     id: string;
-    journeyId: string;
+    journeyId?: string;
     questId: string;
     questTitle: string;
     plannedMinutes: number;

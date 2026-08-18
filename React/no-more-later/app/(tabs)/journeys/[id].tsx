@@ -19,6 +19,7 @@ import type { AppColours } from "@/constants/appearanceColours";
 import { getRemoteQuests, createRemoteQuest, deleteRemoteQuest, updateRemoteQuestStatus } from "@/services/quests/questService";
 import { useMemo } from "react";
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
+import { useAuth } from "@/contexts/AuthContext";
 
 type QuestFilter = "all" | "active" | "completed";
 
@@ -41,6 +42,7 @@ const questFilters: {
 ];
 
 export default function JourneyDetailsScreen() {
+    const { session } = useAuth();
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -91,6 +93,12 @@ export default function JourneyDetailsScreen() {
             return;
         }
 
+        if (!session) {
+            showMessage("Unable to create Quest", "You need to be signed in to create a Quest.");
+
+            return;
+        }
+
         const normalisedTitle = trimmedTitle.toLowerCase();
 
         const questAlreadyExists = quests.some((quest) => quest.title.trim().toLowerCase() === normalisedTitle);
@@ -102,7 +110,7 @@ export default function JourneyDetailsScreen() {
         }
 
         try {
-            const { data, error } = await createRemoteQuest(id, trimmedTitle, trimmedDoneWhen || undefined);
+            const { data, error } = await createRemoteQuest(session.user.id, id, trimmedTitle, trimmedDoneWhen || undefined);
 
             if (error || !data) {
                 console.error("Failed to create remote Quest:", error);

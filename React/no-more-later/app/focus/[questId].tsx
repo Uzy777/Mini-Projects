@@ -324,7 +324,7 @@ export default function FocusScreen() {
                 params: {
                     questId,
                     questTitle,
-                    journeyId,
+                    ...(journeyId ? { journeyId } : {}),
                     focusSessionId: sessionId,
                     plannedMinutes: selectedMinutes.toString(),
                     actualSeconds: actualSeconds.toString(),
@@ -348,7 +348,7 @@ export default function FocusScreen() {
             params: {
                 questId,
                 questTitle,
-                journeyId,
+                ...(journeyId ? { journeyId } : {}),
                 focusSessionId: sessionId,
                 plannedMinutes: selectedMinutes.toString(),
                 actualSeconds: (selectedMinutes * 60).toString(),

@@ -1,0 +1,187 @@
+import { supabase } from "@/lib/supabase";
+
+import type { WorkAssetId, WorkJourney, WorkQuest } from "@/types/work";
+
+export async function getRemoteWorkJourneys(userId: string): Promise<{
+    data: WorkJourney[] | null;
+    error: Error | null;
+}> {
+    const { data, error } = await supabase
+        .from("journeys")
+        .select(
+            `
+                id,
+                title,
+                status,
+                asset_id
+            `,
+        )
+        .eq("user_id", userId)
+        .order("created_at", {
+            ascending: true,
+        });
+
+    if (error) {
+        return {
+            data: null,
+            error,
+        };
+    }
+
+    const journeys: WorkJourney[] = data.map((journey) => ({
+        id: journey.id,
+        title: journey.title,
+        status: journey.status,
+        assetId: journey.asset_id as WorkAssetId,
+    }));
+
+    return {
+        data: journeys,
+        error: null,
+    };
+}
+
+export async function getRemoteWorkQuests(userId: string): Promise<{
+    data: WorkQuest[] | null;
+    error: Error | null;
+}> {
+    const { data, error } = await supabase
+        .from("quests")
+        .select(
+            `
+                id,
+                title,
+                status,
+                asset_id,
+                journey_id
+            `,
+        )
+        .eq("user_id", userId)
+        .order("created_at", {
+            ascending: true,
+        });
+
+    if (error) {
+        return {
+            data: null,
+            error,
+        };
+    }
+
+    const quests: WorkQuest[] = data.map((quest) => ({
+        id: quest.id,
+        title: quest.title,
+        status: quest.status,
+        assetId: quest.asset_id as WorkAssetId,
+        ...(quest.journey_id
+            ? {
+                  journeyId: quest.journey_id,
+              }
+            : {}),
+    }));
+
+    return {
+        data: quests,
+        error: null,
+    };
+}
+
+export async function createRemoteWorkQuest(
+    userId: string,
+    title: string,
+    assetId: WorkAssetId,
+    journeyId?: string,
+): Promise<{
+    data: WorkQuest | null;
+    error: Error | null;
+}> {
+    const { data, error } = await supabase
+        .from("quests")
+        .insert({
+            user_id: userId,
+            journey_id: journeyId ?? null,
+            title,
+            status: "active",
+            asset_id: assetId,
+        })
+        .select(
+            `
+                id,
+                title,
+                status,
+                asset_id,
+                journey_id
+            `,
+        )
+        .single();
+
+    if (error) {
+        return {
+            data: null,
+            error,
+        };
+    }
+
+    const quest: WorkQuest = {
+        id: data.id,
+        title: data.title,
+        status: data.status,
+        assetId: data.asset_id as WorkAssetId,
+        ...(data.journey_id
+            ? {
+                  journeyId: data.journey_id,
+              }
+            : {}),
+    };
+
+    return {
+        data: quest,
+        error: null,
+    };
+}
+
+export async function createRemoteWorkJourney(
+    userId: string,
+    title: string,
+    assetId: WorkAssetId,
+): Promise<{
+    data: WorkJourney | null;
+    error: Error | null;
+}> {
+    const { data, error } = await supabase
+        .from("journeys")
+        .insert({
+            user_id: userId,
+            title,
+            status: "active",
+            asset_id: assetId,
+        })
+        .select(
+            `
+                id,
+                title,
+                status,
+                asset_id
+            `,
+        )
+        .single();
+
+    if (error) {
+        return {
+            data: null,
+            error,
+        };
+    }
+
+    const journey: WorkJourney = {
+        id: data.id,
+        title: data.title,
+        status: data.status,
+        assetId: data.asset_id as WorkAssetId,
+    };
+
+    return {
+        data: journey,
+        error: null,
+    };
+}
