@@ -10,43 +10,56 @@ import { WorkToolbar, type WorkViewFilter } from "@/components/work/WorkToolbar"
 import { WorkQuestCard } from "@/components/work/WorkQuestCard";
 import { WorkJourneyCard } from "@/components/work/WorkJourneyCard";
 import { Folder } from "lucide-react-native";
+import type { WorkJourney, WorkQuest } from "@/types/work";
 
 export default function WorkScreen() {
-    const exampleQuests = [
+    const exampleQuests: WorkQuest[] = [
         {
-            id: "1",
+            id: "auth",
             title: "Finish authentication screen",
-            journeyName: "Portfolio Website",
+            status: "active",
+            journeyId: "portfolio",
         },
         {
-            id: "2",
+            id: "iam",
             title: "Revise IAM policies",
-            journeyName: "AWS Certification",
+            status: "active",
+            journeyId: "aws",
         },
         {
-            id: "3",
+            id: "clean-desk",
             title: "Clean the desk",
+            status: "active",
+        },
+        {
+            id: "projects-section",
+            title: "Build projects section",
+            status: "completed",
+            journeyId: "portfolio",
+        },
+        {
+            id: "dark-mode",
+            title: "Add dark mode",
+            status: "completed",
+            journeyId: "portfolio",
         },
     ];
 
-    const exampleJourneys = [
+    const exampleJourneys: WorkJourney[] = [
         {
-            id: "1",
+            id: "portfolio",
             title: "Portfolio Website",
-            completedQuestCount: 7,
-            totalQuestCount: 10,
+            status: "active",
         },
         {
-            id: "2",
+            id: "aws",
             title: "AWS Certification",
-            completedQuestCount: 4,
-            totalQuestCount: 10,
+            status: "active",
         },
         {
-            id: "3",
+            id: "fitness",
             title: "Health & Fitness",
-            completedQuestCount: 3,
-            totalQuestCount: 5,
+            status: "active",
         },
     ];
 
@@ -76,6 +89,14 @@ export default function WorkScreen() {
         console.log("Quick Start");
     }
 
+    function getJourneyName(journeyId?: string) {
+        if (!journeyId) {
+            return undefined;
+        }
+
+        return exampleJourneys.find((journey) => journey.id === journeyId)?.title;
+    }
+
     return (
         <AppScreenBackground>
             <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -99,19 +120,21 @@ export default function WorkScreen() {
                     </View>
 
                     <View style={styles.questList}>
-                        {exampleQuests.map((quest) => (
-                            <WorkQuestCard
-                                key={quest.id}
-                                title={quest.title}
-                                journeyName={quest.journeyName}
-                                onFocus={() => {
-                                    console.log("Focus:", quest.title);
-                                }}
-                                onMore={() => {
-                                    console.log("More:", quest.title);
-                                }}
-                            />
-                        ))}
+                        {exampleQuests
+                            .filter((quest) => quest.status === "active")
+                            .map((quest) => (
+                                <WorkQuestCard
+                                    key={quest.id}
+                                    title={quest.title}
+                                    journeyName={getJourneyName(quest.journeyId)}
+                                    onFocus={() => {
+                                        console.log("Focus:", quest.title);
+                                    }}
+                                    onMore={() => {
+                                        console.log("More:", quest.title);
+                                    }}
+                                />
+                            ))}
                     </View>
 
                     <View style={styles.journeySection}>
@@ -126,17 +149,23 @@ export default function WorkScreen() {
                         </View>
 
                         <View style={styles.journeyGrid}>
-                            {exampleJourneys.map((journey) => (
-                                <WorkJourneyCard
-                                    key={journey.id}
-                                    title={journey.title}
-                                    completedQuestCount={journey.completedQuestCount}
-                                    totalQuestCount={journey.totalQuestCount}
-                                    onPress={() => {
-                                        console.log("Open Journey:", journey.title);
-                                    }}
-                                />
-                            ))}
+                            {exampleJourneys.map((journey) => {
+                                const journeyQuests = exampleQuests.filter((quest) => quest.journeyId === journey.id);
+
+                                const completedQuestCount = journeyQuests.filter((quest) => quest.status === "completed").length;
+
+                                return (
+                                    <WorkJourneyCard
+                                        key={journey.id}
+                                        title={journey.title}
+                                        completedQuestCount={completedQuestCount}
+                                        totalQuestCount={journeyQuests.length}
+                                        onPress={() => {
+                                            console.log("Open Journey:", journey.title);
+                                        }}
+                                    />
+                                );
+                            })}
                         </View>
                     </View>
                 </View>
