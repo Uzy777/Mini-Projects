@@ -185,3 +185,52 @@ export async function createRemoteWorkJourney(
         error: null,
     };
 }
+
+export async function updateRemoteWorkQuestJourney(
+    questId: string,
+    journeyId?: string,
+): Promise<{
+    data: WorkQuest | null;
+    error: Error | null;
+}> {
+    const { data, error } = await supabase
+        .from("quests")
+        .update({
+            journey_id: journeyId ?? null,
+        })
+        .eq("id", questId)
+        .select(
+            `
+                id,
+                title,
+                status,
+                asset_id,
+                journey_id
+            `,
+        )
+        .single();
+
+    if (error) {
+        return {
+            data: null,
+            error,
+        };
+    }
+
+    const quest: WorkQuest = {
+        id: data.id,
+        title: data.title,
+        status: data.status,
+        assetId: data.asset_id as WorkAssetId,
+        ...(data.journey_id
+            ? {
+                  journeyId: data.journey_id,
+              }
+            : {}),
+    };
+
+    return {
+        data: quest,
+        error: null,
+    };
+}

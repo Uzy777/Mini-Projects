@@ -20,7 +20,13 @@ import { confirmDelete } from "@/utils/confirmDelete";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
 
-import { createRemoteWorkJourney, createRemoteWorkQuest, getRemoteWorkJourneys, getRemoteWorkQuests } from "@/services/work/workService";
+import {
+    createRemoteWorkJourney,
+    createRemoteWorkQuest,
+    getRemoteWorkJourneys,
+    getRemoteWorkQuests,
+    updateRemoteWorkQuestJourney,
+} from "@/services/work/workService";
 
 export default function WorkScreen() {
     const { colours } = useAppearance();
@@ -212,31 +218,26 @@ export default function WorkScreen() {
         setSelectedQuest(null);
     }
 
-    function handleAssignQuestJourney(journeyId?: string) {
+    async function handleAssignQuestJourney(journeyId?: string) {
         if (!selectedQuest) {
             return;
         }
 
-        setQuests((currentQuests) =>
-            currentQuests.map((quest) => {
-                if (quest.id !== selectedQuest.id) {
-                    return quest;
-                }
+        try {
+            const { data, error } = await updateRemoteWorkQuestJourney(selectedQuest.id, journeyId);
 
-                if (!journeyId) {
-                    const { journeyId: _currentJourneyId, ...standaloneQuest } = quest;
+            if (error || !data) {
+                console.error("Failed to move Work Quest:", error);
 
-                    return standaloneQuest;
-                }
+                return;
+            }
 
-                return {
-                    ...quest,
-                    journeyId,
-                };
-            }),
-        );
+            setQuests((currentQuests) => currentQuests.map((quest) => (quest.id === data.id ? data : quest)));
 
-        setSelectedQuest(null);
+            setSelectedQuest(null);
+        } catch (error) {
+            console.error("Failed to move Work Quest:", error);
+        }
     }
 
     function handleDeleteQuest() {
