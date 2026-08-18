@@ -5,11 +5,24 @@ import { AppScreenBackground } from "@/components/appearance/AppScreenBackground
 import type { AppColours } from "@/constants/appearanceColours";
 import { spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import { WorkQuickActions } from "@/components/work/WorkQuickActions";
 
 export default function WorkScreen() {
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
+
+    function handleNewQuest() {
+        console.log("New Quest");
+    }
+
+    function handleNewJourney() {
+        console.log("New Journey");
+    }
+
+    function handleQuickStart() {
+        console.log("Quick Start");
+    }
 
     return (
         <AppScreenBackground>
@@ -19,6 +32,8 @@ export default function WorkScreen() {
                 <Text style={styles.title}>Journeys & Quests</Text>
 
                 <Text style={styles.subtitle}>Everything you want to get done.</Text>
+
+                <WorkQuickActions onNewQuest={handleNewQuest} onNewJourney={handleNewJourney} onQuickStart={handleQuickStart} />
             </ScrollView>
         </AppScreenBackground>
     );
