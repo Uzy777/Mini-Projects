@@ -110,8 +110,16 @@ export default function WorkScreen() {
             return false;
         }
 
-        if (normalisedSearchQuery && !quest.title.toLowerCase().includes(normalisedSearchQuery)) {
-            return false;
+        if (normalisedSearchQuery) {
+            const journeyName = getJourneyName(quest.journeyId);
+
+            const matchesQuestTitle = quest.title.toLowerCase().includes(normalisedSearchQuery);
+
+            const matchesJourneyTitle = journeyName?.toLowerCase().includes(normalisedSearchQuery) ?? false;
+
+            if (!matchesQuestTitle && !matchesJourneyTitle) {
+                return false;
+            }
         }
 
         return true;
