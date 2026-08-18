@@ -98,11 +98,12 @@ export default function WorkScreen() {
         console.log("Quick Start");
     }
 
-    function handleCreateQuest(title: string) {
+    function handleCreateQuest(title: string, journeyId?: string) {
         const newQuest: WorkQuest = {
             id: Date.now().toString(),
             title,
             status: "active",
+            ...(journeyId ? { journeyId } : {}),
         };
 
         setQuests((currentQuests) => [newQuest, ...currentQuests]);
@@ -189,8 +190,12 @@ export default function WorkScreen() {
                     </View>
                 </View>
             </ScrollView>
-
-            <CreateWorkQuestModal visible={isCreateQuestVisible} onClose={() => setIsCreateQuestVisible(false)} onCreate={handleCreateQuest} />
+            <CreateWorkQuestModal
+                visible={isCreateQuestVisible}
+                journeys={exampleJourneys}
+                onClose={() => setIsCreateQuestVisible(false)}
+                onCreate={handleCreateQuest}
+            />
         </AppScreenBackground>
     );
 }
