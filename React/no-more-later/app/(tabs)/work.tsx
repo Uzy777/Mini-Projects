@@ -15,6 +15,7 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import { CreateWorkJourneyModal } from "@/components/work/CreateWorkJourneyModal";
 import type { WorkAssetId, WorkJourney, WorkQuest } from "@/types/work";
 import { WorkToolbar, type WorkStatusFilter, type WorkViewFilter } from "@/components/work/WorkToolbar";
+import { WorkQuestActionsModal } from "@/components/work/WorkQuestActionsModal";
 
 const exampleQuests: WorkQuest[] = [
     {
@@ -82,6 +83,7 @@ export default function WorkScreen() {
     const [selectedFilter, setSelectedFilter] = useState<WorkViewFilter>("all");
     const [statusFilter, setStatusFilter] = useState<WorkStatusFilter>("active");
     const [isSearchVisible, setIsSearchVisible] = useState(false);
+    const [selectedQuest, setSelectedQuest] = useState<WorkQuest | null>(null);
 
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -182,6 +184,27 @@ export default function WorkScreen() {
         setIsCreateJourneyVisible(false);
     }
 
+    function handleToggleQuestComplete() {
+        if (!selectedQuest) {
+            return;
+        }
+
+        setQuests((currentQuests) =>
+            currentQuests.map((quest) => {
+                if (quest.id !== selectedQuest.id) {
+                    return quest;
+                }
+
+                return {
+                    ...quest,
+                    status: quest.status === "completed" ? "active" : "completed",
+                };
+            }),
+        );
+
+        setSelectedQuest(null);
+    }
+
     function getJourneyName(journeyId?: string) {
         if (!journeyId) {
             return undefined;
@@ -242,7 +265,7 @@ export default function WorkScreen() {
                                     console.log("Focus:", quest.title);
                                 }}
                                 onMore={() => {
-                                    console.log("More:", quest.title);
+                                    setSelectedQuest(quest);
                                 }}
                             />
                         ))}
@@ -290,6 +313,8 @@ export default function WorkScreen() {
                 onCreate={handleCreateQuest}
             />
             <CreateWorkJourneyModal visible={isCreateJourneyVisible} onClose={() => setIsCreateJourneyVisible(false)} onCreate={handleCreateJourney} />
+
+            <WorkQuestActionsModal quest={selectedQuest} onClose={() => setSelectedQuest(null)} onToggleComplete={handleToggleQuestComplete} />
         </AppScreenBackground>
     );
 }
