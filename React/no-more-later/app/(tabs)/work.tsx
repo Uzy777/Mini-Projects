@@ -16,6 +16,7 @@ import { CreateWorkJourneyModal } from "@/components/work/CreateWorkJourneyModal
 import type { WorkAssetId, WorkJourney, WorkQuest } from "@/types/work";
 import { WorkToolbar, type WorkStatusFilter, type WorkViewFilter } from "@/components/work/WorkToolbar";
 import { WorkQuestActionsModal } from "@/components/work/WorkQuestActionsModal";
+import { confirmDelete } from "@/utils/confirmDelete";
 
 const exampleQuests: WorkQuest[] = [
     {
@@ -232,6 +233,24 @@ export default function WorkScreen() {
         setSelectedQuest(null);
     }
 
+    function handleDeleteQuest() {
+        if (!selectedQuest) {
+            return;
+        }
+
+        const questToDelete = selectedQuest;
+
+        setSelectedQuest(null);
+
+        confirmDelete({
+            title: "Delete Quest?",
+            message: `Are you sure you want to delete "${questToDelete.title}"?`,
+            onConfirm: () => {
+                setQuests((currentQuests) => currentQuests.filter((quest) => quest.id !== questToDelete.id));
+            },
+        });
+    }
+
     function getJourneyName(journeyId?: string) {
         if (!journeyId) {
             return undefined;
@@ -346,6 +365,7 @@ export default function WorkScreen() {
                 onClose={() => setSelectedQuest(null)}
                 onAssignJourney={handleAssignQuestJourney}
                 onToggleComplete={handleToggleQuestComplete}
+                onDelete={handleDeleteQuest}
             />
         </AppScreenBackground>
     );

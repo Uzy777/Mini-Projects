@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { CheckCircle2, RotateCcw, X } from "lucide-react-native";
+import { CheckCircle2, RotateCcw, X, Trash2 } from "lucide-react-native";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
@@ -14,9 +14,10 @@ type WorkQuestActionsModalProps = {
     onClose: () => void;
     onAssignJourney: (journeyId?: string) => void;
     onToggleComplete: () => void;
+    onDelete: () => void;
 };
 
-export function WorkQuestActionsModal({ quest, journeys, onClose, onAssignJourney, onToggleComplete }: WorkQuestActionsModalProps) {
+export function WorkQuestActionsModal({ quest, journeys, onClose, onAssignJourney, onToggleComplete, onDelete }: WorkQuestActionsModalProps) {
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -87,6 +88,16 @@ export function WorkQuestActionsModal({ quest, journeys, onClose, onAssignJourne
                             <Text style={styles.actionDescription}>
                                 {isCompleted ? "Move this Quest back to your active work." : "Move this Quest to your completed work."}
                             </Text>
+                        </View>
+                    </Pressable>
+
+                    <Pressable style={({ pressed }) => [styles.action, pressed && styles.pressed]} onPress={onDelete}>
+                        <Trash2 size={20} color={colours.danger} />
+
+                        <View style={styles.actionTextContainer}>
+                            <Text style={[styles.actionTitle, styles.deleteTitle]}>Delete Quest</Text>
+
+                            <Text style={styles.actionDescription}>Permanently remove this Quest.</Text>
                         </View>
                     </Pressable>
                 </View>
@@ -254,6 +265,9 @@ function createStyles(colours: AppColours) {
 
         journeyOptionTextSelected: {
             color: colours.primary,
+        },
+        deleteTitle: {
+            color: colours.danger,
         },
     });
 }
