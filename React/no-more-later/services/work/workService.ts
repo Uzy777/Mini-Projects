@@ -18,7 +18,7 @@ export async function getRemoteWorkJourneys(userId: string): Promise<{
         )
         .eq("user_id", userId)
         .order("created_at", {
-            ascending: true,
+            ascending: false,
         });
 
     if (error) {
@@ -58,7 +58,7 @@ export async function getRemoteWorkQuests(userId: string): Promise<{
         )
         .eq("user_id", userId)
         .order("created_at", {
-            ascending: true,
+            ascending: false,
         });
 
     if (error) {
