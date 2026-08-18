@@ -1,73 +1,82 @@
 import { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
+import { Folder } from "lucide-react-native";
+
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
-import type { AppColours } from "@/constants/appearanceColours";
-import { spacing, radius } from "@/constants/design";
-import { useAppearance } from "@/contexts/AppearanceContext";
+import { CreateWorkQuestModal } from "@/components/work/CreateWorkQuestModal";
+import { WorkJourneyCard } from "@/components/work/WorkJourneyCard";
+import { WorkQuestCard } from "@/components/work/WorkQuestCard";
 import { WorkQuickActions } from "@/components/work/WorkQuickActions";
 import { WorkToolbar, type WorkViewFilter } from "@/components/work/WorkToolbar";
-import { WorkQuestCard } from "@/components/work/WorkQuestCard";
-import { WorkJourneyCard } from "@/components/work/WorkJourneyCard";
-import { Folder } from "lucide-react-native";
+
+import type { AppColours } from "@/constants/appearanceColours";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
 import type { WorkJourney, WorkQuest } from "@/types/work";
 
+const exampleQuests: WorkQuest[] = [
+    {
+        id: "auth",
+        title: "Finish authentication screen",
+        status: "active",
+        journeyId: "portfolio",
+    },
+    {
+        id: "iam",
+        title: "Revise IAM policies",
+        status: "active",
+        journeyId: "aws",
+    },
+    {
+        id: "clean-desk",
+        title: "Clean the desk",
+        status: "active",
+    },
+    {
+        id: "projects-section",
+        title: "Build projects section",
+        status: "completed",
+        journeyId: "portfolio",
+    },
+    {
+        id: "dark-mode",
+        title: "Add dark mode",
+        status: "completed",
+        journeyId: "portfolio",
+    },
+];
+
+const exampleJourneys: WorkJourney[] = [
+    {
+        id: "portfolio",
+        title: "Portfolio Website",
+        status: "active",
+    },
+    {
+        id: "aws",
+        title: "AWS Certification",
+        status: "active",
+    },
+    {
+        id: "fitness",
+        title: "Health & Fitness",
+        status: "active",
+    },
+];
+
 export default function WorkScreen() {
-    const exampleQuests: WorkQuest[] = [
-        {
-            id: "auth",
-            title: "Finish authentication screen",
-            status: "active",
-            journeyId: "portfolio",
-        },
-        {
-            id: "iam",
-            title: "Revise IAM policies",
-            status: "active",
-            journeyId: "aws",
-        },
-        {
-            id: "clean-desk",
-            title: "Clean the desk",
-            status: "active",
-        },
-        {
-            id: "projects-section",
-            title: "Build projects section",
-            status: "completed",
-            journeyId: "portfolio",
-        },
-        {
-            id: "dark-mode",
-            title: "Add dark mode",
-            status: "completed",
-            journeyId: "portfolio",
-        },
-    ];
-
-    const exampleJourneys: WorkJourney[] = [
-        {
-            id: "portfolio",
-            title: "Portfolio Website",
-            status: "active",
-        },
-        {
-            id: "aws",
-            title: "AWS Certification",
-            status: "active",
-        },
-        {
-            id: "fitness",
-            title: "Health & Fitness",
-            status: "active",
-        },
-    ];
-
-    const [selectedFilter, setSelectedFilter] = useState<WorkViewFilter>("all");
-
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
+
+    const [selectedFilter, setSelectedFilter] = useState<WorkViewFilter>("all");
+
+    const [quests, setQuests] = useState<WorkQuest[]>(exampleQuests);
+
+    const [isCreateQuestVisible, setIsCreateQuestVisible] = useState(false);
+
+    const activeQuests = quests.filter((quest) => quest.status === "active");
 
     function handleSearch() {
         console.log("Search");
@@ -78,7 +87,7 @@ export default function WorkScreen() {
     }
 
     function handleNewQuest() {
-        console.log("New Quest");
+        setIsCreateQuestVisible(true);
     }
 
     function handleNewJourney() {
@@ -87,6 +96,18 @@ export default function WorkScreen() {
 
     function handleQuickStart() {
         console.log("Quick Start");
+    }
+
+    function handleCreateQuest(title: string) {
+        const newQuest: WorkQuest = {
+            id: Date.now().toString(),
+            title,
+            status: "active",
+        };
+
+        setQuests((currentQuests) => [newQuest, ...currentQuests]);
+
+        setIsCreateQuestVisible(false);
     }
 
     function getJourneyName(journeyId?: string) {
@@ -115,61 +136,61 @@ export default function WorkScreen() {
                         <Text style={styles.sectionTitle}>ACTIVE QUESTS</Text>
 
                         <View style={styles.countBadge}>
-                            <Text style={styles.countText}>{exampleQuests.length}</Text>
+                            <Text style={styles.countText}>{activeQuests.length}</Text>
                         </View>
                     </View>
 
                     <View style={styles.questList}>
-                        {exampleQuests
-                            .filter((quest) => quest.status === "active")
-                            .map((quest) => (
-                                <WorkQuestCard
-                                    key={quest.id}
-                                    title={quest.title}
-                                    journeyName={getJourneyName(quest.journeyId)}
-                                    onFocus={() => {
-                                        console.log("Focus:", quest.title);
-                                    }}
-                                    onMore={() => {
-                                        console.log("More:", quest.title);
-                                    }}
-                                />
-                            ))}
+                        {activeQuests.map((quest) => (
+                            <WorkQuestCard
+                                key={quest.id}
+                                title={quest.title}
+                                journeyName={getJourneyName(quest.journeyId)}
+                                onFocus={() => {
+                                    console.log("Focus:", quest.title);
+                                }}
+                                onMore={() => {
+                                    console.log("More:", quest.title);
+                                }}
+                            />
+                        ))}
+                    </View>
+                </View>
+
+                <View style={styles.journeySection}>
+                    <View style={styles.sectionHeader}>
+                        <Folder size={19} color={colours.primary} />
+
+                        <Text style={styles.sectionTitle}>JOURNEYS</Text>
+
+                        <View style={styles.countBadge}>
+                            <Text style={styles.countText}>{exampleJourneys.length}</Text>
+                        </View>
                     </View>
 
-                    <View style={styles.journeySection}>
-                        <View style={styles.sectionHeader}>
-                            <Folder size={19} color={colours.primary} />
+                    <View style={styles.journeyGrid}>
+                        {exampleJourneys.map((journey) => {
+                            const journeyQuests = quests.filter((quest) => quest.journeyId === journey.id);
 
-                            <Text style={styles.sectionTitle}>JOURNEYS</Text>
+                            const completedQuestCount = journeyQuests.filter((quest) => quest.status === "completed").length;
 
-                            <View style={styles.countBadge}>
-                                <Text style={styles.countText}>{exampleJourneys.length}</Text>
-                            </View>
-                        </View>
-
-                        <View style={styles.journeyGrid}>
-                            {exampleJourneys.map((journey) => {
-                                const journeyQuests = exampleQuests.filter((quest) => quest.journeyId === journey.id);
-
-                                const completedQuestCount = journeyQuests.filter((quest) => quest.status === "completed").length;
-
-                                return (
-                                    <WorkJourneyCard
-                                        key={journey.id}
-                                        title={journey.title}
-                                        completedQuestCount={completedQuestCount}
-                                        totalQuestCount={journeyQuests.length}
-                                        onPress={() => {
-                                            console.log("Open Journey:", journey.title);
-                                        }}
-                                    />
-                                );
-                            })}
-                        </View>
+                            return (
+                                <WorkJourneyCard
+                                    key={journey.id}
+                                    title={journey.title}
+                                    completedQuestCount={completedQuestCount}
+                                    totalQuestCount={journeyQuests.length}
+                                    onPress={() => {
+                                        console.log("Open Journey:", journey.title);
+                                    }}
+                                />
+                            );
+                        })}
                     </View>
                 </View>
             </ScrollView>
+
+            <CreateWorkQuestModal visible={isCreateQuestVisible} onClose={() => setIsCreateQuestVisible(false)} onCreate={handleCreateQuest} />
         </AppScreenBackground>
     );
 }
