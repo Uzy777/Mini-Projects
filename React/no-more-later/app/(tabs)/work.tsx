@@ -125,6 +125,26 @@ export default function WorkScreen() {
         return true;
     });
 
+    const emptyQuestMessage = (() => {
+        if (normalisedSearchQuery) {
+            return "No Quests match your search.";
+        }
+
+        if (selectedJourney) {
+            return statusFilter === "active" ? "No active Quests in this Journey." : "No completed Quests in this Journey.";
+        }
+
+        if (selectedFilter === "standalone") {
+            return statusFilter === "active" ? "No standalone Quests yet." : "No completed standalone Quests.";
+        }
+
+        if (selectedFilter === "journeys") {
+            return statusFilter === "active" ? "No active Journey Quests." : "No completed Journey Quests.";
+        }
+
+        return statusFilter === "active" ? "No active Quests yet." : "No completed Quests yet.";
+    })();
+
     const visibleJourneys = journeys.filter((journey) => {
         if (journey.status !== statusFilter) {
             return false;
@@ -563,18 +583,22 @@ export default function WorkScreen() {
                     </View>
 
                     <View style={styles.questList}>
-                        {visibleQuests.map((quest) => (
-                            <WorkQuestCard
-                                key={quest.id}
-                                title={quest.title}
-                                assetId={quest.assetId}
-                                journeyName={getJourneyName(quest.journeyId)}
-                                onFocus={() => handleFocusQuest(quest)}
-                                onMore={() => {
-                                    setSelectedQuest(quest);
-                                }}
-                            />
-                        ))}
+                        {visibleQuests.length > 0 ? (
+                            visibleQuests.map((quest) => (
+                                <WorkQuestCard
+                                    key={quest.id}
+                                    title={quest.title}
+                                    journeyName={getJourneyName(quest.journeyId)}
+                                    assetId={quest.assetId}
+                                    onFocus={() => handleFocusQuest(quest)}
+                                    onMore={() => setSelectedQuest(quest)}
+                                />
+                            ))
+                        ) : (
+                            <View style={styles.emptyState}>
+                                <Text style={styles.emptyStateText}>{emptyQuestMessage}</Text>
+                            </View>
+                        )}
                     </View>
                 </View>
 
@@ -784,6 +808,23 @@ function createStyles(colours: AppColours) {
             fontSize: 13,
             fontWeight: "700",
             color: colours.text,
+        },
+        emptyState: {
+            width: "100%",
+            paddingVertical: spacing.xl,
+            paddingHorizontal: spacing.lg,
+            alignItems: "center",
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
+            backgroundColor: colours.surface,
+        },
+
+        emptyStateText: {
+            fontSize: 14,
+            lineHeight: 20,
+            color: colours.textMuted,
+            textAlign: "center",
         },
     });
 }
