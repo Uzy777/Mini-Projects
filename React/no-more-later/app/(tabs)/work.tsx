@@ -58,16 +58,19 @@ const exampleJourneys: WorkJourney[] = [
         id: "portfolio",
         title: "Portfolio Website",
         status: "active",
+        assetId: "work",
     },
     {
         id: "aws",
         title: "AWS Certification",
         status: "active",
+        assetId: "study",
     },
     {
         id: "fitness",
         title: "Health & Fitness",
         status: "active",
+        assetId: "health",
     },
 ];
 
@@ -121,11 +124,12 @@ export default function WorkScreen() {
         setIsCreateQuestVisible(false);
     }
 
-    function handleCreateJourney(title: string) {
+    function handleCreateJourney(title: string, assetId: WorkAssetId) {
         const newJourney: WorkJourney = {
             id: Date.now().toString(),
             title,
             status: "active",
+            assetId,
         };
 
         setJourneys((currentJourneys) => [newJourney, ...currentJourneys]);
@@ -202,6 +206,7 @@ export default function WorkScreen() {
                                 <WorkJourneyCard
                                     key={journey.id}
                                     title={journey.title}
+                                    assetId={journey.assetId}
                                     completedQuestCount={completedQuestCount}
                                     totalQuestCount={journeyQuests.length}
                                     onPress={() => {

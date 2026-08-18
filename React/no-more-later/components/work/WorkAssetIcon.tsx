@@ -1,4 +1,4 @@
-import { BookOpen, Cloud, Dumbbell, Home, Laptop, ListChecks, Palette, ShieldCheck } from "lucide-react-native";
+import { BookOpen, Cloud, Dumbbell, Home, Laptop, ListChecks, Palette, ShieldCheck, BriefcaseBusiness, GraduationCap, HeartPulse } from "lucide-react-native";
 
 import type { WorkAssetId } from "@/types/work";
 
@@ -37,6 +37,15 @@ export function WorkAssetIcon({ assetId, size = 24, color }: WorkAssetIconProps)
         case "creative":
             return <Palette {...iconProps} />;
 
+        case "work":
+            return <BriefcaseBusiness {...iconProps} />;
+
+        case "study":
+            return <GraduationCap {...iconProps} />;
+
+        case "health":
+            return <HeartPulse {...iconProps} />;
+
         default:
             return <ListChecks {...iconProps} />;
     }
@@ -73,6 +82,32 @@ export const WORK_QUEST_ASSETS: {
     {
         id: "shield",
         label: "Shield",
+    },
+    {
+        id: "creative",
+        label: "Creative",
+    },
+];
+
+export const WORK_JOURNEY_ASSETS: {
+    id: WorkAssetId;
+    label: string;
+}[] = [
+    {
+        id: "work",
+        label: "Work",
+    },
+    {
+        id: "study",
+        label: "Study",
+    },
+    {
+        id: "health",
+        label: "Health",
+    },
+    {
+        id: "home",
+        label: "Home",
     },
     {
         id: "creative",

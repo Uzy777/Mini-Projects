@@ -6,23 +6,28 @@ import { X } from "lucide-react-native";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import { WORK_JOURNEY_ASSETS, WorkAssetIcon } from "@/components/work/WorkAssetIcon";
+
+import type { WorkAssetId } from "@/types/work";
 
 type CreateWorkJourneyModalProps = {
     visible: boolean;
     onClose: () => void;
-    onCreate: (title: string) => void;
+    onCreate: (title: string, assetId: WorkAssetId) => void;
 };
 
 export function CreateWorkJourneyModal({ visible, onClose, onCreate }: CreateWorkJourneyModalProps) {
     const { colours } = useAppearance();
 
     const [title, setTitle] = useState("");
+    const [selectedAssetId, setSelectedAssetId] = useState<WorkAssetId>("work");
 
     const styles = useMemo(() => createStyles(colours), [colours]);
 
     useEffect(() => {
         if (visible) {
             setTitle("");
+            setSelectedAssetId("work");
         }
     }, [visible]);
 
@@ -34,7 +39,7 @@ export function CreateWorkJourneyModal({ visible, onClose, onCreate }: CreateWor
             return;
         }
 
-        onCreate(trimmedTitle);
+        onCreate(trimmedTitle, selectedAssetId);
     }
 
     return (
@@ -68,6 +73,28 @@ export function CreateWorkJourneyModal({ visible, onClose, onCreate }: CreateWor
                         returnKeyType="done"
                         onSubmitEditing={handleCreate}
                     />
+
+                    <View style={styles.field}>
+                        <Text style={styles.fieldLabel}>ICON</Text>
+
+                        <View style={styles.assetGrid}>
+                            {WORK_JOURNEY_ASSETS.map((asset) => {
+                                const isSelected = selectedAssetId === asset.id;
+
+                                return (
+                                    <Pressable
+                                        key={asset.id}
+                                        style={[styles.assetOption, isSelected && styles.assetOptionSelected]}
+                                        onPress={() => setSelectedAssetId(asset.id)}
+                                    >
+                                        <WorkAssetIcon assetId={asset.id} size={20} color={isSelected ? colours.primary : colours.textMuted} />
+
+                                        <Text style={[styles.assetText, isSelected && styles.assetTextSelected]}>{asset.label}</Text>
+                                    </Pressable>
+                                );
+                            })}
+                        </View>
+                    </View>
 
                     <View style={styles.actions}>
                         <Pressable style={styles.cancelButton} onPress={onClose}>
@@ -198,6 +225,59 @@ function createStyles(colours: AppColours) {
 
         disabled: {
             opacity: 0.45,
+        },
+
+        field: {
+            gap: spacing.sm,
+        },
+
+        fieldLabel: {
+            fontSize: 11,
+            fontWeight: "800",
+            letterSpacing: 1,
+
+            color: colours.textMuted,
+        },
+
+        assetGrid: {
+            flexDirection: "row",
+            flexWrap: "wrap",
+
+            gap: spacing.sm,
+        },
+
+        assetOption: {
+            minWidth: 110,
+
+            flexDirection: "row",
+            alignItems: "center",
+
+            gap: spacing.sm,
+
+            paddingHorizontal: spacing.md,
+            paddingVertical: 10,
+
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+
+            backgroundColor: colours.background,
+        },
+
+        assetOptionSelected: {
+            borderColor: colours.primaryBorder,
+            backgroundColor: colours.primarySoft,
+        },
+
+        assetText: {
+            fontSize: 13,
+            fontWeight: "700",
+
+            color: colours.textMuted,
+        },
+
+        assetTextSelected: {
+            color: colours.primary,
         },
     });
 }

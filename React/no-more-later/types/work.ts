@@ -4,6 +4,7 @@ export type WorkJourney = {
     id: string;
     title: string;
     status: WorkStatus;
+    assetId: WorkAssetId;
 };
 
 export type WorkQuest = {
@@ -14,4 +15,4 @@ export type WorkQuest = {
     assetId: WorkAssetId;
 };
 
-export type WorkAssetId = "task" | "laptop" | "book" | "fitness" | "home" | "cloud" | "shield" | "creative";
+export type WorkAssetId = "task" | "laptop" | "book" | "fitness" | "home" | "cloud" | "shield" | "creative" | "work" | "study" | "health";

@@ -1,20 +1,23 @@
 import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { ChevronRight, Folder } from "lucide-react-native";
+import { ChevronRight } from "lucide-react-native";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import { WorkAssetIcon } from "@/components/work/WorkAssetIcon";
+import type { WorkAssetId } from "@/types/work";
 
 type WorkJourneyCardProps = {
     title: string;
+    assetId: WorkAssetId;
     completedQuestCount: number;
     totalQuestCount: number;
     onPress: () => void;
 };
 
-export function WorkJourneyCard({ title, completedQuestCount, totalQuestCount, onPress }: WorkJourneyCardProps) {
+export function WorkJourneyCard({ title, assetId, completedQuestCount, totalQuestCount, onPress }: WorkJourneyCardProps) {
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -25,7 +28,7 @@ export function WorkJourneyCard({ title, completedQuestCount, totalQuestCount, o
         <Pressable style={({ pressed }) => [styles.card, pressed && styles.pressed]} onPress={onPress}>
             <View style={styles.header}>
                 <View style={styles.iconContainer}>
-                    <Folder size={24} color={colours.primary} />
+                    <WorkAssetIcon assetId={assetId} size={24} color={colours.primary} />
                 </View>
 
                 <Text style={styles.title} numberOfLines={2}>
