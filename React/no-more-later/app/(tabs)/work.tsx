@@ -8,6 +8,8 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import { WorkQuickActions } from "@/components/work/WorkQuickActions";
 import { WorkToolbar, type WorkViewFilter } from "@/components/work/WorkToolbar";
 import { WorkQuestCard } from "@/components/work/WorkQuestCard";
+import { WorkJourneyCard } from "@/components/work/WorkJourneyCard";
+import { Folder } from "lucide-react-native";
 
 export default function WorkScreen() {
     const exampleQuests = [
@@ -24,6 +26,27 @@ export default function WorkScreen() {
         {
             id: "3",
             title: "Clean the desk",
+        },
+    ];
+
+    const exampleJourneys = [
+        {
+            id: "1",
+            title: "Portfolio Website",
+            completedQuestCount: 7,
+            totalQuestCount: 10,
+        },
+        {
+            id: "2",
+            title: "AWS Certification",
+            completedQuestCount: 4,
+            totalQuestCount: 10,
+        },
+        {
+            id: "3",
+            title: "Health & Fitness",
+            completedQuestCount: 3,
+            totalQuestCount: 5,
         },
     ];
 
@@ -89,6 +112,32 @@ export default function WorkScreen() {
                                 }}
                             />
                         ))}
+                    </View>
+
+                    <View style={styles.journeySection}>
+                        <View style={styles.sectionHeader}>
+                            <Folder size={19} color={colours.primary} />
+
+                            <Text style={styles.sectionTitle}>JOURNEYS</Text>
+
+                            <View style={styles.countBadge}>
+                                <Text style={styles.countText}>{exampleJourneys.length}</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.journeyGrid}>
+                            {exampleJourneys.map((journey) => (
+                                <WorkJourneyCard
+                                    key={journey.id}
+                                    title={journey.title}
+                                    completedQuestCount={journey.completedQuestCount}
+                                    totalQuestCount={journey.totalQuestCount}
+                                    onPress={() => {
+                                        console.log("Open Journey:", journey.title);
+                                    }}
+                                />
+                            ))}
+                        </View>
                     </View>
                 </View>
             </ScrollView>
@@ -183,6 +232,17 @@ function createStyles(colours: AppColours) {
 
         questList: {
             gap: spacing.sm,
+        },
+        journeySection: {
+            gap: spacing.md,
+            marginTop: spacing.xl,
+        },
+
+        journeyGrid: {
+            flexDirection: "row",
+            flexWrap: "wrap",
+
+            gap: spacing.md,
         },
     });
 }
