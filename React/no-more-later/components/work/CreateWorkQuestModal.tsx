@@ -13,11 +13,12 @@ import type { WorkAssetId, WorkJourney } from "@/types/work";
 type CreateWorkQuestModalProps = {
     visible: boolean;
     journeys: WorkJourney[];
+    initialJourneyId?: string;
     onClose: () => void;
     onCreate: (title: string, assetId: WorkAssetId, journeyId?: string) => void;
 };
 
-export function CreateWorkQuestModal({ visible, journeys, onClose, onCreate }: CreateWorkQuestModalProps) {
+export function CreateWorkQuestModal({ visible, journeys, initialJourneyId, onClose, onCreate }: CreateWorkQuestModalProps) {
     const { colours } = useAppearance();
 
     const [title, setTitle] = useState("");
@@ -29,10 +30,10 @@ export function CreateWorkQuestModal({ visible, journeys, onClose, onCreate }: C
     useEffect(() => {
         if (visible) {
             setTitle("");
-            setSelectedJourneyId(undefined);
+            setSelectedJourneyId(initialJourneyId);
             setSelectedAssetId("task");
         }
-    }, [visible]);
+    }, [visible, initialJourneyId]);
 
     const trimmedTitle = title.trim();
     const canCreate = trimmedTitle.length > 0;

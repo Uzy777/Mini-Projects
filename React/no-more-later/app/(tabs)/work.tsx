@@ -595,6 +595,7 @@ export default function WorkScreen() {
             <CreateWorkQuestModal
                 visible={isCreateQuestVisible}
                 journeys={journeys}
+                initialJourneyId={selectedJourneyId ?? undefined}
                 onClose={() => setIsCreateQuestVisible(false)}
                 onCreate={handleCreateQuest}
             />
@@ -608,11 +609,7 @@ export default function WorkScreen() {
                 onDelete={handleDeleteQuest}
             />
 
-            <WorkJourneyActionsModal
-    journey={journeyForActions}
-    onClose={() => setJourneyForActions(null)}
-    onDelete={handleDeleteJourney}
-/>
+            <WorkJourneyActionsModal journey={journeyForActions} onClose={() => setJourneyForActions(null)} onDelete={handleDeleteJourney} />
         </AppScreenBackground>
     );
 }
