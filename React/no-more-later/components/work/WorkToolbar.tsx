@@ -9,8 +9,11 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 
 export type WorkViewFilter = "all" | "quests" | "journeys" | "standalone";
 
+export type WorkStatusFilter = "active" | "completed";
+
 type WorkToolbarProps = {
     selectedFilter: WorkViewFilter;
+    statusFilter: WorkStatusFilter;
     onSelectFilter: (filter: WorkViewFilter) => void;
     onSearch: () => void;
     onStatusFilter: () => void;
@@ -38,7 +41,7 @@ const filters: {
     },
 ];
 
-export function WorkToolbar({ selectedFilter, onSelectFilter, onSearch, onStatusFilter }: WorkToolbarProps) {
+export function WorkToolbar({ selectedFilter, statusFilter, onSelectFilter, onSearch, onStatusFilter }: WorkToolbarProps) {
     const { width } = useWindowDimensions();
     const { colours } = useAppearance();
 
@@ -73,8 +76,7 @@ export function WorkToolbar({ selectedFilter, onSelectFilter, onSearch, onStatus
 
                 <Pressable style={styles.actionButton} onPress={onStatusFilter}>
                     <Filter size={18} color={colours.textMuted} />
-
-                    <Text style={styles.actionText}>Active</Text>
+                    <Text style={styles.actionText}>{statusFilter === "active" ? "Active" : "Completed"}</Text>{" "}
                 </Pressable>
             </View>
         </View>

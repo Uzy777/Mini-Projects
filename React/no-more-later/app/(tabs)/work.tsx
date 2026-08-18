@@ -8,13 +8,13 @@ import { CreateWorkQuestModal } from "@/components/work/CreateWorkQuestModal";
 import { WorkJourneyCard } from "@/components/work/WorkJourneyCard";
 import { WorkQuestCard } from "@/components/work/WorkQuestCard";
 import { WorkQuickActions } from "@/components/work/WorkQuickActions";
-import { WorkToolbar, type WorkViewFilter } from "@/components/work/WorkToolbar";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { CreateWorkJourneyModal } from "@/components/work/CreateWorkJourneyModal";
 import type { WorkAssetId, WorkJourney, WorkQuest } from "@/types/work";
+import { WorkToolbar, type WorkStatusFilter, type WorkViewFilter } from "@/components/work/WorkToolbar";
 
 const exampleQuests: WorkQuest[] = [
     {
@@ -80,6 +80,7 @@ export default function WorkScreen() {
     const styles = useMemo(() => createStyles(colours), [colours]);
 
     const [selectedFilter, setSelectedFilter] = useState<WorkViewFilter>("all");
+    const [statusFilter, setStatusFilter] = useState<WorkStatusFilter>("active");
 
     const [quests, setQuests] = useState<WorkQuest[]>(exampleQuests);
     const [journeys, setJourneys] = useState<WorkJourney[]>(exampleJourneys);
@@ -88,14 +89,34 @@ export default function WorkScreen() {
 
     const [isCreateQuestVisible, setIsCreateQuestVisible] = useState(false);
 
-    const activeQuests = quests.filter((quest) => quest.status === "active");
+    const visibleQuests = quests.filter((quest) => {
+        if (quest.status !== statusFilter) {
+            return false;
+        }
+
+        if (selectedFilter === "journeys" && !quest.journeyId) {
+            return false;
+        }
+
+        if (selectedFilter === "standalone" && quest.journeyId) {
+            return false;
+        }
+
+        return true;
+    });
+
+    const visibleJourneys = journeys.filter((journey) => journey.status === statusFilter);
+
+    const showQuests = selectedFilter !== "journeys" || selectedFilter === "journeys";
+
+    const showJourneys = selectedFilter === "all" || selectedFilter === "journeys";
 
     function handleSearch() {
         console.log("Search");
     }
 
     function handleStatusFilter() {
-        console.log("Status filter");
+        setStatusFilter((currentStatus) => (currentStatus === "active" ? "completed" : "active"));
     }
 
     function handleNewQuest() {
@@ -156,19 +177,23 @@ export default function WorkScreen() {
 
                 <WorkQuickActions onNewQuest={handleNewQuest} onNewJourney={handleNewJourney} onQuickStart={handleQuickStart} />
 
-                <WorkToolbar selectedFilter={selectedFilter} onSelectFilter={setSelectedFilter} onSearch={handleSearch} onStatusFilter={handleStatusFilter} />
-
+                <WorkToolbar
+                    selectedFilter={selectedFilter}
+                    statusFilter={statusFilter}
+                    onSelectFilter={setSelectedFilter}
+                    onSearch={handleSearch}
+                    onStatusFilter={handleStatusFilter}
+                />
                 <View style={styles.questSection}>
                     <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>ACTIVE QUESTS</Text>
-
+                        <Text style={styles.sectionTitle}>{statusFilter === "active" ? "ACTIVE QUESTS" : "COMPLETED QUESTS"}</Text>
                         <View style={styles.countBadge}>
-                            <Text style={styles.countText}>{activeQuests.length}</Text>
+                            <Text style={styles.countText}>{visibleQuests.length}</Text>
                         </View>
                     </View>
 
                     <View style={styles.questList}>
-                        {activeQuests.map((quest) => (
+                        {visibleQuests.map((quest) => (
                             <WorkQuestCard
                                 key={quest.id}
                                 title={quest.title}
@@ -185,38 +210,39 @@ export default function WorkScreen() {
                     </View>
                 </View>
 
-                <View style={styles.journeySection}>
-                    <View style={styles.sectionHeader}>
-                        <Folder size={19} color={colours.primary} />
+                {showJourneys && (
+                    <View style={styles.journeySection}>
+                        <View style={styles.sectionHeader}>
+                            <Folder size={19} color={colours.primary} />
 
-                        <Text style={styles.sectionTitle}>JOURNEYS</Text>
+                            <Text style={styles.sectionTitle}>{statusFilter === "active" ? "JOURNEYS" : "COMPLETED JOURNEYS"}</Text>
+                            <View style={styles.countBadge}>
+                                <Text style={styles.countText}>{visibleJourneys.length}</Text>
+                            </View>
+                        </View>
 
-                        <View style={styles.countBadge}>
-                            <Text style={styles.countText}>{journeys.length}</Text>
+                        <View style={styles.journeyGrid}>
+                            {visibleJourneys.map((journey) => {
+                                const journeyQuests = quests.filter((quest) => quest.journeyId === journey.id);
+
+                                const completedQuestCount = journeyQuests.filter((quest) => quest.status === "completed").length;
+
+                                return (
+                                    <WorkJourneyCard
+                                        key={journey.id}
+                                        title={journey.title}
+                                        assetId={journey.assetId}
+                                        completedQuestCount={completedQuestCount}
+                                        totalQuestCount={journeyQuests.length}
+                                        onPress={() => {
+                                            console.log("Open Journey:", journey.title);
+                                        }}
+                                    />
+                                );
+                            })}
                         </View>
                     </View>
-
-                    <View style={styles.journeyGrid}>
-                        {journeys.map((journey) => {
-                            const journeyQuests = quests.filter((quest) => quest.journeyId === journey.id);
-
-                            const completedQuestCount = journeyQuests.filter((quest) => quest.status === "completed").length;
-
-                            return (
-                                <WorkJourneyCard
-                                    key={journey.id}
-                                    title={journey.title}
-                                    assetId={journey.assetId}
-                                    completedQuestCount={completedQuestCount}
-                                    totalQuestCount={journeyQuests.length}
-                                    onPress={() => {
-                                        console.log("Open Journey:", journey.title);
-                                    }}
-                                />
-                            );
-                        })}
-                    </View>
-                </View>
+                )}
             </ScrollView>
             <CreateWorkQuestModal
                 visible={isCreateQuestVisible}
