@@ -148,7 +148,7 @@ export default function HomeScreen() {
     const activeSessionStatus = getActiveSessionStatus();
 
     function handleStartSession() {
-        router.navigate("/journeys");
+        router.navigate("/work");
     }
 
     function handleReturnToActiveSession() {
