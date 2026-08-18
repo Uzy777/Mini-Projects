@@ -17,7 +17,7 @@ import type { WorkAssetId, WorkJourney, WorkQuest } from "@/types/work";
 import { WorkToolbar, type WorkStatusFilter, type WorkViewFilter } from "@/components/work/WorkToolbar";
 import { WorkQuestActionsModal } from "@/components/work/WorkQuestActionsModal";
 import { confirmDelete } from "@/utils/confirmDelete";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
 
 import { createRemoteWorkJourney, createRemoteWorkQuest, getRemoteWorkJourneys, getRemoteWorkQuests } from "@/services/work/workService";
@@ -25,6 +25,8 @@ import { createRemoteWorkJourney, createRemoteWorkQuest, getRemoteWorkJourneys, 
 export default function WorkScreen() {
     const { colours } = useAppearance();
     const { session } = useAuth();
+
+    const router = useRouter();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
 
@@ -264,7 +266,18 @@ export default function WorkScreen() {
     }
 
     function handleFocusQuest(quest: WorkQuest) {
-        console.log("Focus:", quest.title);
+        router.push({
+            pathname: "/focus/[questId]",
+            params: {
+                questId: quest.id,
+                questTitle: quest.title,
+                ...(quest.journeyId
+                    ? {
+                          journeyId: quest.journeyId,
+                      }
+                    : {}),
+            },
+        });
     }
 
     return (
