@@ -54,7 +54,7 @@ export type ActiveFocusSession = {
     isRunning: boolean;
     endTime: number | null;
     timelineEvents?: FocusTimelineEvent[];
-    source?: "work" | "quick-focus";
+    source?: "work" | "tasks" | "quick-focus";
 };
 
 export type Profile = {

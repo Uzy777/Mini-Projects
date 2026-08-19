@@ -12,6 +12,7 @@ type SessionOutcomeSelectorProps = {
     selectedOutcome: SessionOutcome | null;
     onSelectOutcome: (outcome: SessionOutcome) => void;
     isQuestlessQuickFocus?: boolean;
+    terminology?: "quest" | "task";
 };
 
 type OutcomeOption = {
@@ -43,7 +44,7 @@ const outcomeOptions: OutcomeOption[] = [
     },
 ];
 
-export function SessionOutcomeSelector({ selectedOutcome, onSelectOutcome, isQuestlessQuickFocus = false }: SessionOutcomeSelectorProps) {
+export function SessionOutcomeSelector({ selectedOutcome, onSelectOutcome, isQuestlessQuickFocus = false, terminology = "quest" }: SessionOutcomeSelectorProps) {
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -57,9 +58,11 @@ export function SessionOutcomeSelector({ selectedOutcome, onSelectOutcome, isQue
             <View style={styles.options}>
                 {outcomeOptions.map((option) => {
                     const isSelected = selectedOutcome === option.value;
-                    const label = isQuestlessQuickFocus && option.value === "completed" ? "Finished what I planned" : option.label;
+                    const taskLabel = option.label.replace("Quest", "Task");
+                    const taskDescription = option.description.replace("Quest", "Task");
+                    const label = isQuestlessQuickFocus && option.value === "completed" ? "Finished what I planned" : terminology === "task" ? taskLabel : option.label;
                     const description =
-                        isQuestlessQuickFocus && option.value === "completed" ? "You completed what you intended for this focus block." : option.description;
+                        isQuestlessQuickFocus && option.value === "completed" ? "You completed what you intended for this focus block." : terminology === "task" ? taskDescription : option.description;
 
                     return (
                         <AnimatedPressable

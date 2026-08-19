@@ -37,7 +37,7 @@ export default function ReviewSessionScreen() {
         plannedMinutes?: string;
         actualSeconds?: string;
         endedEarly?: string;
-        source?: "work" | "quick-focus";
+        source?: "work" | "tasks" | "quick-focus";
         quickFocus?: string;
     }>();
     const isQuestlessQuickFocus = quickFocus === "true";
@@ -89,6 +89,11 @@ export default function ReviewSessionScreen() {
             return;
         }
 
+        if (source === "tasks") {
+            router.replace("/tasks");
+            return;
+        }
+
         if (source === "quick-focus") {
             router.replace("/");
             return;
@@ -126,7 +131,7 @@ export default function ReviewSessionScreen() {
         }
 
         if (selectedOutcome === "completed" && questDoneWhen && !finishLineConfirmed) {
-            setValidationMessage("Confirm that you genuinely met your Quest finish line.");
+            setValidationMessage(`Confirm that you genuinely met your ${source === "tasks" ? "Task" : "Quest"} finish line.`);
 
             return;
         }
@@ -242,7 +247,7 @@ export default function ReviewSessionScreen() {
 
                 <ScreenHeader
                     eyebrow="SESSION REVIEW"
-                    title={isQuestlessQuickFocus ? "Quick Focus" : (questTitle ?? "Untitled Quest")}
+                    title={isQuestlessQuickFocus ? "Quick Focus" : (questTitle ?? (source === "tasks" ? "Untitled Task" : "Untitled Quest"))}
                     subtitle="Capture the progress while it is still fresh."
                     action={<View style={styles.sessionBadge}><Text style={styles.sessionLength}>{plannedMinutes ?? "0"} min</Text></View>}
                 />
@@ -254,7 +259,7 @@ export default function ReviewSessionScreen() {
                         reachedLevel={reachedLevel}
                         onReturnToJourneys={handleReturnToJourneys}
                         onViewHistory={handleViewHistory}
-                        returnLabel={source === "quick-focus" ? "Return Home" : undefined}
+                        returnLabel={source === "quick-focus" ? "Return Home" : source === "tasks" ? "Return to Tasks" : undefined}
                     />
                 ) : (
                     <View style={styles.reviewSections}>
@@ -262,13 +267,14 @@ export default function ReviewSessionScreen() {
                             selectedOutcome={selectedOutcome}
                             onSelectOutcome={handleSelectOutcome}
                             isQuestlessQuickFocus={isQuestlessQuickFocus}
+                            terminology={source === "tasks" ? "task" : "quest"}
                         />
 
                         {selectedOutcome === "completed" && questDoneWhen && (
                             <View style={styles.finishLineCard}>
                                 <Text style={styles.finishLineLabel}>YOUR FINISH LINE</Text>
 
-                                <Text style={styles.finishLineDescription}>You said this Quest would be complete when:</Text>
+                                <Text style={styles.finishLineDescription}>You said this {source === "tasks" ? "Task" : "Quest"} would be complete when:</Text>
 
                                 <Text style={styles.finishLineText}>{questDoneWhen}</Text>
 

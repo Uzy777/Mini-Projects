@@ -34,7 +34,7 @@ export default function FocusScreen() {
         questId: string;
         questTitle?: string;
         journeyId?: string;
-        source?: "work";
+        source?: "work" | "tasks" | "quick-focus";
     }>();
 
     const [sessionId, setSessionId] = useState<string | null>(null);
@@ -147,7 +147,7 @@ export default function FocusScreen() {
                     id: activeSessionId,
                     questId,
                     journeyId,
-                    questTitle: questTitle ?? "Untitled Quest",
+                    questTitle: questTitle ?? (source === "tasks" ? "Untitled Task" : "Untitled Quest"),
                     selectedMinutes,
                     remainingSeconds: 0,
                     isRunning: false,
@@ -202,7 +202,7 @@ export default function FocusScreen() {
                     const isCurrentQuest = existingSession.questId === questId && existingSession.journeyId === journeyId;
 
                     if (isCurrentQuest) {
-                        setSessionMessage("This Quest already has an active Focus Session.");
+                        setSessionMessage(`This ${source === "tasks" ? "Task" : "Quest"} already has an active Focus Session.`);
                     } else {
                         setSessionMessage(`A Focus Session is already active for "${existingSession.questTitle}".`);
                     }
@@ -231,7 +231,7 @@ export default function FocusScreen() {
                 id: newSessionId,
                 questId,
                 journeyId,
-                questTitle: questTitle ?? "Untitled Quest",
+                questTitle: questTitle ?? (source === "tasks" ? "Untitled Task" : "Untitled Quest"),
                 selectedMinutes,
                 remainingSeconds: totalSeconds,
                 isRunning: true,
@@ -294,7 +294,7 @@ export default function FocusScreen() {
 
                 questId,
                 journeyId,
-                questTitle: questTitle ?? "Untitled Quest",
+                questTitle: questTitle ?? (source === "tasks" ? "Untitled Task" : "Untitled Quest"),
                 selectedMinutes,
                 remainingSeconds: pausedRemainingSeconds,
                 isRunning: false,
@@ -324,7 +324,7 @@ export default function FocusScreen() {
                 id: sessionId,
                 questId,
                 journeyId,
-                questTitle: questTitle ?? "Untitled Quest",
+                questTitle: questTitle ?? (source === "tasks" ? "Untitled Task" : "Untitled Quest"),
                 selectedMinutes,
                 remainingSeconds,
                 isRunning: true,
@@ -358,7 +358,7 @@ export default function FocusScreen() {
                 id: sessionId,
                 questId,
                 journeyId,
-                questTitle: questTitle ?? "Untitled Quest",
+                questTitle: questTitle ?? (source === "tasks" ? "Untitled Task" : "Untitled Quest"),
                 selectedMinutes,
                 remainingSeconds: 0,
                 isRunning: false,
@@ -420,7 +420,7 @@ export default function FocusScreen() {
                     }}
                 />
 
-                <ScreenHeader eyebrow="FOCUS SESSION" title={questTitle ?? "Untitled Quest"} subtitle="Give this one thing your attention." />
+                <ScreenHeader eyebrow="FOCUS SESSION" title={questTitle ?? (source === "tasks" ? "Untitled Task" : "Untitled Quest")} subtitle="Give this one thing your attention." />
 
                 <AppCard style={styles.sessionContent} padding="lg" tone="subtle">
                     <FocusDurationSelector selectedMinutes={selectedMinutes} onSelectMinutes={setSelectedMinutes} disabled={hasSessionStarted} />
@@ -431,6 +431,7 @@ export default function FocusScreen() {
                         seconds={shownSeconds}
                         totalSeconds={selectedMinutes * 60}
                         label={hasSessionFinished ? "SESSION COMPLETE" : isRunning ? "STAY WITH IT" : hasSessionStarted ? "PAUSED" : "READY TO FOCUS"}
+                        hint={source === "tasks" ? "Stay with this Task until the timer ends." : undefined}
                     />
 
                     <FocusTimerControls

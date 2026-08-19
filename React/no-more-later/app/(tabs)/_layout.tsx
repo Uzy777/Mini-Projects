@@ -3,7 +3,7 @@ import React from "react";
 import { useWindowDimensions } from "react-native";
 
 import { HapticTab } from "@/components/haptic-tab";
-import { BarChart3, House, Map, RotateCcwClock, Trophy, Layers3 } from "lucide-react-native";
+import { BarChart3, House, ListChecks, Map, RotateCcwClock, Trophy, Layers3 } from "lucide-react-native";
 
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { layout, radius, spacing } from "@/constants/design";
@@ -69,6 +69,14 @@ export default function TabLayout() {
                 }}
             />
             
+            <Tabs.Screen
+                name="tasks"
+                options={{
+                    title: "Tasks",
+                    tabBarIcon: ({ color, size }) => <ListChecks size={size} color={color} />,
+                }}
+            />
+
             <Tabs.Screen
                 name="work"
                 options={{
