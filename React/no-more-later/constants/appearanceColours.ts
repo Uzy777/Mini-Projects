@@ -30,10 +30,22 @@ type ModeColours = {
 };
 
 type AccentColours = {
-    primary: string;
-    primaryPressed: string;
+    /** Lowest-emphasis tinted surface, suitable for large backgrounds. */
+    primarySubtle: string;
+    /** Existing low-emphasis tinted surface. */
     primarySoft: string;
+    /** Mid-tone fill for decorative elements and stronger selected states. */
+    primaryMuted: string;
+    /** Accent-aware border and divider colour. */
     primaryBorder: string;
+    /** Main interactive accent. */
+    primary: string;
+    /** Darker interaction state for pressed controls. */
+    primaryPressed: string;
+    /** Higher-emphasis accent for text and compact details. */
+    primaryStrong: string;
+    /** Accessible foreground content placed directly on the primary colour. */
+    onPrimary: string;
 };
 
 export type AppColours = ModeColours & AccentColours;
@@ -129,89 +141,137 @@ const MODE_COLOURS: Record<ResolvedColourMode, ModeColours> = {
 
 const LIGHT_ACCENTS: Record<AccentColourId, AccentColours> = {
     indigo: {
+        primarySubtle: "#f8faff",
+        primarySoft: "#eef2ff",
+        primaryMuted: "#a5b4fc",
+        primaryBorder: "#c7d2fe",
         primary: "#4f46e5",
         primaryPressed: "#4338ca",
-        primarySoft: "#eef2ff",
-        primaryBorder: "#c7d2fe",
+        primaryStrong: "#3730a3",
+        onPrimary: "#ffffff",
     },
 
     blue: {
+        primarySubtle: "#f8fbff",
+        primarySoft: "#eff6ff",
+        primaryMuted: "#93c5fd",
+        primaryBorder: "#bfdbfe",
         primary: "#2563eb",
         primaryPressed: "#1d4ed8",
-        primarySoft: "#eff6ff",
-        primaryBorder: "#bfdbfe",
+        primaryStrong: "#1e40af",
+        onPrimary: "#ffffff",
     },
 
     emerald: {
+        primarySubtle: "#f6fefb",
+        primarySoft: "#ecfdf5",
+        primaryMuted: "#6ee7b7",
+        primaryBorder: "#a7f3d0",
         primary: "#059669",
         primaryPressed: "#047857",
-        primarySoft: "#ecfdf5",
-        primaryBorder: "#a7f3d0",
+        primaryStrong: "#065f46",
+        onPrimary: "#001f17",
     },
 
     amber: {
+        primarySubtle: "#fffdf5",
+        primarySoft: "#fffbeb",
+        primaryMuted: "#fcd34d",
+        primaryBorder: "#fde68a",
         primary: "#d97706",
         primaryPressed: "#b45309",
-        primarySoft: "#fffbeb",
-        primaryBorder: "#fde68a",
+        primaryStrong: "#92400e",
+        onPrimary: "#1c1917",
     },
 
     rose: {
+        primarySubtle: "#fff7f8",
+        primarySoft: "#fff1f2",
+        primaryMuted: "#fda4af",
+        primaryBorder: "#fecdd3",
         primary: "#e11d48",
         primaryPressed: "#be123c",
-        primarySoft: "#fff1f2",
-        primaryBorder: "#fecdd3",
+        primaryStrong: "#9f1239",
+        onPrimary: "#ffffff",
     },
 
     violet: {
+        primarySubtle: "#fbfaff",
+        primarySoft: "#f5f3ff",
+        primaryMuted: "#c4b5fd",
+        primaryBorder: "#ddd6fe",
         primary: "#7c3aed",
         primaryPressed: "#6d28d9",
-        primarySoft: "#f5f3ff",
-        primaryBorder: "#ddd6fe",
+        primaryStrong: "#5b21b6",
+        onPrimary: "#ffffff",
     },
 };
 
 const DARK_ACCENTS: Record<AccentColourId, AccentColours> = {
     indigo: {
+        primarySubtle: "#17182a",
+        primarySoft: "#20213d",
+        primaryMuted: "#4f527e",
+        primaryBorder: "#373a68",
         primary: "#818cf8",
         primaryPressed: "#6366f1",
-        primarySoft: "#20213d",
-        primaryBorder: "#373a68",
+        primaryStrong: "#a5b4fc",
+        onPrimary: "#111827",
     },
 
     blue: {
+        primarySubtle: "#101a29",
+        primarySoft: "#14243a",
+        primaryMuted: "#315f91",
+        primaryBorder: "#25466f",
         primary: "#60a5fa",
         primaryPressed: "#3b82f6",
-        primarySoft: "#14243a",
-        primaryBorder: "#25466f",
+        primaryStrong: "#93c5fd",
+        onPrimary: "#0f172a",
     },
 
     emerald: {
+        primarySubtle: "#0b1d18",
+        primarySoft: "#102a22",
+        primaryMuted: "#1c604a",
+        primaryBorder: "#205c48",
         primary: "#34d399",
         primaryPressed: "#10b981",
-        primarySoft: "#102a22",
-        primaryBorder: "#205c48",
+        primaryStrong: "#6ee7b7",
+        onPrimary: "#052e24",
     },
 
     amber: {
+        primarySubtle: "#1d180c",
+        primarySoft: "#2a2110",
+        primaryMuted: "#6b4f14",
+        primaryBorder: "#594414",
         primary: "#fbbf24",
         primaryPressed: "#f59e0b",
-        primarySoft: "#2a2110",
-        primaryBorder: "#594414",
+        primaryStrong: "#fcd34d",
+        onPrimary: "#292000",
     },
 
     rose: {
+        primarySubtle: "#211015",
+        primarySoft: "#30171d",
+        primaryMuted: "#713140",
+        primaryBorder: "#63303b",
         primary: "#fb7185",
         primaryPressed: "#f43f5e",
-        primarySoft: "#30171d",
-        primaryBorder: "#63303b",
+        primaryStrong: "#fda4af",
+        onPrimary: "#3f0712",
     },
 
     violet: {
+        primarySubtle: "#1a1228",
+        primarySoft: "#251b3d",
+        primaryMuted: "#563d7d",
+        primaryBorder: "#4b3772",
         primary: "#a78bfa",
         primaryPressed: "#8b5cf6",
-        primarySoft: "#251b3d",
-        primaryBorder: "#4b3772",
+        primaryStrong: "#c4b5fd",
+        onPrimary: "#23133b",
     },
 };
 
@@ -227,4 +287,3 @@ export function getAppColours(mode: ResolvedColourMode, accent: AccentColourId):
         ...accentColours,
     };
 }
-
