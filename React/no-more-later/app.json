@@ -4,7 +4,7 @@
     "slug": "no-more-later",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/no-more-later-toki-1024.png",
+    "icon": "./assets/no-more-later-toki-1254.png",
     "scheme": "nomorelater",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -14,21 +14,21 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ede9fe",
-        "foregroundImage": "./assets/no-more-later-toki-1024.png"
+        "foregroundImage": "./assets/no-more-later-toki-1254.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/no-more-later-toki-1024.png"
+      "favicon": "./assets/no-more-later-toki-1254.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/no-more-later-toki-1024.png",
+          "image": "./assets/no-more-later-toki-1254.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
