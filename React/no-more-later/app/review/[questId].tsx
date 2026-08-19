@@ -42,9 +42,10 @@ export default function ReviewSessionScreen() {
         quickFocus?: string;
     }>();
     const isQuestlessQuickFocus = quickFocus === "true";
+    const isEndedEarly = endedEarly === "true";
     const reviewedSeconds = Math.max(0, Number(actualSeconds ?? Number(plannedMinutes ?? 0) * 60));
     const earnsNoXp = reviewedSeconds < 10 * 60;
-    const hasEarlyFinishXp = endedEarly === "true" && !earnsNoXp;
+    const hasEarlyFinishXp = isEndedEarly && !earnsNoXp;
 
     type LevelUpDetails = {
         previousLevel: number;
@@ -52,10 +53,9 @@ export default function ReviewSessionScreen() {
         earnedXp: number;
     };
 
-    const [selectedOutcome, setSelectedOutcome] = useState<SessionOutcome | null>(endedEarly === "true" ? "stopped" : null);
+    const [selectedOutcome, setSelectedOutcome] = useState<SessionOutcome | null>(isEndedEarly ? "stopped" : null);
     const [questDoneWhen, setQuestDoneWhen] = useState<string | null>(null);
     const [accomplishment, setAccomplishment] = useState("");
-    const [nextAction, setNextAction] = useState("");
     const [validationMessage, setValidationMessage] = useState("");
     const [earnedXp, setEarnedXp] = useState<number | null>(null);
     const [totalXp, setTotalXp] = useState<number | null>(null);
@@ -116,12 +116,11 @@ export default function ReviewSessionScreen() {
         }
 
         const trimmedAccomplishment = accomplishment.trim();
-        const trimmedNextAction = nextAction.trim();
+        const savedAccomplishment = selectedOutcome === "stopped" ? "" : trimmedAccomplishment;
 
         const reviewValidationMessage = getReviewValidationMessage({
             selectedOutcome,
             accomplishment,
-            nextAction,
         });
 
         if (reviewValidationMessage) {
@@ -163,8 +162,8 @@ export default function ReviewSessionScreen() {
                 plannedMinutes: sessionMinutes,
                 actualSeconds: focusedSeconds,
                 outcome: selectedOutcome,
-                accomplishment: trimmedAccomplishment,
-                nextAction: trimmedNextAction,
+                accomplishment: savedAccomplishment,
+                nextAction: "",
                 timelineEvents,
             };
 
@@ -214,10 +213,11 @@ export default function ReviewSessionScreen() {
         }
     }
 
-    const showNextAction = selectedOutcome !== null && selectedOutcome !== "completed";
-
     function handleSelectOutcome(outcome: SessionOutcome) {
+        if (isEndedEarly) return;
+
         setSelectedOutcome(outcome);
+        if (outcome === "stopped") setAccomplishment("");
         setFinishLineConfirmed(false);
         setValidationMessage("");
     }
@@ -282,6 +282,7 @@ export default function ReviewSessionScreen() {
                             onSelectOutcome={handleSelectOutcome}
                             isQuestlessQuickFocus={isQuestlessQuickFocus}
                             terminology={source === "tasks" ? "task" : "quest"}
+                            isLocked={isEndedEarly}
                         />
 
                         {selectedOutcome === "completed" && questDoneWhen && (
@@ -304,11 +305,9 @@ export default function ReviewSessionScreen() {
 
                         <ReviewForm
                             accomplishment={accomplishment}
-                            nextAction={nextAction}
-                            showNextAction={showNextAction}
+                            showAccomplishment={selectedOutcome !== "stopped"}
                             errorMessage={validationMessage}
                             onChangeAccomplishment={setAccomplishment}
-                            onChangeNextAction={setNextAction}
                             isSubmitting={isSubmitting}
                             onSubmit={handleCompleteReview}
                         />

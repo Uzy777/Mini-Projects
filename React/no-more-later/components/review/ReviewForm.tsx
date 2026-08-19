@@ -9,22 +9,18 @@ import { useMemo } from "react";
 
 type ReviewFormProps = {
     accomplishment: string;
-    nextAction: string;
-    showNextAction: boolean;
+    showAccomplishment: boolean;
     errorMessage: string;
     onChangeAccomplishment: (value: string) => void;
-    onChangeNextAction: (value: string) => void;
     isSubmitting: boolean;
     onSubmit: () => void;
 };
 
 export function ReviewForm({
     accomplishment,
-    nextAction,
-    showNextAction,
+    showAccomplishment,
     errorMessage,
     onChangeAccomplishment,
-    onChangeNextAction,
     isSubmitting,
     onSubmit,
 }: ReviewFormProps) {
@@ -34,40 +30,26 @@ export function ReviewForm({
 
     return (
         <View style={styles.formContainer}>
-            <View style={styles.fieldGroup}>
-                <Text style={styles.inputLabel}>What did you accomplish?</Text>
-
-                <Text style={styles.helperText}>Briefly describe what you completed or moved forward.</Text>
-
-                <TextInput
-                    style={[styles.input, styles.multilineInput]}
-                    value={accomplishment}
-                    onChangeText={onChangeAccomplishment}
-                    placeholder="What did you get done?"
-                    placeholderTextColor={colours.textMuted}
-                    selectionColor={colours.primary}
-                    multiline
-                    textAlignVertical="top"
-                />
-            </View>
-            {showNextAction && (
+            {showAccomplishment ? (
                 <View style={styles.fieldGroup}>
-                    <Text style={styles.inputLabel}>What is the next action?</Text>
+                    <Text style={styles.inputLabel}>What did you accomplish?</Text>
 
-                    <Text style={styles.helperText}>Make the next step specific and easy to start.</Text>
+                    <Text style={styles.helperText}>Briefly describe what you completed or moved forward.</Text>
 
                     <TextInput
                         style={[styles.input, styles.multilineInput]}
-                        value={nextAction}
-                        onChangeText={onChangeNextAction}
-                        placeholder="e.g. Create the login form component"
+                        value={accomplishment}
+                        onChangeText={onChangeAccomplishment}
+                        placeholder="What did you get done?"
                         placeholderTextColor={colours.textMuted}
                         selectionColor={colours.primary}
                         multiline
                         textAlignVertical="top"
                     />
                 </View>
-            )}
+            ) : null}
+
+            {/* The next-action field is intentionally hidden for now. Reviews continue to save an empty next-action value. */}
 
             {errorMessage && (
                 <View style={styles.errorBox}>

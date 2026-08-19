@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
+import { LockKeyhole } from "lucide-react-native";
 
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import type { SessionOutcome } from "../../types/models";
@@ -13,6 +14,7 @@ type SessionOutcomeSelectorProps = {
     onSelectOutcome: (outcome: SessionOutcome) => void;
     isQuestlessQuickFocus?: boolean;
     terminology?: "quest" | "task";
+    isLocked?: boolean;
 };
 
 type OutcomeOption = {
@@ -44,7 +46,7 @@ const outcomeOptions: OutcomeOption[] = [
     },
 ];
 
-export function SessionOutcomeSelector({ selectedOutcome, onSelectOutcome, isQuestlessQuickFocus = false, terminology = "quest" }: SessionOutcomeSelectorProps) {
+export function SessionOutcomeSelector({ selectedOutcome, onSelectOutcome, isQuestlessQuickFocus = false, terminology = "quest", isLocked = false }: SessionOutcomeSelectorProps) {
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -53,10 +55,17 @@ export function SessionOutcomeSelector({ selectedOutcome, onSelectOutcome, isQue
         <View style={styles.container}>
             <Text style={styles.label}>HOW DID IT GO?</Text>
 
-            <Text style={styles.helperText}>Choose the outcome that best describes this Focus Session.</Text>
+            {isLocked ? (
+                <View style={styles.lockedMessage}>
+                    <LockKeyhole size={14} color={colours.warning} />
+                    <Text style={styles.lockedMessageText}>Set automatically because this Focus Session ended early.</Text>
+                </View>
+            ) : (
+                <Text style={styles.helperText}>Choose the outcome that best describes this Focus Session.</Text>
+            )}
 
             <View style={styles.options}>
-                {outcomeOptions.map((option) => {
+                {outcomeOptions.filter((option) => !isLocked || option.value === "stopped").map((option) => {
                     const isSelected = selectedOutcome === option.value;
                     const taskLabel = option.label.replace("Quest", "Task");
                     const taskDescription = option.description.replace("Quest", "Task");
@@ -69,6 +78,7 @@ export function SessionOutcomeSelector({ selectedOutcome, onSelectOutcome, isQue
                             key={option.value}
                             style={[styles.option, isSelected && styles.selectedOption]}
                             onPress={() => onSelectOutcome(option.value)}
+                            disabled={isLocked}
                             haptic="selection"
                         >
                             <View style={styles.optionHeader}>
@@ -103,6 +113,20 @@ function createStyles(colours: AppColours) {
 
         helperText: {
             marginTop: spacing.xs,
+            fontSize: 13,
+            lineHeight: 19,
+            color: colours.textMuted,
+        },
+
+        lockedMessage: {
+            marginTop: spacing.sm,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 6,
+        },
+
+        lockedMessageText: {
+            flex: 1,
             fontSize: 13,
             lineHeight: 19,
             color: colours.textMuted,
