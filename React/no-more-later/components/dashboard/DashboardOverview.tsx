@@ -1,6 +1,6 @@
-import { useMemo } from "react";
-import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
-import { CheckCircle2, Clock3, Flame, Folder, Star, Zap } from "lucide-react-native";
+import { useMemo, useState } from "react";
+import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
+import { CheckCircle2, Clock3, Flame, Folder, Pencil, Star, Zap } from "lucide-react-native";
 
 import type { ReactNode } from "react";
 
@@ -15,18 +15,55 @@ import { ProgressBarChart, ProgressCard, ProgressRing } from "./DashboardCharts"
 type DashboardOverviewProps = {
     sessions: FocusSessionRecord[];
     journeys: Journey[];
+    dailyGoalMinutes: number;
+    onSaveDailyGoal: (minutes: number) => Promise<string | null>;
     referenceDate?: Date;
 };
 
-export function DashboardOverview({ sessions, journeys, referenceDate = new Date() }: DashboardOverviewProps) {
+const GOAL_PRESETS = [60, 120, 180, 240];
+
+export function DashboardOverview({ sessions, journeys, dailyGoalMinutes, onSaveDailyGoal, referenceDate = new Date() }: DashboardOverviewProps) {
     const { colours } = useAppearance();
     const { width } = useWindowDimensions();
     const styles = useMemo(() => createStyles(colours), [colours]);
+    const [isGoalModalVisible, setIsGoalModalVisible] = useState(false);
+    const [goalDraft, setGoalDraft] = useState(String(dailyGoalMinutes));
+    const [goalError, setGoalError] = useState("");
+    const [isSavingGoal, setIsSavingGoal] = useState(false);
     const stats = useMemo(() => getOverviewStats(sessions, referenceDate, journeys), [journeys, referenceDate, sessions]);
     const isWide = width >= 760;
-    const focusGoalSeconds = 3 * 60 * 60;
+    const focusGoalSeconds = dailyGoalMinutes * 60;
     const focusProgress = stats.todaySeconds / focusGoalSeconds;
     const dayLabels = stats.weekDates.map((date) => date.toLocaleDateString(undefined, { weekday: "short" }).slice(0, 2));
+
+    function openGoalModal() {
+        setGoalDraft(String(dailyGoalMinutes));
+        setGoalError("");
+        setIsGoalModalVisible(true);
+    }
+
+    async function saveGoal() {
+        const parsedGoal = Number(goalDraft);
+
+        if (!Number.isInteger(parsedGoal) || parsedGoal < 15 || parsedGoal > 1440) {
+            setGoalError("Choose a whole number between 15 and 1,440 minutes.");
+            return;
+        }
+
+        setIsSavingGoal(true);
+        setGoalError("");
+
+        const saveError = await onSaveDailyGoal(parsedGoal);
+
+        setIsSavingGoal(false);
+
+        if (saveError) {
+            setGoalError(saveError);
+            return;
+        }
+
+        setIsGoalModalVisible(false);
+    }
 
     return (
         <View style={styles.content}>
@@ -45,10 +82,11 @@ export function DashboardOverview({ sessions, journeys, referenceDate = new Date
                     <View style={styles.heroCopy}>
                         <Text style={styles.heroValue}>{formatProgressDuration(stats.todaySeconds, true)}</Text>
                         <Text style={styles.heroLabel}>Focused today</Text>
-                        <View style={styles.goalRow}>
+                        <Pressable onPress={openGoalModal} style={({ pressed }) => [styles.goalRow, pressed && styles.goalRowPressed]}>
                             <View style={styles.goalDot} />
                             <Text style={styles.goalText}>Goal: {formatProgressDuration(focusGoalSeconds, true)}</Text>
-                        </View>
+                            <Pencil size={11} color={colours.primary} />
+                        </Pressable>
                     </View>
                 </View>
                 <ProgressRing progress={focusProgress} label={`${Math.round(Math.min(focusProgress, 1) * 100)}%`} />
@@ -113,6 +151,66 @@ export function DashboardOverview({ sessions, journeys, referenceDate = new Date
                     </ProgressCard>
                 </View>
             </View>
+
+            <Modal transparent animationType="fade" visible={isGoalModalVisible} onRequestClose={() => !isSavingGoal && setIsGoalModalVisible(false)}>
+                <Pressable style={styles.modalBackdrop} onPress={() => !isSavingGoal && setIsGoalModalVisible(false)}>
+                    <Pressable style={styles.goalModal} onPress={() => undefined}>
+                        <Text style={styles.modalTitle}>Daily focus goal</Text>
+                        <Text style={styles.modalDescription}>Set the amount of focused time you want to aim for each day.</Text>
+
+                        <View style={styles.goalPresets}>
+                            {GOAL_PRESETS.map((minutes) => {
+                                const isSelected = Number(goalDraft) === minutes;
+                                return (
+                                    <Pressable
+                                        key={minutes}
+                                        onPress={() => {
+                                            setGoalDraft(String(minutes));
+                                            setGoalError("");
+                                        }}
+                                        style={({ pressed }) => [styles.goalPreset, isSelected && styles.selectedGoalPreset, pressed && styles.goalRowPressed]}
+                                    >
+                                        <Text style={[styles.goalPresetText, isSelected && styles.selectedGoalPresetText]}>{formatProgressDuration(minutes * 60, true)}</Text>
+                                    </Pressable>
+                                );
+                            })}
+                        </View>
+
+                        <Text style={styles.inputLabel}>Custom goal in minutes</Text>
+                        <TextInput
+                            value={goalDraft}
+                            onChangeText={(value) => {
+                                setGoalDraft(value.replace(/[^0-9]/g, ""));
+                                setGoalError("");
+                            }}
+                            editable={!isSavingGoal}
+                            keyboardType="number-pad"
+                            maxLength={4}
+                            selectTextOnFocus
+                            style={styles.goalInput}
+                        />
+
+                        {goalError ? <Text style={styles.goalError}>{goalError}</Text> : null}
+
+                        <View style={styles.modalActions}>
+                            <Pressable
+                                disabled={isSavingGoal}
+                                onPress={() => setIsGoalModalVisible(false)}
+                                style={({ pressed }) => [styles.cancelButton, pressed && styles.goalRowPressed]}
+                            >
+                                <Text style={styles.cancelButtonText}>Cancel</Text>
+                            </Pressable>
+                            <Pressable
+                                disabled={isSavingGoal}
+                                onPress={() => void saveGoal()}
+                                style={({ pressed }) => [styles.saveButton, pressed && styles.goalRowPressed, isSavingGoal && styles.disabledButton]}
+                            >
+                                {isSavingGoal ? <ActivityIndicator size="small" color="#ffffff" /> : <Text style={styles.saveButtonText}>Save goal</Text>}
+                            </Pressable>
+                        </View>
+                    </Pressable>
+                </Pressable>
+            </Modal>
         </View>
     );
 }
@@ -202,10 +300,14 @@ function createStyles(colours: AppColours) {
             color: colours.text,
         },
         goalRow: {
+            alignSelf: "flex-start",
             marginTop: spacing.sm,
             flexDirection: "row",
             alignItems: "center",
             gap: 5,
+        },
+        goalRowPressed: {
+            opacity: 0.68,
         },
         goalDot: {
             width: 6,
@@ -322,6 +424,120 @@ function createStyles(colours: AppColours) {
             lineHeight: 19,
             color: colours.textMuted,
             textAlign: "center",
+        },
+        modalBackdrop: {
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+            padding: spacing.lg,
+            backgroundColor: "rgba(0, 0, 0, 0.45)",
+        },
+        goalModal: {
+            width: "100%",
+            maxWidth: 420,
+            padding: spacing.lg,
+            borderRadius: radius.lg,
+            backgroundColor: colours.surface,
+        },
+        modalTitle: {
+            fontSize: 20,
+            fontWeight: "800",
+            color: colours.text,
+        },
+        modalDescription: {
+            marginTop: spacing.sm,
+            fontSize: 13,
+            lineHeight: 19,
+            color: colours.textMuted,
+        },
+        goalPresets: {
+            marginTop: spacing.lg,
+            flexDirection: "row",
+            flexWrap: "wrap",
+            gap: spacing.sm,
+        },
+        goalPreset: {
+            minHeight: 38,
+            paddingHorizontal: spacing.md,
+            alignItems: "center",
+            justifyContent: "center",
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.pill,
+            backgroundColor: colours.background,
+        },
+        selectedGoalPreset: {
+            borderColor: colours.primaryBorder,
+            backgroundColor: colours.primarySoft,
+        },
+        goalPresetText: {
+            fontSize: 12,
+            fontWeight: "700",
+            color: colours.textMuted,
+        },
+        selectedGoalPresetText: {
+            color: colours.primary,
+        },
+        inputLabel: {
+            marginTop: spacing.lg,
+            marginBottom: spacing.sm,
+            fontSize: 12,
+            fontWeight: "700",
+            color: colours.text,
+        },
+        goalInput: {
+            minHeight: 48,
+            paddingHorizontal: spacing.md,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+            backgroundColor: colours.background,
+            fontSize: 16,
+            fontWeight: "700",
+            color: colours.text,
+        },
+        goalError: {
+            marginTop: spacing.sm,
+            fontSize: 12,
+            lineHeight: 18,
+            color: colours.danger,
+        },
+        modalActions: {
+            marginTop: spacing.lg,
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            gap: spacing.sm,
+        },
+        cancelButton: {
+            minHeight: 42,
+            paddingHorizontal: spacing.lg,
+            alignItems: "center",
+            justifyContent: "center",
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+        },
+        cancelButtonText: {
+            fontSize: 13,
+            fontWeight: "700",
+            color: colours.text,
+        },
+        saveButton: {
+            minWidth: 108,
+            minHeight: 42,
+            paddingHorizontal: spacing.lg,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: radius.md,
+            backgroundColor: colours.primary,
+        },
+        saveButtonText: {
+            fontSize: 13,
+            fontWeight: "800",
+            color: "#ffffff",
+        },
+        disabledButton: {
+            opacity: 0.6,
         },
     });
 }

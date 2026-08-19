@@ -25,6 +25,7 @@ type DashboardStatsProps = {
 
 const PERIOD_OPTIONS: { id: ProgressPeriod; label: string }[] = [
     { id: "month", label: "This Month" },
+    { id: "fortnight", label: "Last 14 Days" },
     { id: "quarter", label: "Last 3 Months" },
     { id: "year", label: "This Year" },
 ];
@@ -153,14 +154,12 @@ function ChartHeader({
             </View>
             <Text style={styles.chartValue}>{value}</Text>
             <Text style={styles.chartDetail}>{detail}</Text>
-            {delta === null ? (
-                <Text style={styles.deltaSuffix}>No previous-period baseline</Text>
-            ) : (
+            {delta !== null ? (
                 <Text style={[styles.delta, isPositive ? styles.positiveDelta : styles.negativeDelta]}>
                     {isPositive && delta > 0 ? "+" : ""}
                     {delta}% <Text style={styles.deltaSuffix}>vs previous period</Text>
                 </Text>
-            )}
+            ) : null}
         </View>
     );
 }
@@ -168,7 +167,11 @@ function ChartHeader({
 function filterPeriodSessions(sessions: FocusSessionRecord[], period: ProgressPeriod, referenceDate: Date) {
     let start: Date;
 
-    if (period === "month") {
+    if (period === "fortnight") {
+        start = new Date(referenceDate);
+        start.setDate(referenceDate.getDate() - 13);
+        start.setHours(0, 0, 0, 0);
+    } else if (period === "month") {
         start = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), 1);
     } else if (period === "quarter") {
         start = new Date(referenceDate.getFullYear(), referenceDate.getMonth() - 2, 1);

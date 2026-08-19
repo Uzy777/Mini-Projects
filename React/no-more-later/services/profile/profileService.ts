@@ -6,7 +6,11 @@ export async function getProfile(userId: string): Promise<{
     data: Profile | null;
     error: Error | null;
 }> {
-    const { data, error } = await supabase.from("profiles").select("id, display_name, created_at").eq("id", userId).maybeSingle();
+    const { data, error } = await supabase
+        .from("profiles")
+        .select("id, display_name, daily_focus_goal_minutes, created_at")
+        .eq("id", userId)
+        .maybeSingle();
 
     return {
         data,
@@ -27,7 +31,29 @@ export async function updateDisplayName(
             display_name: displayName,
         })
         .eq("id", userId)
-        .select("id, display_name, created_at")
+        .select("id, display_name, daily_focus_goal_minutes, created_at")
+        .single();
+
+    return {
+        data,
+        error,
+    };
+}
+
+export async function updateDailyFocusGoal(
+    userId: string,
+    dailyFocusGoalMinutes: number,
+): Promise<{
+    data: Profile | null;
+    error: Error | null;
+}> {
+    const { data, error } = await supabase
+        .from("profiles")
+        .update({
+            daily_focus_goal_minutes: dailyFocusGoalMinutes,
+        })
+        .eq("id", userId)
+        .select("id, display_name, daily_focus_goal_minutes, created_at")
         .single();
 
     return {

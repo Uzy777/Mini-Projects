@@ -50,5 +50,6 @@ export type ActiveFocusSession = {
 export type Profile = {
     id: string;
     display_name: string | null;
+    daily_focus_goal_minutes: number;
     created_at: string;
 };

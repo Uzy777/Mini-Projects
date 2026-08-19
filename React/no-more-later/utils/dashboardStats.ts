@@ -1,6 +1,6 @@
 import type { FocusSessionRecord, Journey } from "@/types/models";
 
-export type ProgressPeriod = "month" | "quarter" | "year";
+export type ProgressPeriod = "month" | "fortnight" | "quarter" | "year";
 
 export type ProgressCategory = {
     id: string;
@@ -207,7 +207,11 @@ function getPeriodRange(period: ProgressPeriod, referenceDate: Date) {
     end.setHours(23, 59, 59, 999);
     let start: Date;
 
-    if (period === "month") {
+    if (period === "fortnight") {
+        start = new Date(referenceDate);
+        start.setDate(referenceDate.getDate() - 13);
+        start.setHours(0, 0, 0, 0);
+    } else if (period === "month") {
         start = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), 1);
     } else if (period === "quarter") {
         start = new Date(referenceDate.getFullYear(), referenceDate.getMonth() - 2, 1);
@@ -219,6 +223,21 @@ function getPeriodRange(period: ProgressPeriod, referenceDate: Date) {
 }
 
 function buildBuckets(period: ProgressPeriod, start: Date, end: Date) {
+    if (period === "fortnight") {
+        return Array.from({ length: 14 }, (_, index) => {
+            const bucketStart = new Date(start);
+            bucketStart.setDate(start.getDate() + index);
+            const bucketEnd = new Date(bucketStart);
+            bucketEnd.setHours(23, 59, 59, 999);
+
+            return {
+                start: bucketStart,
+                end: bucketEnd > end ? end : bucketEnd,
+                label: String(bucketStart.getDate()),
+            };
+        });
+    }
+
     if (period === "month") {
         const weekCount = Math.ceil(end.getDate() / 7);
 

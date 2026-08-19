@@ -13,6 +13,7 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteFocusSessions } from "@/services/focusSessions/focusSessionService";
 import { getRemoteJourneys } from "@/services/journeys/journeyService";
+import { updateDailyFocusGoal } from "@/services/profile/profileService";
 import type { FocusSessionRecord, Journey } from "@/types/models";
 
 type ProgressSection = "overview" | "calendar" | "stats";
@@ -25,7 +26,7 @@ const PROGRESS_VIEWS: { id: ProgressSection; label: string; icon: typeof LayoutD
 
 export default function ProgressScreen() {
     const { colours } = useAppearance();
-    const { session } = useAuth();
+    const { session, profile, refreshProfile } = useAuth();
     const styles = useMemo(() => createStyles(colours), [colours]);
     const [selectedView, setSelectedView] = useState<ProgressSection>("overview");
     const [sessions, setSessions] = useState<FocusSessionRecord[]>([]);
@@ -100,6 +101,27 @@ export default function ProgressScreen() {
         }, [loadProgress]),
     );
 
+    async function handleSaveDailyGoal(minutes: number) {
+        if (!session) {
+            return "Sign in to save your daily focus goal.";
+        }
+
+        try {
+            const { error } = await updateDailyFocusGoal(session.user.id, minutes);
+
+            if (error) {
+                console.error("Failed to update daily focus goal:", error);
+                return "Your goal could not be saved. Try again.";
+            }
+
+            await refreshProfile();
+            return null;
+        } catch (error) {
+            console.error("Failed to update daily focus goal:", error);
+            return "Your goal could not be saved. Try again.";
+        }
+    }
+
     return (
         <AppScreenBackground>
             <ScrollView
@@ -168,7 +190,14 @@ export default function ProgressScreen() {
                     </View>
                 )}
 
-                {!isLoading && selectedView === "overview" && <DashboardOverview sessions={sessions} journeys={journeys} />}
+                {!isLoading && selectedView === "overview" && (
+                    <DashboardOverview
+                        sessions={sessions}
+                        journeys={journeys}
+                        dailyGoalMinutes={profile?.daily_focus_goal_minutes ?? 180}
+                        onSaveDailyGoal={handleSaveDailyGoal}
+                    />
+                )}
                 {!isLoading && selectedView === "calendar" && <DashboardCalendar sessions={sessions} />}
                 {!isLoading && selectedView === "stats" && <DashboardStats sessions={sessions} journeys={journeys} />}
             </ScrollView>

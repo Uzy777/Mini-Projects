@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock3 } from "lucide-react-native";
 
 import type { AppColours } from "@/constants/appearanceColours";
@@ -129,28 +129,36 @@ export function DashboardCalendar({ sessions, referenceDate = new Date() }: Dash
                         <Text style={styles.emptyText}>Choose a day with a coloured dot to review its sessions.</Text>
                     </View>
                 ) : (
-                    <View style={styles.sessionList}>
-                        {selectedSessions.map((session) => (
-                            <View key={session.id} style={styles.sessionRow}>
-                                <View style={[styles.sessionIcon, session.outcome === "completed" ? styles.completedIcon : styles.focusIcon]}>
-                                    {session.outcome === "completed" ? (
-                                        <CheckCircle2 size={17} color={colours.primary} />
-                                    ) : (
-                                        <Clock3 size={17} color={colours.primary} />
-                                    )}
+                    <>
+                        <ScrollView
+                            style={styles.sessionScroller}
+                            contentContainerStyle={styles.sessionList}
+                            nestedScrollEnabled
+                            showsVerticalScrollIndicator={selectedSessions.length > 4}
+                        >
+                            {selectedSessions.map((session) => (
+                                <View key={session.id} style={styles.sessionRow}>
+                                    <View style={[styles.sessionIcon, session.outcome === "completed" ? styles.completedIcon : styles.focusIcon]}>
+                                        {session.outcome === "completed" ? (
+                                            <CheckCircle2 size={17} color={colours.primary} />
+                                        ) : (
+                                            <Clock3 size={17} color={colours.primary} />
+                                        )}
+                                    </View>
+                                    <View style={styles.sessionCopy}>
+                                        <Text numberOfLines={1} style={styles.sessionTitle}>
+                                            {session.questTitle}
+                                        </Text>
+                                        <Text style={styles.sessionMeta}>
+                                            {new Date(session.completedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
+                                        </Text>
+                                    </View>
+                                    <Text style={styles.sessionDuration}>{formatProgressDuration(getSessionSeconds(session), true)}</Text>
                                 </View>
-                                <View style={styles.sessionCopy}>
-                                    <Text numberOfLines={1} style={styles.sessionTitle}>
-                                        {session.questTitle}
-                                    </Text>
-                                    <Text style={styles.sessionMeta}>
-                                        {new Date(session.completedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
-                                    </Text>
-                                </View>
-                                <Text style={styles.sessionDuration}>{formatProgressDuration(getSessionSeconds(session), true)}</Text>
-                            </View>
-                        ))}
-                    </View>
+                            ))}
+                        </ScrollView>
+                        {selectedSessions.length > 4 ? <Text style={styles.scrollHint}>Scroll to review all {selectedSessions.length} sessions</Text> : null}
+                    </>
                 )}
             </ProgressCard>
         </View>
@@ -322,6 +330,16 @@ function createStyles(colours: AppColours) {
         },
         sessionList: {
             gap: spacing.sm,
+            paddingRight: 3,
+        },
+        sessionScroller: {
+            maxHeight: 300,
+        },
+        scrollHint: {
+            marginTop: spacing.sm,
+            fontSize: 10,
+            color: colours.textMuted,
+            textAlign: "center",
         },
         sessionRow: {
             minHeight: 58,
