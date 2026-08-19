@@ -122,7 +122,7 @@ export default function SignInScreen() {
                 </Pressable>
 
                 <View style={styles.authLinkRow}>
-                    <Text style={styles.authLinkText}>Don't have an account?</Text>
+                    <Text style={styles.authLinkText}>{"Don't have an account?"}</Text>
                     <Link
                         href={{
                             pathname: "/sign-up",

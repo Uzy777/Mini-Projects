@@ -48,7 +48,7 @@ export function HomeHeader({ currentStreak, displayName, onPressMenu }: HomeHead
                 </Pressable>
             </View>
 
-            <Text style={styles.subtitle}>Turn "later" into today.</Text>
+            <Text style={styles.subtitle}>{'Turn "later" into today.'}</Text>
         </View>
     );
 }
