@@ -1,15 +1,15 @@
 import { useCallback, useMemo, useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
+import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
-import { ChevronDown, ChevronUp, FolderPlus, FolderKanban, ListChecks, Plus, Search } from "lucide-react-native";
+import { CheckCircle2, ListChecks, MoreHorizontal, Plus, Search } from "lucide-react-native";
 
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
-import { TaskManagerActionsModal, type ManagedItem, type TaskManagerLocationOption } from "@/components/tasks/TaskManagerActionsModal";
-import { TaskManagerCreateModal, type TaskManagerCreateKind, type TaskManagerParent } from "@/components/tasks/TaskManagerCreateModal";
+import { TaskManagerActionsModal, type ManagedItem } from "@/components/tasks/TaskManagerActionsModal";
+import { TaskManagerCreateModal, type TaskManagerCreateKind } from "@/components/tasks/TaskManagerCreateModal";
 import { TaskManagerHierarchy, type TaskManagerScope } from "@/components/tasks/TaskManagerHierarchy";
 import { TaskManagerTaskRow } from "@/components/tasks/TaskManagerTaskRow";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
-import { AppButton } from "@/components/ui/AppButton";
+import { AnimatedProgressBar } from "@/components/ui/AnimatedProgressBar";
 import { AppCard } from "@/components/ui/AppCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
@@ -21,18 +21,14 @@ import { syncJourneyStatusFromQuests } from "@/services/journeyStatusService";
 import { deleteRemoteQuest, updateRemoteQuestStatus } from "@/services/quests/questService";
 import { getActiveFocusSession } from "@/services/storage/activeFocusSessionStorage";
 import {
-    createRemoteWorkFolder,
     createRemoteWorkJourney,
     createRemoteWorkQuest,
-    deleteRemoteWorkFolder,
     deleteRemoteWorkJourney,
-    getRemoteWorkFolders,
     getRemoteWorkJourneys,
     getRemoteWorkQuests,
-    updateRemoteWorkProjectFolder,
-    updateRemoteWorkTaskLocation,
+    updateRemoteWorkQuestJourney,
 } from "@/services/work/workService";
-import type { WorkAssetId, WorkFolder, WorkJourney, WorkQuest, WorkStatus } from "@/types/work";
+import type { WorkAssetId, WorkJourney, WorkQuest, WorkStatus } from "@/types/work";
 import { confirmDelete } from "@/utils/confirmDelete";
 import { showMessage } from "@/utils/showMessage";
 
@@ -42,9 +38,8 @@ export default function TasksScreen() {
     const { width } = useWindowDimensions();
     const router = useRouter();
     const isDesktop = width >= layout.desktopBreakpoint;
-    const styles = useMemo(() => createStyles(colours, isDesktop), [colours, isDesktop]);
+    const styles = useMemo(() => createStyles(colours, isDesktop, width), [colours, isDesktop, width]);
 
-    const [folders, setFolders] = useState<WorkFolder[]>([]);
     const [projects, setProjects] = useState<WorkJourney[]>([]);
     const [tasks, setTasks] = useState<WorkQuest[]>([]);
     const [status, setStatus] = useState<WorkStatus>("active");
@@ -52,13 +47,11 @@ export default function TasksScreen() {
     const [query, setQuery] = useState("");
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState("");
-    const [browseOpen, setBrowseOpen] = useState(false);
     const [createKind, setCreateKind] = useState<TaskManagerCreateKind | null>(null);
     const [managedItem, setManagedItem] = useState<ManagedItem | null>(null);
 
     const loadData = useCallback(async () => {
         if (!session) {
-            setFolders([]);
             setProjects([]);
             setTasks([]);
             setLoading(false);
@@ -68,19 +61,17 @@ export default function TasksScreen() {
         setLoading(true);
         setLoadError("");
         try {
-            const [folderResult, projectResult, taskResult] = await Promise.all([
-                getRemoteWorkFolders(session.user.id),
+            const [projectResult, taskResult] = await Promise.all([
                 getRemoteWorkJourneys(session.user.id),
                 getRemoteWorkQuests(session.user.id),
             ]);
-            const error = folderResult.error ?? projectResult.error ?? taskResult.error;
+            const error = projectResult.error ?? taskResult.error;
             if (error) throw error;
-            setFolders(folderResult.data ?? []);
             setProjects(projectResult.data ?? []);
             setTasks(taskResult.data ?? []);
         } catch (error) {
             console.error("Failed to load Tasks workspace:", error);
-            setLoadError("Your Tasks workspace could not be loaded. If this is the first run, apply the new work folders migration.");
+            setLoadError("Your Tasks could not be loaded. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -89,49 +80,39 @@ export default function TasksScreen() {
     useFocusEffect(useCallback(() => { void loadData(); }, [loadData]));
 
     const projectById = useMemo(() => new Map(projects.map((project) => [project.id, project])), [projects]);
-    const folderById = useMemo(() => new Map(folders.map((folder) => [folder.id, folder])), [folders]);
     const normalizedQuery = query.trim().toLowerCase();
     const scopedTasks = tasks.filter((task) => {
         if (task.status !== status) return false;
         const project = task.journeyId ? projectById.get(task.journeyId) : undefined;
-        const folder = task.folderId ? folderById.get(task.folderId) : project?.folderId ? folderById.get(project.folderId) : undefined;
-
-        if (scope.kind === "standalone" && (task.journeyId || task.folderId)) return false;
+        if (scope.kind === "standalone" && task.journeyId) return false;
         if (scope.kind === "project" && task.journeyId !== scope.id) return false;
-        if (scope.kind === "folder" && task.folderId !== scope.id && project?.folderId !== scope.id) return false;
-        if (normalizedQuery && ![task.title, project?.title, folder?.title].some((value) => value?.toLowerCase().includes(normalizedQuery))) return false;
+        if (normalizedQuery && ![task.title, project?.title].some((value) => value?.toLowerCase().includes(normalizedQuery))) return false;
         return true;
     });
 
-    const scopeCopy = getScopeCopy(scope, folders, projects);
-    const initialParent: TaskManagerParent | undefined = createKind === "task" && (scope.kind === "project" || scope.kind === "folder")
-        ? { kind: scope.kind, id: scope.id }
-        : createKind === "project" && scope.kind === "folder"
-          ? { kind: "folder", id: scope.id }
-          : undefined;
+    const scopeCopy = getScopeCopy(scope, projects);
+    const selectedProject = scope.kind === "project" ? projects.find((project) => project.id === scope.id) : undefined;
+    const selectedProjectTasks = selectedProject ? tasks.filter((task) => task.journeyId === selectedProject.id) : [];
+    const completedProjectTaskCount = selectedProjectTasks.filter((task) => task.status === "completed").length;
+    const projectProgress = selectedProjectTasks.length > 0 ? completedProjectTaskCount / selectedProjectTasks.length : 0;
+    const projectProgressPercentage = Math.round(projectProgress * 100);
+    const selectedProjectIsComplete = Boolean(selectedProject && selectedProjectTasks.length > 0 && completedProjectTaskCount === selectedProjectTasks.length);
+    const emptyTaskState = getEmptyTaskState(normalizedQuery, status, Boolean(selectedProject), selectedProjectIsComplete, selectedProjectTasks.length);
+    const initialProjectId = createKind === "task" && scope.kind === "project" ? scope.id : undefined;
 
-    async function handleCreate(title: string, assetId: WorkAssetId, parent?: TaskManagerParent) {
+    async function handleCreate(title: string, assetId: WorkAssetId, projectId?: string) {
         if (!session || !createKind) return;
         try {
-            if (createKind === "folder") {
-                const result = await createRemoteWorkFolder(session.user.id, title);
-                if (result.error || !result.data) throw result.error ?? new Error("Folder was not created.");
-                setFolders((current) => [...current, result.data!]);
-            } else if (createKind === "project") {
-                const result = await createRemoteWorkJourney(session.user.id, title, assetId, parent?.kind === "folder" ? parent.id : undefined);
+            if (createKind === "project") {
+                const result = await createRemoteWorkJourney(session.user.id, title, assetId);
                 if (result.error || !result.data) throw result.error ?? new Error("Project was not created.");
                 setProjects((current) => [result.data!, ...current]);
             } else {
-                const result = await createRemoteWorkQuest(
-                    session.user.id,
-                    title,
-                    assetId,
-                    parent?.kind === "project" ? parent.id : undefined,
-                    parent?.kind === "folder" ? parent.id : undefined,
-                );
+                const result = await createRemoteWorkQuest(session.user.id, title, assetId, projectId);
                 if (result.error || !result.data) throw result.error ?? new Error("Task was not created.");
                 setTasks((current) => [result.data!, ...current]);
             }
+            setStatus("active");
             setCreateKind(null);
         } catch (error) {
             console.error(`Failed to create ${createKind}:`, error);
@@ -139,7 +120,7 @@ export default function TasksScreen() {
         }
     }
 
-    async function toggleTask(task: WorkQuest) {
+    async function updateTaskStatus(task: WorkQuest) {
         const nextStatus: WorkStatus = task.status === "completed" ? "active" : "completed";
         try {
             const result = await updateRemoteQuestStatus(task.id, nextStatus);
@@ -154,32 +135,36 @@ export default function TasksScreen() {
         }
     }
 
+    function requestTaskStatusChange(task: WorkQuest) {
+        if (task.status === "completed") {
+            void updateTaskStatus(task);
+            return;
+        }
+
+        setManagedItem(null);
+        confirmTaskCompletion(task.title, () => { void updateTaskStatus(task); });
+    }
+
     async function refreshProjectStatus(projectId: string, nextTasks: WorkQuest[]) {
         const projectTasks = nextTasks.filter((task) => task.journeyId === projectId);
         const nextStatus = await syncJourneyStatusFromQuests(projectId, projectTasks);
         setProjects((current) => current.map((project) => project.id === projectId ? { ...project, status: nextStatus } : project));
     }
 
-    async function moveManagedItem(location?: { kind: "folder" | "project"; id: string }) {
-        if (!managedItem) return;
+    async function moveTask(projectId?: string) {
+        if (!managedItem || managedItem.kind !== "task") return;
+        const previousProjectId = managedItem.projectId;
         try {
-            if (managedItem.kind === "task") {
-                const previousProjectId = managedItem.parentKind === "project" ? managedItem.parentId : undefined;
-                const result = await updateRemoteWorkTaskLocation(managedItem.id, location);
-                if (result.error || !result.data) throw result.error ?? new Error("Task was not moved.");
-                const nextTasks = tasks.map((task) => task.id === result.data!.id ? result.data! : task);
-                setTasks(nextTasks);
-                if (previousProjectId) await refreshProjectStatus(previousProjectId, nextTasks);
-                if (location?.kind === "project") await refreshProjectStatus(location.id, nextTasks);
-            } else if (managedItem.kind === "project") {
-                const result = await updateRemoteWorkProjectFolder(managedItem.id, location?.kind === "folder" ? location.id : undefined);
-                if (result.error || !result.data) throw result.error ?? new Error("Project was not moved.");
-                setProjects((current) => current.map((project) => project.id === result.data!.id ? result.data! : project));
-            }
+            const result = await updateRemoteWorkQuestJourney(managedItem.id, projectId);
+            if (result.error || !result.data) throw result.error ?? new Error("Task was not moved.");
+            const nextTasks = tasks.map((task) => task.id === result.data!.id ? result.data! : task);
+            setTasks(nextTasks);
+            if (previousProjectId) await refreshProjectStatus(previousProjectId, nextTasks);
+            if (projectId) await refreshProjectStatus(projectId, nextTasks);
             setManagedItem(null);
         } catch (error) {
-            console.error("Failed to move item:", error);
-            showMessage("Item was not moved", "Please try again.");
+            console.error("Failed to move Task:", error);
+            showMessage("Task was not moved", "Please try again.");
         }
     }
 
@@ -187,8 +172,8 @@ export default function TasksScreen() {
         if (!managedItem) return;
         const item = managedItem;
         setManagedItem(null);
-        const noun = item.kind[0].toUpperCase() + item.kind.slice(1);
-        const consequence = item.kind === "folder" ? "Projects will remain without a Folder." : item.kind === "project" ? "Tasks will remain without a Project." : "This cannot be undone.";
+        const noun = item.kind === "task" ? "Task" : "Project";
+        const consequence = item.kind === "project" ? "Its Tasks will remain as standalone Tasks." : "This cannot be undone.";
         confirmDelete({ title: `Delete ${noun}?`, message: `Delete “${item.title}”? ${consequence}`, onConfirm: () => { void deleteManagedItem(item); } });
     }
 
@@ -204,20 +189,13 @@ export default function TasksScreen() {
                 if (result.error) throw result.error;
                 const nextTasks = tasks.filter((task) => task.id !== item.id);
                 setTasks(nextTasks);
-                if (item.parentKind === "project" && item.parentId) await refreshProjectStatus(item.parentId, nextTasks);
-            } else if (item.kind === "project") {
+                if (item.projectId) await refreshProjectStatus(item.projectId, nextTasks);
+            } else {
                 const result = await deleteRemoteWorkJourney(item.id);
                 if (result.error) throw result.error;
                 setProjects((current) => current.filter((project) => project.id !== item.id));
                 setTasks((current) => current.map((task) => task.journeyId === item.id ? withoutProject(task) : task));
                 if (scope.kind === "project" && scope.id === item.id) setScope({ kind: "all" });
-            } else {
-                const result = await deleteRemoteWorkFolder(item.id);
-                if (result.error) throw result.error;
-                setFolders((current) => current.filter((folder) => folder.id !== item.id));
-                setProjects((current) => current.map((project) => project.folderId === item.id ? withoutFolder(project) : project));
-                setTasks((current) => current.map((task) => task.folderId === item.id ? withoutDirectFolder(task) : task));
-                if (scope.kind === "folder" && scope.id === item.id) setScope({ kind: "all" });
             }
         } catch (error) {
             console.error("Failed to delete item:", error);
@@ -229,105 +207,117 @@ export default function TasksScreen() {
         router.push({ pathname: "/focus/[questId]", params: { questId: task.id, questTitle: task.title, source: "tasks", ...(task.journeyId ? { journeyId: task.journeyId } : {}) } });
     }
 
-    const hierarchy = (
-        <TaskManagerHierarchy
-            folders={folders}
-            projects={projects}
-            tasks={tasks}
-            status={status}
-            selected={scope}
-            onSelect={(nextScope) => { setScope(nextScope); setBrowseOpen(false); }}
-            onFolderMore={(folder) => setManagedItem({ kind: "folder", id: folder.id, title: folder.title })}
-            onProjectMore={(project) => setManagedItem({ kind: "project", id: project.id, title: project.title, status: project.status, parentId: project.folderId, parentKind: project.folderId ? "folder" : undefined })}
-        />
-    );
+    const hierarchy = <TaskManagerHierarchy projects={projects} tasks={tasks} status={status} selected={scope} compact={!isDesktop} onSelect={setScope} onNewProject={() => setCreateKind("project")} onProjectMore={(project) => setManagedItem({ kind: "project", id: project.id, title: project.title, status: project.status })} />;
 
     return (
         <AppScreenBackground>
             <ScrollView style={styles.screen} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-                <ScreenHeader eyebrow="TASKS" title="Get things done" subtitle="Tasks stay simple. Add a Project or Folder only when it makes your work easier to navigate." action={<AppButton label="New Task" icon={<Plus size={16} color={colours.onPrimary} />} onPress={() => setCreateKind("task")} />} />
-
-                <View style={styles.actionStrip}>
-                    <View style={styles.actionCopy}><Text style={styles.actionTitle}>Add only the structure you need</Text><Text style={styles.actionDescription}>Folder and Project are both optional.</Text></View>
-                    <View style={styles.actions}>
-                        <AppButton label="Project" icon={<FolderKanban size={16} color={colours.primaryStrong} />} onPress={() => setCreateKind("project")} variant="soft" size="sm" />
-                        <AppButton label="Folder" icon={<FolderPlus size={16} color={colours.textMuted} />} onPress={() => setCreateKind("folder")} variant="secondary" size="sm" />
-                    </View>
-                </View>
+                <ScreenHeader eyebrow="TASKS" title="Get things done" subtitle="Create Tasks first. Use a Project only when several Tasks belong together." />
 
                 <View style={styles.toolbar}>
-                    <View accessibilityRole="tablist" style={styles.statusControl}>
-                        {(["active", "completed"] as const).map((value) => <AnimatedPressable key={value} accessibilityRole="tab" accessibilityState={{ selected: status === value }} onPress={() => setStatus(value)} style={[styles.statusButton, status === value && styles.selectedStatusButton]}><Text style={[styles.statusText, status === value && styles.selectedStatusText]}>{value === "active" ? "Active" : "Completed"}</Text></AnimatedPressable>)}
-                    </View>
-                    <View style={styles.searchBox}><Search size={17} color={colours.textMuted} /><TextInput value={query} onChangeText={setQuery} style={styles.searchInput} placeholder="Search Tasks, Projects or Folders" placeholderTextColor={colours.textMuted} selectionColor={colours.primary} /></View>
+                    <View accessibilityRole="tablist" style={styles.statusControl}>{(["active", "completed"] as const).map((value) => <AnimatedPressable key={value} accessibilityRole="tab" accessibilityState={{ selected: status === value }} onPress={() => setStatus(value)} style={[styles.statusButton, status === value && styles.selectedStatusButton]}><Text style={[styles.statusText, status === value && styles.selectedStatusText]}>{value === "active" ? "Active" : "Completed"}</Text></AnimatedPressable>)}</View>
+                    <View style={styles.searchBox}><Search size={17} color={colours.textMuted} /><TextInput value={query} onChangeText={setQuery} style={styles.searchInput} placeholder="Search Tasks or Projects" placeholderTextColor={colours.textMuted} selectionColor={colours.primary} /></View>
                 </View>
 
-                {!isDesktop ? <AppCard padding="sm" style={styles.mobileBrowseCard}><AnimatedPressable onPress={() => setBrowseOpen((current) => !current)} style={styles.mobileBrowseButton}><View><Text style={styles.mobileBrowseLabel}>BROWSING</Text><Text style={styles.mobileBrowseValue}>{scopeCopy.title}</Text></View>{browseOpen ? <ChevronUp size={18} color={colours.primaryStrong} /> : <ChevronDown size={18} color={colours.primaryStrong} />}</AnimatedPressable>{browseOpen ? <View style={styles.mobileHierarchy}>{hierarchy}</View> : null}</AppCard> : null}
+                {!isDesktop ? (
+                    <AppCard padding="sm" style={styles.mobileHierarchyPanel}>{hierarchy}</AppCard>
+                ) : null}
 
                 {loading ? <View style={styles.loading}><ActivityIndicator color={colours.primary} /><Text style={styles.loadingText}>Loading your Tasks…</Text></View> : loadError ? <EmptyState icon={<ListChecks size={22} color={colours.danger} />} title="Tasks unavailable" description={loadError} actionLabel="Try again" onAction={() => void loadData()} /> : (
                     <View style={styles.manager}>
                         {isDesktop ? <AppCard padding="md" style={styles.hierarchyPanel}>{hierarchy}</AppCard> : null}
                         <AppCard padding="sm" style={styles.taskPanel}>
                             <View style={styles.taskHeader}>
-                                <View style={styles.taskHeaderCopy}><Text style={styles.taskTitle}>{scopeCopy.title}</Text><Text style={styles.taskDescription}>{scopeCopy.description}</Text></View>
-                                <View style={styles.taskCount}><Text style={styles.taskCountText}>{scopedTasks.length}</Text></View>
+                                <View style={styles.taskHeaderTop}>
+                                    <View style={styles.taskHeaderCopy}><Text style={styles.taskTitle}>{scopeCopy.title}</Text><Text style={styles.taskDescription}>{scopeCopy.description}</Text></View>
+                                    <View style={styles.taskCount}><Text style={styles.taskCountText}>{scopedTasks.length}</Text></View>
+                                    {selectedProject ? <AnimatedPressable accessibilityLabel={`${selectedProject.title} options`} onPress={() => setManagedItem({ kind: "project", id: selectedProject.id, title: selectedProject.title, status: selectedProject.status })} style={styles.projectMore}><MoreHorizontal size={19} color={colours.textMuted} /></AnimatedPressable> : null}
+                                    <AnimatedPressable accessibilityLabel="Create Task" onPress={() => setCreateKind("task")} style={styles.newTaskButton}>
+                                        <Plus size={16} color={colours.onPrimary} />
+                                        {width >= 520 ? <Text style={styles.newTaskText}>New Task</Text> : null}
+                                    </AnimatedPressable>
+                                </View>
+                                {selectedProject ? (
+                                    <View
+                                        accessibilityLabel={`${projectProgressPercentage}% complete. ${completedProjectTaskCount} of ${selectedProjectTasks.length} Tasks completed.`}
+                                        accessibilityRole="progressbar"
+                                        accessibilityValue={{ min: 0, max: 100, now: projectProgressPercentage }}
+                                        style={styles.projectProgress}
+                                    >
+                                        <View style={styles.projectProgressHeader}>
+                                            <Text style={styles.projectProgressLabel}>Progress</Text>
+                                            <Text style={styles.projectProgressPercentage}>{projectProgressPercentage}%</Text>
+                                        </View>
+                                        <AnimatedProgressBar progress={projectProgress} height={7} />
+                                        <Text style={styles.projectProgressSummary}>{completedProjectTaskCount} of {selectedProjectTasks.length} {selectedProjectTasks.length === 1 ? "Task" : "Tasks"} completed</Text>
+                                    </View>
+                                ) : null}
                             </View>
                             <View style={styles.taskList}>
                                 {scopedTasks.length ? scopedTasks.map((task) => {
                                     const project = task.journeyId ? projectById.get(task.journeyId) : undefined;
-                                    const folder = task.folderId ? folderById.get(task.folderId) : project?.folderId ? folderById.get(project.folderId) : undefined;
-                                    return <TaskManagerTaskRow key={task.id} task={task} projectName={project?.title} folderName={folder?.title} onToggle={() => void toggleTask(task)} onFocus={() => focusTask(task)} onMore={() => setManagedItem({ kind: "task", id: task.id, title: task.title, status: task.status, parentId: task.journeyId ?? task.folderId, parentKind: task.journeyId ? "project" : task.folderId ? "folder" : undefined })} />;
-                                }) : <EmptyState icon={<ListChecks size={22} color={colours.primaryStrong} />} title={normalizedQuery ? "No matching Tasks" : status === "active" ? "Nothing waiting here" : "No completed Tasks here"} description={normalizedQuery ? "Try a different search or location." : status === "active" ? "Create one clear Task and focus on what matters next." : "Completed Tasks will appear here."} actionLabel={status === "active" && !normalizedQuery ? "Create Task" : undefined} onAction={status === "active" && !normalizedQuery ? () => setCreateKind("task") : undefined} />}
+                                    return <TaskManagerTaskRow key={task.id} task={task} projectName={project?.title} onFocus={() => focusTask(task)} onMore={() => setManagedItem({ kind: "task", id: task.id, title: task.title, status: task.status, projectId: task.journeyId })} />;
+                                }) : (
+                                    <EmptyState
+                                        icon={selectedProjectIsComplete && status === "active" && !normalizedQuery ? <CheckCircle2 size={22} color={colours.success} /> : <ListChecks size={22} color={colours.primaryStrong} />}
+                                        title={emptyTaskState.title}
+                                        description={emptyTaskState.description}
+                                        actionLabel={emptyTaskState.actionLabel}
+                                        onAction={emptyTaskState.action === "viewCompleted" ? () => setStatus("completed") : emptyTaskState.action === "create" ? () => setCreateKind("task") : undefined}
+                                    />
+                                )}
                             </View>
                         </AppCard>
                     </View>
                 )}
             </ScrollView>
 
-            <TaskManagerCreateModal visible={createKind !== null} kind={createKind ?? "task"} folders={folders} projects={projects} initialParent={initialParent} onClose={() => setCreateKind(null)} onCreate={(title, assetId, parent) => void handleCreate(title, assetId, parent)} />
-            <TaskManagerActionsModal
-                item={managedItem}
-                parentOptions={getLocationOptions(managedItem, folders, projects)}
-                onClose={() => setManagedItem(null)}
-                onMove={managedItem?.kind === "folder" ? undefined : (location) => void moveManagedItem(location)}
-                onToggleComplete={managedItem?.kind === "task" ? () => { const task = tasks.find((entry) => entry.id === managedItem.id); if (task) void toggleTask(task); } : undefined}
-                onDelete={requestDeleteManagedItem}
-            />
+            <TaskManagerCreateModal visible={createKind !== null} kind={createKind ?? "task"} projects={projects} initialProjectId={initialProjectId} onClose={() => setCreateKind(null)} onCreate={(title, assetId, projectId) => void handleCreate(title, assetId, projectId)} />
+            <TaskManagerActionsModal item={managedItem} projects={projects} onClose={() => setManagedItem(null)} onMoveTask={managedItem?.kind === "task" ? (projectId) => void moveTask(projectId) : undefined} onToggleComplete={managedItem?.kind === "task" ? () => { const task = tasks.find((entry) => entry.id === managedItem.id); if (task) requestTaskStatusChange(task); } : undefined} onDelete={requestDeleteManagedItem} />
         </AppScreenBackground>
     );
 }
 
-function getScopeCopy(scope: TaskManagerScope, folders: WorkFolder[], projects: WorkJourney[]) {
-    if (scope.kind === "standalone") return { title: "Unsorted Tasks", description: "Tasks without a Folder or Project." };
-    if (scope.kind === "project") return { title: projects.find((project) => project.id === scope.id)?.title ?? "Project", description: "Tasks inside this Project." };
-    if (scope.kind === "folder") return { title: folders.find((folder) => folder.id === scope.id)?.title ?? "Folder", description: "Tasks across every Project in this Folder." };
-    return { title: "All Tasks", description: "Everything active across your workspace." };
+function confirmTaskCompletion(taskTitle: string, onConfirm: () => void) {
+    const message = `Mark “${taskTitle}” complete?\n\nThis only updates your Task list. It will not count towards Progress or award XP. Complete a Focus Session and Review to record focused progress.`;
+    if (Platform.OS === "web") {
+        if (window.confirm(message)) onConfirm();
+        return;
+    }
+    Alert.alert("Mark Task complete?", message, [{ text: "Cancel", style: "cancel" }, { text: "Mark complete", onPress: onConfirm }]);
+}
+
+function getScopeCopy(scope: TaskManagerScope, projects: WorkJourney[]) {
+    if (scope.kind === "standalone") return { title: "Standalone Tasks", description: "One-off Tasks that do not need a Project." };
+    if (scope.kind === "project") return { title: projects.find((project) => project.id === scope.id)?.title ?? "Project", description: "Related Tasks inside this Project." };
+    return { title: "All Tasks", description: "Everything across your Projects and standalone work." };
+}
+
+function getEmptyTaskState(normalizedQuery: string, status: WorkStatus, hasSelectedProject: boolean, selectedProjectIsComplete: boolean, selectedProjectTaskCount: number) {
+    if (normalizedQuery) return { title: "No matching Tasks", description: "Try a different search or Project." };
+    if (status === "completed") return { title: "No completed Tasks here", description: "Completed Tasks will appear here." };
+    if (selectedProjectIsComplete) {
+        return {
+            title: "Project complete",
+            description: `All ${selectedProjectTaskCount} ${selectedProjectTaskCount === 1 ? "Task is" : "Tasks are"} complete. Review the finished work, or add another Task if this Project continues.`,
+            actionLabel: "View completed Tasks",
+            action: "viewCompleted" as const,
+        };
+    }
+    return {
+        title: "Nothing waiting here",
+        description: hasSelectedProject && selectedProjectTaskCount === 0 ? "Create the first clear Task for this Project." : "Create one clear Task and focus on what matters next.",
+        actionLabel: "Create Task",
+        action: "create" as const,
+    };
 }
 
 function withoutProject(task: WorkQuest): WorkQuest { const { journeyId: _journeyId, ...rest } = task; return rest; }
-function withoutFolder(project: WorkJourney): WorkJourney { const { folderId: _folderId, ...rest } = project; return rest; }
-function withoutDirectFolder(task: WorkQuest): WorkQuest { const { folderId: _folderId, ...rest } = task; return rest; }
 
-function getLocationOptions(item: ManagedItem | null, folders: WorkFolder[], projects: WorkJourney[]): TaskManagerLocationOption[] {
-    if (item?.kind === "task") {
-        return [
-            ...folders.map((folder) => ({ id: folder.id, title: folder.title, kind: "folder" as const })),
-            ...projects.filter((project) => project.status === "active").map((project) => ({ id: project.id, title: project.title, kind: "project" as const })),
-        ];
-    }
-    if (item?.kind === "project") return folders.map((folder) => ({ id: folder.id, title: folder.title, kind: "folder" as const }));
-    return [];
-}
-
-function createStyles(colours: AppColours, isDesktop: boolean) {
+function createStyles(colours: AppColours, isDesktop: boolean, width: number) {
     return StyleSheet.create({
         screen: { flex: 1, backgroundColor: "transparent" },
         content: { width: "100%", maxWidth: layout.contentMaxWidth, alignSelf: "center", paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: 100, gap: spacing.md },
-        actionStrip: { padding: spacing.md, flexDirection: isDesktop ? "row" : "column", alignItems: isDesktop ? "center" : "stretch", justifyContent: "space-between", gap: spacing.md, borderWidth: 1, borderColor: colours.primaryBorder, borderRadius: radius.lg, backgroundColor: colours.primarySubtle },
-        actionCopy: { minWidth: 0, flex: isDesktop ? 1 : undefined },
-        actionTitle: { fontSize: 14, fontWeight: "800", color: colours.text },
-        actionDescription: { marginTop: 2, fontSize: 12, color: colours.textMuted },
-        actions: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
         toolbar: { flexDirection: isDesktop ? "row" : "column", alignItems: isDesktop ? "center" : "stretch", gap: spacing.sm },
         statusControl: { flexDirection: "row", padding: 3, borderRadius: radius.md, backgroundColor: colours.primarySubtle },
         statusButton: { minHeight: 38, minWidth: isDesktop ? 108 : 0, flex: isDesktop ? undefined : 1, alignItems: "center", justifyContent: "center", paddingHorizontal: spacing.md, borderRadius: radius.sm },
@@ -336,21 +326,26 @@ function createStyles(colours: AppColours, isDesktop: boolean) {
         selectedStatusText: { color: colours.primaryStrong },
         searchBox: { minHeight: 44, flex: 1, flexDirection: "row", alignItems: "center", gap: spacing.sm, paddingHorizontal: spacing.md, borderWidth: 1, borderColor: colours.border, borderRadius: radius.md, backgroundColor: colours.surface },
         searchInput: { minWidth: 0, flex: 1, paddingVertical: 10, fontSize: 13, color: colours.text },
+        mobileHierarchyPanel: { width: "100%" },
         manager: { flexDirection: isDesktop ? "row" : "column", alignItems: "flex-start", gap: spacing.md },
-        hierarchyPanel: { width: 310, flexShrink: 0 },
+        hierarchyPanel: { width: 290, flexShrink: 0 },
         taskPanel: { minWidth: 0, flex: 1, width: isDesktop ? undefined : "100%", overflow: "hidden" },
-        taskHeader: { minHeight: 68, flexDirection: "row", alignItems: "center", gap: spacing.md, padding: spacing.md, borderBottomWidth: 1, borderBottomColor: colours.border, backgroundColor: colours.primarySubtle },
+        taskHeader: { minHeight: 68, gap: spacing.md, padding: spacing.md, borderBottomWidth: 1, borderBottomColor: colours.border, backgroundColor: colours.primarySubtle },
+        taskHeaderTop: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
         taskHeaderCopy: { minWidth: 0, flex: 1 },
         taskTitle: { fontSize: 17, fontWeight: "900", color: colours.text },
         taskDescription: { marginTop: 2, fontSize: 11, color: colours.textMuted },
         taskCount: { minWidth: 30, height: 30, alignItems: "center", justifyContent: "center", paddingHorizontal: 8, borderRadius: radius.pill, backgroundColor: colours.primarySoft },
         taskCountText: { fontSize: 12, fontWeight: "900", color: colours.primaryStrong },
+        projectMore: { width: 36, height: 36, alignItems: "center", justifyContent: "center", borderRadius: radius.md, backgroundColor: colours.surface },
+        newTaskButton: { minWidth: 38, height: 38, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingHorizontal: width >= 520 ? 12 : 0, borderRadius: radius.md, backgroundColor: colours.primary },
+        newTaskText: { fontSize: 12, fontWeight: "800", color: colours.onPrimary },
+        projectProgress: { gap: spacing.sm, paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: colours.primaryBorder },
+        projectProgressHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.md },
+        projectProgressLabel: { fontSize: 12, fontWeight: "800", color: colours.textMuted },
+        projectProgressPercentage: { fontSize: 13, fontWeight: "900", color: colours.primaryStrong },
+        projectProgressSummary: { fontSize: 12, color: colours.textMuted },
         taskList: { minHeight: 180 },
-        mobileBrowseCard: { overflow: "hidden" },
-        mobileBrowseButton: { minHeight: 48, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.md, paddingHorizontal: spacing.sm },
-        mobileBrowseLabel: { fontSize: 9, fontWeight: "900", letterSpacing: 0.7, color: colours.textMuted },
-        mobileBrowseValue: { marginTop: 2, fontSize: 14, fontWeight: "800", color: colours.text },
-        mobileHierarchy: { paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: colours.border },
         loading: { minHeight: 220, alignItems: "center", justifyContent: "center", gap: spacing.sm },
         loadingText: { fontSize: 13, color: colours.textMuted },
     });

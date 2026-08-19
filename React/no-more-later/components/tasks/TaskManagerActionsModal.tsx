@@ -6,34 +6,31 @@ import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import type { WorkJourney } from "@/types/work";
 
 export type ManagedItem = {
-    kind: "folder" | "project" | "task";
+    kind: "project" | "task";
     id: string;
     title: string;
     status?: "active" | "completed";
-    parentId?: string;
-    parentKind?: "folder" | "project";
+    projectId?: string;
 };
-
-export type TaskManagerLocationOption = { id: string; title: string; kind: "folder" | "project" };
 
 type Props = {
     item: ManagedItem | null;
-    parentOptions: TaskManagerLocationOption[];
+    projects: WorkJourney[];
     onClose: () => void;
-    onMove?: (location?: { kind: "folder" | "project"; id: string }) => void;
+    onMoveTask?: (projectId?: string) => void;
     onToggleComplete?: () => void;
     onDelete: () => void;
 };
 
-export function TaskManagerActionsModal({ item, parentOptions, onClose, onMove, onToggleComplete, onDelete }: Props) {
+export function TaskManagerActionsModal({ item, projects, onClose, onMoveTask, onToggleComplete, onDelete }: Props) {
     const { colours } = useAppearance();
     const styles = useMemo(() => createStyles(colours), [colours]);
     if (!item) return null;
 
-    const noun = item.kind[0].toUpperCase() + item.kind.slice(1);
-    const parentNoun = item.kind === "task" ? "Location" : "Folder";
+    const noun = item.kind === "task" ? "Task" : "Project";
 
     return (
         <Modal visible transparent animationType="fade" onRequestClose={onClose}>
@@ -41,24 +38,19 @@ export function TaskManagerActionsModal({ item, parentOptions, onClose, onMove, 
                 <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
                 <View style={styles.card}>
                     <View style={styles.header}>
-                        <View style={styles.headerCopy}>
-                            <Text style={styles.eyebrow}>{noun.toUpperCase()} OPTIONS</Text>
-                            <Text numberOfLines={2} style={styles.title}>{item.title}</Text>
-                        </View>
+                        <View style={styles.headerCopy}><Text style={styles.eyebrow}>{noun.toUpperCase()} OPTIONS</Text><Text numberOfLines={2} style={styles.title}>{item.title}</Text></View>
                         <Pressable accessibilityLabel="Close" hitSlop={8} onPress={onClose} style={styles.closeButton}><X size={19} color={colours.textMuted} /></Pressable>
                     </View>
 
-                    {item.kind !== "folder" && onMove ? (
+                    {item.kind === "task" && onMoveTask ? (
                         <View style={styles.section}>
-                            <View style={styles.sectionHeading}><FolderInput size={16} color={colours.primaryStrong} /><Text style={styles.sectionTitle}>MOVE TO {parentNoun.toUpperCase()}</Text></View>
-                            <Text style={styles.sectionDescription}>This is optional and can be changed at any time.</Text>
+                            <View style={styles.sectionHeading}><FolderInput size={16} color={colours.primaryStrong} /><Text style={styles.sectionTitle}>PROJECT</Text></View>
+                            <Text style={styles.sectionDescription}>A Task can belong to one Project or remain standalone.</Text>
                             <View style={styles.options}>
-                                <Pressable onPress={() => onMove(undefined)} style={[styles.option, !item.parentId && styles.selectedOption]}>
-                                    <Text style={[styles.optionText, !item.parentId && styles.selectedOptionText]}>{item.kind === "task" ? "Unsorted" : "No Folder"}</Text>
-                                </Pressable>
-                                {parentOptions.map((parent) => {
-                                    const selected = item.parentId === parent.id && item.parentKind === parent.kind;
-                                    return <Pressable key={`${parent.kind}-${parent.id}`} onPress={() => onMove({ kind: parent.kind, id: parent.id })} style={[styles.option, selected && styles.selectedOption]}>{item.kind === "task" ? <Text style={[styles.optionKind, selected && styles.selectedOptionText]}>{parent.kind}</Text> : null}<Text numberOfLines={1} style={[styles.optionText, selected && styles.selectedOptionText]}>{parent.title}</Text></Pressable>;
+                                <Pressable onPress={() => onMoveTask(undefined)} style={[styles.option, !item.projectId && styles.selectedOption]}><Text style={[styles.optionText, !item.projectId && styles.selectedOptionText]}>Standalone</Text></Pressable>
+                                {projects.filter((project) => project.status === "active" || project.id === item.projectId).map((project) => {
+                                    const selected = item.projectId === project.id;
+                                    return <Pressable key={project.id} onPress={() => onMoveTask(project.id)} style={[styles.option, selected && styles.selectedOption]}><Text numberOfLines={1} style={[styles.optionText, selected && styles.selectedOptionText]}>{project.title}</Text></Pressable>;
                                 })}
                             </View>
                         </View>
@@ -67,13 +59,13 @@ export function TaskManagerActionsModal({ item, parentOptions, onClose, onMove, 
                     {item.kind === "task" && onToggleComplete ? (
                         <AnimatedPressable onPress={onToggleComplete} style={styles.actionRow}>
                             <View style={styles.actionIcon}>{item.status === "completed" ? <RotateCcw size={18} color={colours.primaryStrong} /> : <CheckCircle2 size={18} color={colours.success} />}</View>
-                            <View style={styles.actionCopy}><Text style={styles.actionTitle}>{item.status === "completed" ? "Reopen Task" : "Mark Task complete"}</Text><Text style={styles.actionDescription}>{item.status === "completed" ? "Return this Task to active work." : "Move this Task into completed work."}</Text></View>
+                            <View style={styles.actionCopy}><Text style={styles.actionTitle}>{item.status === "completed" ? "Reopen Task" : "Mark Task complete"}</Text><Text style={styles.actionDescription}>{item.status === "completed" ? "Return this Task to active work." : "Updates this list only. No Progress credit or XP is awarded."}</Text></View>
                         </AnimatedPressable>
                     ) : null}
 
                     <AnimatedPressable onPress={onDelete} style={styles.actionRow}>
                         <View style={[styles.actionIcon, styles.deleteIcon]}><Trash2 size={18} color={colours.danger} /></View>
-                        <View style={styles.actionCopy}><Text style={[styles.actionTitle, styles.deleteText]}>Delete {noun}</Text><Text style={styles.actionDescription}>{item.kind === "folder" ? "Projects will be kept without a Folder." : item.kind === "project" ? "Tasks will be kept without a Project." : "Permanently remove this Task."}</Text></View>
+                        <View style={styles.actionCopy}><Text style={[styles.actionTitle, styles.deleteText]}>Delete {noun}</Text><Text style={styles.actionDescription}>{item.kind === "project" ? "Tasks will be kept as standalone Tasks." : "Permanently remove this Task."}</Text></View>
                     </AnimatedPressable>
                 </View>
             </View>
@@ -98,7 +90,6 @@ function createStyles(colours: AppColours) {
         option: { maxWidth: "100%", paddingHorizontal: 12, paddingVertical: 9, borderWidth: 1, borderColor: colours.border, borderRadius: radius.pill, backgroundColor: colours.surface },
         selectedOption: { borderColor: colours.primaryBorder, backgroundColor: colours.primarySoft },
         optionText: { maxWidth: 190, fontSize: 12, fontWeight: "700", color: colours.textMuted },
-        optionKind: { fontSize: 9, fontWeight: "900", textTransform: "uppercase", color: colours.textMuted },
         selectedOptionText: { color: colours.primaryStrong },
         actionRow: { minHeight: 64, flexDirection: "row", alignItems: "center", gap: spacing.md, padding: spacing.sm, borderRadius: radius.md },
         actionIcon: { width: 38, height: 38, alignItems: "center", justifyContent: "center", borderRadius: radius.md, backgroundColor: colours.primarySubtle },

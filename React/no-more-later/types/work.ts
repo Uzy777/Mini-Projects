@@ -5,12 +5,6 @@ export type WorkJourney = {
     title: string;
     status: WorkStatus;
     assetId: WorkAssetId;
-    folderId?: string;
-};
-
-export type WorkFolder = {
-    id: string;
-    title: string;
 };
 
 export type WorkQuest = {
@@ -18,7 +12,6 @@ export type WorkQuest = {
     title: string;
     status: WorkStatus;
     journeyId?: string;
-    folderId?: string;
     assetId: WorkAssetId;
 };
 

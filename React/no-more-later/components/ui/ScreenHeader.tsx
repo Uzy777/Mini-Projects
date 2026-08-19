@@ -23,7 +23,7 @@ export function ScreenHeader({ eyebrow = "NO MORE LATER", title, subtitle, actio
 
 function createStyles(colours: AppColours) {
     return StyleSheet.create({
-        header: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: spacing.md },
+        header: { marginTop: spacing.xl, flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: spacing.md },
         copy: { minWidth: 0, flex: 1 },
         eyebrow: { fontSize: 10, fontWeight: "900", letterSpacing: 1.1, color: colours.primary },
         title: { marginTop: spacing.xs, fontSize: 30, lineHeight: 36, fontWeight: "900", letterSpacing: -0.6, color: colours.text },
