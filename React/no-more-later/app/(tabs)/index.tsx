@@ -84,9 +84,9 @@ export default function HomeScreen() {
                             <View style={styles.focusColumn}>
                                 <QuickFocusCard />
                             </View>
-                            <View style={styles.tipColumn}>
+                            {/* <View style={styles.tipColumn}>
                                 <FocusTipCard />
-                            </View>
+                            </View> */}
                         </View>
                     </View>
                 </ScrollView>
