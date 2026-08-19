@@ -1,5 +1,9 @@
 import type { FocusSessionRecord } from "../types/models";
 
+function isFocusSession(session: FocusSessionRecord) {
+    return session.sessionKind !== "short_break" && session.sessionKind !== "long_break";
+}
+
 export type TodayFocusSummary = {
     sessionCount: number;
     focusedSeconds: number;
@@ -20,6 +24,7 @@ export function calculateTodayFocusSummary(sessions: FocusSessionRecord[]): Toda
     const todayDateKey = getLocalDateKey(new Date());
 
     const todaysSessions = sessions.filter((session) => {
+        if (!isFocusSession(session)) return false;
         const completedDate = new Date(session.completedAt);
 
         return getLocalDateKey(completedDate) === todayDateKey;
@@ -39,7 +44,7 @@ export function calculateTodayFocusSummary(sessions: FocusSessionRecord[]): Toda
 }
 
 export function calculateTotalFocusedSeconds(sessions: FocusSessionRecord[]) {
-    return sessions.reduce((total, session) => {
+    return sessions.filter(isFocusSession).reduce((total, session) => {
         const sessionSeconds = session.actualSeconds ?? session.plannedMinutes * 60;
 
         return total + sessionSeconds;
@@ -47,7 +52,7 @@ export function calculateTotalFocusedSeconds(sessions: FocusSessionRecord[]) {
 }
 
 export function calculateCurrentStreak(sessions: FocusSessionRecord[]) {
-    const sessionDateKeys = new Set(sessions.map((session) => getLocalDateKey(new Date(session.completedAt))));
+    const sessionDateKeys = new Set(sessions.filter(isFocusSession).map((session) => getLocalDateKey(new Date(session.completedAt))));
 
     const today = new Date();
 
@@ -79,7 +84,7 @@ export function findLatestUnfinishedSession(sessions: FocusSessionRecord[]): Foc
     const checkedQuestIds = new Set<string>();
 
     for (const session of sessions) {
-        if (!session.questId || session.sessionKind === "quick") {
+        if (!session.questId || session.sessionKind === "quick" || !isFocusSession(session)) {
             continue;
         }
 

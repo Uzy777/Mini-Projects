@@ -19,13 +19,16 @@ export function FocusDurationSelector({ selectedMinutes, disabled = false, onSel
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
+    const availableDurations = focusDurations.includes(selectedMinutes)
+        ? focusDurations
+        : [...focusDurations, selectedMinutes].sort((first, second) => first - second);
 
     return (
         <View style={styles.container}>
             <Text style={styles.label}>SESSION LENGTH</Text>
 
             <View style={[styles.durationOptions, disabled && styles.durationOptionsDisabled]}>
-                {focusDurations.map((minutes) => {
+                {availableDurations.map((minutes) => {
                     const isSelected = selectedMinutes === minutes;
 
                     return (

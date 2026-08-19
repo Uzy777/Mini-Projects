@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import { ClipboardCheck, Pause, Play, Square } from "lucide-react-native";
+import { ClipboardCheck, Pause, Play, Square, TimerReset } from "lucide-react-native";
 
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
@@ -7,6 +7,7 @@ import { AppButton } from "@/components/ui/AppButton";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { useMemo } from "react";
+import type { TimerMode } from "@/types/models";
 
 type FocusTimerControlsProps = {
     hasStarted: boolean;
@@ -16,16 +17,19 @@ type FocusTimerControlsProps = {
     onToggleTimer: () => void;
     onEndEarly: () => void;
     onReview: () => void;
+    mode?: TimerMode;
 };
 
-export function FocusTimerControls({ hasStarted, hasFinished, isRunning, onStart, onToggleTimer, onEndEarly, onReview }: FocusTimerControlsProps) {
+export function FocusTimerControls({ hasStarted, hasFinished, isRunning, onStart, onToggleTimer, onEndEarly, onReview, mode = "focus" }: FocusTimerControlsProps) {
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
+    const isBreak = mode !== "focus";
+    const sessionLabel = mode === "short-break" ? "Short Break" : mode === "long-break" ? "Long Break" : "Focus Session";
 
     if (!hasStarted) {
         return (
-            <AppButton label="Start Focus Session" icon={<Play size={16} color={colours.onPrimary} fill={colours.onPrimary} />} onPress={onStart} size="lg" fullWidth />
+            <AppButton label={`Start ${sessionLabel}`} icon={<Play size={16} color={colours.onPrimary} fill={colours.onPrimary} />} onPress={onStart} size="lg" fullWidth />
         );
     }
 
@@ -36,13 +40,13 @@ export function FocusTimerControls({ hasStarted, hasFinished, isRunning, onStart
                     <Text style={styles.completedBadgeText}>COMPLETE</Text>
                 </View>
 
-                <Text style={styles.completedTitle}>Focus session complete</Text>
+                <Text style={styles.completedTitle}>{isBreak ? "Break complete" : "Focus session complete"}</Text>
 
-                <Text style={styles.completedMessage}>Take a moment to record what you accomplished.</Text>
+                <Text style={styles.completedMessage}>{isBreak ? "You made room to recharge. Return when you feel ready." : "Take a moment to record what you accomplished."}</Text>
 
                 <AppButton
-                    label="Review Session"
-                    icon={<ClipboardCheck size={17} color={colours.onPrimary} />}
+                    label={isBreak ? "Back to Focus" : "Review Session"}
+                    icon={isBreak ? <TimerReset size={17} color={colours.onPrimary} /> : <ClipboardCheck size={17} color={colours.onPrimary} />}
                     onPress={onReview}
                     size="lg"
                     fullWidth
@@ -55,7 +59,7 @@ export function FocusTimerControls({ hasStarted, hasFinished, isRunning, onStart
     return (
         <View style={styles.controlsContainer}>
             <AppButton
-                label={isRunning ? "Pause Session" : "Resume Session"}
+                label={isRunning ? `Pause ${isBreak ? "Break" : "Session"}` : `Resume ${isBreak ? "Break" : "Session"}`}
                 icon={
                     isRunning ? (
                         <Pause size={17} color={colours.text} />
@@ -69,7 +73,7 @@ export function FocusTimerControls({ hasStarted, hasFinished, isRunning, onStart
                 fullWidth
             />
 
-            <AppButton label="End Session Early" icon={<Square size={14} color={colours.danger} />} onPress={onEndEarly} variant="ghost" style={styles.endEarlyButton} />
+            <AppButton label={`End ${isBreak ? "Break" : "Session"} Early`} icon={<Square size={14} color={colours.danger} />} onPress={onEndEarly} variant="ghost" style={styles.endEarlyButton} />
         </View>
     );
 }

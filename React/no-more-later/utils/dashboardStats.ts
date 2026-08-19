@@ -12,12 +12,18 @@ export type ProgressCategory = {
 export type ProgressTrend = {
     labels: string[];
     focusSeconds: number[];
+    breakSeconds: number[];
     sessions: number[];
     questsCompleted: number[];
     focusDelta: number | null;
+    breakDelta: number | null;
     sessionsDelta: number | null;
     questsDelta: number | null;
 };
+
+export function isBreakSession(session: FocusSessionRecord) {
+    return session.sessionKind === "short_break" || session.sessionKind === "long_break";
+}
 
 export function getLocalDateKey(date: Date) {
     const year = date.getFullYear();
@@ -64,9 +70,12 @@ export function getWeekDates(referenceDate: Date) {
 }
 
 export function getOverviewStats(sessions: FocusSessionRecord[], referenceDate = new Date(), journeys: Journey[] = []) {
-    const todaySessions = getSessionsForDate(sessions, referenceDate);
+    const focusSessions = sessions.filter((session) => !isBreakSession(session));
+    const breakSessions = sessions.filter(isBreakSession);
+    const todaySessions = getSessionsForDate(focusSessions, referenceDate);
+    const todayBreakSessions = getSessionsForDate(breakSessions, referenceDate);
     const weekDates = getWeekDates(referenceDate);
-    const weekValues = weekDates.map((date) => getSessionsForDate(sessions, date).reduce((total, session) => total + getSessionSeconds(session), 0));
+    const weekValues = weekDates.map((date) => getSessionsForDate(focusSessions, date).reduce((total, session) => total + getSessionSeconds(session), 0));
     const weekSeconds = weekValues.reduce((total, value) => total + value, 0);
     const todaySeconds = todaySessions.reduce((total, session) => total + getSessionSeconds(session), 0);
 
@@ -77,12 +86,14 @@ export function getOverviewStats(sessions: FocusSessionRecord[], referenceDate =
             (session) => session.outcome === "completed" && Boolean(session.questId) && session.sessionKind !== "quick",
         ).length,
         todayXp: todaySessions.reduce((total, session) => total + session.earnedXp, 0),
-        streak: calculateStreak(sessions, referenceDate),
+        todayBreakSeconds: todayBreakSessions.reduce((total, session) => total + getSessionSeconds(session), 0),
+        todayBreaks: todayBreakSessions.length,
+        streak: calculateStreak(focusSessions, referenceDate),
         weekSeconds,
         weekDates,
         weekValues,
         categories: getCategoryStats(
-            sessions.filter((session) => isSameWeek(new Date(session.completedAt), referenceDate)),
+            focusSessions.filter((session) => isSameWeek(new Date(session.completedAt), referenceDate)),
             journeys,
         ),
     };
@@ -92,7 +103,7 @@ export function getCategoryStats(sessions: FocusSessionRecord[], journeys: Journ
     const journeyTitles = new Map(journeys.map((journey) => [journey.id, journey.title]));
     const totals = new Map<string, { label: string; focusedSeconds: number }>();
 
-    sessions.forEach((session) => {
+    sessions.filter((session) => !isBreakSession(session)).forEach((session) => {
         const isQuickFocus = session.sessionKind === "quick";
         const id = isQuickFocus ? "quick-focus" : (session.journeyId ?? "standalone");
         const label = isQuickFocus ? "Quick Focus" : session.journeyId ? journeyTitles.get(session.journeyId) ?? "Journey quests" : "Standalone quests";
@@ -138,19 +149,28 @@ export function getProgressTrend(sessions: FocusSessionRecord[], period: Progres
 
     const currentSessions = sessions.filter((session) => isWithinRange(new Date(session.completedAt), currentRange.start, currentRange.end));
     const previousSessions = sessions.filter((session) => isWithinRange(new Date(session.completedAt), previousRange.start, previousRange.end));
+    const currentFocusSessions = currentSessions.filter((session) => !isBreakSession(session));
+    const previousFocusSessions = previousSessions.filter((session) => !isBreakSession(session));
+    const currentBreakSessions = currentSessions.filter(isBreakSession);
+    const previousBreakSessions = previousSessions.filter(isBreakSession);
 
     const focusSeconds = buckets.map((bucket) =>
-        currentSessions
+        currentFocusSessions
+            .filter((session) => isWithinRange(new Date(session.completedAt), bucket.start, bucket.end))
+            .reduce((total, session) => total + getSessionSeconds(session), 0),
+    );
+    const breakSeconds = buckets.map((bucket) =>
+        currentBreakSessions
             .filter((session) => isWithinRange(new Date(session.completedAt), bucket.start, bucket.end))
             .reduce((total, session) => total + getSessionSeconds(session), 0),
     );
     const sessionCounts = buckets.map(
-        (bucket) => currentSessions.filter((session) => isWithinRange(new Date(session.completedAt), bucket.start, bucket.end)).length,
+        (bucket) => currentFocusSessions.filter((session) => isWithinRange(new Date(session.completedAt), bucket.start, bucket.end)).length,
     );
     const completedCounts = buckets.map(
         (bucket) =>
             new Set(
-                currentSessions
+                currentFocusSessions
                     .filter(
                         (session) =>
                             session.outcome === "completed" &&
@@ -162,18 +182,22 @@ export function getProgressTrend(sessions: FocusSessionRecord[], period: Progres
             ).size,
     );
 
-    const currentFocus = currentSessions.reduce((total, session) => total + getSessionSeconds(session), 0);
-    const previousFocus = previousSessions.reduce((total, session) => total + getSessionSeconds(session), 0);
-    const currentCompleted = countCompletedQuests(currentSessions);
-    const previousCompleted = countCompletedQuests(previousSessions);
+    const currentFocus = currentFocusSessions.reduce((total, session) => total + getSessionSeconds(session), 0);
+    const previousFocus = previousFocusSessions.reduce((total, session) => total + getSessionSeconds(session), 0);
+    const currentBreak = currentBreakSessions.reduce((total, session) => total + getSessionSeconds(session), 0);
+    const previousBreak = previousBreakSessions.reduce((total, session) => total + getSessionSeconds(session), 0);
+    const currentCompleted = countCompletedQuests(currentFocusSessions);
+    const previousCompleted = countCompletedQuests(previousFocusSessions);
 
     return {
         labels: buckets.map((bucket) => bucket.label),
         focusSeconds,
+        breakSeconds,
         sessions: sessionCounts,
         questsCompleted: completedCounts,
         focusDelta: percentageChange(currentFocus, previousFocus),
-        sessionsDelta: percentageChange(currentSessions.length, previousSessions.length),
+        breakDelta: percentageChange(currentBreak, previousBreak),
+        sessionsDelta: percentageChange(currentFocusSessions.length, previousFocusSessions.length),
         questsDelta: percentageChange(currentCompleted, previousCompleted),
     };
 }

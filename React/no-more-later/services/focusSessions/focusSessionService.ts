@@ -1,6 +1,29 @@
 import { supabase } from "@/lib/supabase";
 
-import type { CreateFocusSessionInput, FocusSessionRecord } from "@/types/models";
+import type { CreateFocusSessionInput, FocusSessionRecord, FocusTimelineEvent, TimerMode } from "@/types/models";
+
+type CompleteBreakSessionInput = {
+    focusSessionId: string;
+    mode: Exclude<TimerMode, "focus">;
+    plannedMinutes: number;
+    actualSeconds: number;
+    timelineEvents: FocusTimelineEvent[];
+};
+
+export async function completeRemoteBreakSession(input: CompleteBreakSessionInput): Promise<{ data: { focusSessionId: string } | null; error: Error | null }> {
+    const { data, error } = await supabase.rpc("complete_break_session", {
+        p_focus_session_id: input.focusSessionId,
+        p_session_kind: input.mode === "short-break" ? "short_break" : "long_break",
+        p_planned_minutes: input.plannedMinutes,
+        p_actual_seconds: input.actualSeconds,
+        p_timeline_events: input.timelineEvents,
+    });
+
+    if (error) return { data: null, error };
+    if (!data) return { data: null, error: new Error("The break was saved without returning a session ID.") };
+
+    return { data: { focusSessionId: String(data) }, error: null };
+}
 
 export async function createRemoteFocusSession(
     userId: string,

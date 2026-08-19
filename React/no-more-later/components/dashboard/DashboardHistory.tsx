@@ -1,13 +1,13 @@
 import { useMemo, useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { AlertCircle, Check, CheckCircle2, ChevronDown, ChevronRight, Clock3, Search, Square } from "lucide-react-native";
+import { AlertCircle, Check, CheckCircle2, ChevronDown, ChevronRight, Clock3, Coffee, Search, Square } from "lucide-react-native";
 import { useRouter } from "expo-router";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import type { FocusSessionRecord, Journey, SessionOutcome } from "@/types/models";
-import { formatProgressDuration, getLocalDateKey, getSessionSeconds } from "@/utils/dashboardStats";
+import { formatProgressDuration, getLocalDateKey, getSessionSeconds, isBreakSession } from "@/utils/dashboardStats";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 
 type DashboardHistoryProps = {
@@ -15,10 +15,12 @@ type DashboardHistoryProps = {
     journeys: Journey[];
 };
 
-type HistoryFilter = "all" | SessionOutcome;
+type HistoryFilter = "all" | "focus" | "break" | SessionOutcome;
 
 const HISTORY_FILTERS: { id: HistoryFilter; label: string }[] = [
     { id: "all", label: "All sessions" },
+    { id: "focus", label: "Focus sessions" },
+    { id: "break", label: "Breaks" },
     { id: "completed", label: "Completed" },
     { id: "progressed", label: "Progress made" },
     { id: "blocked", label: "Blocked" },
@@ -41,7 +43,13 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
     const filteredSessions = useMemo(
         () =>
             sessions.filter((session) => {
-                if (filter !== "all" && session.outcome !== filter) {
+                if (filter === "focus" && isBreakSession(session)) {
+                    return false;
+                }
+                if (filter === "break" && !isBreakSession(session)) {
+                    return false;
+                }
+                if (!["all", "focus", "break"].includes(filter) && (isBreakSession(session) || session.outcome !== filter)) {
                     return false;
                 }
 
@@ -107,7 +115,7 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
                             setSearchQuery(value);
                             setVisibleCount(PAGE_SIZE);
                         }}
-                        placeholder="Search Quests or Journeys"
+                        placeholder="Search sessions"
                         placeholderTextColor={colours.textMuted}
                         returnKeyType="search"
                         style={styles.searchInput}
@@ -119,7 +127,7 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
                 <View style={styles.emptyState}>
                     <Clock3 size={28} color={colours.textMuted} />
                     <Text style={styles.emptyTitle}>No matching sessions</Text>
-                    <Text style={styles.emptyText}>{sessions.length === 0 ? "Completed Focus Sessions will appear here." : "Try another search or outcome filter."}</Text>
+                    <Text style={styles.emptyText}>{sessions.length === 0 ? "Completed focus sessions and breaks will appear here." : "Try another search or session filter."}</Text>
                 </View>
             ) : (
                 groupedSessions.map((group) => (
@@ -177,6 +185,9 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
 }
 
 function getSessionLocationLabel(session: FocusSessionRecord, journeyTitles: Map<string, string>) {
+    if (isBreakSession(session)) {
+        return "Recovery time";
+    }
     if (session.sessionKind === "quick") {
         return "No Quest attached";
     }
@@ -191,11 +202,12 @@ function HistorySessionRow({ session, journeyTitle, onPress }: { session: FocusS
     const calculatedStartedAt = new Date(new Date(session.completedAt).getTime() - focusedSeconds * 1000);
     const recordedStartedAt = session.timelineEvents?.find((event) => event.type === "started")?.occurredAt;
     const startedAt = recordedStartedAt ? new Date(recordedStartedAt) : calculatedStartedAt;
+    const isBreak = isBreakSession(session);
 
     return (
         <AnimatedPressable onPress={onPress} style={styles.sessionRow} haptic="selection">
             <Text style={styles.sessionTime}>{startedAt.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}</Text>
-            <View style={styles.outcomeIcon}>{getOutcomeIcon(session.outcome, colours.primary)}</View>
+            <View style={[styles.outcomeIcon, isBreak && styles.breakOutcomeIcon]}>{isBreak ? <Coffee size={18} color={colours.success} /> : getOutcomeIcon(session.outcome, colours.primary)}</View>
             <View style={styles.sessionCopy}>
                 <Text numberOfLines={1} style={styles.sessionTitle}>
                     {session.questTitle}
@@ -206,7 +218,7 @@ function HistorySessionRow({ session, journeyTitle, onPress }: { session: FocusS
             </View>
             <View style={styles.sessionTotals}>
                 <Text style={styles.duration}>{formatProgressDuration(focusedSeconds, true)}</Text>
-                <Text style={styles.xp}>+{session.earnedXp} XP</Text>
+                <Text style={[styles.xp, isBreak && styles.breakXp]}>{isBreak ? "No XP" : `+${session.earnedXp} XP`}</Text>
             </View>
             <ChevronRight size={18} color={colours.textMuted} />
         </AnimatedPressable>
@@ -377,6 +389,7 @@ function createStyles(colours: AppColours) {
             borderRadius: radius.pill,
             backgroundColor: colours.primarySoft,
         },
+        breakOutcomeIcon: { backgroundColor: colours.successSoft },
         sessionCopy: {
             flex: 1,
             minWidth: 0,
@@ -405,6 +418,7 @@ function createStyles(colours: AppColours) {
             fontWeight: "700",
             color: colours.primary,
         },
+        breakXp: { color: colours.success },
         loadMoreButton: {
             minHeight: 46,
             flexDirection: "row",

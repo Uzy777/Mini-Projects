@@ -7,11 +7,13 @@ import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
+import type { TimerMode } from "@/types/models";
 type FocusTimerDisplayProps = {
     seconds: number;
     totalSeconds?: number;
     label?: string;
     hint?: string;
+    mode?: TimerMode;
 };
 
 function formatTime(totalSeconds: number) {
@@ -24,11 +26,12 @@ function formatTime(totalSeconds: number) {
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-export function FocusTimerDisplay({ seconds, totalSeconds = seconds, label = "FOCUS TIME", hint = "Stay with this Quest until the timer ends." }: FocusTimerDisplayProps) {
+export function FocusTimerDisplay({ seconds, totalSeconds = seconds, label = "FOCUS TIME", hint = "Stay with this Quest until the timer ends.", mode = "focus" }: FocusTimerDisplayProps) {
     const { colours } = useAppearance();
     const { width } = useWindowDimensions();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
+    const tone = getTimerTone(mode, colours);
     const size = Math.min(238, Math.max(184, width - 112));
     const strokeWidth = 10;
     const ringRadius = (size - strokeWidth) / 2;
@@ -50,14 +53,14 @@ export function FocusTimerDisplay({ seconds, totalSeconds = seconds, label = "FO
 
             <View style={[styles.timerContainer, { width: size, height: size }]}>
                 <Svg width={size} height={size} style={StyleSheet.absoluteFillObject}>
-                    <Circle cx={size / 2} cy={size / 2} r={ringRadius} fill="none" stroke={colours.primarySoft} strokeWidth={strokeWidth} />
+                    <Circle cx={size / 2} cy={size / 2} r={ringRadius} fill="none" stroke={tone.track} strokeWidth={strokeWidth} />
                     <AnimatedCircle
                         animatedProps={animatedCircleProps}
                         cx={size / 2}
                         cy={size / 2}
                         r={ringRadius}
                         fill="none"
-                        stroke={colours.primary}
+                        stroke={tone.active}
                         strokeWidth={strokeWidth}
                         strokeLinecap="round"
                         strokeDasharray={`${circumference} ${circumference}`}
@@ -67,13 +70,25 @@ export function FocusTimerDisplay({ seconds, totalSeconds = seconds, label = "FO
                 </Svg>
                 <View style={styles.timerCopy}>
                     <Text style={styles.timerText}>{formatTime(seconds)}</Text>
-                    <Text style={styles.timerState}>{seconds === totalSeconds ? "Ready to focus" : seconds === 0 ? "Session complete" : "Time remaining"}</Text>
+                    <Text style={[styles.timerState, { color: tone.strong }]}>{seconds === totalSeconds ? getReadyLabel(mode) : seconds === 0 ? (mode === "focus" ? "Session complete" : "Break complete") : "Time remaining"}</Text>
                 </View>
             </View>
 
             <Text style={styles.hint}>{hint}</Text>
         </View>
     );
+}
+
+function getReadyLabel(mode: TimerMode) {
+    if (mode === "short-break") return "Ready for a quick reset";
+    if (mode === "long-break") return "Ready to properly recharge";
+    return "Ready to focus";
+}
+
+function getTimerTone(mode: TimerMode, colours: AppColours) {
+    if (mode === "short-break") return { track: colours.successSoft, active: colours.success, strong: colours.success };
+    if (mode === "long-break") return { track: colours.warningSoft, active: colours.warning, strong: colours.warning };
+    return { track: colours.primarySoft, active: colours.primary, strong: colours.primaryStrong };
 }
 
 function createStyles(colours: AppColours) {

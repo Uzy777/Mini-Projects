@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
-import { Check, ChevronDown, Clock3, Target, Zap } from "lucide-react-native";
+import { Check, ChevronDown, Clock3, Coffee, Target, Zap } from "lucide-react-native";
 
 import type { ReactNode } from "react";
 
@@ -41,6 +41,7 @@ export function DashboardStats({ sessions, journeys, referenceDate = new Date() 
     const categories = useMemo(() => getCategoryStats(periodSessions, journeys), [journeys, periodSessions]);
     const isWide = width >= 760;
     const focusTotal = trend.focusSeconds.reduce((total, value) => total + value, 0);
+    const breakTotal = trend.breakSeconds.reduce((total, value) => total + value, 0);
     const sessionTotal = trend.sessions.reduce((total, value) => total + value, 0);
     const completedTotal = new Set(
         periodSessions
@@ -91,6 +92,17 @@ export function DashboardStats({ sessions, journeys, referenceDate = new Date() 
                         detail="Unique Quests marked complete"
                     />
                     <ProgressBarChart values={trend.questsCompleted} labels={trend.labels} height={180} emptyMessage="No completed Quests in this period." />
+                </ProgressCard>
+
+                <ProgressCard style={styles.chartCard}>
+                    <ChartHeader
+                        icon={<Coffee size={17} color={colours.success} />}
+                        title="Break Time"
+                        value={formatProgressDuration(breakTotal, true)}
+                        delta={trend.breakDelta}
+                        detail="Short and long breaks · 0 XP"
+                    />
+                    <ProgressBarChart values={trend.breakSeconds} labels={trend.labels} colour={colours.success} height={180} emptyMessage="No breaks recorded in this period." />
                 </ProgressCard>
 
                 <ProgressCard style={[styles.chartCard, styles.donutCard]}>

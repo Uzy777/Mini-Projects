@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { StyleSheet, Text, ScrollView, View } from "react-native";
+import { Info } from "lucide-react-native";
 
 import { calculateLevel } from "../../utils/level";
 import type { SessionOutcome } from "../../types/models";
@@ -41,6 +42,9 @@ export default function ReviewSessionScreen() {
         quickFocus?: string;
     }>();
     const isQuestlessQuickFocus = quickFocus === "true";
+    const reviewedSeconds = Math.max(0, Number(actualSeconds ?? Number(plannedMinutes ?? 0) * 60));
+    const earnsNoXp = reviewedSeconds < 10 * 60;
+    const hasEarlyFinishXp = endedEarly === "true" && !earnsNoXp;
 
     type LevelUpDetails = {
         previousLevel: number;
@@ -263,6 +267,16 @@ export default function ReviewSessionScreen() {
                     />
                 ) : (
                     <View style={styles.reviewSections}>
+                        {earnsNoXp || hasEarlyFinishXp ? (
+                            <View style={[styles.xpNotice, earnsNoXp ? styles.noXpNotice : styles.earlyXpNotice]}>
+                                <Info size={18} color={earnsNoXp ? colours.warning : colours.primaryStrong} />
+                                <View style={styles.xpNoticeCopy}>
+                                    <Text style={styles.xpNoticeTitle}>{earnsNoXp ? "No XP for this session" : "Early-finish XP"}</Text>
+                                    <Text style={styles.xpNoticeText}>{earnsNoXp ? "Focus for at least 10 minutes to earn XP. You can still save this session to History." : "You focused for at least 10 minutes, so this early finish will award 20 XP after Review."}</Text>
+                                </View>
+                            </View>
+                        ) : null}
+
                         <SessionOutcomeSelector
                             selectedOutcome={selectedOutcome}
                             onSelectOutcome={handleSelectOutcome}
@@ -341,6 +355,12 @@ function createStyles(colours: AppColours) {
             marginTop: spacing.xl,
             gap: spacing.xl,
         },
+        xpNotice: { flexDirection: "row", alignItems: "flex-start", gap: spacing.sm, padding: spacing.md, borderWidth: 1, borderRadius: radius.md },
+        noXpNotice: { borderColor: colours.warningBorder, backgroundColor: colours.warningSoft },
+        earlyXpNotice: { borderColor: colours.primaryBorder, backgroundColor: colours.primarySubtle },
+        xpNoticeCopy: { minWidth: 0, flex: 1 },
+        xpNoticeTitle: { fontSize: 13, fontWeight: "800", color: colours.text },
+        xpNoticeText: { marginTop: 3, fontSize: 12, lineHeight: 18, color: colours.textMuted },
         finishLineCard: {
             width: "100%",
             padding: spacing.lg,

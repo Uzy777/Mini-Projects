@@ -1,0 +1,57 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import { TIMER_PREFERENCES_STORAGE_KEY } from "@/constants/storageKeys";
+import type { TimerMode } from "@/types/models";
+
+export type TimerPreferences = Record<TimerMode, number>;
+
+export const DEFAULT_TIMER_PREFERENCES: TimerPreferences = {
+    focus: 25,
+    "short-break": 5,
+    "long-break": 15,
+};
+
+export const TIMER_LIMITS: Record<TimerMode, { min: number; max: number; step: number }> = {
+    focus: { min: 10, max: 120, step: 5 },
+    "short-break": { min: 1, max: 30, step: 1 },
+    "long-break": { min: 5, max: 60, step: 5 },
+};
+
+export async function getTimerPreferences(): Promise<TimerPreferences> {
+    const storedValue = await AsyncStorage.getItem(TIMER_PREFERENCES_STORAGE_KEY);
+
+    if (!storedValue) return DEFAULT_TIMER_PREFERENCES;
+
+    try {
+        return normaliseTimerPreferences(JSON.parse(storedValue));
+    } catch {
+        return DEFAULT_TIMER_PREFERENCES;
+    }
+}
+
+export async function saveTimerPreferences(preferences: TimerPreferences): Promise<TimerPreferences> {
+    const normalisedPreferences = normaliseTimerPreferences(preferences);
+    await AsyncStorage.setItem(TIMER_PREFERENCES_STORAGE_KEY, JSON.stringify(normalisedPreferences));
+    return normalisedPreferences;
+}
+
+export function adjustTimerMinutes(mode: TimerMode, minutes: number, direction: -1 | 1) {
+    const limits = TIMER_LIMITS[mode];
+    return clampTimerMinutes(mode, minutes + limits.step * direction);
+}
+
+function normaliseTimerPreferences(value: unknown): TimerPreferences {
+    const candidate = value && typeof value === "object" ? value as Partial<Record<TimerMode, unknown>> : {};
+
+    return {
+        focus: clampTimerMinutes("focus", Number(candidate.focus ?? DEFAULT_TIMER_PREFERENCES.focus)),
+        "short-break": clampTimerMinutes("short-break", Number(candidate["short-break"] ?? DEFAULT_TIMER_PREFERENCES["short-break"])),
+        "long-break": clampTimerMinutes("long-break", Number(candidate["long-break"] ?? DEFAULT_TIMER_PREFERENCES["long-break"])),
+    };
+}
+
+function clampTimerMinutes(mode: TimerMode, minutes: number) {
+    const limits = TIMER_LIMITS[mode];
+    const safeMinutes = Number.isFinite(minutes) ? Math.round(minutes) : DEFAULT_TIMER_PREFERENCES[mode];
+    return Math.min(limits.max, Math.max(limits.min, safeMinutes));
+}

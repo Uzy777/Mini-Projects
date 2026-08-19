@@ -4,6 +4,10 @@ export type QuestStatus = "active" | "completed";
 
 export type SessionOutcome = "completed" | "progressed" | "blocked" | "stopped";
 
+export type TimerMode = "focus" | "short-break" | "long-break";
+
+export type FocusSessionKind = "quest" | "quick" | "short_break" | "long_break";
+
 export type FocusTimelineEventType = "started" | "paused" | "resumed" | "completed";
 
 export type FocusTimelineEvent = {
@@ -31,7 +35,7 @@ export type FocusSessionRecord = {
     journeyId?: string;
     questId?: string;
     questTitle: string;
-    sessionKind?: "quest" | "quick";
+    sessionKind?: FocusSessionKind;
     plannedMinutes: number;
     actualSeconds?: number;
     outcome: SessionOutcome;
@@ -51,10 +55,12 @@ export type ActiveFocusSession = {
     questTitle: string;
     selectedMinutes: number;
     remainingSeconds: number;
+    actualSeconds?: number;
     isRunning: boolean;
     endTime: number | null;
     timelineEvents?: FocusTimelineEvent[];
     source?: "work" | "tasks" | "quick-focus";
+    timerMode?: TimerMode;
 };
 
 export type Profile = {

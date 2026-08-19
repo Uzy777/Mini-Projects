@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
-import { CheckCircle2, Clock3, Folder, Pencil, Star, Zap } from "lucide-react-native";
+import { CheckCircle2, Clock3, Coffee, Folder, Pencil, Star, Zap } from "lucide-react-native";
 
 import type { ReactNode } from "react";
 
@@ -114,6 +114,7 @@ export function DashboardOverview({ sessions, journeys, dailyGoalMinutes, onSave
                     wide={isWide}
                 />
                 <MetricTile icon={<Star size={18} color={colours.primaryStrong} />} value={stats.todayXp} label="XP earned today" wide={isWide} />
+                <MetricTile icon={<Coffee size={18} color={colours.success} />} value={formatProgressDuration(stats.todayBreakSeconds, true)} label={`${stats.todayBreaks} ${stats.todayBreaks === 1 ? "break" : "breaks"}`} wide={isWide} />
             </View>
 
             <View style={[styles.desktopGrid, isWide && styles.desktopGridWide]}>
@@ -221,7 +222,7 @@ function MetricTile({
     wide,
 }: {
     icon: ReactNode;
-    value: number;
+    value: number | string;
     label: string;
     wide: boolean;
 }) {
@@ -345,7 +346,7 @@ function createStyles(colours: AppColours) {
             backgroundColor: colours.surface,
         },
         metricTileWide: {
-            flexBasis: "30%",
+            flexBasis: "22%",
         },
         metricIcon: {
             width: 32,

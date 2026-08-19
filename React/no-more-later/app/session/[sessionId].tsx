@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { AlertCircle, ArrowLeft, CheckCircle2, Clock3, FileText, Flag, Folder, Pause, Play, Square, Star, Target, TimerReset } from "lucide-react-native";
+import { AlertCircle, ArrowLeft, CheckCircle2, Clock3, Coffee, FileText, Flag, Folder, Pause, Play, Square, Star, Target, TimerReset } from "lucide-react-native";
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
@@ -11,7 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteFocusSession } from "@/services/focusSessions/focusSessionService";
 import { getRemoteJourneys } from "@/services/journeys/journeyService";
 import type { FocusSessionRecord, FocusTimelineEvent, SessionOutcome } from "@/types/models";
-import { formatProgressDuration, getSessionSeconds } from "@/utils/dashboardStats";
+import { formatProgressDuration, getSessionSeconds, isBreakSession } from "@/utils/dashboardStats";
 
 const OUTCOME_LABELS: Record<SessionOutcome, string> = {
     completed: "Completed",
@@ -59,7 +59,9 @@ export default function SessionDetailsScreen() {
 
             setFocusSession(sessionResult.data);
 
-            if (sessionResult.data.sessionKind === "quick") {
+            if (isBreakSession(sessionResult.data)) {
+                setJourneyTitle("Recovery time");
+            } else if (sessionResult.data.sessionKind === "quick") {
                 setJourneyTitle("");
             } else if (sessionResult.data.journeyId) {
                 const matchingJourney = journeysResult.data?.find((journey) => journey.id === sessionResult.data?.journeyId);
@@ -142,23 +144,24 @@ function SessionDetailsContent({ session, journeyTitle }: { session: FocusSessio
     const focusCompletedAt = new Date(displayedTimeline[displayedTimeline.length - 1].occurredAt);
     const pauseCount = displayedTimeline.filter((event) => event.type === "paused").length;
     const isQuickFocus = session.sessionKind === "quick";
+    const isBreak = isBreakSession(session);
 
     return (
         <View style={styles.sections}>
             <View style={styles.summaryCard}>
                 <View style={styles.questHeader}>
-                    <View style={styles.questIcon}>
-                        {isQuickFocus ? <TimerReset size={23} color={colours.primary} /> : <Folder size={23} color={colours.primary} />}
+                    <View style={[styles.questIcon, isBreak && styles.breakQuestIcon]}>
+                        {isBreak ? <Coffee size={23} color={colours.success} /> : isQuickFocus ? <TimerReset size={23} color={colours.primary} /> : <Folder size={23} color={colours.primary} />}
                     </View>
                     <View style={styles.questCopy}>
                         <Text style={styles.questTitle}>{session.questTitle}</Text>
-                        {!isQuickFocus ? (
+                        {!isQuickFocus && !isBreak ? (
                             <View style={styles.journeyRow}>
                                 <Folder size={12} color={colours.textMuted} />
                                 <Text style={styles.journeyTitle}>{journeyTitle}</Text>
                             </View>
                         ) : (
-                            <Text style={styles.journeyTitle}>Focused without a Quest or Journey</Text>
+                            <Text style={styles.journeyTitle}>{isBreak ? "Recovery time · No XP" : "Focused without a Quest or Journey"}</Text>
                         )}
                     </View>
                 </View>
@@ -176,7 +179,7 @@ function SessionDetailsContent({ session, journeyTitle }: { session: FocusSessio
                     </View>
                     <View style={styles.focusTotal}>
                         <Text style={styles.focusValue}>{formatProgressDuration(focusedSeconds, true)}</Text>
-                        <Text style={styles.focusLabel}>Focus Time</Text>
+                        <Text style={styles.focusLabel}>{isBreak ? "Break Time" : "Focus Time"}</Text>
                     </View>
                 </View>
             </View>
@@ -186,11 +189,11 @@ function SessionDetailsContent({ session, journeyTitle }: { session: FocusSessio
                 <View style={styles.detailCard}>
                     <DetailRow icon={<Clock3 size={17} color={colours.primary} />} label="Planned Time" value={`${session.plannedMinutes} min`} />
                     <View style={styles.divider} />
-                    <DetailRow icon={<Target size={17} color={colours.primary} />} label="Actual Focus Time" value={formatProgressDuration(focusedSeconds, true)} accent />
+                    <DetailRow icon={isBreak ? <Coffee size={17} color={colours.success} /> : <Target size={17} color={colours.primary} />} label={isBreak ? "Actual Break Time" : "Actual Focus Time"} value={formatProgressDuration(focusedSeconds, true)} accent />
                     <View style={styles.divider} />
                     <DetailRow icon={getOutcomeIcon(session.outcome, colours.primary)} label="Outcome" value={outcomeLabel} accent />
                     <View style={styles.divider} />
-                    <DetailRow icon={<Star size={17} color={colours.primary} />} label="XP Earned" value={`+${session.earnedXp} XP`} accent />
+                    <DetailRow icon={<Star size={17} color={isBreak ? colours.textMuted : colours.primary} />} label="XP Earned" value={isBreak ? "No XP" : `+${session.earnedXp} XP`} accent={!isBreak} />
                 </View>
             </View>
 
@@ -198,7 +201,7 @@ function SessionDetailsContent({ session, journeyTitle }: { session: FocusSessio
                 <View style={styles.sectionHeadingRow}>
                     <Text style={styles.sectionTitle}>Timeline</Text>
                     <Text style={styles.timelineHint}>
-                        {hasRecordedTimeline ? `${pauseCount} ${pauseCount === 1 ? "pause" : "pauses"} recorded` : "Start time calculated from focused duration"}
+                        {hasRecordedTimeline ? `${pauseCount} ${pauseCount === 1 ? "pause" : "pauses"} recorded` : `Start time calculated from ${isBreak ? "break" : "focused"} duration`}
                     </Text>
                 </View>
                 <View style={styles.timelineCard}>
@@ -220,7 +223,7 @@ function SessionDetailsContent({ session, journeyTitle }: { session: FocusSessio
                 </View>
             </View>
 
-            <View style={styles.section}>
+            {!isBreak ? <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Notes</Text>
                 <View style={styles.notesCard}>
                     <View style={styles.notesHeading}>
@@ -236,7 +239,7 @@ function SessionDetailsContent({ session, journeyTitle }: { session: FocusSessio
                         </View>
                     ) : null}
                 </View>
-            </View>
+            </View> : null}
 
             {/*
                 Editing completed Focus Sessions is intentionally disabled for now.
@@ -450,6 +453,7 @@ function createStyles(colours: AppColours) {
             borderRadius: radius.md,
             backgroundColor: colours.primarySoft,
         },
+        breakQuestIcon: { backgroundColor: colours.successSoft },
         questCopy: {
             flex: 1,
         },

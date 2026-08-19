@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
-import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock3 } from "lucide-react-native";
+import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Coffee } from "lucide-react-native";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import type { FocusSessionRecord } from "@/types/models";
-import { formatProgressDuration, getCalendarDays, getLocalDateKey, getSessionsForDate, getSessionSeconds } from "@/utils/dashboardStats";
+import { formatProgressDuration, getCalendarDays, getLocalDateKey, getSessionsForDate, getSessionSeconds, isBreakSession } from "@/utils/dashboardStats";
 
 import { ProgressCard } from "./DashboardCharts";
 
@@ -26,8 +26,10 @@ export function DashboardCalendar({ sessions, referenceDate = new Date() }: Dash
     const [selectedDate, setSelectedDate] = useState(referenceDate);
     const calendarDays = useMemo(() => getCalendarDays(visibleMonth), [visibleMonth]);
     const selectedSessions = useMemo(() => getSessionsForDate(sessions, selectedDate), [selectedDate, sessions]);
-    const selectedSeconds = selectedSessions.reduce((total, session) => total + getSessionSeconds(session), 0);
-    const selectedCompleted = selectedSessions.filter((session) => session.outcome === "completed").length;
+    const selectedFocusSessions = selectedSessions.filter((session) => !isBreakSession(session));
+    const selectedBreakSessions = selectedSessions.filter(isBreakSession);
+    const selectedSeconds = selectedFocusSessions.reduce((total, session) => total + getSessionSeconds(session), 0);
+    const selectedBreakSeconds = selectedBreakSessions.reduce((total, session) => total + getSessionSeconds(session), 0);
 
     function changeMonth(offset: number) {
         const nextMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + offset, 1);
@@ -87,7 +89,7 @@ export function DashboardCalendar({ sessions, referenceDate = new Date() }: Dash
                                                 key={session.id}
                                                 style={[
                                                     styles.dayDot,
-                                                    { backgroundColor: colours.primary },
+                                                    { backgroundColor: isBreakSession(session) ? colours.success : colours.primary },
                                                     isSelected && styles.selectedDayDot,
                                                 ]}
                                             />
@@ -107,15 +109,16 @@ export function DashboardCalendar({ sessions, referenceDate = new Date() }: Dash
                             {selectedDate.toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}
                         </Text>
                         <Text style={styles.selectedTime}>{formatProgressDuration(selectedSeconds, true)} focused</Text>
+                        {selectedBreakSeconds > 0 ? <Text style={styles.selectedBreakTime}>{formatProgressDuration(selectedBreakSeconds, true)} break time</Text> : null}
                     </View>
                     <View style={styles.summaryMetrics}>
                         <View style={styles.summaryMetric}>
-                            <Text style={styles.summaryValue}>{selectedSessions.length}</Text>
-                            <Text style={styles.summaryLabel}>Sessions</Text>
+                            <Text style={styles.summaryValue}>{selectedFocusSessions.length}</Text>
+                            <Text style={styles.summaryLabel}>Focus</Text>
                         </View>
                         <View style={styles.summaryMetric}>
-                            <Text style={styles.summaryValue}>{selectedCompleted}</Text>
-                            <Text style={styles.summaryLabel}>Completed</Text>
+                            <Text style={styles.summaryValue}>{selectedBreakSessions.length}</Text>
+                            <Text style={styles.summaryLabel}>Breaks</Text>
                         </View>
                     </View>
                 </View>
@@ -125,8 +128,8 @@ export function DashboardCalendar({ sessions, referenceDate = new Date() }: Dash
                 {selectedSessions.length === 0 ? (
                     <View style={styles.emptyState}>
                         <CalendarDays size={28} color={colours.textMuted} />
-                        <Text style={styles.emptyTitle}>No focus activity</Text>
-                        <Text style={styles.emptyText}>Choose a day with a coloured dot to review its sessions.</Text>
+                        <Text style={styles.emptyTitle}>No timer activity</Text>
+                        <Text style={styles.emptyText}>Choose a day with a coloured dot to review its focus sessions and breaks.</Text>
                     </View>
                 ) : (
                     <>
@@ -138,8 +141,10 @@ export function DashboardCalendar({ sessions, referenceDate = new Date() }: Dash
                         >
                             {selectedSessions.map((session) => (
                                 <View key={session.id} style={styles.sessionRow}>
-                                    <View style={[styles.sessionIcon, session.outcome === "completed" ? styles.completedIcon : styles.focusIcon]}>
-                                        {session.outcome === "completed" ? (
+                                    <View style={[styles.sessionIcon, isBreakSession(session) ? styles.breakIcon : session.outcome === "completed" ? styles.completedIcon : styles.focusIcon]}>
+                                        {isBreakSession(session) ? (
+                                            <Coffee size={17} color={colours.success} />
+                                        ) : session.outcome === "completed" ? (
                                             <CheckCircle2 size={17} color={colours.primary} />
                                         ) : (
                                             <Clock3 size={17} color={colours.primary} />
@@ -288,6 +293,7 @@ function createStyles(colours: AppColours) {
             fontWeight: "800",
             color: colours.text,
         },
+        selectedBreakTime: { marginTop: 2, fontSize: 11, fontWeight: "700", color: colours.success },
         summaryMetrics: {
             flexDirection: "row",
             gap: spacing.lg,
@@ -362,6 +368,9 @@ function createStyles(colours: AppColours) {
         },
         focusIcon: {
             backgroundColor: colours.primarySoft,
+        },
+        breakIcon: {
+            backgroundColor: colours.successSoft,
         },
         sessionCopy: {
             flex: 1,

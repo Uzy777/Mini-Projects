@@ -18,6 +18,7 @@ import type { AppColours } from "@/constants/appearanceColours";
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { AppCard } from "@/components/ui/AppCard";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { getTimerPreferences } from "@/services/storage/timerPreferencesStorage";
 
 const focusCompleteSound = require("../../assets/sounds/focus-complete.mp3");
 
@@ -49,13 +50,15 @@ export default function FocusScreen() {
     useEffect(() => {
         async function loadActiveFocusSession() {
             try {
-                const storedSession = await getActiveFocusSession();
+                const [storedSession, timerPreferences] = await Promise.all([getActiveFocusSession(), getTimerPreferences()]);
 
                 if (!storedSession) {
+                    setSelectedMinutes(timerPreferences.focus);
                     return;
                 }
 
                 if (storedSession.questId !== questId || storedSession.journeyId !== journeyId) {
+                    setSelectedMinutes(timerPreferences.focus);
                     return;
                 }
 
@@ -193,7 +196,7 @@ export default function FocusScreen() {
 
                     setExistingActiveSession(completedSession);
 
-                    setSessionMessage(`"${existingSession.questTitle}" is ready for Review.`);
+                    setSessionMessage(existingSession.timerMode && existingSession.timerMode !== "focus" ? `Your ${existingSession.questTitle} is complete. Return Home to save it.` : `"${existingSession.questTitle}" is ready for Review.`);
 
                     return;
                 } else {
@@ -203,6 +206,8 @@ export default function FocusScreen() {
 
                     if (isCurrentQuest) {
                         setSessionMessage(`This ${source === "tasks" ? "Task" : "Quest"} already has an active Focus Session.`);
+                    } else if (existingSession.timerMode && existingSession.timerMode !== "focus") {
+                        setSessionMessage(`A ${existingSession.questTitle} is already active.`);
                     } else {
                         setSessionMessage(`A Focus Session is already active for "${existingSession.questTitle}".`);
                     }
@@ -248,6 +253,11 @@ export default function FocusScreen() {
 
     function handleReturnToActiveSession() {
         if (!existingActiveSession) {
+            return;
+        }
+
+        if (existingActiveSession.timerMode && existingActiveSession.timerMode !== "focus") {
+            router.replace("/");
             return;
         }
 

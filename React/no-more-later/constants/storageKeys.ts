@@ -8,6 +8,8 @@ export const ACTIVE_FOCUS_SESSION_STORAGE_KEY = "no-more-later-active-focus-sess
 
 export const APPEARANCE_STORAGE_KEY = "@no-more-later/appearance";
 
+export const TIMER_PREFERENCES_STORAGE_KEY = "@no-more-later/timer-preferences";
+
 export function getQuestsStorageKey(journeyId: string) {
     return `no-more-later-quests-${journeyId}`;
 }
