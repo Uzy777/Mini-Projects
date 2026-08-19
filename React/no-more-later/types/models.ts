@@ -4,6 +4,13 @@ export type QuestStatus = "active" | "completed";
 
 export type SessionOutcome = "completed" | "progressed" | "blocked" | "stopped";
 
+export type FocusTimelineEventType = "started" | "paused" | "resumed" | "completed";
+
+export type FocusTimelineEvent = {
+    type: FocusTimelineEventType;
+    occurredAt: string;
+};
+
 export type Journey = {
     id: string;
     title: string;
@@ -31,6 +38,7 @@ export type FocusSessionRecord = {
     nextAction: string;
     earnedXp: number;
     completedAt: string;
+    timelineEvents?: FocusTimelineEvent[];
 };
 
 export type CreateFocusSessionInput = Omit<FocusSessionRecord, "id">;
@@ -44,6 +52,7 @@ export type ActiveFocusSession = {
     remainingSeconds: number;
     isRunning: boolean;
     endTime: number | null;
+    timelineEvents?: FocusTimelineEvent[];
     source?: "work";
 };
 

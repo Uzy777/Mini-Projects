@@ -11,6 +11,7 @@ import type { FocusSessionRecord, Journey } from "@/types/models";
 import { formatProgressDuration, getOverviewStats } from "@/utils/dashboardStats";
 
 import { ProgressBarChart, ProgressCard, ProgressRing } from "./DashboardCharts";
+import { DashboardRankCard } from "./DashboardRankCard";
 
 type DashboardOverviewProps = {
     sessions: FocusSessionRecord[];
@@ -67,6 +68,8 @@ export function DashboardOverview({ sessions, journeys, dailyGoalMinutes, onSave
 
     return (
         <View style={styles.content}>
+            <DashboardRankCard sessions={sessions} />
+
             <View style={styles.sectionHeading}>
                 <Text style={styles.sectionTitle}>Today</Text>
                 <Text style={styles.sectionMeta}>

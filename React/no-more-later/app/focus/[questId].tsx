@@ -4,7 +4,7 @@ import { StyleSheet, Text, View, ScrollView } from "react-native";
 import { useAudioPlayer } from "expo-audio";
 import * as Crypto from "expo-crypto";
 
-import { ActiveFocusSession } from "../../types/models";
+import type { ActiveFocusSession, FocusTimelineEvent } from "../../types/models";
 import { clearActiveFocusSession, getActiveFocusSession, saveActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
 import { FocusDurationSelector } from "../../components/focus/FocusDurationSelector";
 import { FocusTimerDisplay } from "../../components/focus/FocusTimerDisplay";
@@ -41,6 +41,7 @@ export default function FocusScreen() {
     const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
     const [isRunning, setIsRunning] = useState(false);
     const [endTime, setEndTime] = useState<number | null>(null);
+    const [timelineEvents, setTimelineEvents] = useState<FocusTimelineEvent[]>([]);
     const [sessionMessage, setSessionMessage] = useState("");
     const [existingActiveSession, setExistingActiveSession] = useState<ActiveFocusSession | null>(null);
 
@@ -72,6 +73,7 @@ export default function FocusScreen() {
                 }
 
                 setSelectedMinutes(storedSession.selectedMinutes);
+                setTimelineEvents(storedSession.timelineEvents ?? []);
 
                 if (storedSession.isRunning && storedSession.endTime !== null) {
                     const restoredRemainingSeconds = getRemainingSecondsFromEndTime(storedSession.endTime);
@@ -79,8 +81,11 @@ export default function FocusScreen() {
                     setRemainingSeconds(restoredRemainingSeconds);
 
                     if (restoredRemainingSeconds === 0) {
+                        const completedTimelineEvents = appendCompletedEvent(storedSession.timelineEvents ?? [], storedSession.endTime);
+
                         setIsRunning(false);
                         setEndTime(null);
+                        setTimelineEvents(completedTimelineEvents);
 
                         await saveActiveFocusSession({
                             ...storedSession,
@@ -88,6 +93,7 @@ export default function FocusScreen() {
                             remainingSeconds: 0,
                             isRunning: false,
                             endTime: null,
+                            timelineEvents: completedTimelineEvents,
                             ...(source ? { source } : {}),
                         });
 
@@ -111,7 +117,7 @@ export default function FocusScreen() {
         }
 
         loadActiveFocusSession();
-    }, [questId, journeyId]);
+    }, [questId, journeyId, source]);
 
     useEffect(() => {
         if (!isRunning || endTime === null || !sessionId) {
@@ -127,11 +133,14 @@ export default function FocusScreen() {
             setRemainingSeconds(nextRemainingSeconds);
 
             if (nextRemainingSeconds === 0) {
+                const completedTimelineEvents = appendCompletedEvent(timelineEvents, activeEndTime);
+
                 completionSoundPlayer.seekTo(0);
                 completionSoundPlayer.play();
 
                 setIsRunning(false);
                 setEndTime(null);
+                setTimelineEvents(completedTimelineEvents);
 
                 saveActiveFocusSession({
                     id: activeSessionId,
@@ -142,6 +151,7 @@ export default function FocusScreen() {
                     remainingSeconds: 0,
                     isRunning: false,
                     endTime: null,
+                    timelineEvents: completedTimelineEvents,
                     ...(source ? { source } : {}),
                 }).catch((error) => {
                     console.error("Failed to save completed Focus Session:", error);
@@ -156,7 +166,7 @@ export default function FocusScreen() {
         return () => {
             clearInterval(intervalId);
         };
-    }, [isRunning, endTime, sessionId, completionSoundPlayer, questId, journeyId, questTitle, selectedMinutes]);
+    }, [isRunning, endTime, sessionId, completionSoundPlayer, questId, journeyId, questTitle, selectedMinutes, source, timelineEvents]);
 
     async function handleStartSession() {
         setSessionMessage("");
@@ -169,11 +179,13 @@ export default function FocusScreen() {
                 const hasExpired = existingSession.isRunning && existingSession.endTime !== null && existingSession.endTime <= Date.now();
 
                 if (hasExpired) {
+                    const completedTimelineEvents = appendCompletedEvent(existingSession.timelineEvents ?? [], existingSession.endTime ?? Date.now());
                     const completedSession: ActiveFocusSession = {
                         ...existingSession,
                         remainingSeconds: 0,
                         isRunning: false,
                         endTime: null,
+                        timelineEvents: completedTimelineEvents,
                     };
 
                     await saveActiveFocusSession(completedSession);
@@ -207,11 +219,16 @@ export default function FocusScreen() {
             const calculatedEndTime = Date.now() + totalSeconds * 1000;
 
             const newSessionId = Crypto.randomUUID();
+            const startedEvent: FocusTimelineEvent = {
+                type: "started",
+                occurredAt: new Date().toISOString(),
+            };
 
             setSessionId(newSessionId);
             setRemainingSeconds(totalSeconds);
             setEndTime(calculatedEndTime);
             setIsRunning(true);
+            setTimelineEvents([startedEvent]);
 
             await saveActiveFocusSession({
                 id: newSessionId,
@@ -222,6 +239,7 @@ export default function FocusScreen() {
                 remainingSeconds: totalSeconds,
                 isRunning: true,
                 endTime: calculatedEndTime,
+                timelineEvents: [startedEvent],
                 ...(source ? { source } : {}),
             });
         } catch (error) {
@@ -261,10 +279,18 @@ export default function FocusScreen() {
         }
         if (isRunning) {
             const pausedRemainingSeconds = endTime !== null ? Math.max(0, Math.ceil((endTime - Date.now()) / 1000)) : (remainingSeconds ?? 0);
+            const nextTimelineEvents: FocusTimelineEvent[] = [
+                ...timelineEvents,
+                {
+                    type: "paused",
+                    occurredAt: new Date().toISOString(),
+                },
+            ];
 
             setRemainingSeconds(pausedRemainingSeconds);
             setIsRunning(false);
             setEndTime(null);
+            setTimelineEvents(nextTimelineEvents);
 
             await saveActiveFocusSession({
                 id: sessionId,
@@ -276,6 +302,7 @@ export default function FocusScreen() {
                 remainingSeconds: pausedRemainingSeconds,
                 isRunning: false,
                 endTime: null,
+                timelineEvents: nextTimelineEvents,
                 ...(source ? { source } : {}),
             });
 
@@ -284,9 +311,17 @@ export default function FocusScreen() {
 
         if (remainingSeconds !== null && remainingSeconds > 0) {
             const resumedEndTime = Date.now() + remainingSeconds * 1000;
+            const nextTimelineEvents: FocusTimelineEvent[] = [
+                ...timelineEvents,
+                {
+                    type: "resumed",
+                    occurredAt: new Date().toISOString(),
+                },
+            ];
 
             setEndTime(resumedEndTime);
             setIsRunning(true);
+            setTimelineEvents(nextTimelineEvents);
 
             await saveActiveFocusSession({
                 id: sessionId,
@@ -297,6 +332,7 @@ export default function FocusScreen() {
                 remainingSeconds,
                 isRunning: true,
                 endTime: resumedEndTime,
+                timelineEvents: nextTimelineEvents,
                 ...(source ? { source } : {}),
             });
         }
@@ -313,10 +349,12 @@ export default function FocusScreen() {
             isRunning,
             endTime,
         });
+        const completedTimelineEvents = appendCompletedEvent(timelineEvents, Date.now());
 
         setIsRunning(false);
         setEndTime(null);
         setRemainingSeconds(0);
+        setTimelineEvents(completedTimelineEvents);
 
         try {
             await saveActiveFocusSession({
@@ -328,6 +366,7 @@ export default function FocusScreen() {
                 remainingSeconds: 0,
                 isRunning: false,
                 endTime: null,
+                timelineEvents: completedTimelineEvents,
                 ...(source ? { source } : {}),
             });
 
@@ -412,6 +451,21 @@ export default function FocusScreen() {
         </AppScreenBackground>
     );
 }
+
+function appendCompletedEvent(events: FocusTimelineEvent[], completedAt: number) {
+    if (events.some((event) => event.type === "completed")) {
+        return events;
+    }
+
+    return [
+        ...events,
+        {
+            type: "completed" as const,
+            occurredAt: new Date(completedAt).toISOString(),
+        },
+    ];
+}
+
 function createStyles(colours: AppColours) {
     return StyleSheet.create({
         screen: {

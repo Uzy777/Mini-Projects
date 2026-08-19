@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 
-import type { SessionOutcome } from "@/types/models";
+import type { FocusTimelineEvent, SessionOutcome } from "@/types/models";
 
 type CompleteRemoteReviewInput = {
     focusSessionId: string;
@@ -11,6 +11,7 @@ type CompleteRemoteReviewInput = {
     outcome: SessionOutcome;
     accomplishment: string;
     nextAction: string;
+    timelineEvents: FocusTimelineEvent[];
 };
 
 type CompleteRemoteReviewResult = {
@@ -34,6 +35,7 @@ export async function completeRemoteReview(input: CompleteRemoteReviewInput): Pr
         p_outcome: input.outcome,
         p_accomplishment: input.accomplishment,
         p_next_action: input.nextAction,
+        p_timeline_events: input.timelineEvents,
     });
 
     if (error) {

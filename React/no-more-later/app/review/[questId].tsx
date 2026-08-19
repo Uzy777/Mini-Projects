@@ -8,7 +8,7 @@ import { SessionOutcomeSelector } from "../../components/review/SessionOutcomeSe
 import { ReviewResultCard } from "../../components/review/ReviewResultCard";
 import { ReviewForm } from "../../components/review/ReviewForm";
 import { getReviewValidationMessage } from "../../utils/reviewValidation";
-import { clearActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
+import { clearActiveFocusSession, getActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
@@ -131,6 +131,8 @@ export default function ReviewSessionScreen() {
             const sessionMinutes = Number(plannedMinutes ?? 0);
 
             const focusedSeconds = Number(actualSeconds ?? sessionMinutes * 60);
+            const activeFocusSession = await getActiveFocusSession();
+            const timelineEvents = activeFocusSession?.id === focusSessionId ? (activeFocusSession.timelineEvents ?? []) : [];
 
             const reviewInput = {
                 focusSessionId,
@@ -141,6 +143,7 @@ export default function ReviewSessionScreen() {
                 outcome: selectedOutcome,
                 accomplishment: trimmedAccomplishment,
                 nextAction: trimmedNextAction,
+                timelineEvents,
             };
 
             const { data: completedReview, error: completeReviewError } = await completeRemoteReview(reviewInput);

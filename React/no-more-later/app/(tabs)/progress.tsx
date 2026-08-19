@@ -1,10 +1,11 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
-import { BarChart3, CalendarDays, LayoutDashboard } from "lucide-react-native";
+import { BarChart3, CalendarDays, LayoutDashboard, RotateCcwClock } from "lucide-react-native";
 import { useFocusEffect } from "expo-router";
 
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
+import { DashboardHistory } from "@/components/dashboard/DashboardHistory";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import type { AppColours } from "@/constants/appearanceColours";
@@ -16,12 +17,13 @@ import { getRemoteJourneys } from "@/services/journeys/journeyService";
 import { updateDailyFocusGoal } from "@/services/profile/profileService";
 import type { FocusSessionRecord, Journey } from "@/types/models";
 
-type ProgressSection = "overview" | "calendar" | "stats";
+type ProgressSection = "overview" | "calendar" | "stats" | "history";
 
 const PROGRESS_VIEWS: { id: ProgressSection; label: string; icon: typeof LayoutDashboard }[] = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "calendar", label: "Calendar", icon: CalendarDays },
     { id: "stats", label: "Stats", icon: BarChart3 },
+    { id: "history", label: "History", icon: RotateCcwClock },
 ];
 
 export default function ProgressScreen() {
@@ -200,6 +202,7 @@ export default function ProgressScreen() {
                 )}
                 {!isLoading && selectedView === "calendar" && <DashboardCalendar sessions={sessions} />}
                 {!isLoading && selectedView === "stats" && <DashboardStats sessions={sessions} journeys={journeys} />}
+                {!isLoading && selectedView === "history" && <DashboardHistory sessions={sessions} journeys={journeys} />}
             </ScrollView>
         </AppScreenBackground>
     );

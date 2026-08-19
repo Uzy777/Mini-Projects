@@ -129,6 +129,13 @@ function RootNavigator() {
                 />
 
                 <Stack.Screen
+                    name="session/[sessionId]"
+                    options={{
+                        headerShown: false,
+                    }}
+                />
+
+                <Stack.Screen
                     name="account"
                     options={{
                         title: "Account",
