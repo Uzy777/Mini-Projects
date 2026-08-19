@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { BarChart3, CalendarDays, LayoutDashboard } from "lucide-react-native";
 import { useFocusEffect } from "expo-router";
 
@@ -10,8 +10,9 @@ import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
-import { getFocusSessions } from "@/services/storage/focusSessionsStorage";
-import { getJourneys } from "@/services/storage/journeysStorage";
+import { useAuth } from "@/contexts/AuthContext";
+import { getRemoteFocusSessions } from "@/services/focusSessions/focusSessionService";
+import { getRemoteJourneys } from "@/services/journeys/journeyService";
 import type { FocusSessionRecord, Journey } from "@/types/models";
 
 type ProgressSection = "overview" | "calendar" | "stats";
@@ -24,44 +25,96 @@ const PROGRESS_VIEWS: { id: ProgressSection; label: string; icon: typeof LayoutD
 
 export default function ProgressScreen() {
     const { colours } = useAppearance();
+    const { session } = useAuth();
     const styles = useMemo(() => createStyles(colours), [colours]);
     const [selectedView, setSelectedView] = useState<ProgressSection>("overview");
     const [sessions, setSessions] = useState<FocusSessionRecord[]>([]);
     const [journeys, setJourneys] = useState<Journey[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const requestId = useRef(0);
+
+    const loadProgress = useCallback(
+        async (mode: "initial" | "refresh" = "initial") => {
+            const currentRequestId = requestId.current + 1;
+            requestId.current = currentRequestId;
+
+            if (mode === "refresh") {
+                setIsRefreshing(true);
+            } else {
+                setIsLoading(true);
+            }
+
+            if (!session) {
+                setSessions([]);
+                setJourneys([]);
+                setErrorMessage("Sign in to load your Progress history.");
+                setIsLoading(false);
+                setIsRefreshing(false);
+                return;
+            }
+
+            try {
+                const [focusSessionsResult, journeysResult] = await Promise.all([
+                    getRemoteFocusSessions(session.user.id),
+                    getRemoteJourneys(session.user.id),
+                ]);
+
+                if (requestId.current !== currentRequestId) {
+                    return;
+                }
+
+                const loadError = focusSessionsResult.error ?? journeysResult.error;
+
+                if (loadError) {
+                    throw loadError;
+                }
+
+                setSessions(focusSessionsResult.data ?? []);
+                setJourneys(journeysResult.data ?? []);
+                setErrorMessage("");
+            } catch (error) {
+                console.error("Failed to load Progress from Supabase:", error);
+
+                if (requestId.current === currentRequestId) {
+                    setErrorMessage("Progress could not be loaded. Check your connection and try again.");
+                }
+            } finally {
+                if (requestId.current === currentRequestId) {
+                    setIsLoading(false);
+                    setIsRefreshing(false);
+                }
+            }
+        },
+        [session],
+    );
 
     useFocusEffect(
         useCallback(() => {
-            let isActive = true;
-
-            async function loadProgress() {
-                try {
-                    const [storedSessions, storedJourneys] = await Promise.all([getFocusSessions(), getJourneys()]);
-                    if (!isActive) {
-                        return;
-                    }
-
-                    setSessions(storedSessions);
-                    setJourneys(storedJourneys);
-                } catch (error) {
-                    console.error("Failed to load local Progress data:", error);
-                    if (isActive) {
-                        setSessions([]);
-                        setJourneys([]);
-                    }
-                }
-            }
-
-            loadProgress();
+            void loadProgress();
 
             return () => {
-                isActive = false;
+                requestId.current += 1;
             };
-        }, []),
+        }, [loadProgress]),
     );
 
     return (
         <AppScreenBackground>
-            <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+            <ScrollView
+                style={styles.scrollView}
+                contentContainerStyle={styles.contentContainer}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefreshing}
+                        onRefresh={() => void loadProgress("refresh")}
+                        tintColor={colours.primary}
+                        colors={[colours.primary]}
+                    />
+                }
+            >
                 <View style={styles.header}>
                     <View>
                         <Text style={styles.eyebrow}>NO MORE LATER</Text>
@@ -92,16 +145,32 @@ export default function ProgressScreen() {
                     })}
                 </View>
 
-                {sessions.length === 0 && (
+                {errorMessage ? (
+                    <View style={styles.errorNotice}>
+                        <Text style={styles.errorText}>{errorMessage}</Text>
+                        <Pressable onPress={() => void loadProgress("refresh")} style={({ pressed }) => [styles.retryButton, pressed && styles.pressedSegment]}>
+                            <Text style={styles.retryButtonText}>Try again</Text>
+                        </Pressable>
+                    </View>
+                ) : null}
+
+                {isLoading ? (
+                    <View style={styles.loadingState}>
+                        <ActivityIndicator size="small" color={colours.primary} />
+                        <Text style={styles.loadingText}>Loading your Progress…</Text>
+                    </View>
+                ) : null}
+
+                {!isLoading && !errorMessage && sessions.length === 0 && (
                     <View style={styles.emptyNotice}>
                         <View style={styles.noticeDot} />
-                        <Text style={styles.noticeText}>Complete a Focus Session to begin building your Progress history.</Text>
+                        <Text style={styles.noticeText}>Complete and review a Focus Session to begin building your Progress history.</Text>
                     </View>
                 )}
 
-                {selectedView === "overview" && <DashboardOverview sessions={sessions} journeys={journeys} />}
-                {selectedView === "calendar" && <DashboardCalendar sessions={sessions} />}
-                {selectedView === "stats" && <DashboardStats sessions={sessions} journeys={journeys} />}
+                {!isLoading && selectedView === "overview" && <DashboardOverview sessions={sessions} journeys={journeys} />}
+                {!isLoading && selectedView === "calendar" && <DashboardCalendar sessions={sessions} />}
+                {!isLoading && selectedView === "stats" && <DashboardStats sessions={sessions} journeys={journeys} />}
             </ScrollView>
         </AppScreenBackground>
     );
@@ -211,6 +280,50 @@ function createStyles(colours: AppColours) {
             fontSize: 11,
             lineHeight: 16,
             color: colours.primary,
+        },
+        loadingState: {
+            minHeight: 180,
+            alignItems: "center",
+            justifyContent: "center",
+            gap: spacing.sm,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
+            backgroundColor: colours.surface,
+        },
+        loadingText: {
+            fontSize: 12,
+            color: colours.textMuted,
+        },
+        errorNotice: {
+            minHeight: 52,
+            padding: spacing.md,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.md,
+            borderWidth: 1,
+            borderColor: colours.warningBorder,
+            borderRadius: radius.md,
+            backgroundColor: colours.warningSoft,
+        },
+        errorText: {
+            flex: 1,
+            fontSize: 12,
+            lineHeight: 18,
+            color: colours.warning,
+        },
+        retryButton: {
+            minHeight: 34,
+            paddingHorizontal: spacing.md,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: radius.sm,
+            backgroundColor: colours.primary,
+        },
+        retryButtonText: {
+            fontSize: 11,
+            fontWeight: "800",
+            color: "#ffffff",
         },
     });
 }
