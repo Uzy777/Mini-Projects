@@ -4,12 +4,11 @@ import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
-import { Flame, Menu } from "lucide-react-native";
+import { Menu } from "lucide-react-native";
 import { useMemo } from "react";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 
 type HomeHeaderProps = {
-    currentStreak: number;
     displayName: string | null;
     onPressMenu: () => void;
 };
@@ -28,9 +27,7 @@ function getGreeting(): string {
     return "Good evening,";
 }
 
-export function HomeHeader({ currentStreak, displayName, onPressMenu }: HomeHeaderProps) {
-    const streakLabel = currentStreak === 1 ? "day streak" : "days streak";
-
+export function HomeHeader({ displayName, onPressMenu }: HomeHeaderProps) {
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -45,13 +42,6 @@ export function HomeHeader({ currentStreak, displayName, onPressMenu }: HomeHead
                 </View>
 
                 <View style={styles.actions}>
-                    <View style={styles.streakBadge}>
-                        <Flame size={17} color={colours.primaryStrong} />
-                        <View>
-                            <Text style={styles.streakValue}>{currentStreak}</Text>
-                            <Text style={styles.streakLabel}>{streakLabel}</Text>
-                        </View>
-                    </View>
                     <AnimatedPressable style={styles.menuButton} onPress={onPressMenu} accessibilityLabel="Open account menu">
                         <Menu size={20} color={colours.primaryStrong} />
                     </AnimatedPressable>
@@ -122,28 +112,6 @@ function createStyles(colours: AppColours) {
             flexDirection: "row",
             alignItems: "center",
             gap: spacing.sm,
-        },
-        streakBadge: {
-            minHeight: 42,
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 7,
-            paddingHorizontal: 11,
-            borderWidth: 1,
-            borderColor: colours.primaryBorder,
-            borderRadius: radius.md,
-            backgroundColor: colours.primarySubtle,
-        },
-        streakValue: {
-            fontSize: 13,
-            lineHeight: 15,
-            fontWeight: "900",
-            color: colours.text,
-        },
-        streakLabel: {
-            fontSize: 8,
-            lineHeight: 10,
-            color: colours.textMuted,
         },
     });
 }

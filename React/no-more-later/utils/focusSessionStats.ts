@@ -20,6 +20,17 @@ function getLocalDateKey(date: Date) {
     return `${year}-${month}-${day}`;
 }
 
+function getFocusedDateKeys(sessions: FocusSessionRecord[]) {
+    return new Set(sessions.filter(isFocusSession).map((session) => getLocalDateKey(new Date(session.completedAt))));
+}
+
+export type FocusWeekDay = {
+    dateKey: string;
+    label: string;
+    isFocused: boolean;
+    isToday: boolean;
+};
+
 export function calculateTodayFocusSummary(sessions: FocusSessionRecord[]): TodayFocusSummary {
     const todayDateKey = getLocalDateKey(new Date());
 
@@ -52,7 +63,7 @@ export function calculateTotalFocusedSeconds(sessions: FocusSessionRecord[]) {
 }
 
 export function calculateCurrentStreak(sessions: FocusSessionRecord[]) {
-    const sessionDateKeys = new Set(sessions.filter(isFocusSession).map((session) => getLocalDateKey(new Date(session.completedAt))));
+    const sessionDateKeys = getFocusedDateKeys(sessions);
 
     const today = new Date();
 
@@ -78,6 +89,50 @@ export function calculateCurrentStreak(sessions: FocusSessionRecord[]) {
     }
 
     return streak;
+}
+
+export function calculateBestStreak(sessions: FocusSessionRecord[]) {
+    const orderedDayNumbers = [...getFocusedDateKeys(sessions)]
+        .sort()
+        .map((dateKey) => {
+            const [year, month, day] = dateKey.split("-").map(Number);
+            return Math.floor(Date.UTC(year, month - 1, day) / 86_400_000);
+        });
+
+    let bestStreak = 0;
+    let runningStreak = 0;
+    let previousDay: number | null = null;
+
+    orderedDayNumbers.forEach((dayNumber) => {
+        runningStreak = previousDay !== null && dayNumber === previousDay + 1 ? runningStreak + 1 : 1;
+        bestStreak = Math.max(bestStreak, runningStreak);
+        previousDay = dayNumber;
+    });
+
+    return bestStreak;
+}
+
+export function getCurrentWeekFocusDays(sessions: FocusSessionRecord[], referenceDate = new Date()): FocusWeekDay[] {
+    const focusedDateKeys = getFocusedDateKeys(sessions);
+    const todayKey = getLocalDateKey(referenceDate);
+    const weekStart = new Date(referenceDate);
+    const daysSinceMonday = (weekStart.getDay() + 6) % 7;
+
+    weekStart.setHours(0, 0, 0, 0);
+    weekStart.setDate(weekStart.getDate() - daysSinceMonday);
+
+    return Array.from({ length: 7 }, (_, index) => {
+        const date = new Date(weekStart);
+        date.setDate(weekStart.getDate() + index);
+        const dateKey = getLocalDateKey(date);
+
+        return {
+            dateKey,
+            label: date.toLocaleDateString(undefined, { weekday: "narrow" }),
+            isFocused: focusedDateKeys.has(dateKey),
+            isToday: dateKey === todayKey,
+        };
+    });
 }
 
 export function findLatestUnfinishedSession(sessions: FocusSessionRecord[]): FocusSessionRecord | undefined {

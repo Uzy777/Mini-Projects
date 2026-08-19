@@ -5,8 +5,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import type { FocusSessionRecord } from "../../types/models";
 import { HomeHeader } from "../../components/home/HomeHeader";
 import { QuickFocusCard } from "../../components/home/QuickFocusCard";
-import { FocusTipCard } from "../../components/home/FocusTipCard";
-import { calculateCurrentStreak } from "../../utils/focusSessionStats";
+import { HomeStreakCard } from "../../components/home/HomeStreakCard";
 import { layout, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
@@ -56,8 +55,6 @@ export default function HomeScreen() {
         }, [session]),
     );
 
-    const currentStreak = calculateCurrentStreak(focusSessions);
-
     function handleOpenMenu() {
         router.push("/account");
     }
@@ -67,7 +64,7 @@ export default function HomeScreen() {
             <AppScreenBackground>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
                     <View style={styles.contentSections}>
-                        <HomeHeader currentStreak={currentStreak} displayName={profile?.display_name ?? null} onPressMenu={handleOpenMenu} />
+                        <HomeHeader displayName={profile?.display_name ?? null} onPressMenu={handleOpenMenu} />
 
                         {/* The Home level card now lives in Progress Overview.
                         <LevelProgressCard
@@ -84,9 +81,9 @@ export default function HomeScreen() {
                             <View style={styles.focusColumn}>
                                 <QuickFocusCard />
                             </View>
-                            {/* <View style={styles.tipColumn}>
-                                <FocusTipCard />
-                            </View> */}
+                            <View style={styles.streakColumn}>
+                                <HomeStreakCard sessions={focusSessions} />
+                            </View>
                         </View>
                     </View>
                 </ScrollView>
@@ -117,9 +114,9 @@ function createStyles(colours: AppColours, isWide: boolean) {
             width: isWide ? "auto" : "100%",
             flex: isWide ? 1.6 : undefined,
         },
-        tipColumn: {
+        streakColumn: {
             width: isWide ? "auto" : "100%",
-            flex: isWide ? 0.8 : undefined,
+            flex: isWide ? 0.72 : undefined,
         },
         screen: {
             flex: 1,
