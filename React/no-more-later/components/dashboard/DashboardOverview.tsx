@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
-import { CheckCircle2, Clock3, Flame, Folder, Pencil, Star, Zap } from "lucide-react-native";
+import { CheckCircle2, Clock3, Folder, Pencil, Star, Zap } from "lucide-react-native";
 
 import type { ReactNode } from "react";
 
@@ -80,22 +80,29 @@ export function DashboardOverview({ sessions, journeys, dailyGoalMinutes, onSave
                 </Text>
             </View>
 
-            <ProgressCard style={styles.heroCard}>
-                <View style={styles.heroDetails}>
+            <ProgressCard style={[styles.heroCard, !isWide && styles.heroCardCompact]}>
+                <View style={[styles.heroDetails, !isWide && styles.heroDetailsCompact]}>
                     <View style={styles.heroIcon}>
-                        <Clock3 size={28} color={colours.primary} />
+                        <Clock3 size={25} color={colours.primaryStrong} />
                     </View>
                     <View style={styles.heroCopy}>
                         <Text style={styles.heroValue}>{formatProgressDuration(stats.todaySeconds, true)}</Text>
                         <Text style={styles.heroLabel}>Focused today</Text>
-                        <AnimatedPressable onPress={openGoalModal} style={styles.goalRow} haptic="selection">
-                            <View style={styles.goalDot} />
-                            <Text style={styles.goalText}>Goal: {formatProgressDuration(focusGoalSeconds, true)}</Text>
-                            <Pencil size={11} color={colours.primary} />
-                        </AnimatedPressable>
                     </View>
                 </View>
-                <ProgressRing progress={focusProgress} label={`${Math.round(Math.min(focusProgress, 1) * 100)}%`} />
+
+                <View style={[styles.goalSummary, !isWide && styles.goalSummaryCompact]}>
+                    <View>
+                        <Text style={styles.goalLabel}>DAILY GOAL</Text>
+                        <Text style={styles.goalValue}>{formatProgressDuration(focusGoalSeconds, true)}</Text>
+                    </View>
+                    <AnimatedPressable onPress={openGoalModal} style={styles.editGoalButton} haptic="selection">
+                        <Pencil size={13} color={colours.primaryStrong} />
+                        <Text style={styles.editGoalText}>Edit goal</Text>
+                    </AnimatedPressable>
+                </View>
+
+                <ProgressRing progress={focusProgress} size={isWide ? 74 : 68} label={`${Math.round(Math.min(focusProgress, 1) * 100)}%`} />
             </ProgressCard>
 
             <View style={styles.metricGrid}>
@@ -106,14 +113,13 @@ export function DashboardOverview({ sessions, journeys, dailyGoalMinutes, onSave
                     label="Quests completed"
                     wide={isWide}
                 />
-                <MetricTile icon={<Flame size={18} color={colours.primary} />} value={stats.streak} label="Day streak" wide={isWide} />
-                <MetricTile icon={<Star size={18} color={colours.primary} />} value={stats.todayXp} label="XP earned" wide={isWide} />
+                <MetricTile icon={<Star size={18} color={colours.primaryStrong} />} value={stats.todayXp} label="XP earned today" wide={isWide} />
             </View>
 
             <View style={[styles.desktopGrid, isWide && styles.desktopGridWide]}>
                 <View style={styles.desktopColumn}>
                     <View style={styles.sectionHeading}>
-                        <Text style={styles.sectionTitle}>This Week</Text>
+                        <Text style={styles.sectionTitle}>This week</Text>
                         <Text style={styles.sectionMeta}>{formatProgressDuration(stats.weekSeconds, true)}</Text>
                     </View>
                     <ProgressCard>
@@ -261,21 +267,23 @@ function createStyles(colours: AppColours) {
             justifyContent: "space-between",
             gap: spacing.md,
             borderColor: colours.primaryBorder,
-            backgroundColor: colours.primarySoft,
+            backgroundColor: colours.primarySubtle,
         },
+        heroCardCompact: { flexWrap: "wrap" },
         heroDetails: {
             flex: 1,
             flexDirection: "row",
             alignItems: "center",
             gap: spacing.md,
         },
+        heroDetailsCompact: { width: "100%", flexBasis: "100%" },
         heroIcon: {
             width: 48,
             height: 48,
             alignItems: "center",
             justifyContent: "center",
             borderRadius: radius.pill,
-            backgroundColor: colours.surface,
+            backgroundColor: colours.primarySoft,
         },
         heroCopy: {
             flexShrink: 1,
@@ -292,27 +300,31 @@ function createStyles(colours: AppColours) {
             fontWeight: "600",
             color: colours.text,
         },
-        goalRow: {
-            alignSelf: "flex-start",
-            marginTop: spacing.sm,
+        goalSummary: {
+            minWidth: 142,
+            padding: spacing.sm,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: spacing.md,
+            borderWidth: 1,
+            borderColor: colours.primaryBorder,
+            borderRadius: radius.md,
+            backgroundColor: colours.surface,
+        },
+        goalSummaryCompact: { minWidth: 0, flex: 1 },
+        goalLabel: { fontSize: 9, fontWeight: "800", letterSpacing: 0.6, color: colours.textMuted },
+        goalValue: { marginTop: 2, fontSize: 15, fontWeight: "800", color: colours.text },
+        editGoalButton: {
+            minHeight: 34,
+            paddingHorizontal: spacing.sm,
             flexDirection: "row",
             alignItems: "center",
             gap: 5,
+            borderRadius: radius.sm,
+            backgroundColor: colours.primarySoft,
         },
-        goalRowPressed: {
-            opacity: 0.68,
-        },
-        goalDot: {
-            width: 6,
-            height: 6,
-            borderWidth: 1.5,
-            borderColor: colours.primary,
-            borderRadius: radius.pill,
-        },
-        goalText: {
-            fontSize: 11,
-            color: colours.primary,
-        },
+        editGoalText: { fontSize: 11, fontWeight: "800", color: colours.primaryStrong },
         metricGrid: {
             flexDirection: "row",
             flexWrap: "wrap",
@@ -333,7 +345,7 @@ function createStyles(colours: AppColours) {
             backgroundColor: colours.surface,
         },
         metricTileWide: {
-            flexBasis: "22%",
+            flexBasis: "30%",
         },
         metricIcon: {
             width: 32,
@@ -341,7 +353,7 @@ function createStyles(colours: AppColours) {
             alignItems: "center",
             justifyContent: "center",
             borderRadius: radius.sm,
-            backgroundColor: colours.primarySoft,
+            backgroundColor: colours.primarySubtle,
         },
         metricValue: {
             fontSize: 20,
@@ -380,7 +392,7 @@ function createStyles(colours: AppColours) {
             alignItems: "center",
             justifyContent: "center",
             borderRadius: radius.sm,
-            backgroundColor: colours.primarySoft,
+            backgroundColor: colours.primarySubtle,
         },
         categoryDetails: {
             flex: 1,

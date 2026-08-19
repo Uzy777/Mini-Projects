@@ -224,35 +224,10 @@ function createStyles(colours: AppColours) {
             width: "100%",
             maxWidth: layout.contentMaxWidth,
             alignSelf: "center",
-            paddingHorizontal: spacing.md,
+            paddingHorizontal: spacing.lg,
             paddingTop: spacing.lg,
             paddingBottom: 56,
             gap: spacing.md,
-        },
-        header: {
-            flexDirection: "row",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            gap: spacing.md,
-        },
-        eyebrow: {
-            fontSize: 11,
-            fontWeight: "900",
-            letterSpacing: 0.9,
-            color: colours.primary,
-        },
-        title: {
-            marginTop: 4,
-            fontSize: 30,
-            lineHeight: 36,
-            fontWeight: "900",
-            color: colours.text,
-        },
-        subtitle: {
-            marginTop: 4,
-            fontSize: 14,
-            lineHeight: 20,
-            color: colours.textMuted,
         },
         headerIcon: {
             width: 44,
@@ -283,6 +258,8 @@ function createStyles(colours: AppColours) {
             borderRadius: radius.sm,
         },
         selectedSegment: {
+            borderWidth: 1,
+            borderColor: colours.primaryBorder,
             backgroundColor: colours.primarySoft,
         },
         pressedSegment: {
@@ -305,7 +282,7 @@ function createStyles(colours: AppColours) {
             borderWidth: 1,
             borderColor: colours.primaryBorder,
             borderRadius: radius.md,
-            backgroundColor: colours.primarySoft,
+            backgroundColor: colours.primarySubtle,
         },
         noticeDot: {
             width: 7,
@@ -317,7 +294,7 @@ function createStyles(colours: AppColours) {
             flex: 1,
             fontSize: 11,
             lineHeight: 16,
-            color: colours.primary,
+            color: colours.primaryStrong,
         },
         loadingState: {
             minHeight: 180,

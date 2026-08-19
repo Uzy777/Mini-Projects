@@ -1,61 +1,71 @@
 import { useMemo } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { Search } from "lucide-react-native";
 
-import { Filter, Search } from "lucide-react-native";
-
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
-import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 
-export type WorkViewFilter = "all" | "quests" | "journeys" | "standalone";
-
+export type WorkViewFilter = "all" | "journeys" | "standalone";
 export type WorkStatusFilter = "active" | "completed";
 
 type WorkToolbarProps = {
     selectedFilter: WorkViewFilter;
     statusFilter: WorkStatusFilter;
+    isSearchVisible: boolean;
     onSelectFilter: (filter: WorkViewFilter) => void;
     onSearch: () => void;
-    onStatusFilter: () => void;
+    onSelectStatus: (status: WorkStatusFilter) => void;
 };
 
-const filters: {
-    label: string;
-    value: WorkViewFilter;
-}[] = [
-    {
-        label: "All",
-        value: "all",
-    },
-    {
-        label: "My Quests",
-        value: "quests",
-    },
-    {
-        label: "By Journey",
-        value: "journeys",
-    },
-    {
-        label: "No Journey",
-        value: "standalone",
-    },
+const filters: { label: string; value: WorkViewFilter }[] = [
+    { label: "All work", value: "all" },
+    { label: "In Journeys", value: "journeys" },
+    { label: "Standalone", value: "standalone" },
 ];
 
-export function WorkToolbar({ selectedFilter, statusFilter, onSelectFilter, onSearch, onStatusFilter }: WorkToolbarProps) {
+export function WorkToolbar({ selectedFilter, statusFilter, isSearchVisible, onSelectFilter, onSearch, onSelectStatus }: WorkToolbarProps) {
     const { width } = useWindowDimensions();
     const { colours } = useAppearance();
-
     const isMobile = width < 700;
-
     const styles = useMemo(() => createStyles(colours, isMobile), [colours, isMobile]);
 
     return (
         <View style={styles.container}>
+            <View style={styles.topRow}>
+                <View accessibilityRole="tablist" style={styles.statusControl}>
+                    {(["active", "completed"] as const).map((status) => {
+                        const isSelected = statusFilter === status;
+                        return (
+                            <AnimatedPressable
+                                key={status}
+                                accessibilityRole="tab"
+                                accessibilityState={{ selected: isSelected }}
+                                onPress={() => onSelectStatus(status)}
+                                style={[styles.statusButton, isSelected && styles.selectedStatusButton]}
+                            >
+                                <Text style={[styles.statusText, isSelected && styles.selectedStatusText]}>
+                                    {status === "active" ? "Active" : "Completed"}
+                                </Text>
+                            </AnimatedPressable>
+                        );
+                    })}
+                </View>
+
+                <AnimatedPressable
+                    accessibilityLabel={isSearchVisible ? "Close work search" : "Search work"}
+                    onPress={onSearch}
+                    style={[styles.searchButton, isSearchVisible && styles.activeSearchButton]}
+                >
+                    <Search size={17} color={isSearchVisible ? colours.primaryStrong : colours.textMuted} />
+                    <Text style={[styles.searchText, isSearchVisible && styles.activeSearchText]}>{isSearchVisible ? "Close" : "Search"}</Text>
+                </AnimatedPressable>
+            </View>
+
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterContainer}>
                 {filters.map((filter) => {
                     const isSelected = selectedFilter === filter.value;
-
                     return (
                         <AnimatedPressable
                             key={filter.value}
@@ -67,19 +77,6 @@ export function WorkToolbar({ selectedFilter, statusFilter, onSelectFilter, onSe
                     );
                 })}
             </ScrollView>
-
-            <View style={styles.actions}>
-                <Pressable style={styles.actionButton} onPress={onSearch}>
-                    <Search size={18} color={colours.textMuted} />
-
-                    <Text style={styles.actionText}>Search</Text>
-                </Pressable>
-
-                <Pressable style={styles.actionButton} onPress={onStatusFilter}>
-                    <Filter size={18} color={colours.textMuted} />
-                    <Text style={styles.actionText}>{statusFilter === "active" ? "Active" : "Completed"}</Text>{" "}
-                </Pressable>
-            </View>
         </View>
     );
 }
@@ -87,77 +84,54 @@ export function WorkToolbar({ selectedFilter, statusFilter, onSelectFilter, onSe
 function createStyles(colours: AppColours, isMobile: boolean) {
     return StyleSheet.create({
         container: {
-            flexDirection: isMobile ? "column" : "row",
-            alignItems: isMobile ? "stretch" : "center",
-            justifyContent: "space-between",
-
-            gap: spacing.md,
-            marginTop: spacing.lg,
-        },
-
-        filterContainer: {
+            marginTop: spacing.md,
+            padding: spacing.sm,
             gap: spacing.sm,
-        },
-
-        filterButton: {
-            minHeight: 44,
-
-            justifyContent: "center",
-
-            paddingHorizontal: spacing.lg,
-
             borderWidth: 1,
             borderColor: colours.border,
-            borderRadius: radius.md,
-
+            borderRadius: radius.lg,
             backgroundColor: colours.surface,
         },
-
-        filterButtonSelected: {
-            borderColor: colours.primaryBorder,
-            backgroundColor: colours.primarySoft,
-        },
-
-        filterText: {
-            fontSize: 13,
-            fontWeight: "700",
-
-            color: colours.text,
-        },
-
-        filterTextSelected: {
-            color: colours.primaryStrong,
-        },
-
-        actions: {
-            flexDirection: "row",
-            gap: spacing.sm,
-        },
-
-        actionButton: {
+        topRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.sm },
+        statusControl: {
             flex: isMobile ? 1 : undefined,
-
-            minHeight: 44,
-
+            padding: 3,
+            flexDirection: "row",
+            gap: 3,
+            borderRadius: radius.md,
+            backgroundColor: colours.primarySubtle,
+        },
+        statusButton: {
+            minHeight: 36,
+            minWidth: isMobile ? 0 : 108,
+            flex: isMobile ? 1 : undefined,
+            alignItems: "center",
+            justifyContent: "center",
+            paddingHorizontal: spacing.md,
+            borderRadius: radius.sm,
+        },
+        selectedStatusButton: { borderWidth: 1, borderColor: colours.primaryBorder, backgroundColor: colours.primarySoft },
+        statusText: { fontSize: 12, fontWeight: "700", color: colours.textMuted },
+        selectedStatusText: { color: colours.primaryStrong },
+        searchButton: {
+            minHeight: 42,
+            paddingHorizontal: spacing.md,
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
-
-            gap: spacing.sm,
-            paddingHorizontal: spacing.md,
-
+            gap: 6,
             borderWidth: 1,
             borderColor: colours.border,
             borderRadius: radius.md,
-
             backgroundColor: colours.surface,
         },
-
-        actionText: {
-            fontSize: 13,
-            fontWeight: "700",
-
-            color: colours.textMuted,
-        },
+        activeSearchButton: { borderColor: colours.primaryBorder, backgroundColor: colours.primarySubtle },
+        searchText: { fontSize: 12, fontWeight: "700", color: colours.textMuted },
+        activeSearchText: { color: colours.primaryStrong },
+        filterContainer: { gap: spacing.xs },
+        filterButton: { minHeight: 36, justifyContent: "center", paddingHorizontal: spacing.md, borderRadius: radius.pill },
+        filterButtonSelected: { backgroundColor: colours.primary },
+        filterText: { fontSize: 12, fontWeight: "700", color: colours.textMuted },
+        filterTextSelected: { color: colours.onPrimary },
     });
 }

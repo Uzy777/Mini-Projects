@@ -28,10 +28,8 @@ export function WorkQuestCard({ title, journeyName, assetId, onFocus, onMore }: 
 
     return (
         <View style={styles.card}>
-            <View style={styles.statusDot} />
-
             <View style={styles.iconContainer}>
-                <WorkAssetIcon assetId={assetId} size={24} color={colours.primary} />
+                <WorkAssetIcon assetId={assetId} size={22} color={colours.primaryStrong} />
             </View>
 
             <View style={styles.details}>
@@ -70,13 +68,14 @@ export function WorkQuestCard({ title, journeyName, assetId, onFocus, onMore }: 
 function createStyles(colours: AppColours, isCompact: boolean) {
     return StyleSheet.create({
         card: {
-            minHeight: 112,
+            minHeight: 86,
 
             flexDirection: "row",
             alignItems: "center",
 
             gap: isCompact ? spacing.sm : spacing.md,
-            padding: spacing.md,
+            paddingHorizontal: spacing.md,
+            paddingVertical: 12,
 
             borderWidth: 1,
             borderColor: colours.border,
@@ -85,27 +84,18 @@ function createStyles(colours: AppColours, isCompact: boolean) {
             backgroundColor: colours.surface,
         },
 
-        statusDot: {
-            width: 8,
-            height: 8,
-
-            borderRadius: radius.pill,
-
-            backgroundColor: colours.primaryStrong,
-        },
-
         iconContainer: {
-            width: isCompact ? 46 : 54,
-            height: isCompact ? 46 : 54,
+            width: isCompact ? 42 : 46,
+            height: isCompact ? 42 : 46,
 
             alignItems: "center",
             justifyContent: "center",
 
             borderWidth: 1,
             borderColor: colours.primaryBorder,
-            borderRadius: radius.pill,
+            borderRadius: radius.md,
 
-            backgroundColor: colours.primarySoft,
+            backgroundColor: colours.primarySubtle,
         },
 
         details: {
@@ -163,7 +153,7 @@ function createStyles(colours: AppColours, isCompact: boolean) {
             borderColor: colours.primaryBorder,
             borderRadius: radius.md,
 
-            backgroundColor: colours.primarySoft,
+            backgroundColor: colours.primarySubtle,
         },
 
         focusText: {

@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from "react";
-import { ScrollView, StyleSheet, Text, View, TextInput, Pressable } from "react-native";
+import { ScrollView, StyleSheet, Text, View, TextInput } from "react-native";
 
 import { Folder, FolderPlus, ListTodo } from "lucide-react-native";
 
@@ -34,6 +34,7 @@ import { showMessage } from "@/utils/showMessage";
 import { WorkJourneyActionsModal } from "@/components/work/WorkJourneyActionsModal";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 
 export default function WorkScreen() {
     const { colours } = useAppearance();
@@ -181,10 +182,6 @@ export default function WorkScreen() {
 
             return !currentValue;
         });
-    }
-
-    function handleStatusFilter() {
-        setStatusFilter((currentStatus) => (currentStatus === "active" ? "completed" : "active"));
     }
 
     function handleNewQuest() {
@@ -534,16 +531,17 @@ export default function WorkScreen() {
     return (
         <AppScreenBackground>
             <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-                <ScreenHeader title="Journeys & Quests" subtitle="Plan the work, keep Journeys optional, and focus on the next useful Quest." />
+                <ScreenHeader eyebrow="WORK" title="Your Work" subtitle="Keep Quests clear and actionable. Use Journeys only when a group helps you see the bigger picture." />
 
                 <WorkQuickActions onNewQuest={handleNewQuest} onNewJourney={handleNewJourney} onQuickStart={handleQuickStart} />
 
                 <WorkToolbar
                     selectedFilter={selectedFilter}
                     statusFilter={statusFilter}
+                    isSearchVisible={isSearchVisible}
                     onSelectFilter={setSelectedFilter}
                     onSearch={handleSearch}
-                    onStatusFilter={handleStatusFilter}
+                    onSelectStatus={setStatusFilter}
                 />
 
                 {isSearchVisible && (
@@ -568,15 +566,26 @@ export default function WorkScreen() {
                             <Text style={styles.openJourneyTitle}>{selectedJourney.title}</Text>
                         </View>
 
-                        <Pressable onPress={handleCloseJourney} style={styles.backToJourneysButton}>
-                            <Text style={styles.backToJourneysText}>All Journeys</Text>
-                        </Pressable>
+                        <AnimatedPressable onPress={handleCloseJourney} style={styles.backToJourneysButton}>
+                            <Text style={styles.backToJourneysText}>Back to all work</Text>
+                        </AnimatedPressable>
                     </View>
                 )}
 
                 <View style={styles.questSection}>
                     <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>{statusFilter === "active" ? "ACTIVE QUESTS" : "COMPLETED QUESTS"}</Text>
+                        <View style={styles.sectionHeadingCopy}>
+                            <Text style={styles.sectionTitle}>{statusFilter === "active" ? "Active Quests" : "Completed Quests"}</Text>
+                            <Text style={styles.sectionDescription}>
+                                {selectedJourney
+                                    ? `Showing Quests in ${selectedJourney.title}`
+                                    : selectedFilter === "standalone"
+                                      ? "Quests that are not assigned to a Journey"
+                                      : selectedFilter === "journeys"
+                                        ? "Quests organised inside Journeys"
+                                        : "Choose one Quest when you are ready to focus"}
+                            </Text>
+                        </View>
                         <View style={styles.countBadge}>
                             <Text style={styles.countText}>{visibleQuests.length}</Text>
                         </View>
@@ -609,9 +618,13 @@ export default function WorkScreen() {
                 {showJourneys && !selectedJourneyId && (
                     <View style={styles.journeySection}>
                         <View style={styles.sectionHeader}>
-                            <Folder size={19} color={colours.primary} />
-
-                            <Text style={styles.sectionTitle}>{statusFilter === "active" ? "JOURNEYS" : "COMPLETED JOURNEYS"}</Text>
+                            <View style={styles.sectionHeadingRow}>
+                                <View style={styles.sectionIcon}><Folder size={17} color={colours.primaryStrong} /></View>
+                                <View style={styles.sectionHeadingCopy}>
+                                    <Text style={styles.sectionTitle}>{statusFilter === "active" ? "Journeys" : "Completed Journeys"}</Text>
+                                    <Text style={styles.sectionDescription}>Optional folders for Quests that belong together</Text>
+                                </View>
+                            </View>
                             <View style={styles.countBadge}>
                                 <Text style={styles.countText}>{visibleJourneys.length}</Text>
                             </View>
@@ -684,35 +697,8 @@ function createStyles(colours: AppColours) {
             alignSelf: "center",
 
             paddingHorizontal: spacing.lg,
-            paddingTop: spacing.xl,
+            paddingTop: spacing.lg,
             paddingBottom: 100,
-        },
-
-        brand: {
-            fontSize: 12,
-            fontWeight: "900",
-            letterSpacing: 1,
-
-            color: colours.primary,
-        },
-
-        title: {
-            marginTop: spacing.xs,
-
-            fontSize: 32,
-            lineHeight: 40,
-            fontWeight: "900",
-
-            color: colours.text,
-        },
-
-        subtitle: {
-            marginTop: spacing.xs,
-
-            fontSize: 15,
-            lineHeight: 22,
-
-            color: colours.textMuted,
         },
 
         questSection: {
@@ -723,17 +709,21 @@ function createStyles(colours: AppColours) {
         sectionHeader: {
             flexDirection: "row",
             alignItems: "center",
-
+            justifyContent: "space-between",
             gap: spacing.sm,
         },
 
-        sectionTitle: {
-            fontSize: 13,
-            fontWeight: "900",
-            letterSpacing: 0.7,
+        sectionHeadingRow: { minWidth: 0, flex: 1, flexDirection: "row", alignItems: "center", gap: spacing.sm },
+        sectionHeadingCopy: { minWidth: 0, flex: 1 },
+        sectionIcon: { width: 34, height: 34, alignItems: "center", justifyContent: "center", borderRadius: radius.md, backgroundColor: colours.primarySubtle },
 
+        sectionTitle: {
+            fontSize: 16,
+            fontWeight: "800",
             color: colours.text,
         },
+
+        sectionDescription: { marginTop: 2, fontSize: 12, lineHeight: 17, color: colours.textMuted },
 
         countBadge: {
             minWidth: 26,
@@ -746,14 +736,14 @@ function createStyles(colours: AppColours) {
 
             borderRadius: radius.pill,
 
-            backgroundColor: colours.primarySoft,
+            backgroundColor: colours.primarySubtle,
         },
 
         countText: {
             fontSize: 12,
             fontWeight: "800",
 
-            color: colours.primary,
+            color: colours.primaryStrong,
         },
 
         questList: {
@@ -795,7 +785,12 @@ function createStyles(colours: AppColours) {
             alignItems: "center",
             justifyContent: "space-between",
             gap: spacing.md,
-            marginBottom: spacing.md,
+            marginTop: spacing.md,
+            padding: spacing.md,
+            borderWidth: 1,
+            borderColor: colours.primaryBorder,
+            borderRadius: radius.lg,
+            backgroundColor: colours.primarySubtle,
         },
 
         openJourneyTitleSection: {
@@ -805,7 +800,7 @@ function createStyles(colours: AppColours) {
         },
 
         openJourneyTitle: {
-            fontSize: 20,
+            fontSize: 16,
             fontWeight: "800",
             color: colours.text,
         },
@@ -814,7 +809,7 @@ function createStyles(colours: AppColours) {
             paddingHorizontal: spacing.md,
             paddingVertical: spacing.sm,
             borderWidth: 1,
-            borderColor: colours.border,
+            borderColor: colours.primaryBorder,
             borderRadius: radius.pill,
             backgroundColor: colours.surface,
         },
@@ -822,7 +817,7 @@ function createStyles(colours: AppColours) {
         backToJourneysText: {
             fontSize: 13,
             fontWeight: "700",
-            color: colours.text,
+            color: colours.primaryStrong,
         },
     });
 }

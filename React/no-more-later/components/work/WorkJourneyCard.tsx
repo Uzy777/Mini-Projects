@@ -31,14 +31,22 @@ export function WorkJourneyCard({ title, assetId, completedQuestCount, totalQues
         <AnimatedPressable style={styles.card} onPress={onPress}>
             <View style={styles.header}>
                 <View style={styles.iconContainer}>
-                    <WorkAssetIcon assetId={assetId} size={24} color={colours.primary} />
+                    <WorkAssetIcon assetId={assetId} size={22} color={colours.primaryStrong} />
                 </View>
 
                 <Text style={styles.title} numberOfLines={2}>
                     {title}
                 </Text>
 
-                <Pressable onPress={onMore} hitSlop={8} style={styles.moreButton}>
+                <Pressable
+                    accessibilityLabel={`Manage ${title}`}
+                    onPress={(event) => {
+                        event.stopPropagation();
+                        onMore();
+                    }}
+                    hitSlop={8}
+                    style={styles.moreButton}
+                >
                     <MoreVertical size={20} color={colours.textMuted} />
                 </Pressable>
             </View>
@@ -58,7 +66,7 @@ export function WorkJourneyCard({ title, assetId, completedQuestCount, totalQues
             </View>
 
             <View style={styles.footer}>
-                <Text style={styles.openText}>Open Journey</Text>
+                <Text style={styles.openText}>View Journey</Text>
 
                 <ChevronRight size={20} color={colours.textMuted} />
             </View>
@@ -70,15 +78,15 @@ function createStyles(colours: AppColours) {
     return StyleSheet.create({
         card: {
             flexGrow: 1,
-            flexBasis: 280,
+            flexBasis: 300,
 
-            minHeight: 210,
+            minHeight: 178,
 
-            gap: spacing.lg,
-            padding: spacing.lg,
+            gap: spacing.md,
+            padding: spacing.md,
 
             borderWidth: 1,
-            borderColor: colours.border,
+            borderColor: colours.primaryBorder,
             borderRadius: radius.lg,
 
             backgroundColor: colours.surface,
@@ -92,17 +100,17 @@ function createStyles(colours: AppColours) {
         },
 
         iconContainer: {
-            width: 50,
-            height: 50,
+            width: 44,
+            height: 44,
 
             alignItems: "center",
             justifyContent: "center",
 
             borderWidth: 1,
             borderColor: colours.primaryBorder,
-            borderRadius: radius.pill,
+            borderRadius: radius.md,
 
-            backgroundColor: colours.primarySoft,
+            backgroundColor: colours.primarySubtle,
         },
 
         title: {
@@ -135,7 +143,7 @@ function createStyles(colours: AppColours) {
             fontSize: 13,
             fontWeight: "800",
 
-            color: colours.primary,
+            color: colours.primaryStrong,
         },
 
         progressTrack: {
@@ -179,12 +187,9 @@ function createStyles(colours: AppColours) {
             fontSize: 13,
             fontWeight: "700",
 
-            color: colours.text,
+            color: colours.primaryStrong,
         },
 
-        pressed: {
-            opacity: 0.7,
-        },
         moreButton: {
             width: 36,
             height: 36,

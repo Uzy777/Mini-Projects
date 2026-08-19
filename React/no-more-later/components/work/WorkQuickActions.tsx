@@ -1,12 +1,11 @@
 import { useMemo } from "react";
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { FolderPlus, ListPlus, Play } from "lucide-react-native";
 
-import { ChevronRight, FolderPlus, ListPlus, Zap } from "lucide-react-native";
-
+import { AppButton } from "@/components/ui/AppButton";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
-import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 
 type WorkQuickActionsProps = {
     onNewQuest: () => void;
@@ -17,54 +16,38 @@ type WorkQuickActionsProps = {
 export function WorkQuickActions({ onNewQuest, onNewJourney, onQuickStart }: WorkQuickActionsProps) {
     const { width } = useWindowDimensions();
     const { colours } = useAppearance();
-
     const isMobile = width < 700;
-
     const styles = useMemo(() => createStyles(colours, isMobile), [colours, isMobile]);
 
     return (
         <View style={styles.container}>
-            <AnimatedPressable style={styles.card} onPress={onNewQuest}>
-                <View style={styles.iconContainer}>
-                    <ListPlus size={24} color={colours.primary} />
-                </View>
+            <View style={styles.copy}>
+                <Text style={styles.title}>Choose the next useful thing</Text>
+                <Text style={styles.description}>Start with a Quest. Add a Journey only when grouping helps.</Text>
+            </View>
 
-                <View style={styles.textContainer}>
-                    <Text style={styles.title}>New Quest</Text>
-
-                    <Text style={styles.description}>Add something to work on</Text>
-                </View>
-
-                <ChevronRight size={20} color={colours.textMuted} />
-            </AnimatedPressable>
-
-            <AnimatedPressable style={styles.card} onPress={onNewJourney}>
-                <View style={styles.iconContainer}>
-                    <FolderPlus size={24} color={colours.primary} />
-                </View>
-
-                <View style={styles.textContainer}>
-                    <Text style={styles.title}>New Journey</Text>
-
-                    <Text style={styles.description}>Group related Quests together</Text>
-                </View>
-
-                <ChevronRight size={20} color={colours.textMuted} />
-            </AnimatedPressable>
-
-            <AnimatedPressable style={styles.card} onPress={onQuickStart}>
-                <View style={styles.iconContainer}>
-                    <Zap size={24} color={colours.primary} />
-                </View>
-
-                <View style={styles.textContainer}>
-                    <Text style={styles.title}>Quick Start</Text>
-
-                    <Text style={styles.description}>Jump straight into a Focus Session</Text>
-                </View>
-
-                <ChevronRight size={20} color={colours.textMuted} />
-            </AnimatedPressable>
+            <View style={styles.actions}>
+                <AppButton
+                    label="New Quest"
+                    icon={<ListPlus size={16} color={colours.onPrimary} />}
+                    onPress={onNewQuest}
+                    style={styles.action}
+                />
+                <AppButton
+                    label="New Journey"
+                    icon={<FolderPlus size={16} color={colours.primaryStrong} />}
+                    onPress={onNewJourney}
+                    variant="secondary"
+                    style={styles.action}
+                />
+                <AppButton
+                    label="Focus next"
+                    icon={<Play size={15} color={colours.primaryStrong} fill={colours.primaryStrong} />}
+                    onPress={onQuickStart}
+                    variant="soft"
+                    style={styles.action}
+                />
+            </View>
         </View>
     );
 }
@@ -72,58 +55,21 @@ export function WorkQuickActions({ onNewQuest, onNewJourney, onQuickStart }: Wor
 function createStyles(colours: AppColours, isMobile: boolean) {
     return StyleSheet.create({
         container: {
-            flexDirection: isMobile ? "column" : "row",
-            gap: spacing.md,
-
             marginTop: spacing.xl,
-        },
-
-        card: {
-            flex: 1,
-            minHeight: isMobile ? 88 : 108,
-
-            flexDirection: "row",
-            alignItems: "center",
-
+            padding: spacing.md,
+            flexDirection: isMobile ? "column" : "row",
+            alignItems: isMobile ? "stretch" : "center",
+            justifyContent: "space-between",
             gap: spacing.md,
-            padding: spacing.lg,
-
             borderWidth: 1,
             borderColor: colours.primaryBorder,
             borderRadius: radius.lg,
-
-            backgroundColor: colours.surface,
-        },
-
-        iconContainer: {
-            width: 50,
-            height: 50,
-
-            alignItems: "center",
-            justifyContent: "center",
-
-            borderRadius: radius.md,
-
             backgroundColor: colours.primarySubtle,
         },
-
-        textContainer: {
-            flex: 1,
-            gap: 4,
-        },
-
-        title: {
-            fontSize: 16,
-            fontWeight: "800",
-
-            color: colours.text,
-        },
-
-        description: {
-            fontSize: 13,
-            lineHeight: 18,
-
-            color: colours.textMuted,
-        },
+        copy: { minWidth: 0, flex: isMobile ? undefined : 1 },
+        title: { fontSize: 15, fontWeight: "800", color: colours.text },
+        description: { maxWidth: 420, marginTop: 3, fontSize: 12, lineHeight: 18, color: colours.textMuted },
+        actions: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+        action: { flexGrow: isMobile ? 1 : 0 },
     });
 }

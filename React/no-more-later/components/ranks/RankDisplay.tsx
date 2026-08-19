@@ -82,8 +82,8 @@ function createStyles(colours: AppColours) {
             height: 96,
             borderRadius: radius.pill,
             borderWidth: 2,
-            borderColor: colours.primary,
-            backgroundColor: colours.primarySoft,
+            borderColor: colours.primaryBorder,
+            backgroundColor: colours.primarySubtle,
             alignItems: "center",
             justifyContent: "center",
             overflow: "hidden",
@@ -122,7 +122,7 @@ function createStyles(colours: AppColours) {
             marginTop: 2,
             fontSize: 12,
             fontWeight: "600",
-            color: colours.primary,
+            color: colours.primaryStrong,
         },
         badgeContainer: {
             width: 96,
@@ -143,7 +143,7 @@ function createStyles(colours: AppColours) {
             justifyContent: "center",
 
             borderWidth: 2,
-            borderColor: colours.primary,
+            borderColor: colours.primaryMuted,
             borderRadius: radius.pill,
 
             backgroundColor: colours.surface,

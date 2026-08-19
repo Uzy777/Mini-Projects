@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Clock3, Flame, Trophy, Zap } from "lucide-react-native";
 
 import { RankDisplay } from "@/components/ranks/RankDisplay";
@@ -18,7 +18,9 @@ type DashboardRankCardProps = {
 
 export function DashboardRankCard({ sessions }: DashboardRankCardProps) {
     const { colours } = useAppearance();
+    const { width } = useWindowDimensions();
     const styles = useMemo(() => createStyles(colours), [colours]);
+    const isWide = width >= 1100;
     const totalXp = sessions.reduce((total, session) => total + session.earnedXp, 0);
     const levelProgress = calculateLevelProgress(totalXp);
     const totalFocusedSeconds = calculateTotalFocusedSeconds(sessions);
@@ -33,11 +35,11 @@ export function DashboardRankCard({ sessions }: DashboardRankCardProps) {
             <View style={styles.header}>
                 <View style={styles.headingRow}>
                     <View style={styles.headingIcon}>
-                        <Trophy size={17} color={colours.primary} />
+                        <Trophy size={17} color={colours.primaryStrong} />
                     </View>
                     <View>
-                        <Text style={styles.eyebrow}>LIFETIME PROGRESS</Text>
-                        <Text style={styles.title}>Your Focus Rank</Text>
+                        <Text style={styles.eyebrow}>RANK &amp; MOMENTUM</Text>
+                        <Text style={styles.title}>Lifetime progress</Text>
                     </View>
                 </View>
                 <View style={styles.levelBadge}>
@@ -45,23 +47,25 @@ export function DashboardRankCard({ sessions }: DashboardRankCardProps) {
                 </View>
             </View>
 
-            <RankDisplay level={levelProgress.level} />
-
-            <View style={styles.levelProgressSection}>
-                <View style={styles.progressLabels}>
-                    <Text style={styles.progressLabel}>Next level</Text>
-                    <Text style={styles.progressValue}>
-                        {levelProgress.xpIntoLevel} / {levelProgress.xpRequired} XP
-                    </Text>
+            <View style={[styles.body, isWide && styles.bodyWide]}>
+                <View style={[styles.rankSummary, isWide && styles.rankSummaryWide]}>
+                    <RankDisplay level={levelProgress.level} />
                 </View>
-                <AnimatedProgressBar progress={progressPercentage / 100} height={8} />
-                <Text style={styles.remainingText}>{remainingXp > 0 ? `${remainingXp} XP to Level ${levelProgress.level + 1}` : "Next level ready"}</Text>
-            </View>
 
-            <View style={styles.statsRow}>
-                <RankStat icon={<Flame size={17} color={colours.primary} />} label="CURRENT STREAK" value={`${currentStreak} ${currentStreak === 1 ? "day" : "days"}`} />
-                <RankStat icon={<Clock3 size={17} color={colours.primary} />} label="TOTAL FOCUS" value={formatProgressDuration(totalFocusedSeconds, true)} />
-                <RankStat icon={<Zap size={17} color={colours.primary} />} label="TOTAL XP" value={totalXp.toLocaleString()} />
+                <View style={[styles.levelProgressSection, isWide && styles.levelProgressWide]}>
+                    <View style={styles.progressLabels}>
+                        <Text style={styles.progressLabel}>Progress to Level {levelProgress.level + 1}</Text>
+                        <Text style={styles.progressValue}>{levelProgress.xpIntoLevel} / {levelProgress.xpRequired} XP</Text>
+                    </View>
+                    <AnimatedProgressBar progress={progressPercentage / 100} height={8} />
+                    <Text style={styles.remainingText}>{remainingXp > 0 ? `${remainingXp} XP remaining` : "Next level ready"}</Text>
+                </View>
+
+                <View style={[styles.statsRow, isWide && styles.statsRowWide]}>
+                    <RankStat icon={<Flame size={17} color={colours.primaryStrong} />} label="CURRENT STREAK" value={`${currentStreak} ${currentStreak === 1 ? "day" : "days"}`} />
+                    <RankStat icon={<Clock3 size={17} color={colours.primaryStrong} />} label="TOTAL FOCUS" value={formatProgressDuration(totalFocusedSeconds, true)} />
+                    <RankStat icon={<Zap size={17} color={colours.primaryStrong} />} label="TOTAL XP" value={totalXp.toLocaleString()} />
+                </View>
             </View>
         </View>
     );
@@ -102,7 +106,7 @@ function createStyles(colours: AppColours) {
             left: 0,
             right: 0,
             height: 3,
-            backgroundColor: colours.primary,
+            backgroundColor: colours.primaryMuted,
         },
         header: {
             flexDirection: "row",
@@ -123,7 +127,7 @@ function createStyles(colours: AppColours) {
             alignItems: "center",
             justifyContent: "center",
             borderRadius: radius.pill,
-            backgroundColor: colours.primarySoft,
+            backgroundColor: colours.primarySubtle,
         },
         eyebrow: {
             fontSize: 10,
@@ -141,16 +145,23 @@ function createStyles(colours: AppColours) {
             paddingHorizontal: 11,
             paddingVertical: 6,
             borderRadius: radius.pill,
-            backgroundColor: colours.primarySoft,
+            borderWidth: 1,
+            borderColor: colours.primaryBorder,
+            backgroundColor: colours.primarySubtle,
         },
         levelBadgeText: {
             fontSize: 12,
             fontWeight: "800",
             color: colours.primaryStrong,
         },
+        body: { gap: spacing.md },
+        bodyWide: { flexDirection: "row", alignItems: "center", gap: spacing.lg },
+        rankSummary: { minWidth: 0 },
+        rankSummaryWide: { width: 270 },
         levelProgressSection: {
             gap: 7,
         },
+        levelProgressWide: { minWidth: 180, flex: 1 },
         progressLabels: {
             flexDirection: "row",
             alignItems: "center",
@@ -179,6 +190,14 @@ function createStyles(colours: AppColours) {
             borderTopWidth: 1,
             borderTopColor: colours.border,
         },
+        statsRowWide: {
+            width: 320,
+            paddingTop: 0,
+            paddingLeft: spacing.md,
+            borderTopWidth: 0,
+            borderLeftWidth: 1,
+            borderLeftColor: colours.border,
+        },
         stat: {
             minWidth: 0,
             flex: 1,
@@ -191,7 +210,7 @@ function createStyles(colours: AppColours) {
             alignItems: "center",
             justifyContent: "center",
             borderRadius: radius.pill,
-            backgroundColor: colours.primarySoft,
+            backgroundColor: colours.primarySubtle,
         },
         statLabel: {
             width: "100%",
