@@ -19,7 +19,7 @@ import { completeRemoteBreakSession } from "@/services/focusSessions/focusSessio
 import { clearActiveFocusSession, getActiveFocusSession, saveActiveFocusSession } from "@/services/storage/activeFocusSessionStorage";
 import { DEFAULT_TIMER_PREFERENCES, getTimerPreferences, saveTimerPreferences, type TimerPreferences } from "@/services/storage/timerPreferencesStorage";
 import type { ActiveFocusSession, FocusTimelineEvent, TimerMode } from "@/types/models";
-import { calculateActualFocusedSeconds, getRemainingSecondsFromEndTime } from "@/utils/focusTimer";
+import { calculateActualFocusedSeconds, getActiveSessionReviewState, getRemainingSecondsFromEndTime } from "@/utils/focusTimer";
 
 const focusCompleteSound = require("../../assets/sounds/focus-complete.mp3");
 const QUICK_FOCUS_ROUTE_ID = "quick-focus";
@@ -302,7 +302,12 @@ export function QuickFocusCard() {
 
     async function handleCompletedAction() {
         if (mode === "focus") {
-            openReview(selectedMinutes * 60, false);
+            const storedSession = await getActiveFocusSession();
+            const reviewState = storedSession?.id === sessionId
+                ? getActiveSessionReviewState(storedSession)
+                : { actualSeconds: selectedMinutes * 60, endedEarly: false };
+
+            openReview(reviewState.actualSeconds, reviewState.endedEarly);
             return;
         }
 
@@ -395,6 +400,7 @@ function buildActiveSession(id: string, mode: TimerMode, selectedMinutes: number
         selectedMinutes,
         remainingSeconds,
         ...(actualSeconds === undefined ? {} : { actualSeconds }),
+        ...(actualSeconds === undefined ? {} : { endedEarly: actualSeconds < selectedMinutes * 60 }),
         isRunning,
         endTime,
         timelineEvents,

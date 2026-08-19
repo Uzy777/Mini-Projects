@@ -10,7 +10,7 @@ import { FocusDurationSelector } from "../../components/focus/FocusDurationSelec
 import { FocusTimerDisplay } from "../../components/focus/FocusTimerDisplay";
 import { FocusTimerControls } from "../../components/focus/FocusTimerControls";
 import { ActiveSessionNotice } from "../../components/focus/ActiveSessionNotice";
-import { calculateActualFocusedSeconds, getRemainingSecondsFromEndTime } from "../../utils/focusTimer";
+import { calculateActualFocusedSeconds, getActiveSessionReviewState, getRemainingSecondsFromEndTime } from "../../utils/focusTimer";
 import { spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
@@ -95,6 +95,8 @@ export default function FocusScreen() {
                             ...storedSession,
                             id: storedSessionId,
                             remainingSeconds: 0,
+                            actualSeconds: storedSession.selectedMinutes * 60,
+                            endedEarly: false,
                             isRunning: false,
                             endTime: null,
                             timelineEvents: completedTimelineEvents,
@@ -153,6 +155,8 @@ export default function FocusScreen() {
                     questTitle: questTitle ?? (source === "tasks" ? "Untitled Task" : "Untitled Quest"),
                     selectedMinutes,
                     remainingSeconds: 0,
+                    actualSeconds: selectedMinutes * 60,
+                    endedEarly: false,
                     isRunning: false,
                     endTime: null,
                     timelineEvents: completedTimelineEvents,
@@ -187,6 +191,8 @@ export default function FocusScreen() {
                     const completedSession: ActiveFocusSession = {
                         ...existingSession,
                         remainingSeconds: 0,
+                        actualSeconds: existingSession.selectedMinutes * 60,
+                        endedEarly: false,
                         isRunning: false,
                         endTime: null,
                         timelineEvents: completedTimelineEvents,
@@ -371,6 +377,8 @@ export default function FocusScreen() {
                 questTitle: questTitle ?? (source === "tasks" ? "Untitled Task" : "Untitled Quest"),
                 selectedMinutes,
                 remainingSeconds: 0,
+                actualSeconds,
+                endedEarly: true,
                 isRunning: false,
                 endTime: null,
                 timelineEvents: completedTimelineEvents,
@@ -397,10 +405,15 @@ export default function FocusScreen() {
         }
     }
 
-    function handleReviewSession() {
+    async function handleReviewSession() {
         if (!sessionId) {
             return;
         }
+
+        const storedSession = await getActiveFocusSession();
+        const reviewState = storedSession?.id === sessionId
+            ? getActiveSessionReviewState(storedSession)
+            : { actualSeconds: selectedMinutes * 60, endedEarly: false };
 
         router.push({
             pathname: "/review/[questId]",
@@ -411,7 +424,8 @@ export default function FocusScreen() {
                 ...(source ? { source } : {}),
                 focusSessionId: sessionId,
                 plannedMinutes: selectedMinutes.toString(),
-                actualSeconds: (selectedMinutes * 60).toString(),
+                actualSeconds: reviewState.actualSeconds.toString(),
+                ...(reviewState.endedEarly ? { endedEarly: "true" } : {}),
             },
         });
     }
@@ -451,7 +465,7 @@ export default function FocusScreen() {
                         onStart={handleStartSession}
                         onToggleTimer={handleToggleTimer}
                         onEndEarly={handleEndSessionEarly}
-                        onReview={handleReviewSession}
+                        onReview={() => void handleReviewSession()}
                     />
                 </AppCard>
             </ScrollView>

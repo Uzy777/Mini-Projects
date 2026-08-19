@@ -21,6 +21,7 @@ import { LevelUpCelebration } from "@/components/level/LevelUpCelebration";
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { getActiveSessionReviewState } from "@/utils/focusTimer";
 
 export default function ReviewSessionScreen() {
     const { colours } = useAppearance();
@@ -42,10 +43,8 @@ export default function ReviewSessionScreen() {
         quickFocus?: string;
     }>();
     const isQuestlessQuickFocus = quickFocus === "true";
-    const isEndedEarly = endedEarly === "true";
-    const reviewedSeconds = Math.max(0, Number(actualSeconds ?? Number(plannedMinutes ?? 0) * 60));
-    const earnsNoXp = reviewedSeconds < 10 * 60;
-    const hasEarlyFinishXp = isEndedEarly && !earnsNoXp;
+    const routeEndedEarly = endedEarly === "true";
+    const routeReviewedSeconds = Math.max(0, Number(actualSeconds ?? Number(plannedMinutes ?? 0) * 60));
 
     type LevelUpDetails = {
         previousLevel: number;
@@ -53,7 +52,9 @@ export default function ReviewSessionScreen() {
         earnedXp: number;
     };
 
-    const [selectedOutcome, setSelectedOutcome] = useState<SessionOutcome | null>(isEndedEarly ? "stopped" : null);
+    const [reviewedSeconds, setReviewedSeconds] = useState(routeReviewedSeconds);
+    const [isEndedEarly, setIsEndedEarly] = useState(routeEndedEarly);
+    const [selectedOutcome, setSelectedOutcome] = useState<SessionOutcome | null>(routeEndedEarly ? "stopped" : null);
     const [questDoneWhen, setQuestDoneWhen] = useState<string | null>(null);
     const [accomplishment, setAccomplishment] = useState("");
     const [validationMessage, setValidationMessage] = useState("");
@@ -63,6 +64,35 @@ export default function ReviewSessionScreen() {
     const [reachedLevel, setReachedLevel] = useState<number | null>(null);
     const [finishLineConfirmed, setFinishLineConfirmed] = useState(false);
     const [levelUpDetails, setLevelUpDetails] = useState<LevelUpDetails | null>(null);
+    const earnsNoXp = reviewedSeconds < 10 * 60;
+    const hasEarlyFinishXp = isEndedEarly && !earnsNoXp;
+
+    useEffect(() => {
+        let isCurrent = true;
+
+        async function verifyActiveSession() {
+            const activeFocusSession = await getActiveFocusSession();
+            if (!isCurrent || activeFocusSession?.id !== focusSessionId) return;
+
+            const reviewState = getActiveSessionReviewState(activeFocusSession);
+            setReviewedSeconds(reviewState.actualSeconds);
+            setIsEndedEarly(reviewState.endedEarly);
+
+            if (reviewState.endedEarly) {
+                setSelectedOutcome("stopped");
+                setAccomplishment("");
+                setFinishLineConfirmed(false);
+            }
+        }
+
+        void verifyActiveSession().catch((error) => {
+            console.error("Failed to verify active Focus Session:", error);
+        });
+
+        return () => {
+            isCurrent = false;
+        };
+    }, [focusSessionId]);
 
     useEffect(() => {
         async function loadQuest() {
@@ -115,12 +145,17 @@ export default function ReviewSessionScreen() {
             return;
         }
 
+        const activeFocusSession = await getActiveFocusSession();
+        const matchingActiveSession = activeFocusSession?.id === focusSessionId ? activeFocusSession : null;
+        const verifiedReviewState = matchingActiveSession ? getActiveSessionReviewState(matchingActiveSession) : null;
+        const verifiedEndedEarly = verifiedReviewState?.endedEarly ?? isEndedEarly;
+        const verifiedOutcome: SessionOutcome | null = verifiedEndedEarly ? "stopped" : selectedOutcome;
         const trimmedAccomplishment = accomplishment.trim();
-        const savedAccomplishment = selectedOutcome === "stopped" ? "" : trimmedAccomplishment;
+        const savedAccomplishment = verifiedOutcome === "stopped" ? "" : trimmedAccomplishment;
 
         const reviewValidationMessage = getReviewValidationMessage({
-            selectedOutcome,
-            accomplishment,
+            selectedOutcome: verifiedOutcome,
+            accomplishment: savedAccomplishment,
         });
 
         if (reviewValidationMessage) {
@@ -129,11 +164,11 @@ export default function ReviewSessionScreen() {
             return;
         }
 
-        if (!selectedOutcome) {
+        if (!verifiedOutcome) {
             return;
         }
 
-        if (selectedOutcome === "completed" && questDoneWhen && !finishLineConfirmed) {
+        if (verifiedOutcome === "completed" && questDoneWhen && !finishLineConfirmed) {
             setValidationMessage(`Confirm that you genuinely met your ${source === "tasks" ? "Task" : "Quest"} finish line.`);
 
             return;
@@ -149,11 +184,9 @@ export default function ReviewSessionScreen() {
         setIsSubmitting(true);
 
         try {
-            const sessionMinutes = Number(plannedMinutes ?? 0);
-
-            const focusedSeconds = Number(actualSeconds ?? sessionMinutes * 60);
-            const activeFocusSession = await getActiveFocusSession();
-            const timelineEvents = activeFocusSession?.id === focusSessionId ? (activeFocusSession.timelineEvents ?? []) : [];
+            const sessionMinutes = matchingActiveSession?.selectedMinutes ?? Number(plannedMinutes ?? 0);
+            const focusedSeconds = verifiedReviewState?.actualSeconds ?? reviewedSeconds;
+            const timelineEvents = matchingActiveSession?.timelineEvents ?? [];
 
             const reviewInput = {
                 focusSessionId,
@@ -161,7 +194,7 @@ export default function ReviewSessionScreen() {
                 questId: isQuestlessQuickFocus ? undefined : questId,
                 plannedMinutes: sessionMinutes,
                 actualSeconds: focusedSeconds,
-                outcome: selectedOutcome,
+                outcome: verifiedOutcome,
                 accomplishment: savedAccomplishment,
                 nextAction: "",
                 timelineEvents,

@@ -26,12 +26,13 @@ export async function completeRemoteReview(input: CompleteRemoteReviewInput): Pr
     data: CompleteRemoteReviewResult | null;
     error: Error | null;
 }> {
+    const endedEarly = input.actualSeconds < input.plannedMinutes * 60;
     const commonParameters = {
         p_focus_session_id: input.focusSessionId,
         p_planned_minutes: input.plannedMinutes,
         p_actual_seconds: input.actualSeconds,
-        p_outcome: input.outcome,
-        p_accomplishment: input.accomplishment,
+        p_outcome: endedEarly ? "stopped" : input.outcome,
+        p_accomplishment: endedEarly ? "" : input.accomplishment,
         p_next_action: input.nextAction,
         p_timeline_events: input.timelineEvents,
     };

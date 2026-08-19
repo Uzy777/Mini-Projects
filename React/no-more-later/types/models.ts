@@ -56,6 +56,7 @@ export type ActiveFocusSession = {
     selectedMinutes: number;
     remainingSeconds: number;
     actualSeconds?: number;
+    endedEarly?: boolean;
     isRunning: boolean;
     endTime: number | null;
     timelineEvents?: FocusTimelineEvent[];
