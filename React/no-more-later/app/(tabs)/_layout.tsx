@@ -50,6 +50,8 @@ export default function TabLayout() {
                 name="journeys"
                 options={{
                     title: "Journeys",
+                    // Keep the route available, but remove it from the bottom navigation.
+                    href: null,
                     tabBarIcon: ({ color, size }) => <Map size={size} color={color} />,
                 }}
             />
@@ -62,7 +64,15 @@ export default function TabLayout() {
                 }}
             />
 
-            <Tabs.Screen name="history" options={{ title: "History", tabBarIcon: ({ color, size }) => <RotateCcwClock size={size} color={color} /> }} />
+            <Tabs.Screen
+                name="history"
+                options={{
+                    title: "History",
+                    // History now lives inside Progress, so its original route stays available without a tab button.
+                    href: null,
+                    tabBarIcon: ({ color, size }) => <RotateCcwClock size={size} color={color} />,
+                }}
+            />
 
             <Tabs.Screen
                 name="progress"
