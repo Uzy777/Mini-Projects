@@ -1,10 +1,11 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { useMemo } from "react";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 
 type FocusDurationSelectorProps = {
     selectedMinutes: number;
@@ -28,7 +29,7 @@ export function FocusDurationSelector({ selectedMinutes, disabled = false, onSel
                     const isSelected = selectedMinutes === minutes;
 
                     return (
-                        <Pressable
+                        <AnimatedPressable
                             key={minutes}
                             style={({ pressed }) => [
                                 styles.durationButton,
@@ -41,7 +42,7 @@ export function FocusDurationSelector({ selectedMinutes, disabled = false, onSel
                             disabled={disabled}
                         >
                             <Text style={[styles.durationButtonText, isSelected && styles.selectedDurationButtonText]}>{minutes} min</Text>
-                        </Pressable>
+                        </AnimatedPressable>
                     );
                 })}
             </View>
@@ -71,7 +72,7 @@ function createStyles(colours: AppColours) {
             borderWidth: 1,
             borderColor: colours.border,
             borderRadius: radius.md,
-            backgroundColor: colours.surface,
+            backgroundColor: colours.primarySubtle,
         },
 
         durationOptionsDisabled: {
@@ -102,7 +103,7 @@ function createStyles(colours: AppColours) {
         },
 
         selectedDurationButtonText: {
-            color: colours.surface,
+            color: colours.onPrimary,
         },
     });
 }

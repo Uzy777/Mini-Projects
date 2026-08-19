@@ -1,5 +1,6 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import type { SessionOutcome } from "../../types/models";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
@@ -61,10 +62,11 @@ export function SessionOutcomeSelector({ selectedOutcome, onSelectOutcome, isQue
                         isQuestlessQuickFocus && option.value === "completed" ? "You completed what you intended for this focus block." : option.description;
 
                     return (
-                        <Pressable
+                        <AnimatedPressable
                             key={option.value}
-                            style={({ pressed }) => [styles.option, isSelected && styles.selectedOption, pressed && !isSelected && styles.optionPressed]}
+                            style={[styles.option, isSelected && styles.selectedOption]}
                             onPress={() => onSelectOutcome(option.value)}
+                            haptic="selection"
                         >
                             <View style={styles.optionHeader}>
                                 <Text style={[styles.optionLabel, isSelected && styles.selectedOptionLabel]}>{label}</Text>
@@ -75,7 +77,7 @@ export function SessionOutcomeSelector({ selectedOutcome, onSelectOutcome, isQue
                             </View>
 
                             <Text style={[styles.optionDescription, isSelected && styles.selectedOptionDescription]}>{description}</Text>
-                        </Pressable>
+                        </AnimatedPressable>
                     );
                 })}
             </View>
@@ -117,13 +119,9 @@ function createStyles(colours: AppColours) {
             backgroundColor: colours.surface,
         },
 
-        optionPressed: {
-            backgroundColor: colours.background,
-        },
-
         selectedOption: {
-            borderColor: colours.primary,
-            backgroundColor: colours.primarySoft,
+            borderColor: colours.primaryBorder,
+            backgroundColor: colours.primarySubtle,
         },
 
         optionHeader: {
@@ -141,7 +139,7 @@ function createStyles(colours: AppColours) {
         },
 
         selectedOptionLabel: {
-            color: colours.primary,
+            color: colours.primaryStrong,
         },
 
         optionDescription: {

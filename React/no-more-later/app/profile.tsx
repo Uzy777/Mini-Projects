@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Stack } from "expo-router";
-import { UserRound } from "lucide-react-native";
 
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
@@ -9,6 +8,8 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import type { AppColours } from "@/constants/appearanceColours";
 import { useAuth } from "@/contexts/AuthContext";
 import { updateDisplayName } from "@/services/profile/profileService";
+import { AppButton } from "@/components/ui/AppButton";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
 
 export default function ProfileScreen() {
     const { session, profile, refreshProfile } = useAuth();
@@ -65,13 +66,7 @@ export default function ProfileScreen() {
         <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
             <Stack.Screen options={{ title: "Profile" }} />
 
-            <View style={styles.header}>
-                <Text style={styles.label}>PROFILE</Text>
-
-                <Text style={styles.title}>Profile details</Text>
-
-                <Text style={styles.description}>Manage the information shown on your account.</Text>
-            </View>
+            <ScreenHeader eyebrow="PROFILE" title="Profile details" subtitle="Manage the information shown on your account." />
 
             <View style={styles.formCard}>
                 <View style={styles.field}>
@@ -102,13 +97,7 @@ export default function ProfileScreen() {
 
                 {successMessage && <Text style={styles.successText}>{successMessage}</Text>}
 
-                <Pressable
-                    style={({ pressed }) => [styles.saveButton, pressed && styles.saveButtonPressed, isSaving && styles.saveButtonDisabled]}
-                    onPress={handleSave}
-                    disabled={isSaving}
-                >
-                    {isSaving ? <ActivityIndicator color={colours.surface} /> : <Text style={styles.saveButtonText}>Save changes</Text>}
-                </Pressable>
+                <AppButton label="Save changes" onPress={handleSave} loading={isSaving} fullWidth size="lg" />
             </View>
         </ScrollView>
     );
@@ -129,33 +118,8 @@ function createStyles(colours: AppColours) {
             paddingBottom: 48,
         },
 
-        header: {
-            marginBottom: spacing.xl,
-        },
-
-        label: {
-            fontSize: 12,
-            fontWeight: "800",
-            letterSpacing: 0.8,
-            color: colours.primary,
-        },
-
-        title: {
-            marginTop: spacing.sm,
-            fontSize: 30,
-            lineHeight: 36,
-            fontWeight: "800",
-            color: colours.text,
-        },
-
-        description: {
-            marginTop: spacing.sm,
-            fontSize: 15,
-            lineHeight: 22,
-            color: colours.textMuted,
-        },
-
         formCard: {
+            marginTop: spacing.xl,
             gap: spacing.lg,
             padding: spacing.lg,
 
@@ -221,28 +185,5 @@ function createStyles(colours: AppColours) {
             color: colours.success,
         },
 
-        saveButton: {
-            minHeight: 48,
-
-            alignItems: "center",
-            justifyContent: "center",
-
-            borderRadius: radius.md,
-            backgroundColor: colours.primary,
-        },
-
-        saveButtonPressed: {
-            backgroundColor: colours.primaryPressed,
-        },
-
-        saveButtonDisabled: {
-            opacity: 0.6,
-        },
-
-        saveButtonText: {
-            fontSize: 15,
-            fontWeight: "700",
-            color: colours.surface,
-        },
     });
 }

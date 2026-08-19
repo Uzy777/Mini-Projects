@@ -8,6 +8,7 @@ import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import type { FocusSessionRecord, Journey, SessionOutcome } from "@/types/models";
 import { formatProgressDuration, getLocalDateKey, getSessionSeconds } from "@/utils/dashboardStats";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 
 type DashboardHistoryProps = {
     sessions: FocusSessionRecord[];
@@ -66,13 +67,13 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
     return (
         <View style={styles.content}>
             <View style={styles.toolbar}>
-                <Pressable onPress={() => setIsFilterVisible(true)} style={({ pressed }) => [styles.filterButton, pressed && styles.pressed]}>
+                <AnimatedPressable onPress={() => setIsFilterVisible(true)} style={styles.filterButton} haptic="selection">
                     <Text style={styles.filterButtonText}>{selectedFilterLabel}</Text>
                     <ChevronDown size={15} color={colours.primary} />
-                </Pressable>
+                </AnimatedPressable>
 
                 <View style={styles.toolbarActions}>
-                    <Pressable
+                    <AnimatedPressable
                         accessibilityLabel="Search history"
                         onPress={() => {
                             setIsSearchVisible((current) => !current);
@@ -80,11 +81,12 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
                                 setSearchQuery("");
                             }
                         }}
-                        style={({ pressed }) => [styles.actionButton, isSearchVisible && styles.activeActionButton, pressed && styles.pressed]}
+                        style={[styles.actionButton, isSearchVisible && styles.activeActionButton]}
+                        haptic="selection"
                     >
                         <Search size={17} color={isSearchVisible ? colours.primary : colours.textMuted} />
                         <Text style={[styles.actionButtonText, isSearchVisible && styles.activeActionButtonText]}>Search</Text>
-                    </Pressable>
+                    </AnimatedPressable>
                     {/*
                         The left dropdown is the single History filter control.
                         <Pressable onPress={() => setIsFilterVisible(true)} style={({ pressed }) => [styles.actionButton, pressed && styles.pressed]}>
@@ -143,10 +145,10 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
             )}
 
             {visibleCount < filteredSessions.length ? (
-                <Pressable onPress={() => setVisibleCount((current) => current + PAGE_SIZE)} style={({ pressed }) => [styles.loadMoreButton, pressed && styles.pressed]}>
+                <AnimatedPressable onPress={() => setVisibleCount((current) => current + PAGE_SIZE)} style={styles.loadMoreButton}>
                     <Text style={styles.loadMoreText}>Load more</Text>
                     <ChevronDown size={16} color={colours.primary} />
-                </Pressable>
+                </AnimatedPressable>
             ) : null}
 
             <Modal transparent animationType="fade" visible={isFilterVisible} onRequestClose={() => setIsFilterVisible(false)}>
@@ -156,14 +158,15 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
                         {HISTORY_FILTERS.map((option) => {
                             const isSelected = option.id === filter;
                             return (
-                                <Pressable
+                                <AnimatedPressable
                                     key={option.id}
                                     onPress={() => selectFilter(option.id)}
-                                    style={({ pressed }) => [styles.filterOption, isSelected && styles.selectedFilterOption, pressed && styles.pressed]}
+                                    style={[styles.filterOption, isSelected && styles.selectedFilterOption]}
+                                    haptic="selection"
                                 >
                                     <Text style={[styles.filterOptionText, isSelected && styles.selectedFilterOptionText]}>{option.label}</Text>
                                     {isSelected ? <Check size={18} color={colours.primary} /> : null}
-                                </Pressable>
+                                </AnimatedPressable>
                             );
                         })}
                     </Pressable>
@@ -190,7 +193,7 @@ function HistorySessionRow({ session, journeyTitle, onPress }: { session: FocusS
     const startedAt = recordedStartedAt ? new Date(recordedStartedAt) : calculatedStartedAt;
 
     return (
-        <Pressable onPress={onPress} style={({ pressed }) => [styles.sessionRow, pressed && styles.pressed]}>
+        <AnimatedPressable onPress={onPress} style={styles.sessionRow} haptic="selection">
             <Text style={styles.sessionTime}>{startedAt.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}</Text>
             <View style={styles.outcomeIcon}>{getOutcomeIcon(session.outcome, colours.primary)}</View>
             <View style={styles.sessionCopy}>
@@ -206,7 +209,7 @@ function HistorySessionRow({ session, journeyTitle, onPress }: { session: FocusS
                 <Text style={styles.xp}>+{session.earnedXp} XP</Text>
             </View>
             <ChevronRight size={18} color={colours.textMuted} />
-        </Pressable>
+        </AnimatedPressable>
     );
 }
 
@@ -279,12 +282,12 @@ function createStyles(colours: AppColours) {
             borderWidth: 1,
             borderColor: colours.primaryBorder,
             borderRadius: radius.md,
-            backgroundColor: colours.primarySoft,
+            backgroundColor: colours.primarySubtle,
         },
         filterButtonText: {
             fontSize: 12,
             fontWeight: "700",
-            color: colours.primary,
+            color: colours.primaryStrong,
         },
         toolbarActions: {
             flexDirection: "row",
@@ -303,7 +306,7 @@ function createStyles(colours: AppColours) {
         },
         activeActionButton: {
             borderColor: colours.primaryBorder,
-            backgroundColor: colours.primarySoft,
+            backgroundColor: colours.primarySubtle,
         },
         actionButtonText: {
             fontSize: 12,
@@ -311,7 +314,7 @@ function createStyles(colours: AppColours) {
             color: colours.textMuted,
         },
         activeActionButtonText: {
-            color: colours.primary,
+            color: colours.primaryStrong,
         },
         pressed: {
             opacity: 0.68,
@@ -340,7 +343,7 @@ function createStyles(colours: AppColours) {
             paddingHorizontal: spacing.sm,
             paddingVertical: 7,
             borderRadius: radius.md,
-            backgroundColor: colours.primarySoft,
+            backgroundColor: colours.primarySubtle,
             fontSize: 10,
             fontWeight: "800",
             letterSpacing: 0.45,

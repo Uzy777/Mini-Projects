@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Stack, router } from "expo-router";
 import { ChevronRight, LogOut, Palette, UserRound, UserRoundPen } from "lucide-react-native";
 
@@ -11,6 +11,8 @@ import { signOut } from "@/services/auth/authService";
 import { useMemo } from "react";
 import { DevelopmentPremiumControls } from "@/components/premium/DevelopmentPremiumControls";
 import { PremiumStatusCard } from "@/components/premium/PremiumStatusCard";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
 
 export default function AccountScreen() {
     const { session, profile } = useAuth();
@@ -31,11 +33,7 @@ export default function AccountScreen() {
         <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
             <Stack.Screen options={{ title: "Account" }} />
 
-            <View style={styles.header}>
-                <Text style={styles.label}>ACCOUNT</Text>
-                <Text style={styles.title}>Your account</Text>
-                <Text style={styles.description}>Manage your profile and app preferences.</Text>
-            </View>
+            <ScreenHeader eyebrow="ACCOUNT" title="Your account" subtitle="Manage your profile and app preferences." />
 
             <View style={styles.profileCard}>
                 <View style={styles.profileIcon}>
@@ -59,7 +57,7 @@ export default function AccountScreen() {
                 <Text style={styles.sectionLabel}>SETTINGS</Text>
 
                 <View style={styles.settingsCard}>
-                    <Pressable style={styles.settingRow} onPress={() => router.push("/profile")}>
+                    <AnimatedPressable style={styles.settingRow} onPress={() => router.push("/profile")}>
                         <View style={styles.settingIcon}>
                             <UserRoundPen size={19} color={colours.primary} />
                         </View>
@@ -68,11 +66,11 @@ export default function AccountScreen() {
                             <Text style={styles.settingDescription}>Update your account details</Text>
                         </View>
                         <ChevronRight size={18} color={colours.textMuted} />
-                    </Pressable>
+                    </AnimatedPressable>
 
                     <View style={styles.rowDivider} />
 
-                    <Pressable style={styles.settingRow} onPress={() => router.push("/appearance")}>
+                    <AnimatedPressable style={styles.settingRow} onPress={() => router.push("/appearance")}>
                         <View style={styles.settingIcon}>
                             <Palette size={19} color={colours.primary} />
                         </View>
@@ -83,17 +81,17 @@ export default function AccountScreen() {
                         </View>
 
                         <ChevronRight size={18} color={colours.textMuted} />
-                    </Pressable>
+                    </AnimatedPressable>
                 </View>
             </View>
 
             <DevelopmentPremiumControls />
 
-            <Pressable style={({ pressed }) => [styles.signOutButton, pressed && styles.signOutButtonPressed]} onPress={handleSignOut}>
+            <AnimatedPressable style={styles.signOutButton} onPress={handleSignOut}>
                 <LogOut size={18} color={colours.danger} />
 
                 <Text style={styles.signOutText}>Sign out</Text>
-            </Pressable>
+            </AnimatedPressable>
         </ScrollView>
     );
 }
@@ -113,33 +111,8 @@ function createStyles(colours: AppColours) {
             paddingBottom: 48,
         },
 
-        header: {
-            marginBottom: spacing.xl,
-        },
-
-        label: {
-            fontSize: 12,
-            fontWeight: "800",
-            letterSpacing: 0.8,
-            color: colours.primary,
-        },
-
-        title: {
-            marginTop: spacing.sm,
-            fontSize: 30,
-            lineHeight: 36,
-            fontWeight: "800",
-            color: colours.text,
-        },
-
-        description: {
-            marginTop: spacing.sm,
-            fontSize: 15,
-            lineHeight: 22,
-            color: colours.textMuted,
-        },
-
         profileCard: {
+            marginTop: spacing.xl,
             flexDirection: "row",
             alignItems: "center",
             gap: spacing.md,

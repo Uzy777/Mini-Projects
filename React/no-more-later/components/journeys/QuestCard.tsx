@@ -202,7 +202,7 @@ function createStyles(colours: AppColours) {
         primaryButtonText: {
             fontSize: 15,
             fontWeight: "700",
-            color: colours.surface,
+            color: colours.onPrimary,
         },
 
         secondaryButton: {

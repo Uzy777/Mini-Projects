@@ -1,7 +1,7 @@
 import { useMemo, useState, useCallback } from "react";
 import { ScrollView, StyleSheet, Text, View, TextInput, Pressable } from "react-native";
 
-import { Folder } from "lucide-react-native";
+import { Folder, FolderPlus, ListTodo } from "lucide-react-native";
 
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { CreateWorkQuestModal } from "@/components/work/CreateWorkQuestModal";
@@ -10,7 +10,7 @@ import { WorkQuestCard } from "@/components/work/WorkQuestCard";
 import { WorkQuickActions } from "@/components/work/WorkQuickActions";
 
 import type { AppColours } from "@/constants/appearanceColours";
-import { radius, spacing } from "@/constants/design";
+import { layout, radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { CreateWorkJourneyModal } from "@/components/work/CreateWorkJourneyModal";
 import type { WorkAssetId, WorkJourney, WorkQuest, WorkStatus } from "@/types/work";
@@ -32,6 +32,8 @@ import { deleteRemoteQuest, updateRemoteQuestStatus } from "@/services/quests/qu
 import { getActiveFocusSession } from "@/services/storage/activeFocusSessionStorage";
 import { showMessage } from "@/utils/showMessage";
 import { WorkJourneyActionsModal } from "@/components/work/WorkJourneyActionsModal";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export default function WorkScreen() {
     const { colours } = useAppearance();
@@ -90,7 +92,7 @@ export default function WorkScreen() {
             }
 
             loadWork();
-        }, [session?.user.id]),
+        }, [session]),
     );
 
     const visibleQuests = quests.filter((quest) => {
@@ -158,8 +160,6 @@ export default function WorkScreen() {
     });
 
     const emptyJourneyMessage = statusFilter === "active" ? "No active Journeys yet." : "No completed Journeys yet.";
-
-    const showQuests = selectedFilter !== "journeys" || selectedFilter === "journeys";
 
     const showJourneys = selectedFilter === "all" || selectedFilter === "journeys";
 
@@ -534,11 +534,7 @@ export default function WorkScreen() {
     return (
         <AppScreenBackground>
             <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-                <Text style={styles.brand}>NO MORE LATER</Text>
-
-                <Text style={styles.title}>Journeys & Quests</Text>
-
-                <Text style={styles.subtitle}>Everything you want to get done.</Text>
+                <ScreenHeader title="Journeys & Quests" subtitle="Plan the work, keep Journeys optional, and focus on the next useful Quest." />
 
                 <WorkQuickActions onNewQuest={handleNewQuest} onNewJourney={handleNewJourney} onQuickStart={handleQuickStart} />
 
@@ -599,9 +595,13 @@ export default function WorkScreen() {
                                 />
                             ))
                         ) : (
-                            <View style={styles.emptyState}>
-                                <Text style={styles.emptyStateText}>{emptyQuestMessage}</Text>
-                            </View>
+                            <EmptyState
+                                icon={<ListTodo size={22} color={colours.primaryStrong} />}
+                                title={emptyQuestMessage}
+                                description={statusFilter === "active" ? "Create a small, clear Quest and start when you are ready." : "Completed Quests will stay available here for reference."}
+                                actionLabel={statusFilter === "active" ? "Create Quest" : undefined}
+                                onAction={statusFilter === "active" ? handleNewQuest : undefined}
+                            />
                         )}
                     </View>
                 </View>
@@ -638,9 +638,13 @@ export default function WorkScreen() {
                                 })}
                             </View>
                         ) : (
-                            <View style={styles.emptyState}>
-                                <Text style={styles.emptyStateText}>{emptyJourneyMessage}</Text>
-                            </View>
+                            <EmptyState
+                                icon={<FolderPlus size={22} color={colours.primaryStrong} />}
+                                title={emptyJourneyMessage}
+                                description="Journeys are optional folders for Quests that belong together."
+                                actionLabel={statusFilter === "active" ? "Create Journey" : undefined}
+                                onAction={statusFilter === "active" ? handleNewJourney : undefined}
+                            />
                         )}
                     </View>
                 )}
@@ -676,7 +680,7 @@ function createStyles(colours: AppColours) {
 
         content: {
             width: "100%",
-            maxWidth: 1180,
+            maxWidth: layout.contentMaxWidth,
             alignSelf: "center",
 
             paddingHorizontal: spacing.lg,
@@ -819,23 +823,6 @@ function createStyles(colours: AppColours) {
             fontSize: 13,
             fontWeight: "700",
             color: colours.text,
-        },
-        emptyState: {
-            width: "100%",
-            paddingVertical: spacing.xl,
-            paddingHorizontal: spacing.lg,
-            alignItems: "center",
-            borderWidth: 1,
-            borderColor: colours.border,
-            borderRadius: radius.lg,
-            backgroundColor: colours.surface,
-        },
-
-        emptyStateText: {
-            fontSize: 14,
-            lineHeight: 20,
-            color: colours.textMuted,
-            textAlign: "center",
         },
     });
 }

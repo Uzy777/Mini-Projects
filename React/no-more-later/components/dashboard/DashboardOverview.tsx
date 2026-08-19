@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
+import { Modal, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 import { CheckCircle2, Clock3, Flame, Folder, Pencil, Star, Zap } from "lucide-react-native";
 
 import type { ReactNode } from "react";
@@ -12,6 +12,9 @@ import { formatProgressDuration, getOverviewStats } from "@/utils/dashboardStats
 
 import { ProgressBarChart, ProgressCard, ProgressRing } from "./DashboardCharts";
 import { DashboardRankCard } from "./DashboardRankCard";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
+import { AnimatedProgressBar } from "@/components/ui/AnimatedProgressBar";
+import { AppButton } from "@/components/ui/AppButton";
 
 type DashboardOverviewProps = {
     sessions: FocusSessionRecord[];
@@ -85,11 +88,11 @@ export function DashboardOverview({ sessions, journeys, dailyGoalMinutes, onSave
                     <View style={styles.heroCopy}>
                         <Text style={styles.heroValue}>{formatProgressDuration(stats.todaySeconds, true)}</Text>
                         <Text style={styles.heroLabel}>Focused today</Text>
-                        <Pressable onPress={openGoalModal} style={({ pressed }) => [styles.goalRow, pressed && styles.goalRowPressed]}>
+                        <AnimatedPressable onPress={openGoalModal} style={styles.goalRow} haptic="selection">
                             <View style={styles.goalDot} />
                             <Text style={styles.goalText}>Goal: {formatProgressDuration(focusGoalSeconds, true)}</Text>
                             <Pencil size={11} color={colours.primary} />
-                        </Pressable>
+                        </AnimatedPressable>
                     </View>
                 </View>
                 <ProgressRing progress={focusProgress} label={`${Math.round(Math.min(focusProgress, 1) * 100)}%`} />
@@ -144,9 +147,7 @@ export function DashboardOverview({ sessions, journeys, dailyGoalMinutes, onSave
                                             </Text>
                                             <Text style={styles.categoryTime}>{formatProgressDuration(category.focusedSeconds, true)}</Text>
                                         </View>
-                                        <View style={styles.categoryTrack}>
-                                            <View style={[styles.categoryProgress, { width: `${category.percentage}%` }]} />
-                                        </View>
+                                        <AnimatedProgressBar progress={category.percentage / 100} height={5} style={styles.categoryProgress} />
                                     </View>
                                 </View>
                             ))
@@ -165,16 +166,17 @@ export function DashboardOverview({ sessions, journeys, dailyGoalMinutes, onSave
                             {GOAL_PRESETS.map((minutes) => {
                                 const isSelected = Number(goalDraft) === minutes;
                                 return (
-                                    <Pressable
+                                    <AnimatedPressable
                                         key={minutes}
                                         onPress={() => {
                                             setGoalDraft(String(minutes));
                                             setGoalError("");
                                         }}
-                                        style={({ pressed }) => [styles.goalPreset, isSelected && styles.selectedGoalPreset, pressed && styles.goalRowPressed]}
+                                        style={[styles.goalPreset, isSelected && styles.selectedGoalPreset]}
+                                        haptic="selection"
                                     >
                                         <Text style={[styles.goalPresetText, isSelected && styles.selectedGoalPresetText]}>{formatProgressDuration(minutes * 60, true)}</Text>
-                                    </Pressable>
+                                    </AnimatedPressable>
                                 );
                             })}
                         </View>
@@ -196,20 +198,8 @@ export function DashboardOverview({ sessions, journeys, dailyGoalMinutes, onSave
                         {goalError ? <Text style={styles.goalError}>{goalError}</Text> : null}
 
                         <View style={styles.modalActions}>
-                            <Pressable
-                                disabled={isSavingGoal}
-                                onPress={() => setIsGoalModalVisible(false)}
-                                style={({ pressed }) => [styles.cancelButton, pressed && styles.goalRowPressed]}
-                            >
-                                <Text style={styles.cancelButtonText}>Cancel</Text>
-                            </Pressable>
-                            <Pressable
-                                disabled={isSavingGoal}
-                                onPress={() => void saveGoal()}
-                                style={({ pressed }) => [styles.saveButton, pressed && styles.goalRowPressed, isSavingGoal && styles.disabledButton]}
-                            >
-                                {isSavingGoal ? <ActivityIndicator size="small" color="#ffffff" /> : <Text style={styles.saveButtonText}>Save goal</Text>}
-                            </Pressable>
+                            <AppButton label="Cancel" variant="secondary" disabled={isSavingGoal} onPress={() => setIsGoalModalVisible(false)} style={styles.modalButton} />
+                            <AppButton label="Save goal" loading={isSavingGoal} onPress={() => void saveGoal()} style={styles.modalButton} />
                         </View>
                     </Pressable>
                 </Pressable>
@@ -410,18 +400,7 @@ function createStyles(colours: AppColours) {
             fontSize: 10,
             color: colours.textMuted,
         },
-        categoryTrack: {
-            height: 5,
-            marginTop: 7,
-            overflow: "hidden",
-            borderRadius: radius.pill,
-            backgroundColor: colours.border,
-        },
-        categoryProgress: {
-            height: "100%",
-            borderRadius: radius.pill,
-            backgroundColor: colours.primary,
-        },
+        categoryProgress: { marginTop: 7 },
         emptyText: {
             fontSize: 13,
             lineHeight: 19,
@@ -511,36 +490,6 @@ function createStyles(colours: AppColours) {
             justifyContent: "flex-end",
             gap: spacing.sm,
         },
-        cancelButton: {
-            minHeight: 42,
-            paddingHorizontal: spacing.lg,
-            alignItems: "center",
-            justifyContent: "center",
-            borderWidth: 1,
-            borderColor: colours.border,
-            borderRadius: radius.md,
-        },
-        cancelButtonText: {
-            fontSize: 13,
-            fontWeight: "700",
-            color: colours.text,
-        },
-        saveButton: {
-            minWidth: 108,
-            minHeight: 42,
-            paddingHorizontal: spacing.lg,
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: radius.md,
-            backgroundColor: colours.primary,
-        },
-        saveButtonText: {
-            fontSize: 13,
-            fontWeight: "800",
-            color: "#ffffff",
-        },
-        disabledButton: {
-            opacity: 0.6,
-        },
+        modalButton: { flex: 1 },
     });
 }

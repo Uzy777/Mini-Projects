@@ -212,7 +212,7 @@ function createStyles(colours: AppColours) {
             fontSize: 15,
             fontWeight: "700",
 
-            color: "#ffffff",
+            color: colours.onPrimary,
         },
 
         notNowButton: {

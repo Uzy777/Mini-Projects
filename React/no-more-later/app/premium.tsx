@@ -134,7 +134,7 @@ export default function PremiumScreen() {
                 >
                     <Crown
                         size={18}
-                        color="#ffffff"
+                        color={colours.onPrimary}
                     />
 
                     <Text style={styles.unlockButtonText}>
@@ -328,7 +328,7 @@ function createStyles(colours: AppColours) {
             fontSize: 15,
             fontWeight: "700",
 
-            color: "#ffffff",
+            color: colours.onPrimary,
         },
 
         activeCard: {

@@ -8,6 +8,8 @@ import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { WorkAssetIcon } from "@/components/work/WorkAssetIcon";
 import type { WorkAssetId } from "@/types/work";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
+import { AnimatedProgressBar } from "@/components/ui/AnimatedProgressBar";
 
 type WorkJourneyCardProps = {
     title: string;
@@ -26,7 +28,7 @@ export function WorkJourneyCard({ title, assetId, completedQuestCount, totalQues
     const progress = totalQuestCount === 0 ? 0 : Math.round((completedQuestCount / totalQuestCount) * 100);
 
     return (
-        <Pressable style={({ pressed }) => [styles.card, pressed && styles.pressed]} onPress={onPress}>
+        <AnimatedPressable style={styles.card} onPress={onPress}>
             <View style={styles.header}>
                 <View style={styles.iconContainer}>
                     <WorkAssetIcon assetId={assetId} size={24} color={colours.primary} />
@@ -48,16 +50,7 @@ export function WorkJourneyCard({ title, assetId, completedQuestCount, totalQues
                     <Text style={styles.progressPercentage}>{progress}%</Text>
                 </View>
 
-                <View style={styles.progressTrack}>
-                    <View
-                        style={[
-                            styles.progressFill,
-                            {
-                                width: `${progress}%`,
-                            },
-                        ]}
-                    />
-                </View>
+                <AnimatedProgressBar progress={progress / 100} />
 
                 <Text style={styles.progressText}>
                     {completedQuestCount} of {totalQuestCount} Quests completed
@@ -69,7 +62,7 @@ export function WorkJourneyCard({ title, assetId, completedQuestCount, totalQues
 
                 <ChevronRight size={20} color={colours.textMuted} />
             </View>
-        </Pressable>
+        </AnimatedPressable>
     );
 }
 

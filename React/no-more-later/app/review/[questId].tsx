@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { StyleSheet, Text, ScrollView, View, Pressable } from "react-native";
+import { StyleSheet, Text, ScrollView, View } from "react-native";
 
 import { calculateLevel } from "../../utils/level";
 import type { SessionOutcome } from "../../types/models";
@@ -17,8 +17,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteQuest } from "@/services/quests/questService";
 import { completeRemoteReview } from "@/services/reviews/reviewService";
 import { LevelUpCelebration } from "@/components/level/LevelUpCelebration";
-import { useMemo } from "react";
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
 
 export default function ReviewSessionScreen() {
     const { colours } = useAppearance();
@@ -239,15 +240,12 @@ export default function ReviewSessionScreen() {
                     />
                 )}
 
-                <View style={styles.header}>
-                    <Text style={styles.label}>SESSION REVIEW</Text>
-
-                    <Text style={styles.title}>{questTitle ?? "Untitled Quest"}</Text>
-
-                    <View style={styles.sessionBadge}>
-                        <Text style={styles.sessionLength}>{plannedMinutes ?? "0"} minute Focus Session</Text>
-                    </View>
-                </View>
+                <ScreenHeader
+                    eyebrow="SESSION REVIEW"
+                    title={isQuestlessQuickFocus ? "Quick Focus" : (questTitle ?? "Untitled Quest")}
+                    subtitle="Capture the progress while it is still fresh."
+                    action={<View style={styles.sessionBadge}><Text style={styles.sessionLength}>{plannedMinutes ?? "0"} min</Text></View>}
+                />
 
                 {earnedXp !== null && totalXp !== null ? (
                     <ReviewResultCard
@@ -274,13 +272,13 @@ export default function ReviewSessionScreen() {
 
                                 <Text style={styles.finishLineText}>{questDoneWhen}</Text>
 
-                                <Pressable style={styles.confirmationRow} onPress={() => setFinishLineConfirmed((currentValue) => !currentValue)}>
+                                <AnimatedPressable style={styles.confirmationRow} haptic="selection" onPress={() => setFinishLineConfirmed((currentValue) => !currentValue)}>
                                     <View style={[styles.checkbox, finishLineConfirmed && styles.checkboxConfirmed]}>
                                         {finishLineConfirmed && <Text style={styles.checkmark}>✓</Text>}
                                     </View>
 
                                     <Text style={styles.confirmationText}>I genuinely met this finish line.</Text>
-                                </Pressable>
+                                </AnimatedPressable>
                             </View>
                         )}
 
@@ -317,43 +315,24 @@ function createStyles(colours: AppColours) {
             paddingBottom: 48,
         },
 
-        header: {
-            width: "100%",
-            marginBottom: spacing.xl,
-        },
-
-        label: {
-            fontSize: 12,
-            fontWeight: "800",
-            letterSpacing: 0.8,
-            color: colours.primary,
-        },
-
-        title: {
-            marginTop: spacing.sm,
-            fontSize: 30,
-            lineHeight: 36,
-            fontWeight: "800",
-            color: colours.text,
-        },
-
         sessionBadge: {
-            alignSelf: "flex-start",
-            marginTop: spacing.md,
             paddingHorizontal: 12,
             paddingVertical: 7,
             borderRadius: radius.pill,
-            backgroundColor: colours.primarySoft,
+            borderWidth: 1,
+            borderColor: colours.primaryBorder,
+            backgroundColor: colours.primarySubtle,
         },
 
         sessionLength: {
             fontSize: 13,
             fontWeight: "700",
-            color: colours.primary,
+            color: colours.primaryStrong,
         },
 
         reviewSections: {
             width: "100%",
+            marginTop: spacing.xl,
             gap: spacing.xl,
         },
         finishLineCard: {
@@ -362,14 +341,14 @@ function createStyles(colours: AppColours) {
             borderWidth: 1,
             borderColor: colours.primaryBorder,
             borderRadius: radius.lg,
-            backgroundColor: colours.primarySoft,
+            backgroundColor: colours.primarySubtle,
         },
 
         finishLineLabel: {
             fontSize: 11,
             fontWeight: "800",
             letterSpacing: 0.8,
-            color: colours.primary,
+            color: colours.primaryStrong,
         },
 
         finishLineDescription: {
@@ -412,7 +391,7 @@ function createStyles(colours: AppColours) {
         checkmark: {
             fontSize: 14,
             fontWeight: "800",
-            color: colours.surface,
+            color: colours.onPrimary,
         },
 
         confirmationText: {

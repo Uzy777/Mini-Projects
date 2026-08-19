@@ -1,11 +1,12 @@
 import { useMemo } from "react";
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
 import { ChevronRight, FolderPlus, ListPlus, Zap } from "lucide-react-native";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 
 type WorkQuickActionsProps = {
     onNewQuest: () => void;
@@ -23,7 +24,7 @@ export function WorkQuickActions({ onNewQuest, onNewJourney, onQuickStart }: Wor
 
     return (
         <View style={styles.container}>
-            <Pressable style={({ pressed }) => [styles.card, pressed && styles.cardPressed]} onPress={onNewQuest}>
+            <AnimatedPressable style={styles.card} onPress={onNewQuest}>
                 <View style={styles.iconContainer}>
                     <ListPlus size={24} color={colours.primary} />
                 </View>
@@ -35,9 +36,9 @@ export function WorkQuickActions({ onNewQuest, onNewJourney, onQuickStart }: Wor
                 </View>
 
                 <ChevronRight size={20} color={colours.textMuted} />
-            </Pressable>
+            </AnimatedPressable>
 
-            <Pressable style={({ pressed }) => [styles.card, pressed && styles.cardPressed]} onPress={onNewJourney}>
+            <AnimatedPressable style={styles.card} onPress={onNewJourney}>
                 <View style={styles.iconContainer}>
                     <FolderPlus size={24} color={colours.primary} />
                 </View>
@@ -49,9 +50,9 @@ export function WorkQuickActions({ onNewQuest, onNewJourney, onQuickStart }: Wor
                 </View>
 
                 <ChevronRight size={20} color={colours.textMuted} />
-            </Pressable>
+            </AnimatedPressable>
 
-            <Pressable style={({ pressed }) => [styles.card, pressed && styles.cardPressed]} onPress={onQuickStart}>
+            <AnimatedPressable style={styles.card} onPress={onQuickStart}>
                 <View style={styles.iconContainer}>
                     <Zap size={24} color={colours.primary} />
                 </View>
@@ -63,7 +64,7 @@ export function WorkQuickActions({ onNewQuest, onNewJourney, onQuickStart }: Wor
                 </View>
 
                 <ChevronRight size={20} color={colours.textMuted} />
-            </Pressable>
+            </AnimatedPressable>
         </View>
     );
 }
@@ -88,14 +89,10 @@ function createStyles(colours: AppColours, isMobile: boolean) {
             padding: spacing.lg,
 
             borderWidth: 1,
-            borderColor: colours.border,
+            borderColor: colours.primaryBorder,
             borderRadius: radius.lg,
 
             backgroundColor: colours.surface,
-        },
-
-        cardPressed: {
-            opacity: 0.7,
         },
 
         iconContainer: {
@@ -107,7 +104,7 @@ function createStyles(colours: AppColours, isMobile: boolean) {
 
             borderRadius: radius.md,
 
-            backgroundColor: colours.primarySoft,
+            backgroundColor: colours.primarySubtle,
         },
 
         textContainer: {

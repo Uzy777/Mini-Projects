@@ -1,5 +1,6 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 
+import { AppButton } from "@/components/ui/AppButton";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
@@ -74,17 +75,7 @@ export function ReviewForm({
                 </View>
             )}
 
-            <Pressable
-                style={({ pressed }) => [
-                    styles.submitButton,
-                    isSubmitting && styles.submitButtonDisabled,
-                    pressed && !isSubmitting && styles.submitButtonPressed,
-                ]}
-                onPress={onSubmit}
-                disabled={isSubmitting}
-            >
-                <Text style={styles.submitButtonText}>{isSubmitting ? "Saving..." : "Complete Review"}</Text>
-            </Pressable>
+            <AppButton label="Complete Review" onPress={onSubmit} loading={isSubmitting} fullWidth size="lg" />
         </View>
     );
 }
@@ -144,26 +135,5 @@ function createStyles(colours: AppColours) {
             color: colours.danger,
         },
 
-        submitButton: {
-            width: "100%",
-            alignItems: "center",
-            paddingVertical: 14,
-            borderRadius: radius.md,
-            backgroundColor: colours.primary,
-        },
-
-        submitButtonPressed: {
-            backgroundColor: colours.primaryPressed,
-        },
-
-        submitButtonDisabled: {
-            opacity: 0.55,
-        },
-
-        submitButtonText: {
-            fontSize: 16,
-            fontWeight: "700",
-            color: colours.surface,
-        },
     });
 }

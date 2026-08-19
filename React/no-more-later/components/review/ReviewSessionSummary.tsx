@@ -62,19 +62,22 @@ function createStyles(colours: AppColours) {
     return StyleSheet.create({
         summaryCard: {
             width: "100%",
-            padding: 18,
-            borderRadius: 12,
-            backgroundColor: "#ffffff",
+            padding: spacing.lg,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
+            backgroundColor: colours.surface,
         },
         label: {
             fontSize: 13,
             fontWeight: "600",
-            color: "#666666",
+            color: colours.textMuted,
         },
         questTitle: {
             marginTop: 6,
             fontSize: 24,
             fontWeight: "700",
+            color: colours.text,
         },
         durationRow: {
             marginTop: 18,
@@ -85,22 +88,23 @@ function createStyles(colours: AppColours) {
             flex: 1,
             padding: 12,
             borderRadius: 8,
-            backgroundColor: "#f2f2f2",
+            backgroundColor: colours.primarySubtle,
         },
         durationLabel: {
             fontSize: 12,
             fontWeight: "600",
-            color: "#666666",
+            color: colours.textMuted,
         },
         durationValue: {
             marginTop: 4,
             fontSize: 16,
             fontWeight: "700",
+            color: colours.text,
         },
         endedEarlyText: {
             marginTop: 14,
             fontSize: 14,
-            color: "#b42318",
+            color: colours.danger,
         },
     });
 }

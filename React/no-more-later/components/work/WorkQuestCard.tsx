@@ -1,12 +1,13 @@
 import { useMemo } from "react";
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
-import { Clock3, Folder, Laptop, MoreVertical, Play } from "lucide-react-native";
+import { Folder, MoreVertical, Play } from "lucide-react-native";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { WorkAssetIcon } from "@/components/work/WorkAssetIcon";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import type { WorkAssetId } from "@/types/work";
 
 type WorkQuestCardProps = {
@@ -53,15 +54,15 @@ export function WorkQuestCard({ title, journeyName, assetId, onFocus, onMore }: 
                 </View> */}
             </View>
 
-            <Pressable style={({ pressed }) => [styles.focusButton, pressed && styles.pressed]} onPress={onFocus}>
-                <Play size={16} color={colours.primary} fill={colours.primary} />
+            <AnimatedPressable style={styles.focusButton} haptic="light" onPress={onFocus}>
+                <Play size={16} color={colours.primaryStrong} fill={colours.primaryStrong} />
 
                 {!isCompact && <Text style={styles.focusText}>Focus</Text>}
-            </Pressable>
+            </AnimatedPressable>
 
-            <Pressable style={({ pressed }) => [styles.moreButton, pressed && styles.pressed]} onPress={onMore}>
+            <AnimatedPressable style={styles.moreButton} onPress={onMore}>
                 <MoreVertical size={20} color={colours.textMuted} />
-            </Pressable>
+            </AnimatedPressable>
         </View>
     );
 }
@@ -90,7 +91,7 @@ function createStyles(colours: AppColours, isCompact: boolean) {
 
             borderRadius: radius.pill,
 
-            backgroundColor: colours.primary,
+            backgroundColor: colours.primaryStrong,
         },
 
         iconContainer: {
@@ -134,7 +135,7 @@ function createStyles(colours: AppColours, isCompact: boolean) {
             fontSize: 13,
             fontWeight: "600",
 
-            color: colours.primary,
+            color: colours.primaryStrong,
         },
 
         unassignedJourney: {
@@ -169,7 +170,7 @@ function createStyles(colours: AppColours, isCompact: boolean) {
             fontSize: 13,
             fontWeight: "800",
 
-            color: colours.primary,
+            color: colours.primaryStrong,
         },
 
         moreButton: {
@@ -180,8 +181,5 @@ function createStyles(colours: AppColours, isCompact: boolean) {
             justifyContent: "center",
         },
 
-        pressed: {
-            opacity: 0.65,
-        },
     });
 }

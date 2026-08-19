@@ -319,7 +319,7 @@ function createStyles(colours: AppColours) {
         },
 
         filterButtonTextSelected: {
-            color: colours.surface,
+            color: colours.onPrimary,
         },
         scrollView: {
             flex: 1,

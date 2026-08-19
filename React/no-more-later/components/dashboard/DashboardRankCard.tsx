@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { Clock3, Flame, Trophy, Zap } from "lucide-react-native";
 
 import { RankDisplay } from "@/components/ranks/RankDisplay";
+import { AnimatedProgressBar } from "@/components/ui/AnimatedProgressBar";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
@@ -53,9 +54,7 @@ export function DashboardRankCard({ sessions }: DashboardRankCardProps) {
                         {levelProgress.xpIntoLevel} / {levelProgress.xpRequired} XP
                     </Text>
                 </View>
-                <View style={styles.progressTrack}>
-                    <View style={[styles.progressFill, { width: `${progressPercentage}%` }]} />
-                </View>
+                <AnimatedProgressBar progress={progressPercentage / 100} height={8} />
                 <Text style={styles.remainingText}>{remainingXp > 0 ? `${remainingXp} XP to Level ${levelProgress.level + 1}` : "Next level ready"}</Text>
             </View>
 
@@ -130,7 +129,7 @@ function createStyles(colours: AppColours) {
             fontSize: 10,
             fontWeight: "800",
             letterSpacing: 0.7,
-            color: colours.primary,
+            color: colours.primaryStrong,
         },
         title: {
             marginTop: 2,
@@ -147,7 +146,7 @@ function createStyles(colours: AppColours) {
         levelBadgeText: {
             fontSize: 12,
             fontWeight: "800",
-            color: colours.primary,
+            color: colours.primaryStrong,
         },
         levelProgressSection: {
             gap: 7,
@@ -167,17 +166,6 @@ function createStyles(colours: AppColours) {
             fontSize: 12,
             fontWeight: "800",
             color: colours.text,
-        },
-        progressTrack: {
-            height: 8,
-            overflow: "hidden",
-            borderRadius: radius.pill,
-            backgroundColor: colours.primarySoft,
-        },
-        progressFill: {
-            height: "100%",
-            borderRadius: radius.pill,
-            backgroundColor: colours.primary,
         },
         remainingText: {
             fontSize: 10,

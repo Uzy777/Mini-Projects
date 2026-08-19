@@ -6,6 +6,7 @@ import { Filter, Search } from "lucide-react-native";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 
 export type WorkViewFilter = "all" | "quests" | "journeys" | "standalone";
 
@@ -56,13 +57,13 @@ export function WorkToolbar({ selectedFilter, statusFilter, onSelectFilter, onSe
                     const isSelected = selectedFilter === filter.value;
 
                     return (
-                        <Pressable
+                        <AnimatedPressable
                             key={filter.value}
                             style={[styles.filterButton, isSelected && styles.filterButtonSelected]}
                             onPress={() => onSelectFilter(filter.value)}
                         >
                             <Text style={[styles.filterText, isSelected && styles.filterTextSelected]}>{filter.label}</Text>
-                        </Pressable>
+                        </AnimatedPressable>
                     );
                 })}
             </ScrollView>
@@ -113,8 +114,8 @@ function createStyles(colours: AppColours, isMobile: boolean) {
         },
 
         filterButtonSelected: {
-            borderColor: colours.primary,
-            backgroundColor: colours.primary,
+            borderColor: colours.primaryBorder,
+            backgroundColor: colours.primarySoft,
         },
 
         filterText: {
@@ -125,7 +126,7 @@ function createStyles(colours: AppColours, isMobile: boolean) {
         },
 
         filterTextSelected: {
-            color: colours.surface,
+            color: colours.primaryStrong,
         },
 
         actions: {

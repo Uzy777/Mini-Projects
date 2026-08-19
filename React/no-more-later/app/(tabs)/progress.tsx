@@ -9,13 +9,16 @@ import { DashboardHistory } from "@/components/dashboard/DashboardHistory";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import type { AppColours } from "@/constants/appearanceColours";
-import { radius, spacing } from "@/constants/design";
+import { layout, radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteFocusSessions } from "@/services/focusSessions/focusSessionService";
 import { getRemoteJourneys } from "@/services/journeys/journeyService";
 import { updateDailyFocusGoal } from "@/services/profile/profileService";
 import type { FocusSessionRecord, Journey } from "@/types/models";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
+import Animated, { FadeIn } from "react-native-reanimated";
 
 type ProgressSection = "overview" | "calendar" | "stats" | "history";
 
@@ -139,32 +142,31 @@ export default function ProgressScreen() {
                     />
                 }
             >
-                <View style={styles.header}>
-                    <View>
-                        <Text style={styles.eyebrow}>NO MORE LATER</Text>
-                        <Text style={styles.title}>Progress</Text>
-                        <Text style={styles.subtitle}>See where your focused time is going.</Text>
-                    </View>
-                    <View style={styles.headerIcon}>
-                        <BarChart3 size={22} color={colours.primary} />
-                    </View>
-                </View>
+                <ScreenHeader
+                    title="Progress"
+                    subtitle="See where your focused time is going and what your consistency is building."
+                    action={
+                        <View style={styles.headerIcon}>
+                            <BarChart3 size={21} color={colours.primaryStrong} />
+                        </View>
+                    }
+                />
 
                 <View accessibilityRole="tablist" style={styles.segmentedControl}>
                     {PROGRESS_VIEWS.map((view) => {
                         const isSelected = view.id === selectedView;
                         const Icon = view.icon;
                         return (
-                            <Pressable
+                            <AnimatedPressable
                                 key={view.id}
                                 accessibilityRole="tab"
                                 accessibilityState={{ selected: isSelected }}
                                 onPress={() => setSelectedView(view.id)}
                                 style={({ pressed }) => [styles.segment, isSelected && styles.selectedSegment, pressed && styles.pressedSegment]}
                             >
-                                <Icon size={15} color={isSelected ? "#ffffff" : colours.textMuted} />
+                                <Icon size={15} color={isSelected ? colours.primaryStrong : colours.textMuted} />
                                 <Text style={[styles.segmentText, isSelected && styles.selectedSegmentText]}>{view.label}</Text>
-                            </Pressable>
+                            </AnimatedPressable>
                         );
                     })}
                 </View>
@@ -192,17 +194,21 @@ export default function ProgressScreen() {
                     </View>
                 )}
 
-                {!isLoading && selectedView === "overview" && (
-                    <DashboardOverview
-                        sessions={sessions}
-                        journeys={journeys}
-                        dailyGoalMinutes={profile?.daily_focus_goal_minutes ?? 180}
-                        onSaveDailyGoal={handleSaveDailyGoal}
-                    />
-                )}
-                {!isLoading && selectedView === "calendar" && <DashboardCalendar sessions={sessions} />}
-                {!isLoading && selectedView === "stats" && <DashboardStats sessions={sessions} journeys={journeys} />}
-                {!isLoading && selectedView === "history" && <DashboardHistory sessions={sessions} journeys={journeys} />}
+                {!isLoading && !errorMessage ? (
+                    <Animated.View key={selectedView} entering={FadeIn.duration(180)}>
+                        {selectedView === "overview" && (
+                            <DashboardOverview
+                                sessions={sessions}
+                                journeys={journeys}
+                                dailyGoalMinutes={profile?.daily_focus_goal_minutes ?? 180}
+                                onSaveDailyGoal={handleSaveDailyGoal}
+                            />
+                        )}
+                        {selectedView === "calendar" && <DashboardCalendar sessions={sessions} />}
+                        {selectedView === "stats" && <DashboardStats sessions={sessions} journeys={journeys} />}
+                        {selectedView === "history" && <DashboardHistory sessions={sessions} journeys={journeys} />}
+                    </Animated.View>
+                ) : null}
             </ScrollView>
         </AppScreenBackground>
     );
@@ -216,7 +222,7 @@ function createStyles(colours: AppColours) {
         },
         contentContainer: {
             width: "100%",
-            maxWidth: 1040,
+            maxWidth: layout.contentMaxWidth,
             alignSelf: "center",
             paddingHorizontal: spacing.md,
             paddingTop: spacing.lg,
@@ -254,7 +260,7 @@ function createStyles(colours: AppColours) {
             alignItems: "center",
             justifyContent: "center",
             borderRadius: radius.pill,
-            backgroundColor: colours.primarySoft,
+            backgroundColor: colours.primarySubtle,
         },
         segmentedControl: {
             width: "100%",
@@ -277,7 +283,7 @@ function createStyles(colours: AppColours) {
             borderRadius: radius.sm,
         },
         selectedSegment: {
-            backgroundColor: colours.primary,
+            backgroundColor: colours.primarySoft,
         },
         pressedSegment: {
             opacity: 0.75,
@@ -288,7 +294,7 @@ function createStyles(colours: AppColours) {
             color: colours.textMuted,
         },
         selectedSegmentText: {
-            color: "#ffffff",
+            color: colours.primaryStrong,
         },
         emptyNotice: {
             minHeight: 34,
@@ -355,7 +361,7 @@ function createStyles(colours: AppColours) {
         retryButtonText: {
             fontSize: 11,
             fontWeight: "800",
-            color: "#ffffff",
+            color: colours.onPrimary,
         },
     });
 }

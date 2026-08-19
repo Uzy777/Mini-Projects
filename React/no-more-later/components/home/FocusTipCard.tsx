@@ -45,9 +45,9 @@ function createStyles(colours: AppColours) {
             gap: spacing.md,
             padding: spacing.md,
             borderWidth: 1,
-            borderColor: colours.border,
+            borderColor: colours.primaryBorder,
             borderRadius: radius.lg,
-            backgroundColor: colours.surface,
+            backgroundColor: colours.primarySubtle,
         },
         icon: {
             width: 42,
@@ -65,7 +65,7 @@ function createStyles(colours: AppColours) {
             fontSize: 10,
             fontWeight: "900",
             letterSpacing: 0.7,
-            color: colours.primary,
+            color: colours.primaryStrong,
         },
         tip: {
             marginTop: 4,

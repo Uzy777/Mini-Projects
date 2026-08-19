@@ -1,7 +1,9 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { ClipboardCheck, Pause, Play, Square } from "lucide-react-native";
 
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import { AppButton } from "@/components/ui/AppButton";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { useMemo } from "react";
@@ -23,9 +25,7 @@ export function FocusTimerControls({ hasStarted, hasFinished, isRunning, onStart
 
     if (!hasStarted) {
         return (
-            <Pressable style={({ pressed }) => [styles.primaryButton, pressed && styles.primaryButtonPressed]} onPress={onStart}>
-                <Text style={styles.primaryButtonText}>Start Focus Session</Text>
-            </Pressable>
+            <AppButton label="Start Focus Session" icon={<Play size={16} color={colours.onPrimary} fill={colours.onPrimary} />} onPress={onStart} size="lg" fullWidth />
         );
     }
 
@@ -40,29 +40,36 @@ export function FocusTimerControls({ hasStarted, hasFinished, isRunning, onStart
 
                 <Text style={styles.completedMessage}>Take a moment to record what you accomplished.</Text>
 
-                <Pressable style={({ pressed }) => [styles.primaryButton, styles.reviewButton, pressed && styles.primaryButtonPressed]} onPress={onReview}>
-                    <Text style={styles.primaryButtonText}>Review Session</Text>
-                </Pressable>
+                <AppButton
+                    label="Review Session"
+                    icon={<ClipboardCheck size={17} color={colours.onPrimary} />}
+                    onPress={onReview}
+                    size="lg"
+                    fullWidth
+                    style={styles.reviewButton}
+                />
             </View>
         );
     }
 
     return (
         <View style={styles.controlsContainer}>
-            <Pressable
-                style={({ pressed }) => [
-                    isRunning ? styles.secondaryButton : styles.primaryButton,
-
-                    pressed && (isRunning ? styles.secondaryButtonPressed : styles.primaryButtonPressed),
-                ]}
+            <AppButton
+                label={isRunning ? "Pause Session" : "Resume Session"}
+                icon={
+                    isRunning ? (
+                        <Pause size={17} color={colours.text} />
+                    ) : (
+                        <Play size={17} color={colours.onPrimary} fill={colours.onPrimary} />
+                    )
+                }
                 onPress={onToggleTimer}
-            >
-                <Text style={isRunning ? styles.secondaryButtonText : styles.primaryButtonText}>{isRunning ? "Pause Session" : "Resume Session"}</Text>
-            </Pressable>
+                variant={isRunning ? "secondary" : "primary"}
+                size="lg"
+                fullWidth
+            />
 
-            <Pressable style={({ pressed }) => [styles.endEarlyButton, pressed && styles.endEarlyButtonPressed]} onPress={onEndEarly}>
-                <Text style={styles.endEarlyButtonText}>End Session Early</Text>
-            </Pressable>
+            <AppButton label="End Session Early" icon={<Square size={14} color={colours.danger} />} onPress={onEndEarly} variant="ghost" style={styles.endEarlyButton} />
         </View>
     );
 }
@@ -74,64 +81,9 @@ function createStyles(colours: AppColours) {
             marginTop: spacing.lg,
         },
 
-        primaryButton: {
-            width: "100%",
-            alignItems: "center",
-            justifyContent: "center",
-            paddingVertical: 14,
-            paddingHorizontal: spacing.md,
-            borderRadius: radius.md,
-            backgroundColor: colours.primary,
-        },
-
-        primaryButtonPressed: {
-            backgroundColor: colours.primaryPressed,
-        },
-
-        primaryButtonText: {
-            fontSize: 16,
-            fontWeight: "700",
-            color: colours.surface,
-        },
-
-        secondaryButton: {
-            width: "100%",
-            alignItems: "center",
-            justifyContent: "center",
-            paddingVertical: 14,
-            paddingHorizontal: spacing.md,
-            borderWidth: 1,
-            borderColor: colours.border,
-            borderRadius: radius.md,
-            backgroundColor: colours.surface,
-        },
-
-        secondaryButtonPressed: {
-            backgroundColor: colours.background,
-        },
-
-        secondaryButtonText: {
-            fontSize: 16,
-            fontWeight: "700",
-            color: colours.text,
-        },
-
         endEarlyButton: {
             alignSelf: "center",
             marginTop: spacing.sm,
-            paddingHorizontal: spacing.md,
-            paddingVertical: 10,
-            borderRadius: radius.sm,
-        },
-
-        endEarlyButtonPressed: {
-            backgroundColor: colours.dangerSoft,
-        },
-
-        endEarlyButtonText: {
-            fontSize: 14,
-            fontWeight: "700",
-            color: colours.danger,
         },
 
         completedContainer: {

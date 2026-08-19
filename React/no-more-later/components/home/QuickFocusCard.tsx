@@ -18,6 +18,7 @@ import { getActiveFocusSession, saveActiveFocusSession } from "@/services/storag
 import type { ActiveFocusSession, FocusTimelineEvent } from "@/types/models";
 import type { WorkJourney, WorkQuest } from "@/types/work";
 import { calculateActualFocusedSeconds, getRemainingSecondsFromEndTime } from "@/utils/focusTimer";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 
 const focusCompleteSound = require("../../assets/sounds/focus-complete.mp3");
 const QUICK_FOCUS_ROUTE_ID = "quick-focus";
@@ -354,7 +355,8 @@ export function QuickFocusCard() {
 
             <FocusTimerDisplay
                 seconds={shownSeconds}
-                label="READY WHEN YOU ARE"
+                totalSeconds={selectedMinutes * 60}
+                label={hasFinished ? "SESSION COMPLETE" : isRunning ? "FOCUSING" : hasStarted ? "PAUSED" : "READY WHEN YOU ARE"}
                 hint={selectedQuest ? `Focus on ${selectedQuest.title} until the timer ends.` : "Focus without attaching this session to a Quest."}
             />
             <FocusDurationSelector selectedMinutes={selectedMinutes} onSelectMinutes={setSelectedMinutes} disabled={hasStarted} />
@@ -362,10 +364,11 @@ export function QuickFocusCard() {
             <View style={styles.divider} />
 
             <Text style={styles.workingLabel}>WORKING ON</Text>
-            <Pressable
+            <AnimatedPressable
                 disabled={hasStarted}
                 onPress={() => setIsQuestPickerVisible(true)}
-                style={({ pressed }) => [styles.questSelector, hasStarted && styles.disabledSelector, pressed && !hasStarted && styles.pressed]}
+                style={[styles.questSelector, hasStarted && styles.disabledSelector]}
+                haptic="selection"
             >
                 <View style={styles.questIcon}>
                     {selectedQuest ? <Folder size={18} color={colours.primary} /> : <Clock3 size={18} color={colours.textMuted} />}
@@ -382,7 +385,7 @@ export function QuickFocusCard() {
                         <ChevronRight size={16} color={colours.primary} />
                     </View>
                 ) : null}
-            </Pressable>
+            </AnimatedPressable>
 
             <ActiveSessionNotice message={sessionMessage} showReturnButton={existingOtherSession !== null} onReturn={handleReturnToOtherSession} />
 
@@ -407,9 +410,9 @@ export function QuickFocusCard() {
                                 <Text style={styles.eyebrow}>OPTIONAL</Text>
                                 <Text style={styles.modalTitle}>Choose a Quest</Text>
                             </View>
-                            <Pressable onPress={() => setIsQuestPickerVisible(false)} style={styles.closeButton}>
+                            <AnimatedPressable onPress={() => setIsQuestPickerVisible(false)} style={styles.closeButton}>
                                 <X size={19} color={colours.textMuted} />
-                            </Pressable>
+                            </AnimatedPressable>
                         </View>
                         <ScrollView style={styles.questList} contentContainerStyle={styles.questListContent} showsVerticalScrollIndicator={false}>
                             <QuestPickerOption
@@ -446,7 +449,7 @@ function QuestPickerOption({ title, subtitle, selected, onPress }: { title: stri
     const styles = useMemo(() => createStyles(colours), [colours]);
 
     return (
-        <Pressable onPress={onPress} style={({ pressed }) => [styles.pickerOption, selected && styles.selectedPickerOption, pressed && styles.pressed]}>
+        <AnimatedPressable onPress={onPress} haptic="selection" style={[styles.pickerOption, selected && styles.selectedPickerOption]}>
             <View style={styles.pickerOptionIcon}>
                 <Folder size={18} color={selected ? colours.primary : colours.textMuted} />
             </View>
@@ -455,7 +458,7 @@ function QuestPickerOption({ title, subtitle, selected, onPress }: { title: stri
                 <Text style={styles.questMeta}>{subtitle}</Text>
             </View>
             {selected ? <Check size={18} color={colours.primary} /> : null}
-        </Pressable>
+        </AnimatedPressable>
     );
 }
 

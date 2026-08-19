@@ -5,6 +5,7 @@ import Svg, { Circle, Line, Polyline } from "react-native-svg";
 import type { ReactNode } from "react";
 import type { StyleProp, ViewStyle } from "react-native";
 
+import { AppCard } from "@/components/ui/AppCard";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
@@ -20,10 +21,7 @@ type ChartProps = {
 };
 
 export function ProgressCard({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
-    const { colours } = useAppearance();
-    const styles = useMemo(() => createStyles(colours), [colours]);
-
-    return <View style={[styles.card, style]}>{children}</View>;
+    return <AppCard style={style}>{children}</AppCard>;
 }
 
 export function ProgressRing({ progress, size = 74, label }: { progress: number; size?: number; label?: string }) {
@@ -225,13 +223,6 @@ function ChartEmptyState({ height, message = "No focus activity in this period."
 
 function createStyles(colours: AppColours) {
     return StyleSheet.create({
-        card: {
-            padding: spacing.md,
-            borderWidth: 1,
-            borderColor: colours.border,
-            borderRadius: radius.lg,
-            backgroundColor: colours.surface,
-        },
         barChart: {
             flexDirection: "row",
             alignItems: "stretch",

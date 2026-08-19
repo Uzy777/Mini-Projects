@@ -1,48 +1,25 @@
-export const colours = {
-    background: "#f6f7fb",
-    surface: "#ffffff",
-
-    text: "#171717",
-    textMuted: "#737373",
-
-    border: "#e5e7eb",
-
-    primary: "#4f46e5",
-    primaryPressed: "#4338ca",
-    primarySoft: "#eef2ff",
-    primaryBorder: "#c7d2fe",
-
-    success: "#15803d",
-    successSoft: "#dcfce7",
-
-    warning: "#b45309",
-    warningSoft: "#fffbeb",
-    warningBorder: "#fde68a",
-
-    danger: "#b91c1c",
-    dangerSoft: "#fee2e2",
-
-    leaderboardGold: "#a16207",
-    leaderboardGoldSoft: "#fef3c7",
-
-    leaderboardSilver: "#64748b",
-    leaderboardSilverSoft: "#f1f5f9",
-
-    leaderboardBronze: "#9a5b2f",
-    leaderboardBronzeSoft: "#ffedd5",
-} as const;
-
 export const spacing = {
+    xxs: 2,
     xs: 4,
     sm: 8,
     md: 16,
     lg: 24,
     xl: 32,
+    xxl: 40,
+    xxxl: 56,
 } as const;
 
 export const radius = {
     sm: 8,
     md: 12,
     lg: 18,
+    xl: 24,
     pill: 999,
+} as const;
+
+export const layout = {
+    contentMaxWidth: 1180,
+    readingMaxWidth: 720,
+    mobileBreakpoint: 700,
+    desktopBreakpoint: 960,
 } as const;

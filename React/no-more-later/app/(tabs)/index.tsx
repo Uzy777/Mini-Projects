@@ -1,4 +1,4 @@
-import { StyleSheet, View, ScrollView } from "react-native";
+import { StyleSheet, View, ScrollView, useWindowDimensions } from "react-native";
 import { useState, useCallback, useMemo } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 
@@ -7,7 +7,7 @@ import { HomeHeader } from "../../components/home/HomeHeader";
 import { QuickFocusCard } from "../../components/home/QuickFocusCard";
 import { FocusTipCard } from "../../components/home/FocusTipCard";
 import { calculateCurrentStreak } from "../../utils/focusSessionStats";
-import { spacing } from "@/constants/design";
+import { layout, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
@@ -19,8 +19,10 @@ export default function HomeScreen() {
     const router = useRouter();
     const { session, profile } = useAuth();
     const { colours } = useAppearance();
+    const { width } = useWindowDimensions();
+    const isWide = width >= 900;
 
-    const styles = useMemo(() => createStyles(colours), [colours]);
+    const styles = useMemo(() => createStyles(colours, isWide), [colours, isWide]);
 
     const [focusSessions, setFocusSessions] = useState<FocusSessionRecord[]>([]);
 
@@ -78,8 +80,14 @@ export default function HomeScreen() {
                         />
                         */}
 
-                        <QuickFocusCard />
-                        <FocusTipCard />
+                        <View style={styles.homeGrid}>
+                            <View style={styles.focusColumn}>
+                                <QuickFocusCard />
+                            </View>
+                            <View style={styles.tipColumn}>
+                                <FocusTipCard />
+                            </View>
+                        </View>
                     </View>
                 </ScrollView>
             </AppScreenBackground>
@@ -87,11 +95,11 @@ export default function HomeScreen() {
     );
 }
 
-function createStyles(colours: AppColours) {
+function createStyles(colours: AppColours, isWide: boolean) {
     return StyleSheet.create({
         contentContainer: {
             width: "100%",
-            maxWidth: 720,
+            maxWidth: layout.contentMaxWidth,
             alignSelf: "center",
             paddingHorizontal: spacing.lg,
             paddingTop: spacing.lg,
@@ -99,6 +107,19 @@ function createStyles(colours: AppColours) {
         },
         contentSections: {
             gap: spacing.md,
+        },
+        homeGrid: {
+            flexDirection: isWide ? "row" : "column",
+            alignItems: "flex-start",
+            gap: spacing.lg,
+        },
+        focusColumn: {
+            width: isWide ? "auto" : "100%",
+            flex: isWide ? 1.6 : undefined,
+        },
+        tipColumn: {
+            width: isWide ? "auto" : "100%",
+            flex: isWide ? 0.8 : undefined,
         },
         screen: {
             flex: 1,

@@ -1,5 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
+import { AppButton } from "@/components/ui/AppButton";
+import { AppCard } from "@/components/ui/AppCard";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
@@ -21,7 +23,7 @@ export function ReviewResultCard({ earnedXp, totalXp, reachedLevel, onReturnToJo
     const styles = useMemo(() => createStyles(colours), [colours]);
 
     return (
-        <View style={styles.card}>
+        <AppCard style={styles.card} padding="lg" tone="accent">
             <Text style={styles.label}>REVIEW COMPLETE</Text>
 
             <View style={styles.rewardSection}>
@@ -41,15 +43,10 @@ export function ReviewResultCard({ earnedXp, totalXp, reachedLevel, onReturnToJo
             )}
 
             <View style={styles.actions}>
-                <Pressable style={({ pressed }) => [styles.primaryButton, pressed && styles.primaryButtonPressed]} onPress={onReturnToJourneys}>
-                    <Text style={styles.primaryButtonText}>{returnLabel}</Text>
-                </Pressable>
-
-                <Pressable style={({ pressed }) => [styles.secondaryButton, pressed && styles.secondaryButtonPressed]} onPress={onViewHistory}>
-                    <Text style={styles.secondaryButtonText}>View Session History</Text>
-                </Pressable>
+                <AppButton label={returnLabel} onPress={onReturnToJourneys} fullWidth size="lg" />
+                <AppButton label="View Session History" onPress={onViewHistory} fullWidth variant="secondary" />
             </View>
-        </View>
+        </AppCard>
     );
 }
 
@@ -57,11 +54,7 @@ function createStyles(colours: AppColours) {
     return StyleSheet.create({
         card: {
             width: "100%",
-            padding: spacing.lg,
-            borderWidth: 1,
-            borderColor: colours.border,
-            borderRadius: radius.lg,
-            backgroundColor: colours.surface,
+            marginTop: spacing.xl,
             alignItems: "center",
         },
 
@@ -128,42 +121,5 @@ function createStyles(colours: AppColours) {
             gap: spacing.sm,
         },
 
-        primaryButton: {
-            width: "100%",
-            alignItems: "center",
-            paddingVertical: 14,
-            borderRadius: radius.md,
-            backgroundColor: colours.primary,
-        },
-
-        primaryButtonPressed: {
-            backgroundColor: colours.primaryPressed,
-        },
-
-        primaryButtonText: {
-            fontSize: 15,
-            fontWeight: "700",
-            color: colours.surface,
-        },
-
-        secondaryButton: {
-            width: "100%",
-            alignItems: "center",
-            paddingVertical: 13,
-            borderWidth: 1,
-            borderColor: colours.border,
-            borderRadius: radius.md,
-            backgroundColor: colours.surface,
-        },
-
-        secondaryButtonPressed: {
-            backgroundColor: colours.background,
-        },
-
-        secondaryButtonText: {
-            fontSize: 15,
-            fontWeight: "700",
-            color: colours.text,
-        },
     });
 }

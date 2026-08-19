@@ -425,7 +425,7 @@ function createStyles(colours: AppColours) {
         retryButtonText: {
             fontSize: 12,
             fontWeight: "800",
-            color: "#ffffff",
+            color: colours.onPrimary,
         },
         sections: {
             gap: spacing.lg,

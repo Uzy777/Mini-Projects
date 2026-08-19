@@ -253,7 +253,7 @@ function createStyles(colours: AppColours) {
             fontWeight: "900",
         },
         selectedDayNumber: {
-            color: "#ffffff",
+            color: colours.onPrimary,
             fontWeight: "800",
         },
         dayDots: {
@@ -268,7 +268,7 @@ function createStyles(colours: AppColours) {
             borderRadius: radius.pill,
         },
         selectedDayDot: {
-            backgroundColor: "#ffffff",
+            backgroundColor: colours.onPrimary,
         },
         summaryHeader: {
             flexDirection: "row",

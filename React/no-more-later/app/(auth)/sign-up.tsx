@@ -289,7 +289,7 @@ function createStyles(colours: AppColours) {
         submitButtonText: {
             fontSize: 15,
             fontWeight: "700",
-            color: colours.surface,
+            color: colours.onPrimary,
         },
         submitButtonDisabled: {
             opacity: 0.6,

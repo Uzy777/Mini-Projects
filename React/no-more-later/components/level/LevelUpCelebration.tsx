@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Animated, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { radius, spacing } from "@/constants/design";
@@ -7,7 +7,6 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import type { AppColours } from "@/constants/appearanceColours";
 import { getFocusRank } from "@/utils/rank";
 import { getRankImage } from "@/utils/rankImage";
-import { useMemo } from "react";
 
 type LevelUpCelebrationProps = {
     previousLevel: number;
@@ -159,15 +158,13 @@ export function LevelUpCelebration({ previousLevel, newLevel, earnedXp, onContin
 
             ...newlyCompletedDiamondAnimations,
         ]).start();
-    }, [diamondAnimations, newCompletedSteps, opacity, previousCompletedSteps, scale]);
+    }, [diamondAnimations, newCompletedSteps, newRankOpacity, newRankScale, opacity, previousCompletedSteps, previousRankOpacity, previousRankScale, rankChanged, scale]);
 
     if (!newRank) {
         return null;
     }
 
     const newRankImage = getRankImage(newRank.id);
-
-    const previousRankImage = previousRank ? getRankImage(previousRank.id) : null;
 
     return (
         <Modal transparent animationType="none" statusBarTranslucent onRequestClose={onContinue}>
@@ -379,7 +376,7 @@ function createStyles(colours: AppColours) {
             fontSize: 15,
             fontWeight: "700",
 
-            color: colours.surface,
+            color: colours.onPrimary,
         },
         badgeContainer: {
             width: 132,

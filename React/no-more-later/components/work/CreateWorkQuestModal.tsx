@@ -278,7 +278,7 @@ function createStyles(colours: AppColours) {
             fontSize: 14,
             fontWeight: "800",
 
-            color: colours.surface,
+            color: colours.onPrimary,
         },
 
         disabled: {

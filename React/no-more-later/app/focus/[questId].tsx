@@ -1,22 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import { StyleSheet, ScrollView } from "react-native";
 import { useAudioPlayer } from "expo-audio";
 import * as Crypto from "expo-crypto";
 
 import type { ActiveFocusSession, FocusTimelineEvent } from "../../types/models";
-import { clearActiveFocusSession, getActiveFocusSession, saveActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
+import { getActiveFocusSession, saveActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
 import { FocusDurationSelector } from "../../components/focus/FocusDurationSelector";
 import { FocusTimerDisplay } from "../../components/focus/FocusTimerDisplay";
 import { FocusTimerControls } from "../../components/focus/FocusTimerControls";
 import { ActiveSessionNotice } from "../../components/focus/ActiveSessionNotice";
 import { calculateActualFocusedSeconds, getRemainingSecondsFromEndTime } from "../../utils/focusTimer";
-import { radius, spacing } from "@/constants/design";
+import { spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
-import { useMemo } from "react";
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
+import { AppCard } from "@/components/ui/AppCard";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
 
 const focusCompleteSound = require("../../assets/sounds/focus-complete.mp3");
 
@@ -210,11 +211,7 @@ export default function FocusScreen() {
                 }
             }
 
-            // CONTROL TIMER FOR TESTING
-            // const totalSeconds =
-            //     selectedMinutes * 60;
-
-            const totalSeconds = 5;
+            const totalSeconds = selectedMinutes * 60;
 
             const calculatedEndTime = Date.now() + totalSeconds * 1000;
 
@@ -412,6 +409,7 @@ export default function FocusScreen() {
     const hasSessionStarted = remainingSeconds !== null;
 
     const hasSessionFinished = remainingSeconds === 0;
+    const shownSeconds = remainingSeconds ?? selectedMinutes * 60;
 
     return (
         <AppScreenBackground>
@@ -422,20 +420,18 @@ export default function FocusScreen() {
                     }}
                 />
 
-                <View style={styles.header}>
-                    <Text style={styles.label}>CURRENT QUEST</Text>
+                <ScreenHeader eyebrow="FOCUS SESSION" title={questTitle ?? "Untitled Quest"} subtitle="Give this one thing your attention." />
 
-                    <Text style={styles.title}>{questTitle ?? "Untitled Quest"}</Text>
-
-                    <Text style={styles.subtitle}>Give this one thing your attention.</Text>
-                </View>
-
-                <View style={styles.sessionContent}>
+                <AppCard style={styles.sessionContent} padding="lg" tone="subtle">
                     <FocusDurationSelector selectedMinutes={selectedMinutes} onSelectMinutes={setSelectedMinutes} disabled={hasSessionStarted} />
 
                     <ActiveSessionNotice message={sessionMessage} showReturnButton={existingActiveSession !== null} onReturn={handleReturnToActiveSession} />
 
-                    {remainingSeconds !== null && <FocusTimerDisplay seconds={remainingSeconds} />}
+                    <FocusTimerDisplay
+                        seconds={shownSeconds}
+                        totalSeconds={selectedMinutes * 60}
+                        label={hasSessionFinished ? "SESSION COMPLETE" : isRunning ? "STAY WITH IT" : hasSessionStarted ? "PAUSED" : "READY TO FOCUS"}
+                    />
 
                     <FocusTimerControls
                         hasStarted={hasSessionStarted}
@@ -446,7 +442,7 @@ export default function FocusScreen() {
                         onEndEarly={handleEndSessionEarly}
                         onReview={handleReviewSession}
                     />
-                </View>
+                </AppCard>
             </ScrollView>
         </AppScreenBackground>
     );
@@ -482,35 +478,9 @@ function createStyles(colours: AppColours) {
             paddingBottom: 48,
         },
 
-        header: {
-            width: "100%",
-            marginBottom: spacing.xl,
-        },
-
-        label: {
-            fontSize: 12,
-            fontWeight: "700",
-            letterSpacing: 0.7,
-            color: colours.primary,
-        },
-
-        title: {
-            marginTop: spacing.sm,
-            fontSize: 30,
-            lineHeight: 36,
-            fontWeight: "800",
-            color: colours.text,
-        },
-
-        subtitle: {
-            marginTop: spacing.sm,
-            fontSize: 15,
-            lineHeight: 22,
-            color: colours.textMuted,
-        },
-
         sessionContent: {
             width: "100%",
+            marginTop: spacing.xl,
             gap: spacing.xl,
         },
 
