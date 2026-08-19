@@ -79,6 +79,10 @@ export function findLatestUnfinishedSession(sessions: FocusSessionRecord[]): Foc
     const checkedQuestIds = new Set<string>();
 
     for (const session of sessions) {
+        if (!session.questId || session.sessionKind === "quick") {
+            continue;
+        }
+
         if (checkedQuestIds.has(session.questId)) {
             continue;
         }

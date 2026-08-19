@@ -29,8 +29,9 @@ export type Quest = {
 export type FocusSessionRecord = {
     id: string;
     journeyId?: string;
-    questId: string;
+    questId?: string;
     questTitle: string;
+    sessionKind?: "quest" | "quick";
     plannedMinutes: number;
     actualSeconds?: number;
     outcome: SessionOutcome;
@@ -53,7 +54,7 @@ export type ActiveFocusSession = {
     isRunning: boolean;
     endTime: number | null;
     timelineEvents?: FocusTimelineEvent[];
-    source?: "work";
+    source?: "work" | "quick-focus";
 };
 
 export type Profile = {

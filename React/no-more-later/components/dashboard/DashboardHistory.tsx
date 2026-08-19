@@ -48,8 +48,8 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
                     return true;
                 }
 
-                const journeyTitle = session.journeyId ? journeyTitles.get(session.journeyId) ?? "Journey quests" : "Standalone quests";
-                return session.questTitle.toLowerCase().includes(normalisedSearch) || journeyTitle.toLowerCase().includes(normalisedSearch);
+                const locationLabel = getSessionLocationLabel(session, journeyTitles);
+                return session.questTitle.toLowerCase().includes(normalisedSearch) || locationLabel.toLowerCase().includes(normalisedSearch);
             }),
         [filter, journeyTitles, normalisedSearch, sessions],
     );
@@ -128,7 +128,7 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
                                 <HistorySessionRow
                                     key={session.id}
                                     session={session}
-                                    journeyTitle={session.journeyId ? journeyTitles.get(session.journeyId) ?? "Journey quests" : "Standalone quests"}
+                                    journeyTitle={getSessionLocationLabel(session, journeyTitles)}
                                     onPress={() =>
                                         router.push({
                                             pathname: "/session/[sessionId]",
@@ -171,6 +171,14 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
             </Modal>
         </View>
     );
+}
+
+function getSessionLocationLabel(session: FocusSessionRecord, journeyTitles: Map<string, string>) {
+    if (session.sessionKind === "quick") {
+        return "No Quest attached";
+    }
+
+    return session.journeyId ? journeyTitles.get(session.journeyId) ?? "Journey quests" : "Standalone Quest";
 }
 
 function HistorySessionRow({ session, journeyTitle, onPress }: { session: FocusSessionRecord; journeyTitle: string; onPress: () => void }) {

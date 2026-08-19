@@ -8,6 +8,8 @@ import { useMemo } from "react";
 
 type FocusTimerDisplayProps = {
     seconds: number;
+    label?: string;
+    hint?: string;
 };
 
 function formatTime(totalSeconds: number) {
@@ -18,20 +20,20 @@ function formatTime(totalSeconds: number) {
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-export function FocusTimerDisplay({ seconds }: FocusTimerDisplayProps) {
+export function FocusTimerDisplay({ seconds, label = "FOCUS TIME", hint = "Stay with this Quest until the timer ends." }: FocusTimerDisplayProps) {
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
 
     return (
         <View style={styles.timerSection}>
-            <Text style={styles.label}>FOCUS TIME</Text>
+            <Text style={styles.label}>{label}</Text>
 
             <View style={styles.timerContainer}>
                 <Text style={styles.timerText}>{formatTime(seconds)}</Text>
             </View>
 
-            <Text style={styles.hint}>Stay with this Quest until the timer ends.</Text>
+            <Text style={styles.hint}>{hint}</Text>
         </View>
     );
 }

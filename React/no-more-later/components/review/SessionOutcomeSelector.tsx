@@ -10,6 +10,7 @@ import { useMemo } from "react";
 type SessionOutcomeSelectorProps = {
     selectedOutcome: SessionOutcome | null;
     onSelectOutcome: (outcome: SessionOutcome) => void;
+    isQuestlessQuickFocus?: boolean;
 };
 
 type OutcomeOption = {
@@ -41,7 +42,7 @@ const outcomeOptions: OutcomeOption[] = [
     },
 ];
 
-export function SessionOutcomeSelector({ selectedOutcome, onSelectOutcome }: SessionOutcomeSelectorProps) {
+export function SessionOutcomeSelector({ selectedOutcome, onSelectOutcome, isQuestlessQuickFocus = false }: SessionOutcomeSelectorProps) {
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -55,6 +56,9 @@ export function SessionOutcomeSelector({ selectedOutcome, onSelectOutcome }: Ses
             <View style={styles.options}>
                 {outcomeOptions.map((option) => {
                     const isSelected = selectedOutcome === option.value;
+                    const label = isQuestlessQuickFocus && option.value === "completed" ? "Finished what I planned" : option.label;
+                    const description =
+                        isQuestlessQuickFocus && option.value === "completed" ? "You completed what you intended for this focus block." : option.description;
 
                     return (
                         <Pressable
@@ -63,14 +67,14 @@ export function SessionOutcomeSelector({ selectedOutcome, onSelectOutcome }: Ses
                             onPress={() => onSelectOutcome(option.value)}
                         >
                             <View style={styles.optionHeader}>
-                                <Text style={[styles.optionLabel, isSelected && styles.selectedOptionLabel]}>{option.label}</Text>
+                                <Text style={[styles.optionLabel, isSelected && styles.selectedOptionLabel]}>{label}</Text>
 
                                 <View style={[styles.selectionCircle, isSelected && styles.selectionCircleSelected]}>
                                     {isSelected && <View style={styles.selectionCircleInner} />}
                                 </View>
                             </View>
 
-                            <Text style={[styles.optionDescription, isSelected && styles.selectedOptionDescription]}>{option.description}</Text>
+                            <Text style={[styles.optionDescription, isSelected && styles.selectedOptionDescription]}>{description}</Text>
                         </Pressable>
                     );
                 })}

@@ -28,7 +28,7 @@ export default function ReviewSessionScreen() {
     const router = useRouter();
     const { session } = useAuth();
 
-    const { questId, questTitle, journeyId, focusSessionId, plannedMinutes, actualSeconds, endedEarly, source } = useLocalSearchParams<{
+    const { questId, questTitle, journeyId, focusSessionId, plannedMinutes, actualSeconds, endedEarly, source, quickFocus } = useLocalSearchParams<{
         questId: string;
         questTitle?: string;
         journeyId?: string;
@@ -36,8 +36,10 @@ export default function ReviewSessionScreen() {
         plannedMinutes?: string;
         actualSeconds?: string;
         endedEarly?: string;
-        source?: "work";
+        source?: "work" | "quick-focus";
+        quickFocus?: string;
     }>();
+    const isQuestlessQuickFocus = quickFocus === "true";
 
     type LevelUpDetails = {
         previousLevel: number;
@@ -59,6 +61,11 @@ export default function ReviewSessionScreen() {
 
     useEffect(() => {
         async function loadQuest() {
+            if (isQuestlessQuickFocus) {
+                setQuestDoneWhen(null);
+                return;
+            }
+
             const { data: remoteQuest, error: remoteQuestError } = await getRemoteQuest(journeyId, questId);
 
             if (remoteQuestError) {
@@ -73,11 +80,16 @@ export default function ReviewSessionScreen() {
         }
 
         loadQuest();
-    }, [journeyId, questId]);
+    }, [isQuestlessQuickFocus, journeyId, questId]);
 
     function handleReturnToJourneys() {
         if (source === "work") {
             router.replace("/work");
+            return;
+        }
+
+        if (source === "quick-focus") {
+            router.replace("/");
             return;
         }
 
@@ -137,7 +149,7 @@ export default function ReviewSessionScreen() {
             const reviewInput = {
                 focusSessionId,
                 journeyId,
-                questId,
+                questId: isQuestlessQuickFocus ? undefined : questId,
                 plannedMinutes: sessionMinutes,
                 actualSeconds: focusedSeconds,
                 outcome: selectedOutcome,
@@ -244,10 +256,15 @@ export default function ReviewSessionScreen() {
                         reachedLevel={reachedLevel}
                         onReturnToJourneys={handleReturnToJourneys}
                         onViewHistory={handleViewHistory}
+                        returnLabel={source === "quick-focus" ? "Return Home" : undefined}
                     />
                 ) : (
                     <View style={styles.reviewSections}>
-                        <SessionOutcomeSelector selectedOutcome={selectedOutcome} onSelectOutcome={handleSelectOutcome} />
+                        <SessionOutcomeSelector
+                            selectedOutcome={selectedOutcome}
+                            onSelectOutcome={handleSelectOutcome}
+                            isQuestlessQuickFocus={isQuestlessQuickFocus}
+                        />
 
                         {selectedOutcome === "completed" && questDoneWhen && (
                             <View style={styles.finishLineCard}>

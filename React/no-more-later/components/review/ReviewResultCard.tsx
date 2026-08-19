@@ -12,9 +12,10 @@ type ReviewResultCardProps = {
     reachedLevel: number | null;
     onReturnToJourneys: () => void;
     onViewHistory: () => void;
+    returnLabel?: string;
 };
 
-export function ReviewResultCard({ earnedXp, totalXp, reachedLevel, onReturnToJourneys, onViewHistory }: ReviewResultCardProps) {
+export function ReviewResultCard({ earnedXp, totalXp, reachedLevel, onReturnToJourneys, onViewHistory, returnLabel = "Return to Journeys" }: ReviewResultCardProps) {
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -41,7 +42,7 @@ export function ReviewResultCard({ earnedXp, totalXp, reachedLevel, onReturnToJo
 
             <View style={styles.actions}>
                 <Pressable style={({ pressed }) => [styles.primaryButton, pressed && styles.primaryButtonPressed]} onPress={onReturnToJourneys}>
-                    <Text style={styles.primaryButtonText}>Return to Journeys</Text>
+                    <Text style={styles.primaryButtonText}>{returnLabel}</Text>
                 </Pressable>
 
                 <Pressable style={({ pressed }) => [styles.secondaryButton, pressed && styles.secondaryButtonPressed]} onPress={onViewHistory}>

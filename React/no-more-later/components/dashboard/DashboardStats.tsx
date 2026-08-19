@@ -42,7 +42,11 @@ export function DashboardStats({ sessions, journeys, referenceDate = new Date() 
     const isWide = width >= 760;
     const focusTotal = trend.focusSeconds.reduce((total, value) => total + value, 0);
     const sessionTotal = trend.sessions.reduce((total, value) => total + value, 0);
-    const completedTotal = new Set(periodSessions.filter((session) => session.outcome === "completed").map((session) => session.questId)).size;
+    const completedTotal = new Set(
+        periodSessions
+            .filter((session) => session.outcome === "completed" && Boolean(session.questId) && session.sessionKind !== "quick")
+            .map((session) => session.questId as string),
+    ).size;
     const periodLabel = PERIOD_OPTIONS.find((option) => option.id === period)?.label ?? "This Month";
 
     return (

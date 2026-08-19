@@ -5,7 +5,7 @@ import type { FocusTimelineEvent, SessionOutcome } from "@/types/models";
 type CompleteRemoteReviewInput = {
     focusSessionId: string;
     journeyId?: string;
-    questId: string;
+    questId?: string;
     plannedMinutes: number;
     actualSeconds: number;
     outcome: SessionOutcome;
@@ -26,17 +26,22 @@ export async function completeRemoteReview(input: CompleteRemoteReviewInput): Pr
     data: CompleteRemoteReviewResult | null;
     error: Error | null;
 }> {
-    const { data, error } = await supabase.rpc("complete_review", {
+    const commonParameters = {
         p_focus_session_id: input.focusSessionId,
-        p_journey_id: input.journeyId ?? null,
-        p_quest_id: input.questId,
         p_planned_minutes: input.plannedMinutes,
         p_actual_seconds: input.actualSeconds,
         p_outcome: input.outcome,
         p_accomplishment: input.accomplishment,
         p_next_action: input.nextAction,
         p_timeline_events: input.timelineEvents,
-    });
+    };
+    const { data, error } = input.questId
+        ? await supabase.rpc("complete_review", {
+              ...commonParameters,
+              p_journey_id: input.journeyId ?? null,
+              p_quest_id: input.questId,
+          })
+        : await supabase.rpc("complete_quick_focus_review", commonParameters);
 
     if (error) {
         return {

@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { AlertCircle, ArrowLeft, CheckCircle2, Clock3, FileText, Flag, Folder, Pause, Play, Square, Star, Target } from "lucide-react-native";
+import { AlertCircle, ArrowLeft, CheckCircle2, Clock3, FileText, Flag, Folder, Pause, Play, Square, Star, Target, TimerReset } from "lucide-react-native";
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
@@ -59,7 +59,9 @@ export default function SessionDetailsScreen() {
 
             setFocusSession(sessionResult.data);
 
-            if (sessionResult.data.journeyId) {
+            if (sessionResult.data.sessionKind === "quick") {
+                setJourneyTitle("");
+            } else if (sessionResult.data.journeyId) {
                 const matchingJourney = journeysResult.data?.find((journey) => journey.id === sessionResult.data?.journeyId);
                 setJourneyTitle(matchingJourney?.title ?? "Journey quests");
             } else {
@@ -139,20 +141,25 @@ function SessionDetailsContent({ session, journeyTitle }: { session: FocusSessio
     const displayedTimeline = hasRecordedCompletion ? timelineEvents : [...timelineEvents, completedEvent];
     const focusCompletedAt = new Date(displayedTimeline[displayedTimeline.length - 1].occurredAt);
     const pauseCount = displayedTimeline.filter((event) => event.type === "paused").length;
+    const isQuickFocus = session.sessionKind === "quick";
 
     return (
         <View style={styles.sections}>
             <View style={styles.summaryCard}>
                 <View style={styles.questHeader}>
                     <View style={styles.questIcon}>
-                        <Folder size={23} color={colours.primary} />
+                        {isQuickFocus ? <TimerReset size={23} color={colours.primary} /> : <Folder size={23} color={colours.primary} />}
                     </View>
                     <View style={styles.questCopy}>
                         <Text style={styles.questTitle}>{session.questTitle}</Text>
-                        <View style={styles.journeyRow}>
-                            <Folder size={12} color={colours.textMuted} />
-                            <Text style={styles.journeyTitle}>{journeyTitle}</Text>
-                        </View>
+                        {!isQuickFocus ? (
+                            <View style={styles.journeyRow}>
+                                <Folder size={12} color={colours.textMuted} />
+                                <Text style={styles.journeyTitle}>{journeyTitle}</Text>
+                            </View>
+                        ) : (
+                            <Text style={styles.journeyTitle}>Focused without a Quest or Journey</Text>
+                        )}
                     </View>
                 </View>
 

@@ -73,7 +73,9 @@ export function getOverviewStats(sessions: FocusSessionRecord[], referenceDate =
     return {
         todaySeconds,
         todaySessions: todaySessions.length,
-        todayCompleted: todaySessions.filter((session) => session.outcome === "completed").length,
+        todayCompleted: todaySessions.filter(
+            (session) => session.outcome === "completed" && Boolean(session.questId) && session.sessionKind !== "quick",
+        ).length,
         todayXp: todaySessions.reduce((total, session) => total + session.earnedXp, 0),
         streak: calculateStreak(sessions, referenceDate),
         weekSeconds,
@@ -91,8 +93,9 @@ export function getCategoryStats(sessions: FocusSessionRecord[], journeys: Journ
     const totals = new Map<string, { label: string; focusedSeconds: number }>();
 
     sessions.forEach((session) => {
-        const id = session.journeyId ?? "standalone";
-        const label = session.journeyId ? journeyTitles.get(session.journeyId) ?? "Journey quests" : "Standalone quests";
+        const isQuickFocus = session.sessionKind === "quick";
+        const id = isQuickFocus ? "quick-focus" : (session.journeyId ?? "standalone");
+        const label = isQuickFocus ? "Quick Focus" : session.journeyId ? journeyTitles.get(session.journeyId) ?? "Journey quests" : "Standalone quests";
         const current = totals.get(id);
 
         totals.set(id, {
@@ -148,15 +151,21 @@ export function getProgressTrend(sessions: FocusSessionRecord[], period: Progres
         (bucket) =>
             new Set(
                 currentSessions
-                    .filter((session) => session.outcome === "completed" && isWithinRange(new Date(session.completedAt), bucket.start, bucket.end))
-                    .map((session) => session.questId),
+                    .filter(
+                        (session) =>
+                            session.outcome === "completed" &&
+                            Boolean(session.questId) &&
+                            session.sessionKind !== "quick" &&
+                            isWithinRange(new Date(session.completedAt), bucket.start, bucket.end),
+                    )
+                    .map((session) => session.questId as string),
             ).size,
     );
 
     const currentFocus = currentSessions.reduce((total, session) => total + getSessionSeconds(session), 0);
     const previousFocus = previousSessions.reduce((total, session) => total + getSessionSeconds(session), 0);
-    const currentCompleted = new Set(currentSessions.filter((session) => session.outcome === "completed").map((session) => session.questId)).size;
-    const previousCompleted = new Set(previousSessions.filter((session) => session.outcome === "completed").map((session) => session.questId)).size;
+    const currentCompleted = countCompletedQuests(currentSessions);
+    const previousCompleted = countCompletedQuests(previousSessions);
 
     return {
         labels: buckets.map((bucket) => bucket.label),
@@ -167,6 +176,14 @@ export function getProgressTrend(sessions: FocusSessionRecord[], period: Progres
         sessionsDelta: percentageChange(currentSessions.length, previousSessions.length),
         questsDelta: percentageChange(currentCompleted, previousCompleted),
     };
+}
+
+function countCompletedQuests(sessions: FocusSessionRecord[]) {
+    return new Set(
+        sessions
+            .filter((session) => session.outcome === "completed" && Boolean(session.questId) && session.sessionKind !== "quick")
+            .map((session) => session.questId as string),
+    ).size;
 }
 
 function calculateStreak(sessions: FocusSessionRecord[], referenceDate: Date) {
