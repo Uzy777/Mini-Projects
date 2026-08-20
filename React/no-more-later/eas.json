@@ -13,6 +13,9 @@
             "distribution": "internal",
             "environment": "preview",
             "channel": "preview",
+            "env": {
+                "EXPO_PUBLIC_ENABLE_PREMIUM_TEST_CONTROLS": "true"
+            },
             "android": {
                 "buildType": "apk"
             }

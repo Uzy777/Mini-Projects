@@ -1,0 +1,2 @@
+export const PREMIUM_TEST_CONTROLS_ENABLED =
+    __DEV__ || process.env.EXPO_PUBLIC_ENABLE_PREMIUM_TEST_CONTROLS === "true";

@@ -2,6 +2,8 @@ import { createContext, useContext, useState } from "react";
 
 import type { ReactNode } from "react";
 
+import { PREMIUM_TEST_CONTROLS_ENABLED } from "@/constants/premium";
+
 type PremiumContextValue = {
     hasPremium: boolean;
     isPremiumLoading: boolean;
@@ -19,7 +21,7 @@ export function PremiumProvider({ children }: PremiumProviderProps) {
     const isPremiumLoading = false;
 
     function setDevelopmentPremium(value: boolean) {
-        if (!__DEV__) {
+        if (!PREMIUM_TEST_CONTROLS_ENABLED) {
             return;
         }
 

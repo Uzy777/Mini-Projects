@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { radius, spacing } from "@/constants/design";
+import { PREMIUM_TEST_CONTROLS_ENABLED } from "@/constants/premium";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { usePremium } from "@/contexts/PremiumContext";
 
@@ -14,19 +15,19 @@ export function DevelopmentPremiumControls() {
 
     const styles = useMemo(() => createStyles(colours), [colours]);
 
-    if (!__DEV__) {
+    if (!PREMIUM_TEST_CONTROLS_ENABLED) {
         return null;
     }
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>DEVELOPMENT</Text>
+            <Text style={styles.label}>TESTING</Text>
 
             <View style={styles.card}>
                 <View style={styles.details}>
                     <Text style={styles.title}>Premium status</Text>
 
-                    <Text style={styles.description}>Simulate Free and Premium users while developing.</Text>
+                    <Text style={styles.description}>Simulate Free and Premium access in this test build.</Text>
                 </View>
 
                 <View style={styles.buttons}>

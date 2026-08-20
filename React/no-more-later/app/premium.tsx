@@ -15,6 +15,7 @@ import {
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
+import { PREMIUM_TEST_CONTROLS_ENABLED } from "@/constants/premium";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { usePremium } from "@/contexts/PremiumContext";
 
@@ -32,7 +33,7 @@ export default function PremiumScreen() {
     );
 
     function handleUnlockPremium() {
-        if (__DEV__) {
+        if (PREMIUM_TEST_CONTROLS_ENABLED) {
             setDevelopmentPremium(true);
         }
     }
