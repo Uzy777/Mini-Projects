@@ -71,7 +71,7 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
     const [backdrop, setBackdrop] = useState<BackdropId>("hills");
 
     useEffect(() => {
-        if (isPremiumLoading) {
+        if (isPremiumLoading || hasLoadedPreferences) {
             return;
         }
 
@@ -103,7 +103,7 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
         return () => {
             isMounted = false;
         };
-    }, []);
+    }, [isPremiumLoading, hasLoadedPreferences, hasPremium]);
 
     useEffect(() => {
         if (!hasLoadedPreferences) {
