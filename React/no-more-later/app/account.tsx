@@ -35,7 +35,7 @@ export default function AccountScreen() {
 
             <ScreenHeader eyebrow="ACCOUNT" title="Your account" subtitle="Manage your profile and app preferences." />
 
-            <View style={styles.profileCard}>
+            {/* <View style={styles.profileCard}>
                 <View style={styles.profileIcon}>
                     <UserRound size={24} color={colours.primary} />
                 </View>
@@ -45,7 +45,7 @@ export default function AccountScreen() {
 
                     <Text style={styles.profileEmail}>{session?.user.email ?? ""}</Text>
                 </View>
-            </View>
+            </View> */}
 
             <View style={styles.section}>
                 <Text style={styles.sectionLabel}>PLAN</Text>
