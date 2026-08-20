@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Inbox, ListChecks, MoreHorizontal, Plus } from "lucide-react-native";
+import Animated, { LinearTransition } from "react-native-reanimated";
 
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { WorkAssetIcon } from "@/components/work/WorkAssetIcon";
@@ -20,9 +21,11 @@ type Props = {
     onSelect: (scope: TaskManagerScope) => void;
     onNewProject: () => void;
     onProjectMore: (project: WorkJourney) => void;
+    renderProjectDragHandle?: (project: WorkJourney, index: number) => ReactNode;
+    draggingProjectId?: string | null;
 };
 
-export function TaskManagerHierarchy({ projects, tasks, status, selected, compact = false, onSelect, onNewProject, onProjectMore }: Props) {
+export function TaskManagerHierarchy({ projects, tasks, status, selected, compact = false, onSelect, onNewProject, onProjectMore, renderProjectDragHandle, draggingProjectId }: Props) {
     const { colours } = useAppearance();
     const styles = useMemo(() => createStyles(colours), [colours]);
     const statusTasks = tasks.filter((task) => task.status === status);
@@ -43,17 +46,18 @@ export function TaskManagerHierarchy({ projects, tasks, status, selected, compac
             <View style={styles.divider} />
             <Text style={styles.createdProjectsLabel}>YOUR PROJECTS</Text>
             <ScrollView style={[styles.projectList, compact && styles.projectListCompact]} contentContainerStyle={styles.projectListContent} nestedScrollEnabled showsVerticalScrollIndicator={false}>
-                {projects.length ? projects.map((project) => {
+                {projects.length ? projects.map((project, index) => {
                     const selectedProject = selectedScope({ kind: "project", id: project.id });
                     return (
-                        <View key={project.id} style={[styles.projectRow, selectedProject && styles.selectedRow]}>
+                        <Animated.View key={project.id} layout={LinearTransition.duration(150)} style={[styles.projectRow, selectedProject && styles.selectedRow, draggingProjectId === project.id && styles.draggingRow]}>
+                            {renderProjectDragHandle?.(project, index)}
                             <AnimatedPressable onPress={() => onSelect({ kind: "project", id: project.id })} style={styles.rowMain}>
                                 <View style={[styles.projectIcon, selectedProject && styles.selectedProjectIcon]}><WorkAssetIcon assetId={project.assetId} size={17} color={selectedProject ? colours.primaryStrong : colours.textMuted} /></View>
                                 <Text numberOfLines={1} style={[styles.rowLabel, selectedProject && styles.selectedLabel]}>{project.title}</Text>
                                 <Text style={styles.count}>{statusTasks.filter((task) => task.journeyId === project.id).length}</Text>
                             </AnimatedPressable>
                             <AnimatedPressable accessibilityLabel={`${project.title} options`} onPress={() => onProjectMore(project)} style={styles.moreButton}><MoreHorizontal size={17} color={colours.textMuted} /></AnimatedPressable>
-                        </View>
+                        </Animated.View>
                     );
                 }) : <Text style={styles.empty}>No Projects yet. Tasks can still remain standalone.</Text>}
             </ScrollView>
@@ -77,6 +81,7 @@ function createStyles(colours: AppColours) {
         basicRow: { minHeight: 42, flexDirection: "row", alignItems: "center", gap: spacing.sm, paddingHorizontal: spacing.sm, borderRadius: radius.md },
         projectRow: { minHeight: 42, flexDirection: "row", alignItems: "center", borderRadius: radius.md },
         selectedRow: { backgroundColor: colours.primarySoft },
+        draggingRow: { backgroundColor: colours.primarySubtle },
         rowMain: { minWidth: 0, flex: 1, minHeight: 40, flexDirection: "row", alignItems: "center", gap: spacing.sm, paddingHorizontal: spacing.sm },
         rowLabel: { minWidth: 0, flex: 1, fontSize: 13, fontWeight: "700", color: colours.text },
         selectedLabel: { color: colours.primaryStrong },

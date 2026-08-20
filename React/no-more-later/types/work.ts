@@ -5,6 +5,7 @@ export type WorkJourney = {
     title: string;
     status: WorkStatus;
     assetId: WorkAssetId;
+    sortOrder: number;
 };
 
 export type WorkQuest = {
@@ -13,6 +14,7 @@ export type WorkQuest = {
     status: WorkStatus;
     journeyId?: string;
     assetId: WorkAssetId;
+    sortOrder: number;
 };
 
 export type WorkAssetId = "task" | "laptop" | "book" | "fitness" | "home" | "cloud" | "shield" | "creative" | "work" | "study" | "health";

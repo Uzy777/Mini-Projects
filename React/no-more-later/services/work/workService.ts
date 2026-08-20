@@ -13,10 +13,14 @@ export async function getRemoteWorkJourneys(userId: string): Promise<{
                 id,
                 title,
                 status,
-                asset_id
+                asset_id,
+                sort_order
             `,
         )
         .eq("user_id", userId)
+        .order("sort_order", {
+            ascending: true,
+        })
         .order("created_at", {
             ascending: false,
         });
@@ -33,6 +37,7 @@ export async function getRemoteWorkJourneys(userId: string): Promise<{
         title: journey.title,
         status: journey.status,
         assetId: journey.asset_id as WorkAssetId,
+        sortOrder: Number(journey.sort_order),
     }));
 
     return {
@@ -53,10 +58,14 @@ export async function getRemoteWorkQuests(userId: string): Promise<{
                 title,
                 status,
                 asset_id,
-                journey_id
+                journey_id,
+                sort_order
             `,
         )
         .eq("user_id", userId)
+        .order("sort_order", {
+            ascending: true,
+        })
         .order("created_at", {
             ascending: false,
         });
@@ -73,6 +82,7 @@ export async function getRemoteWorkQuests(userId: string): Promise<{
         title: quest.title,
         status: quest.status,
         assetId: quest.asset_id as WorkAssetId,
+        sortOrder: Number(quest.sort_order),
         ...(quest.journey_id
             ? {
                   journeyId: quest.journey_id,
@@ -110,7 +120,8 @@ export async function createRemoteWorkQuest(
                 title,
                 status,
                 asset_id,
-                journey_id
+                journey_id,
+                sort_order
             `,
         )
         .single();
@@ -127,6 +138,7 @@ export async function createRemoteWorkQuest(
         title: data.title,
         status: data.status,
         assetId: data.asset_id as WorkAssetId,
+        sortOrder: Number(data.sort_order),
         ...(data.journey_id
             ? {
                   journeyId: data.journey_id,
@@ -161,7 +173,8 @@ export async function createRemoteWorkJourney(
                 id,
                 title,
                 status,
-                asset_id
+                asset_id,
+                sort_order
             `,
         )
         .single();
@@ -178,6 +191,7 @@ export async function createRemoteWorkJourney(
         title: data.title,
         status: data.status,
         assetId: data.asset_id as WorkAssetId,
+        sortOrder: Number(data.sort_order),
     };
 
     return {
@@ -205,7 +219,8 @@ export async function updateRemoteWorkQuestJourney(
                 title,
                 status,
                 asset_id,
-                journey_id
+                journey_id,
+                sort_order
             `,
         )
         .single();
@@ -222,6 +237,7 @@ export async function updateRemoteWorkQuestJourney(
         title: data.title,
         status: data.status,
         assetId: data.asset_id as WorkAssetId,
+        sortOrder: Number(data.sort_order),
         ...(data.journey_id
             ? {
                   journeyId: data.journey_id,
@@ -243,4 +259,20 @@ export async function deleteRemoteWorkJourney(journeyId: string): Promise<{
     return {
         error,
     };
+}
+
+export async function reorderRemoteWorkJourneys(orderedIds: string[]): Promise<{ error: Error | null }> {
+    const { error } = await supabase.rpc("reorder_journeys", {
+        p_ordered_ids: orderedIds,
+    });
+
+    return { error };
+}
+
+export async function reorderRemoteWorkQuests(orderedIds: string[]): Promise<{ error: Error | null }> {
+    const { error } = await supabase.rpc("reorder_quests", {
+        p_ordered_ids: orderedIds,
+    });
+
+    return { error };
 }

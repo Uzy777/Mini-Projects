@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { CheckCircle2, ListChecks, MoreHorizontal, Plus, Search } from "lucide-react-native";
@@ -6,6 +6,7 @@ import { CheckCircle2, ListChecks, MoreHorizontal, Plus, Search } from "lucide-r
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { TaskManagerActionsModal, type ManagedItem } from "@/components/tasks/TaskManagerActionsModal";
 import { TaskManagerCreateModal, type TaskManagerCreateKind } from "@/components/tasks/TaskManagerCreateModal";
+import { TaskManagerDragHandle } from "@/components/tasks/TaskManagerDragHandle";
 import { TaskManagerHierarchy, type TaskManagerScope } from "@/components/tasks/TaskManagerHierarchy";
 import { TaskManagerTaskRow } from "@/components/tasks/TaskManagerTaskRow";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
@@ -26,11 +27,27 @@ import {
     deleteRemoteWorkJourney,
     getRemoteWorkJourneys,
     getRemoteWorkQuests,
+    reorderRemoteWorkJourneys,
+    reorderRemoteWorkQuests,
     updateRemoteWorkQuestJourney,
 } from "@/services/work/workService";
 import type { WorkAssetId, WorkJourney, WorkQuest, WorkStatus } from "@/types/work";
 import { confirmDelete } from "@/utils/confirmDelete";
 import { showMessage } from "@/utils/showMessage";
+
+const PROJECT_ROW_HEIGHT = 45;
+const TASK_ROW_HEIGHT = 72;
+
+type OrderedItem = { id: string; sortOrder: number };
+
+type ActiveReorder<T extends OrderedItem> = {
+    id: string;
+    baseItems: T[];
+    latestItems: T[];
+    visibleIds: string[];
+    startIndex: number;
+    currentIndex: number;
+};
 
 export default function TasksScreen() {
     const { colours } = useAppearance();
@@ -49,6 +66,12 @@ export default function TasksScreen() {
     const [loadError, setLoadError] = useState("");
     const [createKind, setCreateKind] = useState<TaskManagerCreateKind | null>(null);
     const [managedItem, setManagedItem] = useState<ManagedItem | null>(null);
+    const [draggingProjectId, setDraggingProjectId] = useState<string | null>(null);
+    const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
+    const [isSavingProjectOrder, setIsSavingProjectOrder] = useState(false);
+    const [isSavingTaskOrder, setIsSavingTaskOrder] = useState(false);
+    const projectReorder = useRef<ActiveReorder<WorkJourney> | null>(null);
+    const taskReorder = useRef<ActiveReorder<WorkQuest> | null>(null);
 
     const loadData = useCallback(async () => {
         if (!session) {
@@ -207,7 +230,108 @@ export default function TasksScreen() {
         router.push({ pathname: "/focus/[questId]", params: { questId: task.id, questTitle: task.title, source: "tasks", ...(task.journeyId ? { journeyId: task.journeyId } : {}) } });
     }
 
-    const hierarchy = <TaskManagerHierarchy projects={projects} tasks={tasks} status={status} selected={scope} compact={!isDesktop} onSelect={setScope} onNewProject={() => setCreateKind("project")} onProjectMore={(project) => setManagedItem({ kind: "project", id: project.id, title: project.title, status: project.status })} />;
+    function startProjectReorder(projectId: string) {
+        if (isSavingProjectOrder) return;
+        projectReorder.current = createActiveReorder(projects, projects.map((project) => project.id), projectId);
+        setDraggingProjectId(projectId);
+    }
+
+    function moveProjectReorder(distanceY: number) {
+        const activeReorder = projectReorder.current;
+        if (!activeReorder) return;
+        const targetIndex = getTargetIndex(activeReorder, distanceY, PROJECT_ROW_HEIGHT);
+        if (targetIndex === activeReorder.currentIndex) return;
+        activeReorder.currentIndex = targetIndex;
+        activeReorder.latestItems = reorderVisibleItems(activeReorder, targetIndex);
+        setProjects(activeReorder.latestItems);
+    }
+
+    async function finishProjectReorder() {
+        const activeReorder = projectReorder.current;
+        projectReorder.current = null;
+        setDraggingProjectId(null);
+        if (!activeReorder || activeReorder.currentIndex === activeReorder.startIndex) return;
+
+        setIsSavingProjectOrder(true);
+        const result = await reorderRemoteWorkJourneys(activeReorder.latestItems.map((project) => project.id));
+        setIsSavingProjectOrder(false);
+        if (!result.error) return;
+
+        console.error("Failed to reorder Projects:", result.error);
+        setProjects(activeReorder.baseItems);
+        showMessage("Project order was not saved", "Your previous order has been restored. Try again.");
+    }
+
+    function moveProjectByStep(projectId: string, direction: -1 | 1) {
+        startProjectReorder(projectId);
+        moveProjectReorder(direction * PROJECT_ROW_HEIGHT);
+        void finishProjectReorder();
+    }
+
+    function startTaskReorder(taskId: string) {
+        if (isSavingTaskOrder) return;
+        taskReorder.current = createActiveReorder(tasks, scopedTasks.map((task) => task.id), taskId);
+        setDraggingTaskId(taskId);
+    }
+
+    function moveTaskReorder(distanceY: number) {
+        const activeReorder = taskReorder.current;
+        if (!activeReorder) return;
+        const targetIndex = getTargetIndex(activeReorder, distanceY, TASK_ROW_HEIGHT);
+        if (targetIndex === activeReorder.currentIndex) return;
+        activeReorder.currentIndex = targetIndex;
+        activeReorder.latestItems = reorderVisibleItems(activeReorder, targetIndex);
+        setTasks(activeReorder.latestItems);
+    }
+
+    async function finishTaskReorder() {
+        const activeReorder = taskReorder.current;
+        taskReorder.current = null;
+        setDraggingTaskId(null);
+        if (!activeReorder || activeReorder.currentIndex === activeReorder.startIndex) return;
+
+        setIsSavingTaskOrder(true);
+        const result = await reorderRemoteWorkQuests(activeReorder.latestItems.map((task) => task.id));
+        setIsSavingTaskOrder(false);
+        if (!result.error) return;
+
+        console.error("Failed to reorder Tasks:", result.error);
+        setTasks(activeReorder.baseItems);
+        showMessage("Task order was not saved", "Your previous order has been restored. Try again.");
+    }
+
+    function moveTaskByStep(taskId: string, direction: -1 | 1) {
+        startTaskReorder(taskId);
+        moveTaskReorder(direction * TASK_ROW_HEIGHT);
+        void finishTaskReorder();
+    }
+
+    const hierarchy = (
+        <TaskManagerHierarchy
+            projects={projects}
+            tasks={tasks}
+            status={status}
+            selected={scope}
+            compact={!isDesktop}
+            draggingProjectId={draggingProjectId}
+            onSelect={setScope}
+            onNewProject={() => setCreateKind("project")}
+            onProjectMore={(project) => setManagedItem({ kind: "project", id: project.id, title: project.title, status: project.status })}
+            renderProjectDragHandle={projects.length > 1 ? (project, index) => (
+                <TaskManagerDragHandle
+                    label={project.title}
+                    disabled={isSavingProjectOrder}
+                    canMoveUp={index > 0}
+                    canMoveDown={index < projects.length - 1}
+                    onDragStart={() => startProjectReorder(project.id)}
+                    onDragMove={moveProjectReorder}
+                    onDragEnd={() => void finishProjectReorder()}
+                    onMoveUp={() => moveProjectByStep(project.id, -1)}
+                    onMoveDown={() => moveProjectByStep(project.id, 1)}
+                />
+            ) : undefined}
+        />
+    );
 
     return (
         <AppScreenBackground>
@@ -254,9 +378,31 @@ export default function TasksScreen() {
                                 ) : null}
                             </View>
                             <View style={styles.taskList}>
-                                {scopedTasks.length ? scopedTasks.map((task) => {
+                                {scopedTasks.length ? scopedTasks.map((task, index) => {
                                     const project = task.journeyId ? projectById.get(task.journeyId) : undefined;
-                                    return <TaskManagerTaskRow key={task.id} task={task} projectName={project?.title} onFocus={() => focusTask(task)} onMore={() => setManagedItem({ kind: "task", id: task.id, title: task.title, status: task.status, projectId: task.journeyId })} />;
+                                    return (
+                                        <TaskManagerTaskRow
+                                            key={task.id}
+                                            task={task}
+                                            projectName={project?.title}
+                                            isDragging={draggingTaskId === task.id}
+                                            dragHandle={scopedTasks.length > 1 ? (
+                                                <TaskManagerDragHandle
+                                                    label={task.title}
+                                                    disabled={isSavingTaskOrder}
+                                                    canMoveUp={index > 0}
+                                                    canMoveDown={index < scopedTasks.length - 1}
+                                                    onDragStart={() => startTaskReorder(task.id)}
+                                                    onDragMove={moveTaskReorder}
+                                                    onDragEnd={() => void finishTaskReorder()}
+                                                    onMoveUp={() => moveTaskByStep(task.id, -1)}
+                                                    onMoveDown={() => moveTaskByStep(task.id, 1)}
+                                                />
+                                            ) : undefined}
+                                            onFocus={() => focusTask(task)}
+                                            onMore={() => setManagedItem({ kind: "task", id: task.id, title: task.title, status: task.status, projectId: task.journeyId })}
+                                        />
+                                    );
                                 }) : (
                                     <EmptyState
                                         icon={selectedProjectIsComplete && status === "active" && !normalizedQuery ? <CheckCircle2 size={22} color={colours.success} /> : <ListChecks size={22} color={colours.primaryStrong} />}
@@ -276,6 +422,39 @@ export default function TasksScreen() {
             <TaskManagerActionsModal item={managedItem} projects={projects} onClose={() => setManagedItem(null)} onMoveTask={managedItem?.kind === "task" ? (projectId) => void moveTask(projectId) : undefined} onToggleComplete={managedItem?.kind === "task" ? () => { const task = tasks.find((entry) => entry.id === managedItem.id); if (task) requestTaskStatusChange(task); } : undefined} onDelete={requestDeleteManagedItem} />
         </AppScreenBackground>
     );
+}
+
+function createActiveReorder<T extends OrderedItem>(items: T[], visibleIds: string[], id: string): ActiveReorder<T> {
+    const startIndex = visibleIds.indexOf(id);
+
+    return {
+        id,
+        baseItems: items,
+        latestItems: items,
+        visibleIds,
+        startIndex,
+        currentIndex: startIndex,
+    };
+}
+
+function getTargetIndex<T extends OrderedItem>(activeReorder: ActiveReorder<T>, distanceY: number, rowHeight: number) {
+    const requestedIndex = activeReorder.startIndex + Math.round(distanceY / rowHeight);
+    return Math.max(0, Math.min(activeReorder.visibleIds.length - 1, requestedIndex));
+}
+
+function reorderVisibleItems<T extends OrderedItem>(activeReorder: ActiveReorder<T>, targetIndex: number): T[] {
+    const reorderedVisibleIds = [...activeReorder.visibleIds];
+    reorderedVisibleIds.splice(activeReorder.startIndex, 1);
+    reorderedVisibleIds.splice(targetIndex, 0, activeReorder.id);
+
+    const itemById = new Map(activeReorder.baseItems.map((item) => [item.id, item]));
+    const visibleIdSet = new Set(activeReorder.visibleIds);
+    let visibleIndex = 0;
+
+    return activeReorder.baseItems.map((item, index) => {
+        const nextItem = visibleIdSet.has(item.id) ? itemById.get(reorderedVisibleIds[visibleIndex++])! : item;
+        return { ...nextItem, sortOrder: (index + 1) * 1024 };
+    });
 }
 
 function confirmTaskCompletion(taskTitle: string, onConfirm: () => void) {

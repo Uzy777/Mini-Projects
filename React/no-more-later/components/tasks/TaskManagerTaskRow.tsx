@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { MoreHorizontal, Play } from "lucide-react-native";
+import Animated, { LinearTransition } from "react-native-reanimated";
 
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { WorkAssetIcon } from "@/components/work/WorkAssetIcon";
@@ -14,9 +15,11 @@ type Props = {
     projectName?: string;
     onFocus: () => void;
     onMore: () => void;
+    dragHandle?: ReactNode;
+    isDragging?: boolean;
 };
 
-export function TaskManagerTaskRow({ task, projectName, onFocus, onMore }: Props) {
+export function TaskManagerTaskRow({ task, projectName, onFocus, onMore, dragHandle, isDragging = false }: Props) {
     const { colours } = useAppearance();
     const { width } = useWindowDimensions();
     const compact = width < 520;
@@ -25,7 +28,8 @@ export function TaskManagerTaskRow({ task, projectName, onFocus, onMore }: Props
     const path = projectName ?? "Standalone Task";
 
     return (
-        <View style={styles.row}>
+        <Animated.View layout={LinearTransition.duration(150)} style={[styles.row, isDragging && styles.draggingRow]}>
+            {dragHandle}
             <View style={styles.icon}><WorkAssetIcon assetId={task.assetId} size={19} color={completed ? colours.textMuted : colours.primaryStrong} /></View>
             <View style={styles.copy}>
                 <Text numberOfLines={2} style={[styles.title, completed && styles.completedTitle]}>{task.title}</Text>
@@ -38,13 +42,14 @@ export function TaskManagerTaskRow({ task, projectName, onFocus, onMore }: Props
                 </AnimatedPressable>
             ) : null}
             <AnimatedPressable accessibilityLabel={`${task.title} options`} onPress={onMore} style={styles.moreButton}><MoreHorizontal size={19} color={colours.textMuted} /></AnimatedPressable>
-        </View>
+        </Animated.View>
     );
 }
 
 function createStyles(colours: AppColours, compact: boolean) {
     return StyleSheet.create({
         row: { minHeight: 72, flexDirection: "row", alignItems: "center", gap: compact ? spacing.sm : spacing.md, paddingHorizontal: compact ? spacing.sm : spacing.md, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colours.border, backgroundColor: colours.surface },
+        draggingRow: { borderColor: colours.primaryBorder, backgroundColor: colours.primarySubtle },
         icon: { width: 36, height: 36, alignItems: "center", justifyContent: "center", borderRadius: radius.md, backgroundColor: colours.primarySubtle },
         copy: { minWidth: 0, flex: 1 },
         title: { fontSize: 14, lineHeight: 19, fontWeight: "800", color: colours.text },
