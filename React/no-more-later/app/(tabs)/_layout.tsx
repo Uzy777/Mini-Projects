@@ -68,7 +68,7 @@ export default function TabLayout() {
                     tabBarIcon: ({ color, size }) => <Map size={size} color={color} />,
                 }}
             />
-            
+
             <Tabs.Screen
                 name="tasks"
                 options={{
@@ -81,6 +81,8 @@ export default function TabLayout() {
                 name="work"
                 options={{
                     title: "Work",
+                    // COMMENTED OUT AS NOW REPLACED BY TASKS SCREEN DISPLAY
+                    href: null,
                     tabBarIcon: ({ color, size }) => <Layers3 size={size} color={color} />,
                 }}
             />
