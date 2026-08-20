@@ -1,16 +1,17 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Stack, useRouter } from "expo-router";
-import { Check, LockKeyhole } from "lucide-react-native";
+import { Check, Image, LockKeyhole, Palette, SunMoon, Timer } from "lucide-react-native";
 
-import { ACCENT_COLOUR_OPTIONS, COLOUR_MODE_OPTIONS, BACKDROP_OPTIONS } from "@/constants/appearance";
+import { ACCENT_COLOUR_OPTIONS, COLOUR_MODE_OPTIONS, BACKDROP_OPTIONS, TIMER_STYLE_OPTIONS } from "@/constants/appearance";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useMemo, useState } from "react";
 import type { AppColours } from "@/constants/appearanceColours";
 import { usePremium } from "@/contexts/PremiumContext";
 import { PremiumUpsellModal } from "@/components/premium/PremiumUpsellModal";
-import type { AccentColourId, ColourMode, BackdropId } from "@/types/appearance";
+import type { AccentColourId, ColourMode, BackdropId, TimerStyleId } from "@/types/appearance";
 import { AppBackdrop } from "@/components/appearance/AppBackdrop";
+import { TimerStylePreview } from "@/components/appearance/TimerStylePreview";
 
 type RequestedPremiumFeature =
     | {
@@ -27,12 +28,17 @@ type RequestedPremiumFeature =
           type: "backdrop";
           id: BackdropId;
           label: string;
+      }
+    | {
+          type: "timer";
+          id: TimerStyleId;
+          label: string;
       };
 
 export default function AppearanceScreen() {
     const router = useRouter();
 
-    const { colourMode, accentColour, backdrop, colours, setColourMode, setAccentColour, setBackdrop } = useAppearance();
+    const { colourMode, accentColour, backdrop, timerStyle, colours, setColourMode, setAccentColour, setBackdrop, setTimerStyle } = useAppearance();
     const [requestedPremiumFeature, setRequestedPremiumFeature] = useState<RequestedPremiumFeature | null>(null);
     const { hasPremium } = usePremium();
 
@@ -51,7 +57,13 @@ export default function AppearanceScreen() {
             </View>
 
             <View style={styles.section}>
-                <Text style={styles.sectionLabel}>COLOUR MODE</Text>
+                <View style={styles.sectionHeading}>
+                    <View style={styles.sectionIcon}><SunMoon size={18} color={colours.primary} /></View>
+                    <View style={styles.sectionHeadingCopy}>
+                        <Text style={styles.sectionTitle}>Colour mode</Text>
+                        <Text style={styles.sectionDescription}>Choose how light and dark surfaces behave.</Text>
+                    </View>
+                </View>
 
                 <View style={styles.modeCard}>
                     {COLOUR_MODE_OPTIONS.map((option, index) => {
@@ -102,7 +114,13 @@ export default function AppearanceScreen() {
             </View>
 
             <View style={styles.section}>
-                <Text style={styles.sectionLabel}>ACCENT COLOUR</Text>
+                <View style={styles.sectionHeading}>
+                    <View style={styles.sectionIcon}><Palette size={18} color={colours.primary} /></View>
+                    <View style={styles.sectionHeadingCopy}>
+                        <Text style={styles.sectionTitle}>Accent colour</Text>
+                        <Text style={styles.sectionDescription}>Set the colour used for actions, progress and highlights.</Text>
+                    </View>
+                </View>
 
                 <View style={styles.accentCard}>
                     <View style={styles.accentGrid}>
@@ -168,6 +186,61 @@ export default function AppearanceScreen() {
                 </View>
             </View>
 
+            <View style={styles.section}>
+                <View style={styles.sectionHeading}>
+                    <View style={styles.sectionIcon}><Timer size={18} color={colours.primary} /></View>
+                    <View style={styles.sectionHeadingCopy}>
+                        <Text style={styles.sectionTitle}>Timer style</Text>
+                        <Text style={styles.sectionDescription}>Choose the timer face used for Quick Focus, breaks and Tasks.</Text>
+                    </View>
+                </View>
+
+                <View style={styles.timerStyleGrid}>
+                    {TIMER_STYLE_OPTIONS.map((option) => {
+                        const isSelected = option.id === timerStyle;
+                        const isLocked = option.requiresPremium && !hasPremium;
+
+                        return (
+                            <Pressable
+                                key={option.id}
+                                accessibilityRole="radio"
+                                accessibilityState={{ checked: isSelected, disabled: isLocked }}
+                                accessibilityLabel={`${option.name} timer style${isLocked ? ", Premium" : ""}`}
+                                style={({ pressed }) => [
+                                    styles.timerStyleOption,
+                                    isSelected && styles.timerStyleOptionSelected,
+                                    isLocked && styles.timerStyleOptionLocked,
+                                    pressed && styles.timerStyleOptionPressed,
+                                ]}
+                                onPress={() => {
+                                    if (isLocked) {
+                                        setRequestedPremiumFeature({ type: "timer", id: option.id, label: `${option.name} timer style` });
+                                        return;
+                                    }
+
+                                    setTimerStyle(option.id);
+                                }}
+                            >
+                                <View style={styles.timerPreviewWrap}>
+                                    <TimerStylePreview timerStyle={option.id} />
+                                    {isLocked ? (
+                                        <View style={styles.timerLock}><LockKeyhole size={15} strokeWidth={2.5} color={colours.onPrimary} /></View>
+                                    ) : isSelected ? (
+                                        <View style={styles.timerCheck}><Check size={13} strokeWidth={3} color={colours.onPrimary} /></View>
+                                    ) : null}
+                                </View>
+
+                                <View style={styles.timerStyleDetails}>
+                                    <Text style={[styles.timerStyleName, isSelected && styles.timerStyleNameSelected]}>{option.name}</Text>
+                                    <Text style={styles.timerStyleDescription}>{option.description}</Text>
+                                    {/* <Text style={[styles.timerStyleAccess, !option.requiresPremium && styles.timerStyleIncluded]}>{option.requiresPremium ? "Premium" : "Included"}</Text> */}
+                                </View>
+                            </Pressable>
+                        );
+                    })}
+                </View>
+            </View>
+
             <PremiumUpsellModal
                 visible={requestedPremiumFeature !== null}
                 requestedFeature={requestedPremiumFeature?.label ?? null}
@@ -181,9 +254,13 @@ export default function AppearanceScreen() {
             />
 
             <View style={styles.section}>
-                <Text style={styles.sectionLabel}>BACKDROP</Text>
-
-                <Text style={styles.backdropSectionDescription}>Add a subtle background style across the app.</Text>
+                <View style={styles.sectionHeading}>
+                    <View style={styles.sectionIcon}><Image size={18} color={colours.primary} /></View>
+                    <View style={styles.sectionHeadingCopy}>
+                        <Text style={styles.sectionTitle}>Backdrop</Text>
+                        <Text style={styles.sectionDescription}>Add subtle scenery behind the app’s content.</Text>
+                    </View>
+                </View>
 
                 <View style={styles.backdropGrid}>
                     {BACKDROP_OPTIONS.map((option) => {
@@ -288,6 +365,39 @@ function createStyles(colours: AppColours) {
 
         section: {
             marginBottom: spacing.xl,
+        },
+
+        sectionHeading: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.md,
+            marginBottom: spacing.md,
+        },
+
+        sectionIcon: {
+            width: 40,
+            height: 40,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: radius.md,
+            backgroundColor: colours.primarySoft,
+        },
+
+        sectionHeadingCopy: {
+            flex: 1,
+        },
+
+        sectionTitle: {
+            fontSize: 16,
+            fontWeight: "800",
+            color: colours.text,
+        },
+
+        sectionDescription: {
+            marginTop: 2,
+            fontSize: 12,
+            lineHeight: 17,
+            color: colours.textMuted,
         },
 
         sectionLabel: {
@@ -461,6 +571,97 @@ function createStyles(colours: AppColours) {
             fontWeight: "700",
 
             color: colours.textMuted,
+        },
+
+        timerStyleGrid: {
+            flexDirection: "row",
+            flexWrap: "wrap",
+            gap: spacing.md,
+        },
+
+        timerStyleOption: {
+            width: "47%",
+            gap: spacing.sm,
+            padding: spacing.sm,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
+            backgroundColor: colours.surface,
+        },
+
+        timerStyleOptionSelected: {
+            borderColor: colours.primary,
+            backgroundColor: colours.primarySubtle,
+        },
+
+        timerStyleOptionLocked: {
+            opacity: 0.78,
+        },
+
+        timerStyleOptionPressed: {
+            transform: [{ scale: 0.985 }],
+        },
+
+        timerPreviewWrap: {
+            position: "relative",
+        },
+
+        timerLock: {
+            position: "absolute",
+            top: spacing.sm,
+            right: spacing.sm,
+            width: 28,
+            height: 28,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: radius.pill,
+            backgroundColor: colours.primaryStrong,
+        },
+
+        timerCheck: {
+            position: "absolute",
+            top: spacing.sm,
+            right: spacing.sm,
+            width: 26,
+            height: 26,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: radius.pill,
+            backgroundColor: colours.primary,
+        },
+
+        timerStyleDetails: {
+            minHeight: 76,
+        },
+
+        timerStyleName: {
+            fontSize: 14,
+            fontWeight: "800",
+            color: colours.text,
+        },
+
+        timerStyleNameSelected: {
+            color: colours.primaryStrong,
+        },
+
+        timerStyleDescription: {
+            marginTop: 3,
+            fontSize: 11,
+            lineHeight: 16,
+            color: colours.textMuted,
+        },
+
+        timerStyleAccess: {
+            marginTop: spacing.xs,
+            fontSize: 9,
+            fontWeight: "800",
+            letterSpacing: 0.5,
+            textTransform: "uppercase",
+            color: colours.primary,
+        },
+
+        timerStyleIncluded: {
+            color: colours.success,
         },
 
         backdropCard: {

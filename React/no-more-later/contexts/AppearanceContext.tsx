@@ -4,18 +4,19 @@ import type { ReactNode } from "react";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
-import type { AccentColourId, ColourMode, ResolvedColourMode, BackdropId } from "@/types/appearance";
+import type { AccentColourId, ColourMode, ResolvedColourMode, BackdropId, TimerStyleId } from "@/types/appearance";
 import { getAppColours } from "@/constants/appearanceColours";
 import type { AppColours } from "@/constants/appearanceColours";
 import { loadAppearancePreferences, saveAppearancePreferences } from "@/services/storage/appearanceStorage";
 import { usePremium } from "@/contexts/PremiumContext";
 
-import { ACCENT_COLOUR_OPTIONS, COLOUR_MODE_OPTIONS, BACKDROP_OPTIONS } from "@/constants/appearance";
+import { ACCENT_COLOUR_OPTIONS, COLOUR_MODE_OPTIONS, BACKDROP_OPTIONS, TIMER_STYLE_OPTIONS } from "@/constants/appearance";
 
 type AppearanceContextValue = {
     colourMode: ColourMode;
     accentColour: AccentColourId;
     backdrop: BackdropId;
+    timerStyle: TimerStyleId;
     resolvedColourMode: ResolvedColourMode;
     colours: AppColours;
     isAppearanceLoading: boolean;
@@ -23,6 +24,7 @@ type AppearanceContextValue = {
     setColourMode: (mode: ColourMode) => void;
     setAccentColour: (accent: AccentColourId) => void;
     setBackdrop: (backdrop: BackdropId) => void;
+    setTimerStyle: (timerStyle: TimerStyleId) => void;
 };
 
 const AppearanceContext = createContext<AppearanceContextValue | undefined>(undefined);
@@ -61,6 +63,12 @@ function canUseBackdrop(backdrop: BackdropId, hasPremium: boolean) {
     return !option.requiresPremium || hasPremium;
 }
 
+function canUseTimerStyle(timerStyle: TimerStyleId, hasPremium: boolean) {
+    const option = TIMER_STYLE_OPTIONS.find((option) => option.id === timerStyle);
+
+    return Boolean(option && (!option.requiresPremium || hasPremium));
+}
+
 export function AppearanceProvider({ children }: AppearanceProviderProps) {
     const deviceColourScheme = useColorScheme();
     const { hasPremium, isPremiumLoading } = usePremium();
@@ -69,6 +77,7 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
     const [accentColour, setAccentColour] = useState<AccentColourId>("indigo");
     const [hasLoadedPreferences, setHasLoadedPreferences] = useState(false);
     const [backdrop, setBackdrop] = useState<BackdropId>("hills");
+    const [timerStyle, setTimerStyle] = useState<TimerStyleId>("orbit");
 
     useEffect(() => {
         if (isPremiumLoading || hasLoadedPreferences) {
@@ -89,10 +98,12 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
                 const allowedAccentColour = canUseAccentColour(preferences.accentColour, hasPremium);
 
                 const allowedBackdrop = canUseBackdrop(preferences.backdrop, hasPremium);
+                const allowedTimerStyle = canUseTimerStyle(preferences.timerStyle, hasPremium);
 
                 setColourMode(allowedColourMode ? preferences.colourMode : "light");
                 setAccentColour(allowedAccentColour ? preferences.accentColour : "indigo");
                 setBackdrop(allowedBackdrop ? preferences.backdrop : "none");
+                setTimerStyle(allowedTimerStyle ? preferences.timerStyle : "orbit");
             }
 
             setHasLoadedPreferences(true);
@@ -114,10 +125,11 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
             colourMode,
             accentColour,
             backdrop,
+            timerStyle,
         }).catch((error) => {
             console.error("Failed to save appearance preferences:", error);
         });
-    }, [colourMode, accentColour, backdrop, hasLoadedPreferences]);
+    }, [colourMode, accentColour, backdrop, timerStyle, hasLoadedPreferences]);
 
     useEffect(() => {
         if (!hasLoadedPreferences || hasPremium) {
@@ -135,7 +147,11 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
         if (!canUseBackdrop(backdrop, hasPremium)) {
             setBackdrop("none");
         }
-    }, [hasPremium, hasLoadedPreferences, colourMode, accentColour, backdrop]);
+
+        if (!canUseTimerStyle(timerStyle, hasPremium)) {
+            setTimerStyle("orbit");
+        }
+    }, [hasPremium, hasLoadedPreferences, colourMode, accentColour, backdrop, timerStyle]);
 
     const resolvedColourMode = useMemo<ResolvedColourMode>(() => {
         if (colourMode === "system") {
@@ -155,12 +171,14 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
                 colourMode,
                 accentColour,
                 backdrop,
+                timerStyle,
                 resolvedColourMode,
                 colours,
                 isAppearanceLoading: isPremiumLoading || !hasLoadedPreferences,
                 setColourMode,
                 setAccentColour,
                 setBackdrop,
+                setTimerStyle,
             }}
         >
             {children}

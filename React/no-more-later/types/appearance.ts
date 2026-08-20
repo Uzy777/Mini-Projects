@@ -26,3 +26,12 @@ export type BackdropOption = {
     description: string;
     requiresPremium: boolean;
 };
+
+export type TimerStyleId = "orbit" | "minimal" | "segmented" | "soft" | "blocks" | "concentric";
+
+export type TimerStyleOption = {
+    id: TimerStyleId;
+    name: string;
+    description: string;
+    requiresPremium: boolean;
+};

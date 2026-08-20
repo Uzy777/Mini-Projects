@@ -105,6 +105,15 @@ export default function PremiumScreen() {
                     colours={colours}
                     styles={styles}
                 />
+
+                <View style={styles.divider} />
+
+                <FeatureRow
+                    title="Focus timer styles"
+                    description="Choose from six timer faces across Focus and break sessions."
+                    colours={colours}
+                    styles={styles}
+                />
             </View>
 
             {hasPremium ? (

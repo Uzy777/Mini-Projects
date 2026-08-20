@@ -1,4 +1,4 @@
-import type { AccentColourOption, ColourModeOption, BackdropOption } from "@/types/appearance";
+import type { AccentColourOption, ColourModeOption, BackdropOption, TimerStyleOption } from "@/types/appearance";
 
 export const COLOUR_MODE_OPTIONS: ColourModeOption[] = [
     {
@@ -125,6 +125,45 @@ export const BACKDROP_OPTIONS: BackdropOption[] = [
         id: "jungle",
         name: "Jungle",
         description: "A subtle jungle atmosphere.",
+        requiresPremium: true,
+    },
+];
+
+export const TIMER_STYLE_OPTIONS: TimerStyleOption[] = [
+    {
+        id: "orbit",
+        name: "Orbit",
+        description: "The original circular timer.",
+        requiresPremium: false,
+    },
+    {
+        id: "minimal",
+        name: "Minimal",
+        description: "Large type with a quiet progress line.",
+        requiresPremium: true,
+    },
+    {
+        id: "segmented",
+        name: "Segments",
+        description: "A precise, stepped circular dial.",
+        requiresPremium: true,
+    },
+    {
+        id: "soft",
+        name: "Soft Dial",
+        description: "A calm, low-contrast timer face.",
+        requiresPremium: true,
+    },
+    {
+        id: "blocks",
+        name: "Blocks",
+        description: "A compact digital progress display.",
+        requiresPremium: true,
+    },
+    {
+        id: "concentric",
+        name: "Concentric",
+        description: "Layered rings with a focused centre.",
         requiresPremium: true,
     },
 ];

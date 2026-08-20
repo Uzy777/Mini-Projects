@@ -47,6 +47,8 @@ export function PremiumUpsellModal({ visible, requestedFeature, onClose, onUnloc
                         <FeatureRow text="AMOLED deep black" colours={colours} styles={styles} />
 
                         <FeatureRow text="All accent colours" colours={colours} styles={styles} />
+
+                        <FeatureRow text="Additional Focus timer styles" colours={colours} styles={styles} />
                     </View>
 
                     <Pressable style={({ pressed }) => [styles.unlockButton, pressed && styles.unlockButtonPressed]} onPress={onUnlock}>
