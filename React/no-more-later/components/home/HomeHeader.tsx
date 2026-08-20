@@ -4,13 +4,10 @@ import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
-import { Menu } from "lucide-react-native";
 import { useMemo } from "react";
-import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 
 type HomeHeaderProps = {
     displayName: string | null;
-    onPressMenu: () => void;
 };
 
 function getGreeting(): string {
@@ -27,7 +24,7 @@ function getGreeting(): string {
     return "Good evening,";
 }
 
-export function HomeHeader({ displayName, onPressMenu }: HomeHeaderProps) {
+export function HomeHeader({ displayName }: HomeHeaderProps) {
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -41,11 +38,11 @@ export function HomeHeader({ displayName, onPressMenu }: HomeHeaderProps) {
                     <Text style={styles.title}>{displayName ? `${getGreeting()} ${displayName} 👋` : `${getGreeting()} 👋`}</Text>
                 </View>
 
-                <View style={styles.actions}>
+                {/* The original Home account entry is intentionally hidden now that Account lives in the main navigation.
                     <AnimatedPressable style={styles.menuButton} onPress={onPressMenu} accessibilityLabel="Open account menu">
                         <Menu size={20} color={colours.primaryStrong} />
                     </AnimatedPressable>
-                </View>
+                */}
             </View>
 
             <Text style={styles.subtitle}>{'Turn "later" into today.'}</Text>
@@ -107,11 +104,6 @@ function createStyles(colours: AppColours) {
             borderRadius: radius.md,
 
             backgroundColor: colours.primarySubtle,
-        },
-        actions: {
-            flexDirection: "row",
-            alignItems: "center",
-            gap: spacing.sm,
         },
     });
 }

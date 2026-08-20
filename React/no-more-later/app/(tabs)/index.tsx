@@ -1,6 +1,6 @@
 import { StyleSheet, View, ScrollView, useWindowDimensions } from "react-native";
 import { useState, useCallback, useMemo } from "react";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect } from "expo-router";
 
 import type { FocusSessionRecord } from "../../types/models";
 import { HomeHeader } from "../../components/home/HomeHeader";
@@ -15,7 +15,6 @@ import { getRemoteFocusSessions } from "@/services/focusSessions/focusSessionSer
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 
 export default function HomeScreen() {
-    const router = useRouter();
     const { session, profile } = useAuth();
     const { colours } = useAppearance();
     const { width } = useWindowDimensions();
@@ -55,16 +54,12 @@ export default function HomeScreen() {
         }, [session]),
     );
 
-    function handleOpenMenu() {
-        router.push("/account");
-    }
-
     return (
         <View style={styles.screen}>
             <AppScreenBackground>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
                     <View style={styles.contentSections}>
-                        <HomeHeader displayName={profile?.display_name ?? null} onPressMenu={handleOpenMenu} />
+                        <HomeHeader displayName={profile?.display_name ?? null} />
 
                         {/* The Home level card now lives in Progress Overview.
                         <LevelProgressCard
