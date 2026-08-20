@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { updateDisplayName } from "@/services/profile/profileService";
 import { AppButton } from "@/components/ui/AppButton";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { getUsernameValidationMessage } from "@/utils/usernameValidation";
 
 export default function ProfileScreen() {
     const { session, profile, refreshProfile } = useAuth();
@@ -33,8 +34,10 @@ export default function ProfileScreen() {
             return;
         }
 
-        if (!trimmedDisplayName) {
-            setErrorMessage("Display name is required.");
+        const usernameValidationMessage = getUsernameValidationMessage(trimmedDisplayName);
+
+        if (usernameValidationMessage) {
+            setErrorMessage(usernameValidationMessage);
             setSuccessMessage(null);
 
             return;
@@ -184,6 +187,5 @@ function createStyles(colours: AppColours) {
             fontSize: 13,
             color: colours.success,
         },
-
     });
 }

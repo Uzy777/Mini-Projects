@@ -9,6 +9,7 @@ import type { AppColours } from "@/constants/appearanceColours";
 import { AUTH_COLOURS } from "@/constants/appearanceColours";
 import { signUpWithEmail } from "@/services/auth/authService";
 // import { useMemo } from "react";
+import { getUsernameValidationMessage } from "@/utils/usernameValidation";
 
 export default function SignUpScreen() {
     const colours = AUTH_COLOURS;
@@ -29,8 +30,10 @@ export default function SignUpScreen() {
         const trimmedEmail = email.trim().toLowerCase();
         const trimmedDisplayName = displayName.trim();
 
-        if (!trimmedDisplayName) {
-            setValidationMessage("Enter a display name.");
+        const usernameValidationMessage = getUsernameValidationMessage(trimmedDisplayName);
+
+        if (usernameValidationMessage) {
+            setValidationMessage(usernameValidationMessage);
 
             return;
         }
@@ -108,6 +111,8 @@ export default function SignUpScreen() {
                         placeholder="How should we call you?"
                         placeholderTextColor={colours.textMuted}
                         autoCapitalize="words"
+                        autoCorrect={false}
+                        maxLength={40}
                     />
                 </View>
 
