@@ -12,11 +12,13 @@ import { getActiveFocusSession, saveActiveFocusSession } from "@/services/storag
 import type { ActiveFocusSession, FocusTimelineEvent } from "@/types/models";
 
 const FOCUS_CHANNEL_ID = "focus-sessions";
-const FOCUS_COMPLETE_CHANNEL_ID = "focus-session-complete";
+const LEGACY_FOCUS_COMPLETE_CHANNEL_ID = "focus-session-complete";
+const FOCUS_COMPLETE_CHANNEL_ID = "focus-session-complete-v2";
 const FOCUS_NOTIFICATION_ID = "active-focus-session";
 const FOCUS_COMPLETE_NOTIFICATION_ID = "focus-session-complete";
 const FOCUS_PRESS_ACTION_ID = "open-focus-session";
 const NOTIFICATION_ICON = "ic_focus_notification";
+const FOCUS_COMPLETE_SOUND = "focus_complete";
 const INDIGO_ACCENT = "#4F46E5";
 
 type FocusNotificationRouteListener = (route: string) => void;
@@ -147,7 +149,9 @@ export async function showFocusSessionCompleteNotification(session: ActiveFocusS
                 smallIcon: NOTIFICATION_ICON,
                 color: INDIGO_ACCENT,
                 category: AndroidCategory.STATUS,
+                sound: FOCUS_COMPLETE_SOUND,
                 autoCancel: true,
+                onlyAlertOnce: true,
                 pressAction: {
                     id: FOCUS_PRESS_ACTION_ID,
                     launchActivity: "default",
@@ -182,6 +186,8 @@ async function prepareAndroidNotifications(): Promise<void> {
 }
 
 async function createFocusNotificationChannels(): Promise<void> {
+    await notifee.deleteChannel(LEGACY_FOCUS_COMPLETE_CHANNEL_ID);
+
     await Promise.all([
         notifee.createChannel({
             id: FOCUS_CHANNEL_ID,
@@ -194,7 +200,7 @@ async function createFocusNotificationChannels(): Promise<void> {
             name: "Focus session completions",
             description: "Lets you know when a Focus Session is complete.",
             importance: AndroidImportance.DEFAULT,
-            sound: "default",
+            sound: FOCUS_COMPLETE_SOUND,
         }),
     ]);
 }

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { StyleSheet, ScrollView } from "react-native";
+import { Platform, StyleSheet, ScrollView } from "react-native";
 import { useAudioPlayer } from "expo-audio";
 import * as Crypto from "expo-crypto";
 
@@ -164,8 +164,10 @@ export default function FocusScreen() {
             if (nextRemainingSeconds === 0) {
                 const completedTimelineEvents = appendCompletedEvent(timelineEvents, activeEndTime);
 
-                completionSoundPlayer.seekTo(0);
-                completionSoundPlayer.play();
+                if (Platform.OS !== "android") {
+                    completionSoundPlayer.seekTo(0);
+                    completionSoundPlayer.play();
+                }
 
                 setIsRunning(false);
                 setEndTime(null);

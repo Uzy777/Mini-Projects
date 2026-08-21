@@ -58,7 +58,7 @@ An EAS Update cannot add or change native code. Create and install a new preview
 
 - Native dependencies, including Notifee or `expo-dev-client`.
 - Expo config plugins.
-- Android permissions, notification icons, or other native configuration.
+- Android permissions, notification icons, notification sounds, or other native configuration.
 - Native Android/iOS source code.
 - The runtime version in a way that makes the existing APK incompatible.
 

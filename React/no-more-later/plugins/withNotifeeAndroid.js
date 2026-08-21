@@ -65,9 +65,17 @@ function withNotifeeAndroid(config) {
         "android",
         async (androidConfig) => {
             const drawableDirectory = path.join(androidConfig.modRequest.platformProjectRoot, "app", "src", "main", "res", "drawable");
+            const rawDirectory = path.join(androidConfig.modRequest.platformProjectRoot, "app", "src", "main", "res", "raw");
+            const completionSoundSource = path.join(androidConfig.modRequest.projectRoot, "assets", "sounds", "focus-complete.mp3");
 
-            await fs.mkdir(drawableDirectory, { recursive: true });
-            await fs.writeFile(path.join(drawableDirectory, "ic_focus_notification.xml"), notificationIcon);
+            await Promise.all([
+                fs.mkdir(drawableDirectory, { recursive: true }),
+                fs.mkdir(rawDirectory, { recursive: true }),
+            ]);
+            await Promise.all([
+                fs.writeFile(path.join(drawableDirectory, "ic_focus_notification.xml"), notificationIcon),
+                fs.copyFile(completionSoundSource, path.join(rawDirectory, "focus_complete.mp3")),
+            ]);
 
             return androidConfig;
         },

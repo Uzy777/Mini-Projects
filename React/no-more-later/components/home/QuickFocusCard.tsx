@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import { Settings2 } from "lucide-react-native";
 import { useAudioPlayer } from "expo-audio";
 import * as Crypto from "expo-crypto";
@@ -182,8 +182,10 @@ export function QuickFocusCard() {
             setIsRunning(false);
             setEndTime(null);
             setTimelineEvents(completedTimeline);
-            completionSoundPlayer.seekTo(0);
-            completionSoundPlayer.play();
+            if (activeMode !== "focus" || Platform.OS !== "android") {
+                completionSoundPlayer.seekTo(0);
+                completionSoundPlayer.play();
+            }
 
             const completedSession = buildActiveSession(activeSessionId, activeMode, selectedMinutes, 0, false, null, completedTimeline, selectedMinutes * 60);
 
