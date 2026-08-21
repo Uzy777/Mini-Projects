@@ -12,12 +12,16 @@ type ReviewResultCardProps = {
     earnedXp: number;
     totalXp: number;
     reachedLevel: number | null;
+    baseXp: number;
+    bonusXp: number;
+    creditedFocusSeconds: number;
+    xpCreditStatus: "credited" | "under_minimum" | "daily_limit" | "unverified" | "legacy";
     onReturnToJourneys: () => void;
     onViewHistory: () => void;
     returnLabel?: string;
 };
 
-export function ReviewResultCard({ earnedXp, totalXp, reachedLevel, onReturnToJourneys, onViewHistory, returnLabel = "Return to Journeys" }: ReviewResultCardProps) {
+export function ReviewResultCard({ earnedXp, totalXp, reachedLevel, baseXp, bonusXp, creditedFocusSeconds, xpCreditStatus, onReturnToJourneys, onViewHistory, returnLabel = "Return to Journeys" }: ReviewResultCardProps) {
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -30,6 +34,14 @@ export function ReviewResultCard({ earnedXp, totalXp, reachedLevel, onReturnToJo
                 <Text style={styles.rewardXp}>+{earnedXp} XP</Text>
 
                 <Text style={styles.totalXp}>{totalXp} total XP</Text>
+            </View>
+
+            <View style={styles.breakdownCard}>
+                <ResultRow label={`${Math.floor(creditedFocusSeconds / 60)} credited focus minutes`} value={`+${baseXp} XP`} />
+                <ResultRow label="Completed-work bonus" value={`+${bonusXp} XP`} muted={bonusXp === 0} />
+                {xpCreditStatus === "under_minimum" ? <Text style={styles.creditNotice}>This session was under five focused minutes.</Text> : null}
+                {xpCreditStatus === "daily_limit" ? <Text style={styles.creditNotice}>Today&apos;s six-hour credit limit was already reached. Your personal focused time was still saved.</Text> : null}
+                {xpCreditStatus === "unverified" ? <Text style={styles.creditNotice}>This session was not server-verified, so it did not award XP or leaderboard time.</Text> : null}
             </View>
 
             {reachedLevel !== null && (
@@ -47,6 +59,18 @@ export function ReviewResultCard({ earnedXp, totalXp, reachedLevel, onReturnToJo
                 <AppButton label="View Session History" onPress={onViewHistory} fullWidth variant="secondary" />
             </View>
         </AppCard>
+    );
+}
+
+function ResultRow({ label, value, muted = false }: { label: string; value: string; muted?: boolean }) {
+    const { colours } = useAppearance();
+    const styles = useMemo(() => createStyles(colours), [colours]);
+
+    return (
+        <View style={styles.breakdownRow}>
+            <Text style={styles.breakdownLabel}>{label}</Text>
+            <Text style={[styles.breakdownValue, muted && styles.breakdownValueMuted]}>{value}</Text>
+        </View>
     );
 }
 
@@ -82,6 +106,48 @@ function createStyles(colours: AppColours) {
             fontSize: 14,
             fontWeight: "600",
             color: colours.textMuted,
+        },
+
+        breakdownCard: {
+            width: "100%",
+            marginTop: spacing.lg,
+            padding: spacing.md,
+            gap: spacing.sm,
+            borderWidth: 1,
+            borderColor: colours.primaryBorder,
+            borderRadius: radius.md,
+            backgroundColor: colours.surface,
+        },
+
+        breakdownRow: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: spacing.md,
+        },
+
+        breakdownLabel: {
+            minWidth: 0,
+            flex: 1,
+            fontSize: 13,
+            color: colours.textMuted,
+        },
+
+        breakdownValue: {
+            flexShrink: 0,
+            fontSize: 13,
+            fontWeight: "800",
+            color: colours.text,
+        },
+
+        breakdownValueMuted: {
+            color: colours.textMuted,
+        },
+
+        creditNotice: {
+            fontSize: 12,
+            lineHeight: 18,
+            color: colours.warning,
         },
 
         levelUpCard: {

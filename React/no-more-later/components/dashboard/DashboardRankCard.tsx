@@ -59,6 +59,7 @@ export function DashboardRankCard({ sessions }: DashboardRankCardProps) {
                     </View>
                     <AnimatedProgressBar progress={progressPercentage / 100} height={8} />
                     <Text style={styles.remainingText}>{remainingXp > 0 ? `${remainingXp} XP remaining` : "Next level ready"}</Text>
+                    <Text style={styles.xpRule}>Every level is 500 XP · 3 XP per credited focus minute</Text>
                 </View>
 
                 <View style={[styles.statsRow, isWide && styles.statsRowWide]}>
@@ -180,6 +181,12 @@ function createStyles(colours: AppColours) {
         },
         remainingText: {
             fontSize: 10,
+            textAlign: "right",
+            color: colours.textMuted,
+        },
+        xpRule: {
+            fontSize: 10,
+            lineHeight: 15,
             textAlign: "right",
             color: colours.textMuted,
         },

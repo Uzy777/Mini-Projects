@@ -83,6 +83,25 @@ npx tsc --noEmit
 npx expo-doctor
 ```
 
+## Supabase migrations and tests
+
+XP, Focus Session verification, and leaderboard scoring are calculated in Supabase. Apply pending migrations before testing a new app build:
+
+```bash
+npx supabase db push
+```
+
+Run the database locally and execute the XP protection tests:
+
+```bash
+npx supabase start
+npx supabase db reset --local --no-seed
+npx supabase test db
+npx supabase db lint --local --level warning
+```
+
+XP V2 awards 3 XP per complete credited focus minute after five minutes. Completed work adds 20%, every level requires 500 XP, and up to 360 focus minutes per UTC day count toward XP and the focus-time leaderboards. Personal Progress still records time beyond the daily competitive limit.
+
 ## Verify the generated Android manifest
 
 Generate the Android project and run Gradle's manifest merge task:

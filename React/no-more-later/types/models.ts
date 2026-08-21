@@ -42,6 +42,11 @@ export type FocusSessionRecord = {
     accomplishment: string;
     nextAction: string;
     earnedXp: number;
+    creditedFocusSeconds?: number;
+    baseXp?: number;
+    bonusXp?: number;
+    xpVersion?: 1 | 2;
+    xpCreditStatus?: "legacy" | "credited" | "under_minimum" | "daily_limit" | "unverified" | "break";
     completedAt: string;
     timelineEvents?: FocusTimelineEvent[];
 };
@@ -62,6 +67,7 @@ export type ActiveFocusSession = {
     timelineEvents?: FocusTimelineEvent[];
     source?: "work" | "tasks" | "quick-focus";
     timerMode?: TimerMode;
+    serverTracked?: boolean;
 };
 
 export type Profile = {

@@ -58,7 +58,7 @@ export function SessionOutcomeSelector({ selectedOutcome, onSelectOutcome, isQue
             {isLocked ? (
                 <View style={styles.lockedMessage}>
                     <LockKeyhole size={14} color={colours.warning} />
-                    <Text style={styles.lockedMessageText}>Set automatically because this Focus Session ended early.</Text>
+                    <Text style={styles.lockedMessageText}>Sessions under five focused minutes are saved as stopped and do not earn XP.</Text>
                 </View>
             ) : (
                 <Text style={styles.helperText}>Choose the outcome that best describes this Focus Session.</Text>

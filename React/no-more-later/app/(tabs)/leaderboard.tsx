@@ -7,14 +7,16 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { RankBadge } from "@/components/ranks/RankBadge";
 import { AppCard } from "@/components/ui/AppCard";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import type { AppColours } from "@/constants/appearanceColours";
 import { layout, radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { getLeaderboard, getMyLeaderboardPosition, type LeaderboardEntry, type MyLeaderboardPosition } from "@/services/leaderboard/leaderboardService";
+import { getLeaderboard, getMyLeaderboardPosition, type LeaderboardEntry, type LeaderboardPeriod, type MyLeaderboardPosition } from "@/services/leaderboard/leaderboardService";
 import { calculateLevel } from "@/utils/level";
 import { getFocusRank } from "@/utils/rank";
+import { formatProgressDuration } from "@/utils/dashboardStats";
 
 export default function LeaderboardScreen() {
     const { colours } = useAppearance();
@@ -26,12 +28,13 @@ export default function LeaderboardScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [myPosition, setMyPosition] = useState<MyLeaderboardPosition | null>(null);
+    const [period, setPeriod] = useState<LeaderboardPeriod>("30_days");
 
     const loadLeaderboard = useCallback(async () => {
         setIsLoading(true);
         setErrorMessage(null);
         try {
-            const [leaderboardData, myPositionData] = await Promise.all([getLeaderboard(), getMyLeaderboardPosition()]);
+            const [leaderboardData, myPositionData] = await Promise.all([getLeaderboard(period), getMyLeaderboardPosition(period)]);
             setLeaderboard(leaderboardData);
             setMyPosition(myPositionData);
         } catch (error) {
@@ -40,7 +43,7 @@ export default function LeaderboardScreen() {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [period]);
 
     useFocusEffect(useCallback(() => { loadLeaderboard(); }, [loadLeaderboard]));
 
@@ -63,6 +66,32 @@ export default function LeaderboardScreen() {
                     action={<View style={styles.headerIcon}><Trophy size={20} color={colours.primaryStrong} /></View>}
                 />
 
+                <View accessibilityRole="tablist" style={styles.periodControl}>
+                    {([
+                        { id: "30_days", label: "Last 30 days" },
+                        { id: "all_time", label: "All time" },
+                    ] as const).map((option) => {
+                        const selected = option.id === period;
+                        return (
+                            <AnimatedPressable
+                                key={option.id}
+                                accessibilityRole="tab"
+                                accessibilityState={{ selected }}
+                                onPress={() => setPeriod(option.id)}
+                                haptic="selection"
+                                style={[styles.periodOption, selected && styles.periodOptionSelected]}
+                            >
+                                <Text style={[styles.periodOptionText, selected && styles.periodOptionTextSelected]}>{option.label}</Text>
+                            </AnimatedPressable>
+                        );
+                    })}
+                </View>
+
+                <AppCard padding="md" tone="subtle">
+                    <Text style={styles.rulesTitle}>Focused time, not XP</Text>
+                    <Text style={styles.rulesText}>Reviewed Focus Sessions of at least five minutes count. Up to six hours per day can contribute; breaks never count.</Text>
+                </AppCard>
+
                 {isLoading && leaderboard.length === 0 ? (
                     <AppCard style={styles.messageCard} padding="lg">
                         <ActivityIndicator color={colours.primary} />
@@ -76,13 +105,13 @@ export default function LeaderboardScreen() {
                     <AppCard style={styles.messageCard} padding="lg" tone="subtle">
                         <View style={styles.emptyIcon}><Sparkles size={22} color={colours.primaryStrong} /></View>
                         <Text style={styles.emptyTitle}>The first spot is waiting</Text>
-                        <Text style={styles.messageText}>Complete a Focus Session to start building the leaderboard.</Text>
+                        <Text style={styles.messageText}>Complete and review a five-minute Focus Session to join the leaderboard.</Text>
                     </AppCard>
                 ) : (
                     <>
                         <View style={styles.sectionHeading}>
                             <Text style={styles.sectionTitle}>Top focusers</Text>
-                            <Text style={styles.sectionCaption}>Ranked by total XP</Text>
+                            <Text style={styles.sectionCaption}>{period === "30_days" ? "Rolling 30-day focus" : "Lifetime focus"}</Text>
                         </View>
                         <View style={[styles.podium, !isWide && styles.podiumCompact]}>
                             {topThree.map((entry, index) => (
@@ -103,7 +132,7 @@ export default function LeaderboardScreen() {
                                         </View>
                                         <Text style={styles.details}>Level {myLevel}{myRank ? ` · ${myRank.name}` : ""}</Text>
                                     </View>
-                                    <Text style={styles.xp}>{myPosition.total_xp.toLocaleString()} XP</Text>
+                                    <Text style={styles.xp}>{formatProgressDuration(myPosition.focused_seconds, true)}</Text>
                                 </AppCard>
                             </View>
                         )}
@@ -125,7 +154,7 @@ export default function LeaderboardScreen() {
                                                 key={entry.user_id}
                                                 style={[styles.row, index < remainingEntries.length - 1 && styles.rowBorder, isCurrentUser && styles.currentUserRow]}
                                             >
-                                                <PositionBadge position={index + 4} />
+                                                <PositionBadge position={entry.leaderboard_position} />
                                                 <RankBadge level={level} />
                                                 <View style={styles.userInfo}>
                                                     <View style={styles.nameRow}>
@@ -134,7 +163,7 @@ export default function LeaderboardScreen() {
                                                     </View>
                                                     <Text style={styles.details}>Level {level}{rank ? ` · ${rank.name}` : ""}</Text>
                                                 </View>
-                                                <Text style={styles.xp}>{entry.total_xp.toLocaleString()} XP</Text>
+                                                <Text style={styles.xp}>{formatProgressDuration(entry.focused_seconds, true)}</Text>
                                             </Animated.View>
                                         );
                                     })}
@@ -157,11 +186,11 @@ function PodiumCard({ entry, position, isCurrentUser, compact }: { entry: Leader
     return (
         <Animated.View entering={FadeInDown.delay(position * 70).duration(320)} style={styles.podiumSlot}>
             <AppCard style={[styles.podiumCard, position === 1 && styles.winnerCard]} tone={isCurrentUser ? "accent" : "default"} padding={compact ? "sm" : "lg"}>
-                <View style={[styles.medal, position === 1 ? styles.gold : position === 2 ? styles.silver : styles.bronze]}><Text style={styles.medalText}>{position}</Text></View>
+                <View style={[styles.medal, entry.leaderboard_position === 1 ? styles.gold : entry.leaderboard_position === 2 ? styles.silver : styles.bronze]}><Text style={styles.medalText}>{entry.leaderboard_position}</Text></View>
                 <RankBadge level={level} />
                 <Text numberOfLines={1} style={styles.podiumName}>{entry.display_name}</Text>
                 <Text numberOfLines={1} style={styles.podiumRank}>Level {level} · {rank?.name ?? "Focused"}</Text>
-                <Text style={styles.podiumXp}>{entry.total_xp.toLocaleString()} XP</Text>
+                <Text style={styles.podiumXp}>{formatProgressDuration(entry.focused_seconds, true)}</Text>
                 {isCurrentUser && <YouBadge />}
             </AppCard>
         </Animated.View>
@@ -185,6 +214,13 @@ function createStyles(colours: AppColours) {
         scrollView: { flex: 1, backgroundColor: "transparent" },
         container: { width: "100%", maxWidth: layout.contentMaxWidth, alignSelf: "center", padding: spacing.lg, paddingBottom: spacing.xxxl, gap: spacing.lg },
         headerIcon: { width: 44, height: 44, alignItems: "center", justifyContent: "center", borderRadius: radius.md, borderWidth: 1, borderColor: colours.primaryBorder, backgroundColor: colours.primarySubtle },
+        periodControl: { flexDirection: "row", padding: 4, borderWidth: 1, borderColor: colours.border, borderRadius: radius.md, backgroundColor: colours.primarySubtle },
+        periodOption: { flex: 1, alignItems: "center", paddingVertical: 10, paddingHorizontal: spacing.sm, borderRadius: radius.sm },
+        periodOptionSelected: { backgroundColor: colours.surface },
+        periodOptionText: { fontSize: 13, fontWeight: "700", textAlign: "center", color: colours.textMuted },
+        periodOptionTextSelected: { color: colours.primaryStrong },
+        rulesTitle: { fontSize: 13, fontWeight: "800", color: colours.text },
+        rulesText: { marginTop: 3, fontSize: 12, lineHeight: 18, color: colours.textMuted },
         sectionHeading: { flexDirection: "row", alignItems: "baseline", justifyContent: "space-between", gap: spacing.md },
         sectionTitle: { fontSize: 17, fontWeight: "800", color: colours.text },
         sectionCaption: { fontSize: 12, fontWeight: "600", color: colours.textMuted },

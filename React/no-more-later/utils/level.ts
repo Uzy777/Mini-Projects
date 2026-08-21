@@ -1,4 +1,4 @@
-import { STARTING_LEVEL_XP, XP_INCREASE_PER_LEVEL, MAX_LEVEL_XP } from "../constants/xp";
+import { XP_PER_LEVEL } from "../constants/xp";
 
 export type LevelProgress = {
     level: number;
@@ -6,28 +6,19 @@ export type LevelProgress = {
     xpRequired: number;
 };
 
-export function getXpRequiredForLevel(level: number) {
-    const calculatedXp = STARTING_LEVEL_XP + (level - 1) * XP_INCREASE_PER_LEVEL;
-
-    return Math.min(calculatedXp, MAX_LEVEL_XP);
+export function getXpRequiredForLevel(_level: number) {
+    return XP_PER_LEVEL;
 }
 
 export function calculateLevelProgress(totalXp: number): LevelProgress {
-    let level = 1;
-    let xpIntoLevel = totalXp;
-    let xpRequired = getXpRequiredForLevel(level);
-
-    while (xpIntoLevel >= xpRequired) {
-        xpIntoLevel -= xpRequired;
-        level += 1;
-
-        xpRequired = getXpRequiredForLevel(level);
-    }
+    const safeTotalXp = Math.max(0, Math.floor(totalXp));
+    const level = Math.floor(safeTotalXp / XP_PER_LEVEL) + 1;
+    const xpIntoLevel = safeTotalXp % XP_PER_LEVEL;
 
     return {
         level,
         xpIntoLevel,
-        xpRequired,
+        xpRequired: XP_PER_LEVEL,
     };
 }
 

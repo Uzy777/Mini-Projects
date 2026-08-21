@@ -81,7 +81,7 @@ export function TimerSettingsModal({ visible, preferences, onClose, onSave }: { 
                         })}
                     </View>
 
-                    <Text style={styles.xpNote}>Focus sessions under 10 minutes earn no XP. Completed focus scales with actual time and is capped at 200 XP. Breaks are tracked for balance and never award XP.</Text>
+                    <Text style={styles.xpNote}>Focus for at least 5 complete minutes to earn 3 XP per minute. Completing the work adds 20%. Up to 360 focused minutes per day count; breaks remain 0 XP.</Text>
                     {saveError ? <Text style={styles.saveError}>{saveError}</Text> : null}
                     <View style={styles.actions}>
                         <AppButton label="Cancel" variant="secondary" disabled={saving} onPress={onClose} style={styles.action} />

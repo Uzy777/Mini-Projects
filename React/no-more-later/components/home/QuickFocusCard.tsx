@@ -17,6 +17,12 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { completeRemoteBreakSession } from "@/services/focusSessions/focusSessionService";
 import {
+    finishRemoteFocusRun,
+    pauseRemoteFocusRun,
+    resumeRemoteFocusRun,
+    startRemoteFocusRun,
+} from "@/services/focusSessions/focusRunService";
+import {
     removeRunningFocusNotification,
     showFocusSessionCompleteNotification,
     showRunningFocusNotification,
@@ -44,6 +50,7 @@ export function QuickFocusCard() {
     const [isRunning, setIsRunning] = useState(false);
     const [endTime, setEndTime] = useState<number | null>(null);
     const [timelineEvents, setTimelineEvents] = useState<FocusTimelineEvent[]>([]);
+    const [serverTracked, setServerTracked] = useState(false);
     const [existingOtherSession, setExistingOtherSession] = useState<ActiveFocusSession | null>(null);
     const [sessionMessage, setSessionMessage] = useState("");
     const [breakRecorded, setBreakRecorded] = useState(false);
@@ -93,6 +100,7 @@ export function QuickFocusCard() {
         setIsRunning(storedSession.isRunning && !hasFinished && storedSession.endTime !== null);
         setEndTime(storedSession.isRunning && !hasFinished ? storedSession.endTime : null);
         setTimelineEvents(restoredTimeline);
+        setServerTracked(Boolean(storedSession.serverTracked));
         setExistingOtherSession(null);
         setBreakRecorded(false);
         setSessionMessage("");
@@ -112,6 +120,10 @@ export function QuickFocusCard() {
             await saveActiveFocusSession(restoredSession);
 
             if (didExpireWhileRunning && restoredMode === "focus") {
+                if (storedSession.serverTracked) {
+                    const trackingError = await finishRemoteFocusRun(storedSessionId);
+                    if (trackingError) console.warn("Failed to finish the restored server-tracked Quick Focus Session:", trackingError);
+                }
                 await showFocusSessionCompleteNotification(restoredSession);
             }
         }
@@ -187,9 +199,15 @@ export function QuickFocusCard() {
                 completionSoundPlayer.play();
             }
 
-            const completedSession = buildActiveSession(activeSessionId, activeMode, selectedMinutes, 0, false, null, completedTimeline, selectedMinutes * 60);
+            const completedSession = buildActiveSession(activeSessionId, activeMode, selectedMinutes, 0, false, null, completedTimeline, serverTracked, selectedMinutes * 60);
 
-            void saveActiveFocusSession(completedSession)
+            const finishPromise = activeMode === "focus" && serverTracked ? finishRemoteFocusRun(activeSessionId) : Promise.resolve(null);
+
+            void finishPromise
+                .then((trackingError) => {
+                    if (trackingError) console.warn("Failed to finish the server-tracked Quick Focus Session:", trackingError);
+                    return saveActiveFocusSession(completedSession);
+                })
                 .then(async () => {
                     if (activeMode === "focus") {
                         await showFocusSessionCompleteNotification(completedSession);
@@ -207,7 +225,7 @@ export function QuickFocusCard() {
         updateRemainingTime();
         const intervalId = setInterval(updateRemainingTime, 1000);
         return () => clearInterval(intervalId);
-    }, [completionSoundPlayer, endTime, isRunning, mode, recordBreak, selectedMinutes, sessionId, timelineEvents]);
+    }, [completionSoundPlayer, endTime, isRunning, mode, recordBreak, selectedMinutes, serverTracked, sessionId, timelineEvents]);
 
     function resetSessionState() {
         setSessionId(null);
@@ -215,6 +233,7 @@ export function QuickFocusCard() {
         setIsRunning(false);
         setEndTime(null);
         setTimelineEvents([]);
+        setServerTracked(false);
         setBreakRecorded(false);
     }
 
@@ -249,16 +268,25 @@ export function QuickFocusCard() {
         const nextSessionId = Crypto.randomUUID();
         const nextEndTime = Date.now() + totalSeconds * 1000;
         const startedEvent: FocusTimelineEvent = { type: "started", occurredAt: new Date().toISOString() };
+        const trackingResult = mode === "focus"
+            ? await startRemoteFocusRun(nextSessionId, selectedMinutes, "quick")
+            : { tracked: false, error: null };
+
+        if (trackingResult.error) {
+            console.warn("This Quick Focus Session could not be verified by the server:", trackingResult.error);
+            setSessionMessage("Timer started offline. This session can be reviewed, but it will not earn XP or leaderboard time.");
+        }
 
         setSessionId(nextSessionId);
         setRemainingSeconds(totalSeconds);
         setIsRunning(true);
         setEndTime(nextEndTime);
         setTimelineEvents([startedEvent]);
+        setServerTracked(trackingResult.tracked);
         setExistingOtherSession(null);
         setBreakRecorded(false);
 
-        const startedSession = buildActiveSession(nextSessionId, mode, selectedMinutes, totalSeconds, true, nextEndTime, [startedEvent]);
+        const startedSession = buildActiveSession(nextSessionId, mode, selectedMinutes, totalSeconds, true, nextEndTime, [startedEvent], trackingResult.tracked);
 
         await saveActiveFocusSession(startedSession);
 
@@ -277,7 +305,12 @@ export function QuickFocusCard() {
             setIsRunning(false);
             setEndTime(null);
             setTimelineEvents(nextTimeline);
-            await saveActiveFocusSession(buildActiveSession(sessionId, mode, selectedMinutes, pausedRemaining, false, null, nextTimeline));
+            await saveActiveFocusSession(buildActiveSession(sessionId, mode, selectedMinutes, pausedRemaining, false, null, nextTimeline, serverTracked));
+
+            if (mode === "focus" && serverTracked) {
+                const trackingError = await pauseRemoteFocusRun(sessionId);
+                if (trackingError) console.warn("Failed to pause the server-tracked Quick Focus Session:", trackingError);
+            }
 
             if (mode === "focus") {
                 await removeRunningFocusNotification();
@@ -291,9 +324,14 @@ export function QuickFocusCard() {
             setIsRunning(true);
             setEndTime(resumedEndTime);
             setTimelineEvents(nextTimeline);
-            const resumedSession = buildActiveSession(sessionId, mode, selectedMinutes, remainingSeconds, true, resumedEndTime, nextTimeline);
+            const resumedSession = buildActiveSession(sessionId, mode, selectedMinutes, remainingSeconds, true, resumedEndTime, nextTimeline, serverTracked);
 
             await saveActiveFocusSession(resumedSession);
+
+            if (mode === "focus" && serverTracked) {
+                const trackingError = await resumeRemoteFocusRun(sessionId);
+                if (trackingError) console.warn("Failed to resume the server-tracked Quick Focus Session:", trackingError);
+            }
 
             if (mode === "focus") {
                 await showRunningFocusNotification(resumedSession);
@@ -311,7 +349,12 @@ export function QuickFocusCard() {
         setEndTime(null);
         setTimelineEvents(completedTimeline);
 
-        await saveActiveFocusSession(buildActiveSession(sessionId, mode, selectedMinutes, 0, false, null, completedTimeline, actualSeconds));
+        await saveActiveFocusSession(buildActiveSession(sessionId, mode, selectedMinutes, 0, false, null, completedTimeline, serverTracked, actualSeconds));
+
+        if (mode === "focus" && serverTracked) {
+            const trackingError = await finishRemoteFocusRun(sessionId);
+            if (trackingError) console.warn("Failed to finish the server-tracked Quick Focus Session:", trackingError);
+        }
 
         if (mode === "focus") {
             await removeRunningFocusNotification();
@@ -436,7 +479,7 @@ export function QuickFocusCard() {
     );
 }
 
-function buildActiveSession(id: string, mode: TimerMode, selectedMinutes: number, remainingSeconds: number, isRunning: boolean, endTime: number | null, timelineEvents: FocusTimelineEvent[], actualSeconds?: number): ActiveFocusSession {
+function buildActiveSession(id: string, mode: TimerMode, selectedMinutes: number, remainingSeconds: number, isRunning: boolean, endTime: number | null, timelineEvents: FocusTimelineEvent[], serverTracked: boolean, actualSeconds?: number): ActiveFocusSession {
     return {
         id,
         questId: mode === "focus" ? QUICK_FOCUS_ROUTE_ID : `${mode}-timer`,
@@ -450,6 +493,7 @@ function buildActiveSession(id: string, mode: TimerMode, selectedMinutes: number
         timelineEvents,
         source: "quick-focus",
         timerMode: mode,
+        serverTracked,
     };
 }
 

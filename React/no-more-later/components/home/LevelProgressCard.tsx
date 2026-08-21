@@ -61,6 +61,8 @@ export function LevelProgressCard({ level, xpIntoLevel, xpRequired, currentStrea
                 />
             </View>
 
+            <Text style={styles.xpRule}>Every level is 500 XP · Focus earns 3 XP per credited minute</Text>
+
             <View style={styles.statsSection}>
                 <View style={styles.stat}>
                     <View style={styles.statIcon}>
@@ -161,6 +163,12 @@ function createStyles(colours: AppColours) {
             height: "100%",
             backgroundColor: colours.primary,
             borderRadius: radius.pill,
+        },
+        xpRule: {
+            fontSize: 11,
+            lineHeight: 16,
+            textAlign: "right",
+            color: colours.textMuted,
         },
         levelArea: {
             alignItems: "flex-end",

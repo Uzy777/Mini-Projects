@@ -24,6 +24,12 @@ import {
     showFocusSessionCompleteNotification,
     showRunningFocusNotification,
 } from "@/services/notifications/focusNotificationService";
+import {
+    finishRemoteFocusRun,
+    pauseRemoteFocusRun,
+    resumeRemoteFocusRun,
+    startRemoteFocusRun,
+} from "@/services/focusSessions/focusRunService";
 
 const focusCompleteSound = require("../../assets/sounds/focus-complete.mp3");
 
@@ -49,6 +55,7 @@ export default function FocusScreen() {
     const [isRunning, setIsRunning] = useState(false);
     const [endTime, setEndTime] = useState<number | null>(null);
     const [timelineEvents, setTimelineEvents] = useState<FocusTimelineEvent[]>([]);
+    const [serverTracked, setServerTracked] = useState(false);
     const [sessionMessage, setSessionMessage] = useState("");
     const [existingActiveSession, setExistingActiveSession] = useState<ActiveFocusSession | null>(null);
 
@@ -59,11 +66,13 @@ export default function FocusScreen() {
 
                 if (!storedSession) {
                     setSelectedMinutes(timerPreferences.focus);
+                    setServerTracked(false);
                     return;
                 }
 
                 if (storedSession.questId !== questId || storedSession.journeyId !== journeyId) {
                     setSelectedMinutes(timerPreferences.focus);
+                    setServerTracked(false);
                     return;
                 }
 
@@ -83,6 +92,7 @@ export default function FocusScreen() {
 
                 setSelectedMinutes(storedSession.selectedMinutes);
                 setTimelineEvents(storedSession.timelineEvents ?? []);
+                setServerTracked(Boolean(storedSession.serverTracked));
 
                 if (storedSession.isRunning && storedSession.endTime !== null) {
                     const restoredRemainingSeconds = getRemainingSecondsFromEndTime(storedSession.endTime);
@@ -96,6 +106,11 @@ export default function FocusScreen() {
                         setEndTime(null);
                         setTimelineEvents(completedTimelineEvents);
 
+                        if (storedSession.serverTracked) {
+                            const trackingError = await finishRemoteFocusRun(storedSessionId);
+                            if (trackingError) console.warn("Failed to finish the restored server-tracked Focus Session:", trackingError);
+                        }
+
                         await saveActiveFocusSession({
                             ...storedSession,
                             id: storedSessionId,
@@ -105,6 +120,7 @@ export default function FocusScreen() {
                             isRunning: false,
                             endTime: null,
                             timelineEvents: completedTimelineEvents,
+                            serverTracked: storedSession.serverTracked,
                             ...(source ? { source } : {}),
                         });
 
@@ -117,6 +133,7 @@ export default function FocusScreen() {
                             isRunning: false,
                             endTime: null,
                             timelineEvents: completedTimelineEvents,
+                            serverTracked: storedSession.serverTracked,
                             ...(source ? { source } : {}),
                         });
 
@@ -185,10 +202,17 @@ export default function FocusScreen() {
                     isRunning: false,
                     endTime: null,
                     timelineEvents: completedTimelineEvents,
+                    serverTracked,
                     ...(source ? { source } : {}),
                 };
 
-                saveActiveFocusSession(completedSession)
+                const finishPromise = serverTracked ? finishRemoteFocusRun(activeSessionId) : Promise.resolve(null);
+
+                finishPromise
+                    .then((trackingError) => {
+                        if (trackingError) console.warn("Failed to finish the server-tracked Focus Session:", trackingError);
+                        return saveActiveFocusSession(completedSession);
+                    })
                     .then(() => showFocusSessionCompleteNotification(completedSession))
                     .catch((error) => {
                         console.error("Failed to save completed Focus Session:", error);
@@ -203,7 +227,7 @@ export default function FocusScreen() {
         return () => {
             clearInterval(intervalId);
         };
-    }, [isRunning, endTime, sessionId, completionSoundPlayer, questId, journeyId, questTitle, selectedMinutes, source, timelineEvents]);
+    }, [isRunning, endTime, sessionId, completionSoundPlayer, questId, journeyId, questTitle, selectedMinutes, serverTracked, source, timelineEvents]);
 
     async function handleStartSession() {
         setSessionMessage("");
@@ -226,6 +250,11 @@ export default function FocusScreen() {
                         endTime: null,
                         timelineEvents: completedTimelineEvents,
                     };
+
+                    if (completedSession.serverTracked) {
+                        const trackingError = await finishRemoteFocusRun(completedSession.id);
+                        if (trackingError) console.warn("Failed to finish the expired server-tracked Focus Session:", trackingError);
+                    }
 
                     await saveActiveFocusSession(completedSession);
                     await showFocusSessionCompleteNotification(completedSession);
@@ -262,11 +291,19 @@ export default function FocusScreen() {
                 occurredAt: new Date().toISOString(),
             };
 
+            const trackingResult = await startRemoteFocusRun(newSessionId, selectedMinutes, "quest");
+
+            if (trackingResult.error) {
+                console.warn("This Focus Session could not be verified by the server:", trackingResult.error);
+                setSessionMessage("Timer started offline. This session can be reviewed, but it will not earn XP or leaderboard time.");
+            }
+
             setSessionId(newSessionId);
             setRemainingSeconds(totalSeconds);
             setEndTime(calculatedEndTime);
             setIsRunning(true);
             setTimelineEvents([startedEvent]);
+            setServerTracked(trackingResult.tracked);
 
             const startedSession: ActiveFocusSession = {
                 id: newSessionId,
@@ -278,6 +315,7 @@ export default function FocusScreen() {
                 isRunning: true,
                 endTime: calculatedEndTime,
                 timelineEvents: [startedEvent],
+                serverTracked: trackingResult.tracked,
                 ...(source ? { source } : {}),
             };
 
@@ -349,10 +387,15 @@ export default function FocusScreen() {
                 isRunning: false,
                 endTime: null,
                 timelineEvents: nextTimelineEvents,
+                serverTracked,
                 ...(source ? { source } : {}),
             };
 
             await saveActiveFocusSession(pausedSession);
+            if (serverTracked) {
+                const trackingError = await pauseRemoteFocusRun(sessionId);
+                if (trackingError) console.warn("Failed to pause the server-tracked Focus Session:", trackingError);
+            }
             await removeRunningFocusNotification();
 
             return;
@@ -382,10 +425,15 @@ export default function FocusScreen() {
                 isRunning: true,
                 endTime: resumedEndTime,
                 timelineEvents: nextTimelineEvents,
+                serverTracked,
                 ...(source ? { source } : {}),
             };
 
             await saveActiveFocusSession(resumedSession);
+            if (serverTracked) {
+                const trackingError = await resumeRemoteFocusRun(sessionId);
+                if (trackingError) console.warn("Failed to resume the server-tracked Focus Session:", trackingError);
+            }
             await showRunningFocusNotification(resumedSession);
         }
     }
@@ -421,8 +469,14 @@ export default function FocusScreen() {
                 isRunning: false,
                 endTime: null,
                 timelineEvents: completedTimelineEvents,
+                serverTracked,
                 ...(source ? { source } : {}),
             });
+
+            if (serverTracked) {
+                const trackingError = await finishRemoteFocusRun(sessionId);
+                if (trackingError) console.warn("Failed to finish the server-tracked Focus Session:", trackingError);
+            }
 
             await removeRunningFocusNotification();
 

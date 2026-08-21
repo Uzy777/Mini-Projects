@@ -16,12 +16,14 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import type { AppColours } from "@/constants/appearanceColours";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteQuest } from "@/services/quests/questService";
-import { completeRemoteReview } from "@/services/reviews/reviewService";
+import { completeRemoteReview, getDailyCreditedFocusSeconds } from "@/services/reviews/reviewService";
 import { LevelUpCelebration } from "@/components/level/LevelUpCelebration";
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import { getActiveSessionReviewState } from "@/utils/focusTimer";
+import { ReviewXpPreview } from "@/components/review/ReviewXpPreview";
+import { MINIMUM_XP_FOCUS_SECONDS } from "@/constants/xp";
 
 export default function ReviewSessionScreen() {
     const { colours } = useAppearance();
@@ -54,7 +56,7 @@ export default function ReviewSessionScreen() {
 
     const [reviewedSeconds, setReviewedSeconds] = useState(routeReviewedSeconds);
     const [isEndedEarly, setIsEndedEarly] = useState(routeEndedEarly);
-    const [selectedOutcome, setSelectedOutcome] = useState<SessionOutcome | null>(routeEndedEarly ? "stopped" : null);
+    const [selectedOutcome, setSelectedOutcome] = useState<SessionOutcome | null>(routeReviewedSeconds < MINIMUM_XP_FOCUS_SECONDS ? "stopped" : null);
     const [questDoneWhen, setQuestDoneWhen] = useState<string | null>(null);
     const [accomplishment, setAccomplishment] = useState("");
     const [validationMessage, setValidationMessage] = useState("");
@@ -64,8 +66,13 @@ export default function ReviewSessionScreen() {
     const [reachedLevel, setReachedLevel] = useState<number | null>(null);
     const [finishLineConfirmed, setFinishLineConfirmed] = useState(false);
     const [levelUpDetails, setLevelUpDetails] = useState<LevelUpDetails | null>(null);
-    const earnsNoXp = reviewedSeconds < 10 * 60;
-    const hasEarlyFinishXp = isEndedEarly && !earnsNoXp;
+    const [dailyCreditedSeconds, setDailyCreditedSeconds] = useState(0);
+    const [awardedBaseXp, setAwardedBaseXp] = useState(0);
+    const [awardedBonusXp, setAwardedBonusXp] = useState(0);
+    const [awardedCreditedSeconds, setAwardedCreditedSeconds] = useState(0);
+    const [xpCreditStatus, setXpCreditStatus] = useState<"credited" | "under_minimum" | "daily_limit" | "unverified" | "legacy">("credited");
+    const [serverTracked, setServerTracked] = useState(true);
+    const earnsNoXp = reviewedSeconds < MINIMUM_XP_FOCUS_SECONDS;
 
     useEffect(() => {
         let isCurrent = true;
@@ -77,8 +84,9 @@ export default function ReviewSessionScreen() {
             const reviewState = getActiveSessionReviewState(activeFocusSession);
             setReviewedSeconds(reviewState.actualSeconds);
             setIsEndedEarly(reviewState.endedEarly);
+            setServerTracked(Boolean(activeFocusSession.serverTracked));
 
-            if (reviewState.endedEarly) {
+            if (reviewState.actualSeconds < MINIMUM_XP_FOCUS_SECONDS) {
                 setSelectedOutcome("stopped");
                 setAccomplishment("");
                 setFinishLineConfirmed(false);
@@ -93,6 +101,14 @@ export default function ReviewSessionScreen() {
             isCurrent = false;
         };
     }, [focusSessionId]);
+
+    useEffect(() => {
+        void getDailyCreditedFocusSeconds()
+            .then(setDailyCreditedSeconds)
+            .catch((error) => {
+                console.warn("Failed to load today's credited Focus time:", error);
+            });
+    }, []);
 
     useEffect(() => {
         async function loadQuest() {
@@ -148,8 +164,8 @@ export default function ReviewSessionScreen() {
         const activeFocusSession = await getActiveFocusSession();
         const matchingActiveSession = activeFocusSession?.id === focusSessionId ? activeFocusSession : null;
         const verifiedReviewState = matchingActiveSession ? getActiveSessionReviewState(matchingActiveSession) : null;
-        const verifiedEndedEarly = verifiedReviewState?.endedEarly ?? isEndedEarly;
-        const verifiedOutcome: SessionOutcome | null = verifiedEndedEarly ? "stopped" : selectedOutcome;
+        const focusedSeconds = verifiedReviewState?.actualSeconds ?? reviewedSeconds;
+        const verifiedOutcome: SessionOutcome | null = focusedSeconds < MINIMUM_XP_FOCUS_SECONDS ? "stopped" : selectedOutcome;
         const trimmedAccomplishment = accomplishment.trim();
         const savedAccomplishment = verifiedOutcome === "stopped" ? "" : trimmedAccomplishment;
 
@@ -185,7 +201,6 @@ export default function ReviewSessionScreen() {
 
         try {
             const sessionMinutes = matchingActiveSession?.selectedMinutes ?? Number(plannedMinutes ?? 0);
-            const focusedSeconds = verifiedReviewState?.actualSeconds ?? reviewedSeconds;
             const timelineEvents = matchingActiveSession?.timelineEvents ?? [];
 
             const reviewInput = {
@@ -195,6 +210,7 @@ export default function ReviewSessionScreen() {
                 plannedMinutes: sessionMinutes,
                 actualSeconds: focusedSeconds,
                 outcome: verifiedOutcome,
+                finishLineConfirmed,
                 accomplishment: savedAccomplishment,
                 nextAction: "",
                 timelineEvents,
@@ -224,6 +240,10 @@ export default function ReviewSessionScreen() {
 
             setEarnedXp(sessionXp);
             setTotalXp(updatedTotalXp);
+            setAwardedBaseXp(completedReview.baseXp);
+            setAwardedBonusXp(completedReview.bonusXp);
+            setAwardedCreditedSeconds(completedReview.creditedFocusSeconds);
+            setXpCreditStatus(completedReview.xpCreditStatus);
 
             if (updatedLevel > previousLevel) {
                 setReachedLevel(updatedLevel);
@@ -247,7 +267,7 @@ export default function ReviewSessionScreen() {
     }
 
     function handleSelectOutcome(outcome: SessionOutcome) {
-        if (isEndedEarly) return;
+        if (earnsNoXp) return;
 
         setSelectedOutcome(outcome);
         if (outcome === "stopped") setAccomplishment("");
@@ -293,6 +313,10 @@ export default function ReviewSessionScreen() {
                     <ReviewResultCard
                         earnedXp={earnedXp}
                         totalXp={totalXp}
+                        baseXp={awardedBaseXp}
+                        bonusXp={awardedBonusXp}
+                        creditedFocusSeconds={awardedCreditedSeconds}
+                        xpCreditStatus={xpCreditStatus}
                         reachedLevel={reachedLevel}
                         onReturnToJourneys={handleReturnToJourneys}
                         onViewHistory={handleViewHistory}
@@ -300,12 +324,12 @@ export default function ReviewSessionScreen() {
                     />
                 ) : (
                     <View style={styles.reviewSections}>
-                        {earnsNoXp || hasEarlyFinishXp ? (
+                        {earnsNoXp || isEndedEarly ? (
                             <View style={[styles.xpNotice, earnsNoXp ? styles.noXpNotice : styles.earlyXpNotice]}>
                                 <Info size={18} color={earnsNoXp ? colours.warning : colours.primaryStrong} />
                                 <View style={styles.xpNoticeCopy}>
-                                    <Text style={styles.xpNoticeTitle}>{earnsNoXp ? "No XP for this session" : "Early-finish XP"}</Text>
-                                    <Text style={styles.xpNoticeText}>{earnsNoXp ? "Focus for at least 10 minutes to earn XP. You can still save this session to History." : "You focused for at least 10 minutes, so this early finish will award 20 XP after Review."}</Text>
+                                    <Text style={styles.xpNoticeTitle}>{earnsNoXp ? "Short Focus Session" : "Your focused time still counts"}</Text>
+                                    <Text style={styles.xpNoticeText}>{earnsNoXp ? "Focus for at least five complete minutes to earn XP. You can still save this session to History." : "You ended the timer early. Choose what actually happened—XP is based on the time you genuinely focused."}</Text>
                                 </View>
                             </View>
                         ) : null}
@@ -315,7 +339,14 @@ export default function ReviewSessionScreen() {
                             onSelectOutcome={handleSelectOutcome}
                             isQuestlessQuickFocus={isQuestlessQuickFocus}
                             terminology={source === "tasks" ? "task" : "quest"}
-                            isLocked={isEndedEarly}
+                            isLocked={earnsNoXp}
+                        />
+
+                        <ReviewXpPreview
+                            actualFocusedSeconds={reviewedSeconds}
+                            selectedOutcome={selectedOutcome}
+                            dailyCreditedSeconds={dailyCreditedSeconds}
+                            serverTracked={serverTracked}
                         />
 
                         {selectedOutcome === "completed" && questDoneWhen && (

@@ -194,6 +194,14 @@ function SessionDetailsContent({ session, journeyTitle }: { session: FocusSessio
                     <DetailRow icon={getOutcomeIcon(session.outcome, colours.primary)} label="Outcome" value={outcomeLabel} accent />
                     <View style={styles.divider} />
                     <DetailRow icon={<Star size={17} color={isBreak ? colours.textMuted : colours.primary} />} label="XP Earned" value={isBreak ? "No XP" : `+${session.earnedXp} XP`} accent={!isBreak} />
+                    {!isBreak && session.xpVersion === 2 ? (
+                        <>
+                            <View style={styles.divider} />
+                            <DetailRow icon={<Clock3 size={17} color={colours.primary} />} label="Credited Focus" value={formatProgressDuration(session.creditedFocusSeconds ?? 0, true)} />
+                            <View style={styles.divider} />
+                            <DetailRow icon={<Star size={17} color={colours.primary} />} label="XP Breakdown" value={`${session.baseXp ?? 0} base + ${session.bonusXp ?? 0} bonus`} />
+                        </>
+                    ) : null}
                 </View>
             </View>
 

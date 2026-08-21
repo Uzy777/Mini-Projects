@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 
-import type { CreateFocusSessionInput, FocusSessionRecord, FocusTimelineEvent, TimerMode } from "@/types/models";
+import type { FocusSessionRecord, FocusTimelineEvent, TimerMode } from "@/types/models";
 
 type CompleteBreakSessionInput = {
     focusSessionId: string;
@@ -23,78 +23,6 @@ export async function completeRemoteBreakSession(input: CompleteBreakSessionInpu
     if (!data) return { data: null, error: new Error("The break was saved without returning a session ID.") };
 
     return { data: { focusSessionId: String(data) }, error: null };
-}
-
-export async function createRemoteFocusSession(
-    userId: string,
-    session: CreateFocusSessionInput,
-): Promise<{
-    data: FocusSessionRecord | null;
-    error: Error | null;
-}> {
-    const { data, error } = await supabase
-        .from("focus_sessions")
-        .insert({
-            user_id: userId,
-            journey_id: session.journeyId ?? null,
-            quest_id: session.questId ?? null,
-            quest_title: session.questTitle,
-            session_kind: session.sessionKind ?? "quest",
-            planned_minutes: session.plannedMinutes,
-            actual_seconds: session.actualSeconds ?? null,
-            outcome: session.outcome,
-            accomplishment: session.accomplishment,
-            next_action: session.nextAction,
-            earned_xp: session.earnedXp,
-            completed_at: session.completedAt,
-            timeline_events: session.timelineEvents ?? [],
-        })
-        .select(
-            `
-                id,
-                journey_id,
-                quest_id,
-                quest_title,
-                session_kind,
-                planned_minutes,
-                actual_seconds,
-                outcome,
-                accomplishment,
-                next_action,
-                earned_xp,
-                completed_at,
-                timeline_events
-            `,
-        )
-        .single();
-
-    if (error) {
-        return {
-            data: null,
-            error,
-        };
-    }
-
-    const focusSession: FocusSessionRecord = {
-        id: data.id,
-        journeyId: data.journey_id ?? undefined,
-        questId: data.quest_id ?? undefined,
-        questTitle: data.quest_title,
-        sessionKind: data.session_kind,
-        plannedMinutes: data.planned_minutes,
-        actualSeconds: data.actual_seconds ?? undefined,
-        outcome: data.outcome,
-        accomplishment: data.accomplishment,
-        nextAction: data.next_action,
-        earnedXp: data.earned_xp,
-        completedAt: data.completed_at,
-        timelineEvents: Array.isArray(data.timeline_events) ? data.timeline_events : [],
-    };
-
-    return {
-        data: focusSession,
-        error: null,
-    };
 }
 
 export async function getRemoteFocusSessions(userId: string): Promise<{
@@ -121,6 +49,11 @@ export async function getRemoteFocusSessions(userId: string): Promise<{
                     accomplishment,
                     next_action,
                     earned_xp,
+                    credited_focus_seconds,
+                    base_xp,
+                    bonus_xp,
+                    xp_version,
+                    xp_credit_status,
                     completed_at,
                     timeline_events
                 `,
@@ -151,6 +84,11 @@ export async function getRemoteFocusSessions(userId: string): Promise<{
                 accomplishment: session.accomplishment,
                 nextAction: session.next_action,
                 earnedXp: session.earned_xp,
+                creditedFocusSeconds: session.credited_focus_seconds,
+                baseXp: session.base_xp,
+                bonusXp: session.bonus_xp,
+                xpVersion: session.xp_version,
+                xpCreditStatus: session.xp_credit_status,
                 completedAt: session.completed_at,
                 timelineEvents: Array.isArray(session.timeline_events) ? session.timeline_events : [],
             })),
@@ -191,6 +129,11 @@ export async function getRemoteFocusSession(
                 accomplishment,
                 next_action,
                 earned_xp,
+                credited_focus_seconds,
+                base_xp,
+                bonus_xp,
+                xp_version,
+                xp_credit_status,
                 completed_at,
                 timeline_events
             `,
@@ -226,6 +169,11 @@ export async function getRemoteFocusSession(
             accomplishment: data.accomplishment,
             nextAction: data.next_action,
             earnedXp: data.earned_xp,
+            creditedFocusSeconds: data.credited_focus_seconds,
+            baseXp: data.base_xp,
+            bonusXp: data.bonus_xp,
+            xpVersion: data.xp_version,
+            xpCreditStatus: data.xp_credit_status,
             completedAt: data.completed_at,
             timelineEvents: Array.isArray(data.timeline_events) ? data.timeline_events : [],
         },

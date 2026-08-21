@@ -9,6 +9,7 @@ type CompleteRemoteReviewInput = {
     plannedMinutes: number;
     actualSeconds: number;
     outcome: SessionOutcome;
+    finishLineConfirmed: boolean;
     accomplishment: string;
     nextAction: string;
     timelineEvents: FocusTimelineEvent[];
@@ -20,19 +21,23 @@ type CompleteRemoteReviewResult = {
     earnedXp: number;
     totalXp: number;
     journeyStatus: "active" | "completed" | null;
+    baseXp: number;
+    bonusXp: number;
+    creditedFocusSeconds: number;
+    dailyCreditedSeconds: number;
+    xpCreditStatus: "credited" | "under_minimum" | "daily_limit" | "unverified" | "legacy";
 };
 
 export async function completeRemoteReview(input: CompleteRemoteReviewInput): Promise<{
     data: CompleteRemoteReviewResult | null;
     error: Error | null;
 }> {
-    const endedEarly = input.actualSeconds < input.plannedMinutes * 60;
     const commonParameters = {
         p_focus_session_id: input.focusSessionId,
         p_planned_minutes: input.plannedMinutes,
         p_actual_seconds: input.actualSeconds,
-        p_outcome: endedEarly ? "stopped" : input.outcome,
-        p_accomplishment: endedEarly ? "" : input.accomplishment,
+        p_outcome: input.outcome,
+        p_accomplishment: input.accomplishment,
         p_next_action: input.nextAction,
         p_timeline_events: input.timelineEvents,
     };
@@ -41,6 +46,7 @@ export async function completeRemoteReview(input: CompleteRemoteReviewInput): Pr
               ...commonParameters,
               p_journey_id: input.journeyId ?? null,
               p_quest_id: input.questId,
+              p_finish_line_confirmed: input.finishLineConfirmed,
           })
         : await supabase.rpc("complete_quick_focus_review", commonParameters);
 
@@ -67,7 +73,22 @@ export async function completeRemoteReview(input: CompleteRemoteReviewInput): Pr
             earnedXp: Number(result.earned_xp),
             totalXp: Number(result.total_xp),
             journeyStatus: result.journey_status,
+            baseXp: Number(result.base_xp),
+            bonusXp: Number(result.bonus_xp),
+            creditedFocusSeconds: Number(result.credited_focus_seconds),
+            dailyCreditedSeconds: Number(result.daily_credited_seconds),
+            xpCreditStatus: result.xp_credit_status,
         },
         error: null,
     };
+}
+
+export async function getDailyCreditedFocusSeconds(): Promise<number> {
+    const { data, error } = await supabase.rpc("get_daily_focus_credit_status");
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    return Math.max(0, Number(data ?? 0));
 }

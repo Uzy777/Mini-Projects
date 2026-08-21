@@ -9,6 +9,7 @@ import notifee, {
 import { Platform } from "react-native";
 
 import { getActiveFocusSession, saveActiveFocusSession } from "@/services/storage/activeFocusSessionStorage";
+import { finishRemoteFocusRun } from "@/services/focusSessions/focusRunService";
 import type { ActiveFocusSession, FocusTimelineEvent } from "@/types/models";
 
 const FOCUS_CHANNEL_ID = "focus-sessions";
@@ -252,6 +253,11 @@ async function completeExpiredFocusSession(sessionId: string, expectedEndTime: n
         endTime: null,
         timelineEvents: appendCompletedEvent(storedSession.timelineEvents ?? [], expectedEndTime),
     };
+
+    if (storedSession.serverTracked) {
+        const trackingError = await finishRemoteFocusRun(storedSession.id);
+        if (trackingError) console.warn("Failed to finish the background server-tracked Focus Session:", trackingError);
+    }
 
     await saveActiveFocusSession(completedSession);
     await showFocusSessionCompleteNotification(completedSession);
