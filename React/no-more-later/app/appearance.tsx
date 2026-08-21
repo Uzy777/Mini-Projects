@@ -58,7 +58,9 @@ export default function AppearanceScreen() {
 
             <View style={styles.section}>
                 <View style={styles.sectionHeading}>
-                    <View style={styles.sectionIcon}><SunMoon size={18} color={colours.primary} /></View>
+                    <View style={styles.sectionIcon}>
+                        <SunMoon size={18} color={colours.primary} />
+                    </View>
                     <View style={styles.sectionHeadingCopy}>
                         <Text style={styles.sectionTitle}>Colour mode</Text>
                         <Text style={styles.sectionDescription}>Choose how light and dark surfaces behave.</Text>
@@ -115,7 +117,9 @@ export default function AppearanceScreen() {
 
             <View style={styles.section}>
                 <View style={styles.sectionHeading}>
-                    <View style={styles.sectionIcon}><Palette size={18} color={colours.primary} /></View>
+                    <View style={styles.sectionIcon}>
+                        <Palette size={18} color={colours.primary} />
+                    </View>
                     <View style={styles.sectionHeadingCopy}>
                         <Text style={styles.sectionTitle}>Accent colour</Text>
                         <Text style={styles.sectionDescription}>Set the colour used for actions, progress and highlights.</Text>
@@ -188,7 +192,9 @@ export default function AppearanceScreen() {
 
             <View style={styles.section}>
                 <View style={styles.sectionHeading}>
-                    <View style={styles.sectionIcon}><Timer size={18} color={colours.primary} /></View>
+                    <View style={styles.sectionIcon}>
+                        <Timer size={18} color={colours.primary} />
+                    </View>
                     <View style={styles.sectionHeadingCopy}>
                         <Text style={styles.sectionTitle}>Timer style</Text>
                         <Text style={styles.sectionDescription}>Choose the timer face used for Quick Focus, breaks and Tasks.</Text>
@@ -224,15 +230,19 @@ export default function AppearanceScreen() {
                                 <View style={styles.timerPreviewWrap}>
                                     <TimerStylePreview timerStyle={option.id} />
                                     {isLocked ? (
-                                        <View style={styles.timerLock}><LockKeyhole size={15} strokeWidth={2.5} color={colours.onPrimary} /></View>
+                                        <View style={styles.timerLock}>
+                                            <LockKeyhole size={15} strokeWidth={2.5} color={colours.onPrimary} />
+                                        </View>
                                     ) : isSelected ? (
-                                        <View style={styles.timerCheck}><Check size={13} strokeWidth={3} color={colours.onPrimary} /></View>
+                                        <View style={styles.timerCheck}>
+                                            <Check size={13} strokeWidth={3} color={colours.onPrimary} />
+                                        </View>
                                     ) : null}
                                 </View>
 
                                 <View style={styles.timerStyleDetails}>
                                     <Text style={[styles.timerStyleName, isSelected && styles.timerStyleNameSelected]}>{option.name}</Text>
-                                    <Text style={styles.timerStyleDescription}>{option.description}</Text>
+                                    {/* <Text style={styles.timerStyleDescription}>{option.description}</Text> */}
                                     {/* <Text style={[styles.timerStyleAccess, !option.requiresPremium && styles.timerStyleIncluded]}>{option.requiresPremium ? "Premium" : "Included"}</Text> */}
                                 </View>
                             </Pressable>
@@ -255,7 +265,9 @@ export default function AppearanceScreen() {
 
             <View style={styles.section}>
                 <View style={styles.sectionHeading}>
-                    <View style={styles.sectionIcon}><Image size={18} color={colours.primary} /></View>
+                    <View style={styles.sectionIcon}>
+                        <Image size={18} color={colours.primary} />
+                    </View>
                     <View style={styles.sectionHeadingCopy}>
                         <Text style={styles.sectionTitle}>Backdrop</Text>
                         <Text style={styles.sectionDescription}>Add subtle scenery behind the app’s content.</Text>
@@ -631,13 +643,14 @@ function createStyles(colours: AppColours) {
         },
 
         timerStyleDetails: {
-            minHeight: 76,
+            // minHeight: 76,
         },
 
         timerStyleName: {
             fontSize: 14,
             fontWeight: "800",
             color: colours.text,
+            textAlign: "center",
         },
 
         timerStyleNameSelected: {
