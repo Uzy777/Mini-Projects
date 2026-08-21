@@ -19,6 +19,11 @@ import { AppScreenBackground } from "@/components/appearance/AppScreenBackground
 import { AppCard } from "@/components/ui/AppCard";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import { getTimerPreferences } from "@/services/storage/timerPreferencesStorage";
+import {
+    removeRunningFocusNotification,
+    showFocusSessionCompleteNotification,
+    showRunningFocusNotification,
+} from "@/services/notifications/focusNotificationService";
 
 const focusCompleteSound = require("../../assets/sounds/focus-complete.mp3");
 
@@ -103,12 +108,29 @@ export default function FocusScreen() {
                             ...(source ? { source } : {}),
                         });
 
+                        await showFocusSessionCompleteNotification({
+                            ...storedSession,
+                            id: storedSessionId,
+                            remainingSeconds: 0,
+                            actualSeconds: storedSession.selectedMinutes * 60,
+                            endedEarly: false,
+                            isRunning: false,
+                            endTime: null,
+                            timelineEvents: completedTimelineEvents,
+                            ...(source ? { source } : {}),
+                        });
+
                         return;
                     }
 
                     setEndTime(storedSession.endTime);
 
                     setIsRunning(true);
+
+                    await showRunningFocusNotification({
+                        ...storedSession,
+                        id: storedSessionId,
+                    });
 
                     return;
                 }
@@ -117,6 +139,7 @@ export default function FocusScreen() {
 
                 setEndTime(null);
                 setIsRunning(false);
+                await removeRunningFocusNotification();
             } catch (error) {
                 console.error("Failed to load active focus session:", error);
             }
@@ -148,7 +171,7 @@ export default function FocusScreen() {
                 setEndTime(null);
                 setTimelineEvents(completedTimelineEvents);
 
-                saveActiveFocusSession({
+                const completedSession: ActiveFocusSession = {
                     id: activeSessionId,
                     questId,
                     journeyId,
@@ -161,9 +184,13 @@ export default function FocusScreen() {
                     endTime: null,
                     timelineEvents: completedTimelineEvents,
                     ...(source ? { source } : {}),
-                }).catch((error) => {
-                    console.error("Failed to save completed Focus Session:", error);
-                });
+                };
+
+                saveActiveFocusSession(completedSession)
+                    .then(() => showFocusSessionCompleteNotification(completedSession))
+                    .catch((error) => {
+                        console.error("Failed to save completed Focus Session:", error);
+                    });
             }
         }
 
@@ -199,6 +226,7 @@ export default function FocusScreen() {
                     };
 
                     await saveActiveFocusSession(completedSession);
+                    await showFocusSessionCompleteNotification(completedSession);
 
                     setExistingActiveSession(completedSession);
 
@@ -238,7 +266,7 @@ export default function FocusScreen() {
             setIsRunning(true);
             setTimelineEvents([startedEvent]);
 
-            await saveActiveFocusSession({
+            const startedSession: ActiveFocusSession = {
                 id: newSessionId,
                 questId,
                 journeyId,
@@ -249,7 +277,10 @@ export default function FocusScreen() {
                 endTime: calculatedEndTime,
                 timelineEvents: [startedEvent],
                 ...(source ? { source } : {}),
-            });
+            };
+
+            await saveActiveFocusSession(startedSession);
+            await showRunningFocusNotification(startedSession);
         } catch (error) {
             console.error("Failed to start Focus Session:", error);
 
@@ -305,7 +336,7 @@ export default function FocusScreen() {
             setEndTime(null);
             setTimelineEvents(nextTimelineEvents);
 
-            await saveActiveFocusSession({
+            const pausedSession: ActiveFocusSession = {
                 id: sessionId,
 
                 questId,
@@ -317,7 +348,10 @@ export default function FocusScreen() {
                 endTime: null,
                 timelineEvents: nextTimelineEvents,
                 ...(source ? { source } : {}),
-            });
+            };
+
+            await saveActiveFocusSession(pausedSession);
+            await removeRunningFocusNotification();
 
             return;
         }
@@ -336,7 +370,7 @@ export default function FocusScreen() {
             setIsRunning(true);
             setTimelineEvents(nextTimelineEvents);
 
-            await saveActiveFocusSession({
+            const resumedSession: ActiveFocusSession = {
                 id: sessionId,
                 questId,
                 journeyId,
@@ -347,7 +381,10 @@ export default function FocusScreen() {
                 endTime: resumedEndTime,
                 timelineEvents: nextTimelineEvents,
                 ...(source ? { source } : {}),
-            });
+            };
+
+            await saveActiveFocusSession(resumedSession);
+            await showRunningFocusNotification(resumedSession);
         }
     }
 
@@ -384,6 +421,8 @@ export default function FocusScreen() {
                 timelineEvents: completedTimelineEvents,
                 ...(source ? { source } : {}),
             });
+
+            await removeRunningFocusNotification();
 
             router.replace({
                 pathname: "/review/[questId]",

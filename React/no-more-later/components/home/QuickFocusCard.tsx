@@ -16,6 +16,11 @@ import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { completeRemoteBreakSession } from "@/services/focusSessions/focusSessionService";
+import {
+    removeRunningFocusNotification,
+    showFocusSessionCompleteNotification,
+    showRunningFocusNotification,
+} from "@/services/notifications/focusNotificationService";
 import { clearActiveFocusSession, getActiveFocusSession, saveActiveFocusSession } from "@/services/storage/activeFocusSessionStorage";
 import { DEFAULT_TIMER_PREFERENCES, getTimerPreferences, saveTimerPreferences, type TimerPreferences } from "@/services/storage/timerPreferencesStorage";
 import type { ActiveFocusSession, FocusTimelineEvent, TimerMode } from "@/types/models";
@@ -76,6 +81,7 @@ export function QuickFocusCard() {
             ? getRemainingSecondsFromEndTime(storedSession.endTime)
             : storedSession.remainingSeconds;
         const hasFinished = restoredRemaining === 0;
+        const didExpireWhileRunning = storedSession.isRunning && storedSession.endTime !== null && hasFinished;
         const restoredTimeline = hasFinished
             ? appendCompletedEvent(storedSession.timelineEvents ?? [], storedSession.endTime ?? Date.now())
             : (storedSession.timelineEvents ?? []);
@@ -92,7 +98,7 @@ export function QuickFocusCard() {
         setSessionMessage("");
 
         if (!storedSession.id || hasFinished) {
-            await saveActiveFocusSession({
+            const restoredSession: ActiveFocusSession = {
                 ...storedSession,
                 id: storedSessionId,
                 remainingSeconds: restoredRemaining,
@@ -101,7 +107,19 @@ export function QuickFocusCard() {
                 timelineEvents: restoredTimeline,
                 source: "quick-focus",
                 timerMode: restoredMode,
-            });
+            };
+
+            await saveActiveFocusSession(restoredSession);
+
+            if (didExpireWhileRunning && restoredMode === "focus") {
+                await showFocusSessionCompleteNotification(restoredSession);
+            }
+        }
+
+        if (!hasFinished && restoredMode === "focus" && storedSession.isRunning && storedSession.endTime !== null) {
+            await showRunningFocusNotification({ ...storedSession, id: storedSessionId, timerMode: restoredMode });
+        } else if (restoredMode === "focus") {
+            await removeRunningFocusNotification();
         }
 
         if (hasFinished && restoredMode !== "focus") {
@@ -167,9 +185,13 @@ export function QuickFocusCard() {
             completionSoundPlayer.seekTo(0);
             completionSoundPlayer.play();
 
-            void saveActiveFocusSession(buildActiveSession(activeSessionId, activeMode, selectedMinutes, 0, false, null, completedTimeline, selectedMinutes * 60))
+            const completedSession = buildActiveSession(activeSessionId, activeMode, selectedMinutes, 0, false, null, completedTimeline, selectedMinutes * 60);
+
+            void saveActiveFocusSession(completedSession)
                 .then(async () => {
-                    if (activeMode !== "focus") {
+                    if (activeMode === "focus") {
+                        await showFocusSessionCompleteNotification(completedSession);
+                    } else {
                         const saved = await recordBreak(activeSessionId, activeMode, selectedMinutes, selectedMinutes * 60, completedTimeline);
                         setBreakRecorded(saved);
                     }
@@ -234,7 +256,13 @@ export function QuickFocusCard() {
         setExistingOtherSession(null);
         setBreakRecorded(false);
 
-        await saveActiveFocusSession(buildActiveSession(nextSessionId, mode, selectedMinutes, totalSeconds, true, nextEndTime, [startedEvent]));
+        const startedSession = buildActiveSession(nextSessionId, mode, selectedMinutes, totalSeconds, true, nextEndTime, [startedEvent]);
+
+        await saveActiveFocusSession(startedSession);
+
+        if (mode === "focus") {
+            await showRunningFocusNotification(startedSession);
+        }
     }
 
     async function handleToggleTimer() {
@@ -248,6 +276,10 @@ export function QuickFocusCard() {
             setEndTime(null);
             setTimelineEvents(nextTimeline);
             await saveActiveFocusSession(buildActiveSession(sessionId, mode, selectedMinutes, pausedRemaining, false, null, nextTimeline));
+
+            if (mode === "focus") {
+                await removeRunningFocusNotification();
+            }
             return;
         }
 
@@ -257,7 +289,13 @@ export function QuickFocusCard() {
             setIsRunning(true);
             setEndTime(resumedEndTime);
             setTimelineEvents(nextTimeline);
-            await saveActiveFocusSession(buildActiveSession(sessionId, mode, selectedMinutes, remainingSeconds, true, resumedEndTime, nextTimeline));
+            const resumedSession = buildActiveSession(sessionId, mode, selectedMinutes, remainingSeconds, true, resumedEndTime, nextTimeline);
+
+            await saveActiveFocusSession(resumedSession);
+
+            if (mode === "focus") {
+                await showRunningFocusNotification(resumedSession);
+            }
         }
     }
 
@@ -272,6 +310,10 @@ export function QuickFocusCard() {
         setTimelineEvents(completedTimeline);
 
         await saveActiveFocusSession(buildActiveSession(sessionId, mode, selectedMinutes, 0, false, null, completedTimeline, actualSeconds));
+
+        if (mode === "focus") {
+            await removeRunningFocusNotification();
+        }
 
         if (mode === "focus") {
             openReview(actualSeconds, true);

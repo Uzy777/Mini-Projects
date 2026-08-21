@@ -1,6 +1,6 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 
-import { Stack } from "expo-router";
+import { Stack, type Href, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useMemo } from "react";
 import * as SplashScreen from "expo-splash-screen";
@@ -11,6 +11,11 @@ import { AUTH_COLOURS } from "@/constants/appearanceColours";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AppearanceProvider, useAppearance } from "@/contexts/AppearanceContext";
 import { PremiumProvider } from "@/contexts/PremiumContext";
+import {
+    reconcileFocusNotificationWithStoredSession,
+    removeRunningFocusNotification,
+    subscribeToFocusNotificationPress,
+} from "@/services/notifications/focusNotificationService";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -76,6 +81,25 @@ function AppShell() {
 function RootNavigator() {
     const { session, isLoading } = useAuth();
     const { colours } = useAppearance();
+    const router = useRouter();
+
+    useEffect(() => {
+        return subscribeToFocusNotificationPress((route) => {
+            router.replace(route as Href);
+        });
+    }, [router]);
+
+    useEffect(() => {
+        if (isLoading) {
+            return;
+        }
+
+        if (session) {
+            void reconcileFocusNotificationWithStoredSession();
+        } else {
+            void removeRunningFocusNotification();
+        }
+    }, [isLoading, session]);
 
     if (isLoading) {
         return null;
