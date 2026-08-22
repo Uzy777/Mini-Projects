@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Stack } from "expo-router";
 import { AlertTriangle, LockKeyhole } from "lucide-react-native";
 
+import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
@@ -80,7 +81,7 @@ export default function ProfileScreen() {
         setIsSaving(false);
     }
 
-    return (
+    const screenContent = (
         <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
             <Stack.Screen options={{ title: "Profile" }} />
 
@@ -152,13 +153,15 @@ export default function ProfileScreen() {
             </View>
         </ScrollView>
     );
+
+    return <AppScreenBackground>{screenContent}</AppScreenBackground>;
 }
 
 function createStyles(colours: AppColours) {
     return StyleSheet.create({
         screen: {
             flex: 1,
-            backgroundColor: colours.background,
+            backgroundColor: "transparent",
         },
 
         contentContainer: {

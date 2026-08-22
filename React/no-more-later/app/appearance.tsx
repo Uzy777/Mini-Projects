@@ -11,6 +11,7 @@ import { usePremium } from "@/contexts/PremiumContext";
 import { PremiumUpsellModal } from "@/components/premium/PremiumUpsellModal";
 import type { AccentColourId, ColourMode, BackdropId, TimerStyleId } from "@/types/appearance";
 import { AppBackdrop } from "@/components/appearance/AppBackdrop";
+import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { TimerStylePreview } from "@/components/appearance/TimerStylePreview";
 
 type RequestedPremiumFeature =
@@ -44,7 +45,7 @@ export default function AppearanceScreen() {
 
     const styles = useMemo(() => createStyles(colours), [colours]);
 
-    return (
+    const screenContent = (
         <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
             <Stack.Screen options={{ title: "Appearance" }} />
 
@@ -332,13 +333,15 @@ export default function AppearanceScreen() {
             </View>
         </ScrollView>
     );
+
+    return <AppScreenBackground>{screenContent}</AppScreenBackground>;
 }
 
 function createStyles(colours: AppColours) {
     return StyleSheet.create({
         screen: {
             flex: 1,
-            backgroundColor: colours.background,
+            backgroundColor: "transparent",
         },
 
         contentContainer: {

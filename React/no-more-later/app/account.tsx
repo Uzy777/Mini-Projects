@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Stack, router } from "expo-router";
 import { ChevronRight, LogOut, Palette, Trash2, UserRoundPen } from "lucide-react-native";
 
+import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { DeleteAccountModal } from "@/components/account/DeleteAccountModal";
 import { DevelopmentPremiumControls } from "@/components/premium/DevelopmentPremiumControls";
 import { PremiumStatusCard } from "@/components/premium/PremiumStatusCard";
@@ -84,114 +85,116 @@ export default function AccountScreen() {
     }
 
     return (
-        <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-            <Stack.Screen options={{ title: "Account" }} />
+        <AppScreenBackground>
+            <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+                <Stack.Screen options={{ title: "Account" }} />
 
-            <ScreenHeader eyebrow="ACCOUNT" title="Your account" subtitle="Manage your profile and app preferences." />
+                <ScreenHeader eyebrow="ACCOUNT" title="Your account" subtitle="Manage your profile and app preferences." />
 
-            {/* <View style={styles.profileCard}>
-                <View style={styles.profileIcon}>
-                    <UserRound size={24} color={colours.primary} />
-                </View>
-
-                <View style={styles.profileDetails}>
-                    <Text style={styles.profileName}>{profile?.display_name ?? "No display name"}</Text>
-
-                    <Text style={styles.profileEmail}>{session?.user.email ?? ""}</Text>
-                </View>
-            </View> */}
-
-            <View style={styles.section}>
-                <Text style={styles.sectionLabel}>PLAN</Text>
-
-                <PremiumStatusCard />
-            </View>
-
-            <View style={styles.section}>
-                <Text style={styles.sectionLabel}>SETTINGS</Text>
-
-                <View style={styles.settingsCard}>
-                    <AnimatedPressable style={styles.settingRow} onPress={() => router.push("/profile")}>
-                        <View style={styles.settingIcon}>
-                            <UserRoundPen size={19} color={colours.primary} />
-                        </View>
-                        <View style={styles.settingDetails}>
-                            <Text style={styles.settingTitle}>Profile</Text>
-                            <Text style={styles.settingDescription}>
-                                {profile
-                                    ? profile.display_name_change_used
-                                        ? "Display name locked"
-                                        : "One display name change available"
-                                    : "Update your account details"}
-                            </Text>
-                        </View>
-                        <ChevronRight size={18} color={colours.textMuted} />
-                    </AnimatedPressable>
-
-                    <View style={styles.rowDivider} />
-
-                    <AnimatedPressable style={styles.settingRow} onPress={() => router.push("/appearance")}>
-                        <View style={styles.settingIcon}>
-                            <Palette size={19} color={colours.primary} />
-                        </View>
-
-                        <View style={styles.settingDetails}>
-                            <Text style={styles.settingTitle}>Appearance</Text>
-                            <Text style={styles.settingDescription}>Theme and colour preferences</Text>
-                        </View>
-
-                        <ChevronRight size={18} color={colours.textMuted} />
-                    </AnimatedPressable>
-                </View>
-            </View>
-
-            <DevelopmentPremiumControls />
-
-            <AnimatedPressable style={styles.signOutButton} onPress={handleSignOut}>
-                <LogOut size={18} color={colours.danger} />
-
-                <Text style={styles.signOutText}>Sign out</Text>
-            </AnimatedPressable>
-
-            <View style={[styles.section, styles.dangerSection]}>
-                <Text style={[styles.sectionLabel, styles.dangerSectionLabel]}>DANGER ZONE</Text>
-
-                <View style={styles.dangerCard}>
-                    <View style={styles.dangerHeader}>
-                        <View style={styles.dangerIcon}>
-                            <Trash2 size={20} color={colours.danger} />
-                        </View>
-
-                        <View style={styles.dangerDetails}>
-                            <Text style={styles.dangerTitle}>Delete account</Text>
-                            <Text style={styles.dangerDescription}>
-                                Permanently remove your account and all associated data.
-                            </Text>
-                        </View>
+                {/* <View style={styles.profileCard}>
+                    <View style={styles.profileIcon}>
+                        <UserRound size={24} color={colours.primary} />
                     </View>
 
-                    <AnimatedPressable
-                        accessibilityRole="button"
-                        accessibilityLabel="Delete account"
-                        haptic="selection"
-                        onPress={openDeleteAccountModal}
-                        style={styles.deleteButton}
-                    >
-                        <Trash2 size={17} color="#ffffff" />
-                        <Text style={styles.deleteButtonText}>Delete account</Text>
-                    </AnimatedPressable>
-                </View>
-            </View>
+                    <View style={styles.profileDetails}>
+                        <Text style={styles.profileName}>{profile?.display_name ?? "No display name"}</Text>
 
-            <DeleteAccountModal
-                visible={isDeleteModalVisible}
-                accountEmail={session?.user.email}
-                isDeleting={isDeletingAccount}
-                errorMessage={deleteAccountError}
-                onClose={closeDeleteAccountModal}
-                onConfirm={() => void handleDeleteAccount()}
-            />
-        </ScrollView>
+                        <Text style={styles.profileEmail}>{session?.user.email ?? ""}</Text>
+                    </View>
+                </View> */}
+
+                <View style={styles.section}>
+                    <Text style={styles.sectionLabel}>PLAN</Text>
+
+                    <PremiumStatusCard />
+                </View>
+
+                <View style={styles.section}>
+                    <Text style={styles.sectionLabel}>SETTINGS</Text>
+
+                    <View style={styles.settingsCard}>
+                        <AnimatedPressable style={styles.settingRow} onPress={() => router.push("/profile")}>
+                            <View style={styles.settingIcon}>
+                                <UserRoundPen size={19} color={colours.primary} />
+                            </View>
+                            <View style={styles.settingDetails}>
+                                <Text style={styles.settingTitle}>Profile</Text>
+                                <Text style={styles.settingDescription}>
+                                    {profile
+                                        ? profile.display_name_change_used
+                                            ? "Display name locked"
+                                            : "One display name change available"
+                                        : "Update your account details"}
+                                </Text>
+                            </View>
+                            <ChevronRight size={18} color={colours.textMuted} />
+                        </AnimatedPressable>
+
+                        <View style={styles.rowDivider} />
+
+                        <AnimatedPressable style={styles.settingRow} onPress={() => router.push("/appearance")}>
+                            <View style={styles.settingIcon}>
+                                <Palette size={19} color={colours.primary} />
+                            </View>
+
+                            <View style={styles.settingDetails}>
+                                <Text style={styles.settingTitle}>Appearance</Text>
+                                <Text style={styles.settingDescription}>Theme and colour preferences</Text>
+                            </View>
+
+                            <ChevronRight size={18} color={colours.textMuted} />
+                        </AnimatedPressable>
+                    </View>
+                </View>
+
+                <DevelopmentPremiumControls />
+
+                <AnimatedPressable style={styles.signOutButton} onPress={handleSignOut}>
+                    <LogOut size={18} color={colours.danger} />
+
+                    <Text style={styles.signOutText}>Sign out</Text>
+                </AnimatedPressable>
+
+                <View style={[styles.section, styles.dangerSection]}>
+                    <Text style={[styles.sectionLabel, styles.dangerSectionLabel]}>DANGER ZONE</Text>
+
+                    <View style={styles.dangerCard}>
+                        <View style={styles.dangerHeader}>
+                            <View style={styles.dangerIcon}>
+                                <Trash2 size={20} color={colours.danger} />
+                            </View>
+
+                            <View style={styles.dangerDetails}>
+                                <Text style={styles.dangerTitle}>Delete account</Text>
+                                <Text style={styles.dangerDescription}>
+                                    Permanently remove your account and all associated data.
+                                </Text>
+                            </View>
+                        </View>
+
+                        <AnimatedPressable
+                            accessibilityRole="button"
+                            accessibilityLabel="Delete account"
+                            haptic="selection"
+                            onPress={openDeleteAccountModal}
+                            style={styles.deleteButton}
+                        >
+                            <Trash2 size={17} color="#ffffff" />
+                            <Text style={styles.deleteButtonText}>Delete account</Text>
+                        </AnimatedPressable>
+                    </View>
+                </View>
+
+                <DeleteAccountModal
+                    visible={isDeleteModalVisible}
+                    accountEmail={session?.user.email}
+                    isDeleting={isDeletingAccount}
+                    errorMessage={deleteAccountError}
+                    onClose={closeDeleteAccountModal}
+                    onConfirm={() => void handleDeleteAccount()}
+                />
+            </ScrollView>
+        </AppScreenBackground>
     );
 }
 
@@ -199,7 +202,7 @@ function createStyles(colours: AppColours) {
     return StyleSheet.create({
         screen: {
             flex: 1,
-            backgroundColor: colours.background,
+            backgroundColor: "transparent",
         },
 
         contentContainer: {
