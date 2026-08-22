@@ -4,7 +4,7 @@ export type QuestStatus = "active" | "completed";
 
 export type SessionOutcome = "completed" | "progressed" | "blocked" | "stopped";
 
-export type TimerMode = "focus" | "short-break" | "long-break";
+export type TimerMode = "focus" | "break";
 
 export type FocusSessionKind = "quest" | "quick" | "short_break" | "long_break";
 

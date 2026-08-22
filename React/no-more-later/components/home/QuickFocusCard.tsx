@@ -82,7 +82,7 @@ export function QuickFocusCard() {
     }, [session]);
 
     const restoreQuickSession = useCallback(async (storedSession: ActiveFocusSession) => {
-        const restoredMode = storedSession.timerMode ?? "focus";
+        const restoredMode = normaliseStoredTimerMode(storedSession.timerMode);
         const storedSessionId = storedSession.id || Crypto.randomUUID();
         const restoredRemaining = storedSession.isRunning && storedSession.endTime !== null
             ? getRemainingSecondsFromEndTime(storedSession.endTime)
@@ -498,15 +498,17 @@ function buildActiveSession(id: string, mode: TimerMode, selectedMinutes: number
 }
 
 function getModeCopy(mode: TimerMode) {
-    if (mode === "short-break") return { eyebrow: "SHORT BREAK", title: "Take a quick reset", sessionTitle: "Short Break", readyLabel: "READY TO RESET", runningLabel: "RECHARGING", hint: "Step away, breathe, stretch, or get some water." };
-    if (mode === "long-break") return { eyebrow: "LONG BREAK", title: "Step away properly", sessionTitle: "Long Break", readyLabel: "READY TO RECHARGE", runningLabel: "RESTING", hint: "Give your attention a real pause before the next block." };
+    if (mode === "break") return { eyebrow: "BREAK", title: "Take a proper reset", sessionTitle: "Break", readyLabel: "READY TO RESET", runningLabel: "RECHARGING", hint: "Step away, breathe, stretch, or get some water." };
     return { eyebrow: "QUICK FOCUS", title: "Start where you are", sessionTitle: "Quick Focus", readyLabel: "READY WHEN YOU ARE", runningLabel: "FOCUSING", hint: "Choose one useful thing and stay with it until the timer ends." };
 }
 
 function getModeTone(mode: TimerMode, colours: AppColours) {
-    if (mode === "short-break") return { border: colours.success, background: colours.surface, strong: colours.success };
-    if (mode === "long-break") return { border: colours.warningBorder, background: colours.surface, strong: colours.warning };
+    if (mode === "break") return { border: colours.success, background: colours.surface, strong: colours.success };
     return { border: colours.primaryBorder, background: colours.surface, strong: colours.primaryStrong };
+}
+
+function normaliseStoredTimerMode(mode: unknown): TimerMode {
+    return mode === "focus" || mode === undefined ? "focus" : "break";
 }
 
 function createTimelineEvent(type: "paused" | "resumed"): FocusTimelineEvent {

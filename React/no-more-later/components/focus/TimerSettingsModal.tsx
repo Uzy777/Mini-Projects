@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
-import { Armchair, Brain, Coffee, Minus, Plus, X } from "lucide-react-native";
+import { Brain, Coffee, Minus, Plus, X } from "lucide-react-native";
 
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { AppButton } from "@/components/ui/AppButton";
@@ -12,14 +12,23 @@ import type { TimerMode } from "@/types/models";
 
 const SETTINGS_ROWS: { id: TimerMode; label: string; description: string; icon: typeof Brain }[] = [
     { id: "focus", label: "Focus", description: "Deep work and intentional progress", icon: Brain },
-    { id: "short-break", label: "Short break", description: "A quick reset between sessions", icon: Coffee },
-    { id: "long-break", label: "Long break", description: "More time to properly recharge", icon: Armchair },
+    { id: "break", label: "Break", description: "Rest, reset, and recharge between sessions", icon: Coffee },
 ];
 
-export function TimerSettingsModal({ visible, preferences, onClose, onSave }: { visible: boolean; preferences: TimerPreferences; onClose: () => void; onSave: (preferences: TimerPreferences) => Promise<void> }) {
+type TimerSettingsModalProps = {
+    visible: boolean;
+    preferences: TimerPreferences;
+    visibleModes?: TimerMode[];
+    onClose: () => void;
+    onSave: (preferences: TimerPreferences) => Promise<void>;
+};
+
+export function TimerSettingsModal({ visible, preferences, visibleModes, onClose, onSave }: TimerSettingsModalProps) {
     const { colours } = useAppearance();
     const { width } = useWindowDimensions();
     const compact = width < 520;
+    const focusOnly = visibleModes?.length === 1 && visibleModes[0] === "focus";
+    const visibleRows = visibleModes ? SETTINGS_ROWS.filter((row) => visibleModes.includes(row.id)) : SETTINGS_ROWS;
     const styles = useMemo(() => createStyles(colours, compact), [colours, compact]);
     const [draft, setDraft] = useState(preferences);
     const [saving, setSaving] = useState(false);
@@ -54,14 +63,14 @@ export function TimerSettingsModal({ visible, preferences, onClose, onSave }: { 
                     <View style={styles.header}>
                         <View style={styles.headerCopy}>
                             <Text style={styles.eyebrow}>TIMER SETTINGS</Text>
-                            <Text style={styles.title}>Make the timer yours</Text>
-                            <Text style={styles.description}>These durations become your defaults on this device.</Text>
+                            <Text style={styles.title}>{focusOnly ? "Set the focus time" : "Make the timer yours"}</Text>
+                            <Text style={styles.description}>{focusOnly ? "Choose the Focus duration for this session. Your Break duration stays unchanged." : "These durations are shared by Quick Focus and Task Focus on this device."}</Text>
                         </View>
                         <AnimatedPressable accessibilityLabel="Close timer settings" onPress={onClose} disabled={saving} style={styles.closeButton}><X size={19} color={colours.textMuted} /></AnimatedPressable>
                     </View>
 
                     <View style={styles.rows}>
-                        {SETTINGS_ROWS.map((row) => {
+                        {visibleRows.map((row) => {
                             const Icon = row.icon;
                             const limits = TIMER_LIMITS[row.id];
                             return (
@@ -85,7 +94,7 @@ export function TimerSettingsModal({ visible, preferences, onClose, onSave }: { 
                     {saveError ? <Text style={styles.saveError}>{saveError}</Text> : null}
                     <View style={styles.actions}>
                         <AppButton label="Cancel" variant="secondary" disabled={saving} onPress={onClose} style={styles.action} />
-                        <AppButton label="Save timers" loading={saving} onPress={() => void save()} style={styles.action} />
+                        <AppButton label={focusOnly ? "Save focus time" : "Save timers"} loading={saving} onPress={() => void save()} style={styles.action} />
                     </View>
                 </View>
             </View>

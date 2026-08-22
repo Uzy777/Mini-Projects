@@ -179,14 +179,12 @@ function formatTime(totalSeconds: number) {
 }
 
 function getReadyLabel(mode: TimerMode) {
-    if (mode === "short-break") return "Ready for a quick reset";
-    if (mode === "long-break") return "Ready to properly recharge";
+    if (mode === "break") return "Ready to reset and recharge";
     return "Ready to focus";
 }
 
 function getTimerTone(mode: TimerMode, colours: AppColours) {
-    if (mode === "short-break") return { track: colours.successSoft, active: colours.success, strong: colours.success, soft: colours.successSoft };
-    if (mode === "long-break") return { track: colours.warningSoft, active: colours.warning, strong: colours.warning, soft: colours.warningSoft };
+    if (mode === "break") return { track: colours.successSoft, active: colours.success, strong: colours.success, soft: colours.successSoft };
     return { track: colours.primarySoft, active: colours.primary, strong: colours.primaryStrong, soft: colours.primarySubtle };
 }
 

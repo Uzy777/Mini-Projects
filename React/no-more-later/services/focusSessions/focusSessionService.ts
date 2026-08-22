@@ -13,7 +13,8 @@ type CompleteBreakSessionInput = {
 export async function completeRemoteBreakSession(input: CompleteBreakSessionInput): Promise<{ data: { focusSessionId: string } | null; error: Error | null }> {
     const { data, error } = await supabase.rpc("complete_break_session", {
         p_focus_session_id: input.focusSessionId,
-        p_session_kind: input.mode === "short-break" ? "short_break" : "long_break",
+        // Keep the existing database value so this UI consolidation does not require a schema migration.
+        p_session_kind: "short_break",
         p_planned_minutes: input.plannedMinutes,
         p_actual_seconds: input.actualSeconds,
         p_timeline_events: input.timelineEvents,

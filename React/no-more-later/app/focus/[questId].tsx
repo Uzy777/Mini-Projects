@@ -1,24 +1,30 @@
 import { useEffect, useMemo, useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { Platform, StyleSheet, ScrollView } from "react-native";
+import { Platform, StyleSheet, ScrollView, Text, View } from "react-native";
 import { useAudioPlayer } from "expo-audio";
 import * as Crypto from "expo-crypto";
+import { Brain, Settings2 } from "lucide-react-native";
 
 import type { ActiveFocusSession, FocusTimelineEvent } from "../../types/models";
 import { getActiveFocusSession, saveActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
-import { FocusDurationSelector } from "../../components/focus/FocusDurationSelector";
 import { FocusTimerDisplay } from "../../components/focus/FocusTimerDisplay";
 import { FocusTimerControls } from "../../components/focus/FocusTimerControls";
 import { ActiveSessionNotice } from "../../components/focus/ActiveSessionNotice";
+import { TimerSettingsModal } from "../../components/focus/TimerSettingsModal";
 import { calculateActualFocusedSeconds, getActiveSessionReviewState, getRemainingSecondsFromEndTime } from "../../utils/focusTimer";
-import { spacing } from "@/constants/design";
+import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { AppCard } from "@/components/ui/AppCard";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
-import { getTimerPreferences } from "@/services/storage/timerPreferencesStorage";
+import {
+    DEFAULT_TIMER_PREFERENCES,
+    getTimerPreferences,
+    type TimerPreferences,
+} from "@/services/storage/timerPreferencesStorage";
 import {
     removeRunningFocusNotification,
     showFocusSessionCompleteNotification,
@@ -50,7 +56,9 @@ export default function FocusScreen() {
     }>();
 
     const [sessionId, setSessionId] = useState<string | null>(null);
-    const [selectedMinutes, setSelectedMinutes] = useState(25);
+    const [preferences, setPreferences] = useState<TimerPreferences>(DEFAULT_TIMER_PREFERENCES);
+    const [settingsVisible, setSettingsVisible] = useState(false);
+    const [selectedMinutes, setSelectedMinutes] = useState(DEFAULT_TIMER_PREFERENCES.focus);
     const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
     const [isRunning, setIsRunning] = useState(false);
     const [endTime, setEndTime] = useState<number | null>(null);
@@ -63,6 +71,7 @@ export default function FocusScreen() {
         async function loadActiveFocusSession() {
             try {
                 const [storedSession, timerPreferences] = await Promise.all([getActiveFocusSession(), getTimerPreferences()]);
+                setPreferences(timerPreferences);
 
                 if (!storedSession) {
                     setSelectedMinutes(timerPreferences.focus);
@@ -228,6 +237,11 @@ export default function FocusScreen() {
             clearInterval(intervalId);
         };
     }, [isRunning, endTime, sessionId, completionSoundPlayer, questId, journeyId, questTitle, selectedMinutes, serverTracked, source, timelineEvents]);
+
+    async function updateSessionFocusDuration(nextPreferences: TimerPreferences) {
+        setPreferences((current) => ({ ...current, focus: nextPreferences.focus }));
+        if (remainingSeconds === null) setSelectedMinutes(nextPreferences.focus);
+    }
 
     async function handleStartSession() {
         setSessionMessage("");
@@ -542,7 +556,24 @@ export default function FocusScreen() {
                 <ScreenHeader eyebrow="FOCUS SESSION" title={questTitle ?? (source === "tasks" ? "Untitled Task" : "Untitled Quest")} subtitle="Give this one thing your attention." />
 
                 <AppCard style={styles.sessionContent} padding="lg" tone="subtle">
-                    <FocusDurationSelector selectedMinutes={selectedMinutes} onSelectMinutes={setSelectedMinutes} disabled={hasSessionStarted} />
+                    <View style={[styles.timerSetup, hasSessionStarted && styles.timerSetupDisabled]}>
+                        <View style={styles.timerSetupIcon}>
+                            <Brain size={18} color={colours.primaryStrong} />
+                        </View>
+                        <View style={styles.timerSetupCopy}>
+                            <Text style={styles.timerSetupEyebrow}>FOCUS TIMER</Text>
+                            <Text style={styles.timerSetupTitle}>{selectedMinutes} minute{selectedMinutes === 1 ? "" : "s"}</Text>
+                            <Text style={styles.timerSetupHint}>Change it for this session; your selected clock style still applies.</Text>
+                        </View>
+                        <AnimatedPressable
+                            accessibilityLabel="Customise timer durations"
+                            disabled={hasSessionStarted}
+                            onPress={() => setSettingsVisible(true)}
+                            style={styles.settingsButton}
+                        >
+                            <Settings2 size={18} color={hasSessionStarted ? colours.textMuted : colours.primaryStrong} />
+                        </AnimatedPressable>
+                    </View>
 
                     <ActiveSessionNotice message={sessionMessage} showReturnButton={existingActiveSession !== null} onReturn={handleReturnToActiveSession} />
 
@@ -564,6 +595,14 @@ export default function FocusScreen() {
                     />
                 </AppCard>
             </ScrollView>
+
+            <TimerSettingsModal
+                visible={settingsVisible}
+                preferences={preferences}
+                visibleModes={["focus"]}
+                onClose={() => setSettingsVisible(false)}
+                onSave={updateSessionFocusDuration}
+            />
         </AppScreenBackground>
     );
 }
@@ -602,6 +641,69 @@ function createStyles(colours: AppColours) {
             width: "100%",
             marginTop: spacing.xl,
             gap: spacing.xl,
+        },
+
+        timerSetup: {
+            width: "100%",
+            minHeight: 76,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.sm,
+            padding: spacing.sm,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+            backgroundColor: colours.background,
+        },
+
+        timerSetupDisabled: {
+            opacity: 0.7,
+        },
+
+        timerSetupIcon: {
+            width: 40,
+            height: 40,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: radius.md,
+            backgroundColor: colours.primarySoft,
+        },
+
+        timerSetupCopy: {
+            minWidth: 0,
+            flex: 1,
+        },
+
+        timerSetupEyebrow: {
+            fontSize: 10,
+            fontWeight: "900",
+            letterSpacing: 0.7,
+            color: colours.primaryStrong,
+        },
+
+        timerSetupTitle: {
+            marginTop: 2,
+            fontSize: 15,
+            fontWeight: "900",
+            color: colours.text,
+        },
+
+        timerSetupHint: {
+            marginTop: 2,
+            fontSize: 10,
+            lineHeight: 15,
+            color: colours.textMuted,
+        },
+
+        settingsButton: {
+            width: 40,
+            height: 40,
+            alignItems: "center",
+            justifyContent: "center",
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.pill,
+            backgroundColor: colours.surface,
         },
 
         scrollView: {

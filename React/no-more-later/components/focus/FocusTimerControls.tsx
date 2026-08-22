@@ -25,7 +25,7 @@ export function FocusTimerControls({ hasStarted, hasFinished, isRunning, onStart
 
     const styles = useMemo(() => createStyles(colours), [colours]);
     const isBreak = mode !== "focus";
-    const sessionLabel = mode === "short-break" ? "Short Break" : mode === "long-break" ? "Long Break" : "Focus Session";
+    const sessionLabel = mode === "break" ? "Break" : "Focus Session";
 
     if (!hasStarted) {
         return (

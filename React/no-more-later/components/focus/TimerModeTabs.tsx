@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
-import { Armchair, Brain, Coffee } from "lucide-react-native";
+import { Brain, Coffee } from "lucide-react-native";
 
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import type { AppColours } from "@/constants/appearanceColours";
@@ -10,8 +10,7 @@ import type { TimerMode } from "@/types/models";
 
 const TIMER_MODES: { id: TimerMode; label: string; icon: typeof Brain }[] = [
     { id: "focus", label: "Focus", icon: Brain },
-    { id: "short-break", label: "Short Break", icon: Coffee },
-    { id: "long-break", label: "Long Break", icon: Armchair },
+    { id: "break", label: "Break", icon: Coffee },
 ];
 
 export function TimerModeTabs({ selectedMode, minutes, disabled = false, onSelectMode }: { selectedMode: TimerMode; minutes: Record<TimerMode, number>; disabled?: boolean; onSelectMode: (mode: TimerMode) => void }) {
@@ -50,8 +49,7 @@ export function TimerModeTabs({ selectedMode, minutes, disabled = false, onSelec
 }
 
 function getModeTone(mode: TimerMode, colours: AppColours) {
-    if (mode === "short-break") return { soft: colours.successSoft, border: colours.success, strong: colours.success, badge: colours.surface };
-    if (mode === "long-break") return { soft: colours.warningSoft, border: colours.warningBorder, strong: colours.warning, badge: colours.surface };
+    if (mode === "break") return { soft: colours.successSoft, border: colours.success, strong: colours.success, badge: colours.surface };
     return { soft: colours.primarySoft, border: colours.primaryBorder, strong: colours.primaryStrong, badge: colours.surface };
 }
 

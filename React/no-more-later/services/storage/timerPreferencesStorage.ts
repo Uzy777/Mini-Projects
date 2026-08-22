@@ -7,14 +7,12 @@ export type TimerPreferences = Record<TimerMode, number>;
 
 export const DEFAULT_TIMER_PREFERENCES: TimerPreferences = {
     focus: 25,
-    "short-break": 5,
-    "long-break": 15,
+    break: 5,
 };
 
 export const TIMER_LIMITS: Record<TimerMode, { min: number; max: number; step: number }> = {
     focus: { min: 10, max: 120, step: 5 },
-    "short-break": { min: 1, max: 30, step: 1 },
-    "long-break": { min: 5, max: 60, step: 5 },
+    break: { min: 1, max: 60, step: 1 },
 };
 
 export async function getTimerPreferences(): Promise<TimerPreferences> {
@@ -41,12 +39,12 @@ export function adjustTimerMinutes(mode: TimerMode, minutes: number, direction: 
 }
 
 function normaliseTimerPreferences(value: unknown): TimerPreferences {
-    const candidate = value && typeof value === "object" ? value as Partial<Record<TimerMode, unknown>> : {};
+    const candidate = value && typeof value === "object" ? value as Record<string, unknown> : {};
+    const legacyBreakMinutes = candidate["short-break"] ?? candidate["long-break"];
 
     return {
         focus: clampTimerMinutes("focus", Number(candidate.focus ?? DEFAULT_TIMER_PREFERENCES.focus)),
-        "short-break": clampTimerMinutes("short-break", Number(candidate["short-break"] ?? DEFAULT_TIMER_PREFERENCES["short-break"])),
-        "long-break": clampTimerMinutes("long-break", Number(candidate["long-break"] ?? DEFAULT_TIMER_PREFERENCES["long-break"])),
+        break: clampTimerMinutes("break", Number(candidate.break ?? legacyBreakMinutes ?? DEFAULT_TIMER_PREFERENCES.break)),
     };
 }
 
