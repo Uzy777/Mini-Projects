@@ -8,7 +8,7 @@ import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import type { FocusSessionRecord, Journey } from "@/types/models";
-import { formatProgressDuration, getOverviewStats } from "@/utils/dashboardStats";
+import { formatProgressDuration, getLocalDateKey, getOverviewStats } from "@/utils/dashboardStats";
 
 import { ProgressBarChart, ProgressCard, ProgressRing } from "./DashboardCharts";
 import { DashboardRankCard } from "./DashboardRankCard";
@@ -39,6 +39,7 @@ export function DashboardOverview({ sessions, journeys, dailyGoalMinutes, onSave
     const focusGoalSeconds = dailyGoalMinutes * 60;
     const focusProgress = stats.todaySeconds / focusGoalSeconds;
     const dayLabels = stats.weekDates.map((date) => date.toLocaleDateString(undefined, { weekday: "short" }).slice(0, 2));
+    const todayIndex = stats.weekDates.findIndex((date) => getLocalDateKey(date) === getLocalDateKey(referenceDate));
 
     function openGoalModal() {
         setGoalDraft(String(dailyGoalMinutes));
@@ -123,12 +124,15 @@ export function DashboardOverview({ sessions, journeys, dailyGoalMinutes, onSave
                         <Text style={styles.sectionTitle}>This week</Text>
                         <Text style={styles.sectionMeta}>{formatProgressDuration(stats.weekSeconds, true)}</Text>
                     </View>
+                    <Text style={styles.sectionDescription}>Focused time per day. Today is highlighted and each value is the reviewed focus time for that day.</Text>
                     <ProgressCard>
                         <ProgressBarChart
                             values={stats.weekValues}
                             labels={dayLabels}
                             height={170}
                             valueFormatter={(value) => formatProgressDuration(value, true)}
+                            highlightedIndex={todayIndex}
+                            highlightLabel="Today"
                             emptyMessage="No focused time this week."
                         />
                     </ProgressCard>
@@ -138,6 +142,7 @@ export function DashboardOverview({ sessions, journeys, dailyGoalMinutes, onSave
                     <View style={styles.sectionHeading}>
                         <Text style={styles.sectionTitle}>Focus by Journey</Text>
                     </View>
+                    <Text style={styles.sectionDescription}>This week&apos;s focus time grouped by Journey, standalone Quests, and Quick Focus.</Text>
                     <ProgressCard style={styles.categoriesCard}>
                         {stats.categories.length === 0 ? (
                             <Text style={styles.emptyText}>Complete a Focus Session to see how time is shared across Journeys.</Text>
@@ -259,6 +264,12 @@ function createStyles(colours: AppColours) {
         },
         sectionMeta: {
             fontSize: 12,
+            color: colours.textMuted,
+        },
+        sectionDescription: {
+            marginTop: -4,
+            fontSize: 11,
+            lineHeight: 16,
             color: colours.textMuted,
         },
         heroCard: {

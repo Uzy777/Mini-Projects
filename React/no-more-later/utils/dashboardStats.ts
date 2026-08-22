@@ -82,9 +82,11 @@ export function getOverviewStats(sessions: FocusSessionRecord[], referenceDate =
     return {
         todaySeconds,
         todaySessions: todaySessions.length,
-        todayCompleted: todaySessions.filter(
-            (session) => session.outcome === "completed" && Boolean(session.questId) && session.sessionKind !== "quick",
-        ).length,
+        todayCompleted: new Set(
+            todaySessions
+                .filter((session) => session.outcome === "completed" && Boolean(session.questId) && session.sessionKind !== "quick")
+                .map((session) => session.questId as string),
+        ).size,
         todayXp: todaySessions.reduce((total, session) => total + session.earnedXp, 0),
         todayBreakSeconds: todayBreakSessions.reduce((total, session) => total + getSessionSeconds(session), 0),
         todayBreaks: todayBreakSessions.length,
@@ -281,6 +283,7 @@ function buildBuckets(period: ProgressPeriod, start: Date, end: Date) {
 
     if (period === "month") {
         const weekCount = Math.ceil(end.getDate() / 7);
+        const monthEnd = new Date(start.getFullYear(), start.getMonth() + 1, 0, 23, 59, 59, 999);
 
         return Array.from({ length: weekCount }, (_, index) => {
             const bucketStart = new Date(start);
@@ -288,7 +291,7 @@ function buildBuckets(period: ProgressPeriod, start: Date, end: Date) {
             const bucketEnd = new Date(bucketStart);
             bucketEnd.setDate(bucketStart.getDate() + 6);
             bucketEnd.setHours(23, 59, 59, 999);
-            const visibleEnd = bucketEnd > end ? end : bucketEnd;
+            const visibleEnd = bucketEnd > monthEnd ? monthEnd : bucketEnd;
             return { start: bucketStart, end: visibleEnd, label: `${bucketStart.getDate()}–${visibleEnd.getDate()}` };
         });
     }

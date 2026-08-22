@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import Svg, { Circle, Line, Polyline } from "react-native-svg";
+import Svg, { Circle, Line, Polyline, Text as SvgText } from "react-native-svg";
 
 import type { ReactNode } from "react";
 import type { StyleProp, ViewStyle } from "react-native";
@@ -18,6 +18,8 @@ type ChartProps = {
     height?: number;
     valueFormatter?: (value: number) => string;
     emptyMessage?: string;
+    highlightedIndex?: number;
+    highlightLabel?: string;
 };
 
 export function ProgressCard({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
@@ -54,7 +56,7 @@ export function ProgressRing({ progress, size = 74, label }: { progress: number;
     );
 }
 
-export function ProgressBarChart({ values, labels, colour, height = 150, valueFormatter = String, emptyMessage }: ChartProps) {
+export function ProgressBarChart({ values, labels, colour, height = 150, valueFormatter = String, emptyMessage, highlightedIndex, highlightLabel }: ChartProps) {
     const { colours } = useAppearance();
     const styles = useMemo(() => createStyles(colours), [colours]);
     const maxValue = Math.max(...values, 1);
@@ -65,33 +67,49 @@ export function ProgressBarChart({ values, labels, colour, height = 150, valueFo
     }
 
     return (
-        <View style={[styles.barChart, { height }]}>
-            {values.map((value, index) => (
-                <View key={`${labels[index]}-${index}`} style={styles.barColumn}>
-                    <Text numberOfLines={1} style={styles.chartValueLabel}>
-                        {valueFormatter(value)}
-                    </Text>
-                    <View style={styles.barTrack}>
-                        <View
-                            style={[
-                                styles.bar,
-                                {
-                                    height: `${(value / maxValue) * 100}%`,
-                                    backgroundColor: colour ?? colours.primary,
-                                },
-                            ]}
-                        />
+        <View style={[styles.barChart, { height, gap: values.length > 8 ? 3 : spacing.sm }]}>
+            {values.map((value, index) => {
+                const isHighlighted = index === highlightedIndex;
+
+                return (
+                    <View
+                        key={`${labels[index]}-${index}`}
+                        accessible
+                        accessibilityLabel={`${labels[index]}: ${valueFormatter(value)}${isHighlighted && highlightLabel ? `, ${highlightLabel}` : ""}`}
+                        style={styles.barColumn}
+                    >
+                        <Text numberOfLines={1} style={[styles.chartValueLabel, isHighlighted && styles.highlightedValueLabel]}>
+                            {valueFormatter(value)}
+                        </Text>
+                        <View style={[styles.barTrack, isHighlighted && styles.highlightedBarTrack]}>
+                            <View
+                                style={[
+                                    styles.bar,
+                                    {
+                                        height: `${(value / maxValue) * 100}%`,
+                                        minHeight: value > 0 ? 4 : 0,
+                                        backgroundColor: colour ?? (isHighlighted ? colours.primaryStrong : colours.primary),
+                                    },
+                                ]}
+                            />
+                        </View>
+                        <Text numberOfLines={1} style={[styles.axisLabel, isHighlighted && styles.highlightedAxisLabel]}>{labels[index]}</Text>
+                        <Text
+                            numberOfLines={1}
+                            adjustsFontSizeToFit
+                            minimumFontScale={0.7}
+                            style={[styles.highlightLabel, !isHighlighted && styles.hiddenHighlightLabel]}
+                        >
+                            {isHighlighted ? highlightLabel : "Current"}
+                        </Text>
                     </View>
-                    <Text numberOfLines={1} style={styles.axisLabel}>
-                        {labels[index]}
-                    </Text>
-                </View>
-            ))}
+                );
+            })}
         </View>
     );
 }
 
-export function ProgressLineChart({ values, labels, colour, height = 170, emptyMessage }: ChartProps) {
+export function ProgressLineChart({ values, labels, colour, height = 170, valueFormatter = String, emptyMessage, highlightedIndex, highlightLabel }: ChartProps) {
     const { colours } = useAppearance();
     const styles = useMemo(() => createStyles(colours), [colours]);
     const [width, setWidth] = useState(0);
@@ -115,27 +133,42 @@ export function ProgressLineChart({ values, labels, colour, height = 170, emptyM
             {width > 0 && (
                 <Svg width={width} height={chartHeight}>
                     {[0.25, 0.5, 0.75].map((position) => (
-                        <Line
-                            key={position}
-                            x1={0}
-                            x2={width}
-                            y1={chartHeight * position}
-                            y2={chartHeight * position}
-                            stroke={colours.border}
-                            strokeWidth={1}
-                        />
+                        <Line key={position} x1={0} x2={width} y1={chartHeight * position} y2={chartHeight * position} stroke={colours.border} strokeWidth={1} />
                     ))}
                     <Polyline points={points.map((point) => `${point.x},${point.y}`).join(" ")} fill="none" stroke={colour ?? colours.primary} strokeWidth={3} />
                     {points.map((point, index) => (
-                        <Circle key={`${point.x}-${index}`} cx={point.x} cy={point.y} r={4} fill={colour ?? colours.primary} />
+                        <Circle
+                            key={`${point.x}-${index}`}
+                            cx={point.x}
+                            cy={point.y}
+                            r={index === highlightedIndex ? 6 : 4}
+                            fill={colour ?? (index === highlightedIndex ? colours.primaryStrong : colours.primary)}
+                            stroke={index === highlightedIndex ? colours.surface : "none"}
+                            strokeWidth={index === highlightedIndex ? 3 : 0}
+                        />
                     ))}
+                    {highlightedIndex !== undefined && points[highlightedIndex] ? (
+                        <SvgText
+                            x={points[highlightedIndex].x}
+                            y={Math.max(10, points[highlightedIndex].y - 12)}
+                            fill={colours.primaryStrong}
+                            fontSize={9}
+                            fontWeight="800"
+                            textAnchor={highlightedIndex === points.length - 1 ? "end" : highlightedIndex === 0 ? "start" : "middle"}
+                        >
+                            {valueFormatter(values[highlightedIndex])}
+                        </SvgText>
+                    ) : null}
                 </Svg>
             )}
             <View style={styles.lineLabels}>
                 {labels.map((label, index) => (
-                    <Text key={`${label}-${index}`} style={styles.axisLabel}>
-                        {label}
-                    </Text>
+                    <View key={`${label}-${index}`} style={styles.lineLabelItem}>
+                        <Text style={[styles.axisLabel, index === highlightedIndex && styles.highlightedAxisLabel]}>{label}</Text>
+                        <Text style={[styles.highlightLabel, index !== highlightedIndex && styles.hiddenHighlightLabel]}>
+                            {index === highlightedIndex ? highlightLabel : "Current"}
+                        </Text>
+                    </View>
                 ))}
             </View>
         </View>
@@ -231,7 +264,7 @@ function createStyles(colours: AppColours) {
         },
         barColumn: {
             flex: 1,
-            minWidth: 16,
+            minWidth: 0,
             alignItems: "center",
         },
         chartValueLabel: {
@@ -248,13 +281,17 @@ function createStyles(colours: AppColours) {
             minWidth: 7,
             maxWidth: 34,
             justifyContent: "flex-end",
+            overflow: "hidden",
             borderRadius: radius.sm,
             backgroundColor: colours.primarySoft,
-            overflow: "hidden",
+        },
+        highlightedBarTrack: {
+            borderWidth: 2,
+            borderColor: colours.primaryBorder,
+            backgroundColor: colours.primarySubtle,
         },
         bar: {
             width: "100%",
-            minHeight: 4,
             borderRadius: radius.sm,
         },
         axisLabel: {
@@ -262,6 +299,27 @@ function createStyles(colours: AppColours) {
             fontSize: 10,
             color: colours.textMuted,
             textAlign: "center",
+        },
+        highlightedValueLabel: {
+            color: colours.primaryStrong,
+            fontWeight: "900",
+        },
+        highlightedAxisLabel: {
+            color: colours.primaryStrong,
+            fontWeight: "900",
+        },
+        highlightLabel: {
+            minHeight: 9,
+            marginTop: 1,
+            fontSize: 7,
+            fontWeight: "900",
+            letterSpacing: 0.3,
+            color: colours.primaryStrong,
+            textAlign: "center",
+            textTransform: "uppercase",
+        },
+        hiddenHighlightLabel: {
+            color: "transparent",
         },
         lineChart: {
             width: "100%",
@@ -273,6 +331,11 @@ function createStyles(colours: AppColours) {
             left: 0,
             flexDirection: "row",
             justifyContent: "space-between",
+        },
+        lineLabelItem: {
+            minWidth: 0,
+            flex: 1,
+            alignItems: "center",
         },
         donutLayout: {
             flex: 1,

@@ -30,6 +30,7 @@ export function DashboardCalendar({ sessions, referenceDate = new Date() }: Dash
     const selectedBreakSessions = selectedSessions.filter(isBreakSession);
     const selectedSeconds = selectedFocusSessions.reduce((total, session) => total + getSessionSeconds(session), 0);
     const selectedBreakSeconds = selectedBreakSessions.reduce((total, session) => total + getSessionSeconds(session), 0);
+    const selectedIsToday = getLocalDateKey(selectedDate) === getLocalDateKey(referenceDate);
 
     function changeMonth(offset: number) {
         const nextMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + offset, 1);
@@ -48,6 +49,21 @@ export function DashboardCalendar({ sessions, referenceDate = new Date() }: Dash
                     <Pressable accessibilityLabel="Next month" hitSlop={8} onPress={() => changeMonth(1)} style={({ pressed }) => [styles.arrowButton, pressed && styles.pressed]}>
                         <ChevronRight size={20} color={colours.text} />
                     </Pressable>
+                </View>
+
+                <View style={styles.calendarLegend}>
+                    <View style={styles.legendItem}>
+                        <View style={[styles.legendDot, { backgroundColor: colours.primary }]} />
+                        <Text style={styles.legendText}>Focus</Text>
+                    </View>
+                    <View style={styles.legendItem}>
+                        <View style={[styles.legendDot, { backgroundColor: colours.success }]} />
+                        <Text style={styles.legendText}>Break</Text>
+                    </View>
+                    <View style={styles.legendItem}>
+                        <View style={styles.todayLegendMarker} />
+                        <Text style={styles.legendText}>Today</Text>
+                    </View>
                 </View>
 
                 <View style={styles.weekHeader}>
@@ -69,9 +85,10 @@ export function DashboardCalendar({ sessions, referenceDate = new Date() }: Dash
                             return (
                                 <Pressable
                                     key={getLocalDateKey(date)}
-                                    accessibilityLabel={date.toLocaleDateString()}
+                                    accessibilityLabel={`${date.toLocaleDateString()}${isToday ? ", today" : ""}. ${daySessions.length} timer ${daySessions.length === 1 ? "entry" : "entries"}.`}
+                                    accessibilityState={{ selected: isSelected }}
                                     onPress={() => setSelectedDate(date)}
-                                    style={({ pressed }) => [styles.dayCell, isSelected && styles.selectedDayCell, pressed && styles.pressed]}
+                                    style={({ pressed }) => [styles.dayCell, isToday && !isSelected && styles.todayDayCell, isSelected && styles.selectedDayCell, pressed && styles.pressed]}
                                 >
                                     <Text
                                         style={[
@@ -105,9 +122,12 @@ export function DashboardCalendar({ sessions, referenceDate = new Date() }: Dash
             <ProgressCard style={[styles.summaryCard, isWide && styles.desktopSummaryCard]}>
                 <View style={styles.summaryHeader}>
                     <View>
-                        <Text style={styles.selectedDate}>
-                            {selectedDate.toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}
-                        </Text>
+                        <View style={styles.selectedDateRow}>
+                            <Text style={styles.selectedDate}>
+                                {selectedDate.toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}
+                            </Text>
+                            {selectedIsToday ? <Text style={styles.todayBadge}>TODAY</Text> : null}
+                        </View>
                         <Text style={styles.selectedTime}>{formatProgressDuration(selectedSeconds, true)} focused</Text>
                         {selectedBreakSeconds > 0 ? <Text style={styles.selectedBreakTime}>{formatProgressDuration(selectedBreakSeconds, true)} break time</Text> : null}
                     </View>
@@ -206,6 +226,37 @@ function createStyles(colours: AppColours) {
             fontWeight: "800",
             color: colours.text,
         },
+        calendarLegend: {
+            marginBottom: spacing.md,
+            flexDirection: "row",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: spacing.md,
+        },
+        legendItem: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 5,
+        },
+        legendDot: {
+            width: 7,
+            height: 7,
+            borderRadius: radius.pill,
+        },
+        todayLegendMarker: {
+            width: 13,
+            height: 13,
+            borderWidth: 2,
+            borderColor: colours.primary,
+            borderRadius: radius.pill,
+            backgroundColor: colours.primarySubtle,
+        },
+        legendText: {
+            fontSize: 10,
+            fontWeight: "700",
+            color: colours.textMuted,
+        },
         arrowButton: {
             width: 38,
             height: 38,
@@ -243,6 +294,11 @@ function createStyles(colours: AppColours) {
         },
         selectedDayCell: {
             backgroundColor: colours.primary,
+        },
+        todayDayCell: {
+            borderWidth: 2,
+            borderColor: colours.primaryBorder,
+            backgroundColor: colours.primarySubtle,
         },
         dayNumber: {
             fontSize: 13,
@@ -282,10 +338,28 @@ function createStyles(colours: AppColours) {
             justifyContent: "space-between",
             gap: spacing.md,
         },
+        selectedDateRow: {
+            flexDirection: "row",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: spacing.sm,
+        },
         selectedDate: {
             fontSize: 15,
             fontWeight: "800",
             color: colours.text,
+        },
+        todayBadge: {
+            paddingHorizontal: 7,
+            paddingVertical: 3,
+            borderWidth: 1,
+            borderColor: colours.primaryBorder,
+            borderRadius: radius.pill,
+            backgroundColor: colours.primarySubtle,
+            fontSize: 8,
+            fontWeight: "900",
+            letterSpacing: 0.5,
+            color: colours.primaryStrong,
         },
         selectedTime: {
             marginTop: 4,

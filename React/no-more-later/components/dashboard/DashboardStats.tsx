@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
-import { Check, ChevronDown, Clock3, Coffee, Target, Zap } from "lucide-react-native";
+import { Check, ChevronDown, Clock3, Coffee, Info, Target, Zap } from "lucide-react-native";
 
 import type { ReactNode } from "react";
 
@@ -11,6 +11,7 @@ import type { FocusSessionRecord, Journey } from "@/types/models";
 import {
     formatProgressDuration,
     getCategoryStats,
+    getOverviewStats,
     getProgressTrend,
     type ProgressPeriod,
 } from "@/utils/dashboardStats";
@@ -39,6 +40,7 @@ export function DashboardStats({ sessions, journeys, referenceDate = new Date() 
     const trend = useMemo(() => getProgressTrend(sessions, period, referenceDate), [period, referenceDate, sessions]);
     const periodSessions = useMemo(() => filterPeriodSessions(sessions, period, referenceDate), [period, referenceDate, sessions]);
     const categories = useMemo(() => getCategoryStats(periodSessions, journeys), [journeys, periodSessions]);
+    const today = useMemo(() => getOverviewStats(sessions, referenceDate), [referenceDate, sessions]);
     const isWide = width >= 760;
     const focusTotal = trend.focusSeconds.reduce((total, value) => total + value, 0);
     const breakTotal = trend.breakSeconds.reduce((total, value) => total + value, 0);
@@ -49,6 +51,8 @@ export function DashboardStats({ sessions, journeys, referenceDate = new Date() 
             .map((session) => session.questId as string),
     ).size;
     const periodLabel = PERIOD_OPTIONS.find((option) => option.id === period)?.label ?? "This Month";
+    const highlightedIndex = Math.max(0, trend.labels.length - 1);
+    const highlightedBucketLabel = getHighlightedBucketLabel(period);
 
     return (
         <View style={styles.content}>
@@ -60,16 +64,34 @@ export function DashboardStats({ sessions, journeys, referenceDate = new Date() 
                 </Pressable>
             </View>
 
+            <View style={styles.chartGuide}>
+                <View style={styles.guideIcon}>
+                    <Info size={16} color={colours.primaryStrong} />
+                </View>
+                <Text style={styles.guideText}>
+                    The large number is the total for {periodLabel.toLowerCase()}. Bars and points group activity across the dates below. The <Text style={styles.guideEmphasis}>Today</Text> badge is today&apos;s exact value, while the highlighted point or bar marks the {highlightedBucketLabel.toLowerCase()}.
+                </Text>
+            </View>
+
             <View style={[styles.statsGrid, isWide && styles.statsGridWide]}>
                 <ProgressCard style={styles.chartCard}>
                     <ChartHeader
                         icon={<Clock3 size={17} color={colours.primary} />}
                         title="Focus Time"
                         value={formatProgressDuration(focusTotal, true)}
+                        todayValue={formatProgressDuration(today.todaySeconds, true)}
                         delta={trend.focusDelta}
-                        detail={`${sessionTotal} ${sessionTotal === 1 ? "session" : "sessions"} in ${periodLabel.toLowerCase()}`}
+                        detail={`Total reviewed focus time · ${sessionTotal} ${sessionTotal === 1 ? "session" : "sessions"}`}
                     />
-                    <ProgressLineChart values={trend.focusSeconds} labels={trend.labels} height={180} emptyMessage="No focused time in this period." />
+                    <ProgressLineChart
+                        values={trend.focusSeconds}
+                        labels={trend.labels}
+                        height={180}
+                        valueFormatter={(value) => formatProgressDuration(value, true)}
+                        highlightedIndex={highlightedIndex}
+                        highlightLabel={highlightedBucketLabel}
+                        emptyMessage="No focused time in this period. Today will appear here after your first reviewed session."
+                    />
                 </ProgressCard>
 
                 <ProgressCard style={styles.chartCard}>
@@ -77,10 +99,11 @@ export function DashboardStats({ sessions, journeys, referenceDate = new Date() 
                         icon={<Zap size={17} color={colours.primary} />}
                         title="Sessions"
                         value={String(sessionTotal)}
+                        todayValue={String(today.todaySessions)}
                         delta={trend.sessionsDelta}
-                        detail="Reviewed Focus Sessions"
+                        detail="Number of reviewed Focus Sessions"
                     />
-                    <ProgressBarChart values={trend.sessions} labels={trend.labels} height={180} emptyMessage="No sessions in this period." />
+                    <ProgressBarChart values={trend.sessions} labels={trend.labels} height={180} highlightedIndex={highlightedIndex} highlightLabel={highlightedBucketLabel} emptyMessage="No reviewed Focus Sessions in this period." />
                 </ProgressCard>
 
                 <ProgressCard style={styles.chartCard}>
@@ -88,10 +111,11 @@ export function DashboardStats({ sessions, journeys, referenceDate = new Date() 
                         icon={<Target size={17} color={colours.primary} />}
                         title="Quests Completed"
                         value={String(completedTotal)}
+                        todayValue={String(today.todayCompleted)}
                         delta={trend.questsDelta}
                         detail="Unique Quests marked complete"
                     />
-                    <ProgressBarChart values={trend.questsCompleted} labels={trend.labels} height={180} emptyMessage="No completed Quests in this period." />
+                    <ProgressBarChart values={trend.questsCompleted} labels={trend.labels} height={180} highlightedIndex={highlightedIndex} highlightLabel={highlightedBucketLabel} emptyMessage="No completed Quests in this period." />
                 </ProgressCard>
 
                 <ProgressCard style={styles.chartCard}>
@@ -99,10 +123,20 @@ export function DashboardStats({ sessions, journeys, referenceDate = new Date() 
                         icon={<Coffee size={17} color={colours.success} />}
                         title="Break Time"
                         value={formatProgressDuration(breakTotal, true)}
+                        todayValue={formatProgressDuration(today.todayBreakSeconds, true)}
                         delta={trend.breakDelta}
-                        detail="Short and long breaks · 0 XP"
+                        detail="Recorded short and long break time · 0 XP"
                     />
-                    <ProgressBarChart values={trend.breakSeconds} labels={trend.labels} colour={colours.success} height={180} emptyMessage="No breaks recorded in this period." />
+                    <ProgressBarChart
+                        values={trend.breakSeconds}
+                        labels={trend.labels}
+                        colour={colours.success}
+                        height={180}
+                        valueFormatter={(value) => formatProgressDuration(value, true)}
+                        highlightedIndex={highlightedIndex}
+                        highlightLabel={highlightedBucketLabel}
+                        emptyMessage="No breaks recorded in this period."
+                    />
                 </ProgressCard>
 
                 <ProgressCard style={[styles.chartCard, styles.donutCard]}>
@@ -149,12 +183,14 @@ function ChartHeader({
     icon,
     title,
     value,
+    todayValue,
     delta,
     detail,
 }: {
     icon: ReactNode;
     title: string;
     value: string;
+    todayValue: string;
     delta: number | null;
     detail: string;
 }) {
@@ -168,7 +204,13 @@ function ChartHeader({
                 <View style={styles.chartIcon}>{icon}</View>
                 <Text style={styles.cardTitle}>{title}</Text>
             </View>
-            <Text style={styles.chartValue}>{value}</Text>
+            <View style={styles.chartValueRow}>
+                <Text style={styles.chartValue}>{value}</Text>
+                <View style={styles.todayBadge}>
+                    <Text style={styles.todayBadgeLabel}>TODAY</Text>
+                    <Text style={styles.todayBadgeValue}>{todayValue}</Text>
+                </View>
+            </View>
             <Text style={styles.chartDetail}>{detail}</Text>
             {delta !== null ? (
                 <Text style={[styles.delta, isPositive ? styles.positiveDelta : styles.negativeDelta]}>
@@ -178,6 +220,12 @@ function ChartHeader({
             ) : null}
         </View>
     );
+}
+
+function getHighlightedBucketLabel(period: ProgressPeriod) {
+    if (period === "fortnight") return "Today";
+    if (period === "month") return "This week";
+    return "This month";
 }
 
 function filterPeriodSessions(sessions: FocusSessionRecord[], period: ProgressPeriod, referenceDate: Date) {
@@ -217,6 +265,35 @@ function createStyles(colours: AppColours) {
             fontSize: 13,
             fontWeight: "700",
             color: colours.textMuted,
+        },
+        chartGuide: {
+            padding: spacing.md,
+            flexDirection: "row",
+            alignItems: "flex-start",
+            gap: spacing.sm,
+            borderWidth: 1,
+            borderColor: colours.primaryBorder,
+            borderRadius: radius.md,
+            backgroundColor: colours.primarySubtle,
+        },
+        guideIcon: {
+            width: 28,
+            height: 28,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: radius.pill,
+            backgroundColor: colours.primarySoft,
+        },
+        guideText: {
+            minWidth: 0,
+            flex: 1,
+            fontSize: 11,
+            lineHeight: 17,
+            color: colours.textMuted,
+        },
+        guideEmphasis: {
+            fontWeight: "900",
+            color: colours.primaryStrong,
         },
         periodButton: {
             minHeight: 38,
@@ -279,10 +356,37 @@ function createStyles(colours: AppColours) {
             color: colours.textMuted,
         },
         chartValue: {
-            marginTop: spacing.sm,
             fontSize: 24,
             lineHeight: 29,
             fontWeight: "800",
+            color: colours.text,
+        },
+        chartValueRow: {
+            marginTop: spacing.sm,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: spacing.md,
+        },
+        todayBadge: {
+            paddingHorizontal: spacing.sm,
+            paddingVertical: 5,
+            alignItems: "flex-end",
+            borderWidth: 1,
+            borderColor: colours.primaryBorder,
+            borderRadius: radius.sm,
+            backgroundColor: colours.primarySubtle,
+        },
+        todayBadgeLabel: {
+            fontSize: 7,
+            fontWeight: "900",
+            letterSpacing: 0.6,
+            color: colours.primaryStrong,
+        },
+        todayBadgeValue: {
+            marginTop: 1,
+            fontSize: 12,
+            fontWeight: "900",
             color: colours.text,
         },
         delta: {
