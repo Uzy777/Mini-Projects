@@ -47,22 +47,24 @@ export function DashboardRankCard({ sessions }: DashboardRankCardProps) {
                 </View>
             </View>
 
-            <View style={[styles.body, isWide && styles.bodyWide]}>
-                <View style={[styles.rankSummary, isWide && styles.rankSummaryWide]}>
-                    <RankDisplay level={levelProgress.level} />
-                </View>
-
-                <View style={[styles.levelProgressSection, isWide && styles.levelProgressWide]}>
-                    <View style={styles.progressLabels}>
-                        <Text style={styles.progressLabel}>Progress to Level {levelProgress.level + 1}</Text>
-                        <Text style={styles.progressValue}>{levelProgress.xpIntoLevel} / {levelProgress.xpRequired} XP</Text>
+            <View style={styles.body}>
+                <View style={[styles.progressOverview, isWide && styles.progressOverviewWide]}>
+                    <View style={[styles.rankSummary, isWide && styles.rankSummaryWide]}>
+                        <RankDisplay level={levelProgress.level} />
                     </View>
-                    <AnimatedProgressBar progress={progressPercentage / 100} height={8} />
-                    <Text style={styles.remainingText}>{remainingXp > 0 ? `${remainingXp} XP remaining` : "Next level ready"}</Text>
-                    <Text style={styles.xpRule}>Every level is 500 XP · 3 XP per credited focus minute</Text>
+
+                    <View style={[styles.levelProgressSection, isWide && styles.levelProgressWide]}>
+                        <View style={styles.progressLabels}>
+                            <Text style={styles.progressLabel}>Progress to Level {levelProgress.level + 1}</Text>
+                            <Text style={styles.progressValue}>{levelProgress.xpIntoLevel} / {levelProgress.xpRequired} XP</Text>
+                        </View>
+                        <AnimatedProgressBar progress={progressPercentage / 100} height={8} />
+                        <Text style={styles.remainingText}>{remainingXp > 0 ? `${remainingXp} XP remaining` : "Next level ready"}</Text>
+                        <Text style={styles.xpRule}>Every level is 500 XP · 3 XP per credited focus minute</Text>
+                    </View>
                 </View>
 
-                <View style={[styles.statsRow, isWide && styles.statsRowWide]}>
+                <View style={styles.statsRow}>
                     <RankStat icon={<Flame size={17} color={colours.primaryStrong} />} label="CURRENT STREAK" value={`${currentStreak} ${currentStreak === 1 ? "day" : "days"}`} />
                     <RankStat icon={<Clock3 size={17} color={colours.primaryStrong} />} label="TOTAL FOCUS" value={formatProgressDuration(totalFocusedSeconds, true)} />
                     <RankStat icon={<Zap size={17} color={colours.primaryStrong} />} label="TOTAL XP" value={totalXp.toLocaleString()} />
@@ -156,7 +158,8 @@ function createStyles(colours: AppColours) {
             color: colours.primaryStrong,
         },
         body: { gap: spacing.md },
-        bodyWide: { flexDirection: "row", alignItems: "center", gap: spacing.lg },
+        progressOverview: { gap: spacing.md },
+        progressOverviewWide: { flexDirection: "row", alignItems: "center", gap: spacing.lg },
         rankSummary: { minWidth: 0 },
         rankSummaryWide: { width: 270 },
         levelProgressSection: {
@@ -196,14 +199,6 @@ function createStyles(colours: AppColours) {
             paddingTop: spacing.md,
             borderTopWidth: 1,
             borderTopColor: colours.border,
-        },
-        statsRowWide: {
-            width: 320,
-            paddingTop: 0,
-            paddingLeft: spacing.md,
-            borderTopWidth: 0,
-            borderLeftWidth: 1,
-            borderLeftColor: colours.border,
         },
         stat: {
             minWidth: 0,
