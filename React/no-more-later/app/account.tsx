@@ -1,25 +1,28 @@
+import { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Stack, router } from "expo-router";
-import { ChevronRight, LogOut, Palette, UserRound, UserRoundPen } from "lucide-react-native";
+import { ChevronRight, LogOut, Palette, Trash2, UserRoundPen } from "lucide-react-native";
 
-import { radius, spacing } from "@/constants/design";
-import { useAppearance } from "@/contexts/AppearanceContext";
-
-import type { AppColours } from "@/constants/appearanceColours";
-import { useAuth } from "@/contexts/AuthContext";
-import { signOut } from "@/services/auth/authService";
-import { useMemo } from "react";
+import { DeleteAccountModal } from "@/components/account/DeleteAccountModal";
 import { DevelopmentPremiumControls } from "@/components/premium/DevelopmentPremiumControls";
 import { PremiumStatusCard } from "@/components/premium/PremiumStatusCard";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import type { AppColours } from "@/constants/appearanceColours";
+import { radius, spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { deleteAccount, signOut } from "@/services/auth/authService";
+import { removeRunningFocusNotification } from "@/services/notifications/focusNotificationService";
+import { clearNoMoreLaterStorage } from "@/services/storage/resetAppStorage";
 
 export default function AccountScreen() {
-    const { session, profile } = useAuth();
-
+    const { session } = useAuth();
     const { colours } = useAppearance();
-
     const styles = useMemo(() => createStyles(colours), [colours]);
+    const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+    const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+    const [deleteAccountError, setDeleteAccountError] = useState<string | null>(null);
 
     async function handleSignOut() {
         const { error } = await signOut();
@@ -27,6 +30,57 @@ export default function AccountScreen() {
         if (error) {
             console.error("Failed to sign out:", error);
         }
+    }
+
+    function openDeleteAccountModal() {
+        setDeleteAccountError(null);
+        setIsDeleteModalVisible(true);
+    }
+
+    function closeDeleteAccountModal() {
+        if (isDeletingAccount) {
+            return;
+        }
+
+        setDeleteAccountError(null);
+        setIsDeleteModalVisible(false);
+    }
+
+    async function handleDeleteAccount() {
+        if (isDeletingAccount) {
+            return;
+        }
+
+        setIsDeletingAccount(true);
+        setDeleteAccountError(null);
+
+        const { error } = await deleteAccount();
+
+        if (error) {
+            console.error("Failed to delete account:", error);
+            setDeleteAccountError("We couldn't delete your account. Check your connection and try again.");
+            setIsDeletingAccount(false);
+            return;
+        }
+
+        const cleanupResults = await Promise.allSettled([
+            removeRunningFocusNotification(),
+            clearNoMoreLaterStorage(),
+        ]);
+
+        cleanupResults.forEach((result) => {
+            if (result.status === "rejected") {
+                console.warn("Account was deleted, but local cleanup did not fully complete:", result.reason);
+            }
+        });
+
+        const { error: signOutError } = await signOut();
+
+        if (signOutError) {
+            console.warn("Account was deleted, but the local session did not clear cleanly:", signOutError);
+        }
+
+        router.replace("/sign-in");
     }
 
     return (
@@ -92,6 +146,45 @@ export default function AccountScreen() {
 
                 <Text style={styles.signOutText}>Sign out</Text>
             </AnimatedPressable>
+
+            <View style={[styles.section, styles.dangerSection]}>
+                <Text style={[styles.sectionLabel, styles.dangerSectionLabel]}>DANGER ZONE</Text>
+
+                <View style={styles.dangerCard}>
+                    <View style={styles.dangerHeader}>
+                        <View style={styles.dangerIcon}>
+                            <Trash2 size={20} color={colours.danger} />
+                        </View>
+
+                        <View style={styles.dangerDetails}>
+                            <Text style={styles.dangerTitle}>Delete account</Text>
+                            <Text style={styles.dangerDescription}>
+                                Permanently remove your account and all associated data.
+                            </Text>
+                        </View>
+                    </View>
+
+                    <AnimatedPressable
+                        accessibilityRole="button"
+                        accessibilityLabel="Delete account"
+                        haptic="selection"
+                        onPress={openDeleteAccountModal}
+                        style={styles.deleteButton}
+                    >
+                        <Trash2 size={17} color="#ffffff" />
+                        <Text style={styles.deleteButtonText}>Delete account</Text>
+                    </AnimatedPressable>
+                </View>
+            </View>
+
+            <DeleteAccountModal
+                visible={isDeleteModalVisible}
+                accountEmail={session?.user.email}
+                isDeleting={isDeletingAccount}
+                errorMessage={deleteAccountError}
+                onClose={closeDeleteAccountModal}
+                onConfirm={() => void handleDeleteAccount()}
+            />
         </ScrollView>
     );
 }
@@ -235,6 +328,72 @@ function createStyles(colours: AppColours) {
             fontSize: 15,
             fontWeight: "700",
             color: colours.danger,
+        },
+
+        dangerSection: {
+            marginTop: spacing.xxl,
+        },
+
+        dangerSectionLabel: {
+            color: colours.danger,
+        },
+
+        dangerCard: {
+            gap: spacing.lg,
+            padding: spacing.lg,
+            borderWidth: 1,
+            borderColor: colours.danger,
+            borderRadius: radius.lg,
+            backgroundColor: colours.surface,
+        },
+
+        dangerHeader: {
+            flexDirection: "row",
+            alignItems: "flex-start",
+            gap: spacing.md,
+        },
+
+        dangerIcon: {
+            width: 40,
+            height: 40,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: radius.md,
+            backgroundColor: colours.dangerSoft,
+        },
+
+        dangerDetails: {
+            flex: 1,
+        },
+
+        dangerTitle: {
+            fontSize: 16,
+            fontWeight: "800",
+            color: colours.text,
+        },
+
+        dangerDescription: {
+            marginTop: spacing.xs,
+            fontSize: 13,
+            lineHeight: 19,
+            color: colours.textMuted,
+        },
+
+        deleteButton: {
+            minHeight: 44,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: spacing.sm,
+            paddingHorizontal: spacing.md,
+            borderRadius: radius.md,
+            backgroundColor: colours.danger,
+        },
+
+        deleteButtonText: {
+            fontSize: 14,
+            fontWeight: "800",
+            color: "#ffffff",
         },
     });
 }
