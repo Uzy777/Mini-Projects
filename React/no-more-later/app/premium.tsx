@@ -1,5 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
+    Platform,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -18,23 +19,45 @@ import { radius, spacing } from "@/constants/design";
 import { PREMIUM_TEST_CONTROLS_ENABLED } from "@/constants/premium";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { usePremium } from "@/contexts/PremiumContext";
+import { AppButton } from "@/components/ui/AppButton";
 
 export default function PremiumScreen() {
     const { colours } = useAppearance();
 
     const {
         hasPremium,
-        setDevelopmentPremium,
+        isRevenueCatConfigured,
+        isLifetimePurchaseAvailable,
+        lifetimePrice,
+        isPurchasing,
+        isRestoring,
+        purchasePremium,
+        restorePremium,
     } = usePremium();
+    const [actionMessage, setActionMessage] = useState<string | null>(null);
 
     const styles = useMemo(
         () => createStyles(colours),
         [colours],
     );
 
-    function handleUnlockPremium() {
-        if (PREMIUM_TEST_CONTROLS_ENABLED) {
-            setDevelopmentPremium(true);
+    async function handleUnlockPremium() {
+        setActionMessage(null);
+
+        const result = await purchasePremium();
+
+        if (!result.success && !result.cancelled) {
+            setActionMessage(result.errorMessage);
+        }
+    }
+
+    async function handleRestorePremium() {
+        setActionMessage(null);
+
+        const result = await restorePremium();
+
+        if (!result.success) {
+            setActionMessage(result.errorMessage);
         }
     }
 
@@ -135,22 +158,60 @@ export default function PremiumScreen() {
                     </View>
                 </View>
             ) : (
-                <Pressable
-                    style={({ pressed }) => [
-                        styles.unlockButton,
-                        pressed && styles.unlockButtonPressed,
-                    ]}
-                    onPress={handleUnlockPremium}
-                >
-                    <Crown
-                        size={18}
-                        color={colours.onPrimary}
+                <View style={styles.purchaseCard}>
+                    <View style={styles.purchaseHeader}>
+                        <View style={styles.purchaseDetails}>
+                            <View style={styles.purchaseTitleRow}>
+                                <Text style={styles.purchaseTitle}>Lifetime access</Text>
+                                {PREMIUM_TEST_CONTROLS_ENABLED ? (
+                                    <View style={styles.testBadge}>
+                                        <Text style={styles.testBadgeText}>TEST STORE</Text>
+                                    </View>
+                                ) : null}
+                            </View>
+                            <Text style={styles.purchaseDescription}>One payment. No subscription.</Text>
+                        </View>
+
+                        <Text style={styles.purchasePrice}>{lifetimePrice ?? "£4.99"}</Text>
+                    </View>
+
+                    <AppButton
+                        label={`Unlock Premium · ${lifetimePrice ?? "£4.99"}`}
+                        icon={<Crown size={18} color={colours.onPrimary} />}
+                        fullWidth
+                        size="lg"
+                        loading={isPurchasing}
+                        disabled={!isRevenueCatConfigured || !isLifetimePurchaseAvailable || isRestoring}
+                        onPress={() => void handleUnlockPremium()}
                     />
 
-                    <Text style={styles.unlockButtonText}>
-                        Unlock Premium
-                    </Text>
-                </Pressable>
+                    {!isRevenueCatConfigured ? (
+                        <Text style={styles.setupMessage}>
+                            Add the RevenueCat Test Store SDK key to this development build to enable test purchases.
+                        </Text>
+                    ) : !isLifetimePurchaseAvailable ? (
+                        <Text style={styles.setupMessage}>
+                            No lifetime package was found in the current RevenueCat offering.
+                        </Text>
+                    ) : null}
+
+                    {actionMessage ? (
+                        <Text accessibilityRole="alert" style={styles.errorMessage}>
+                            {actionMessage}
+                        </Text>
+                    ) : null}
+
+                    {Platform.OS !== "web" && isRevenueCatConfigured ? (
+                        <Pressable
+                            accessibilityRole="button"
+                            disabled={isPurchasing || isRestoring}
+                            onPress={() => void handleRestorePremium()}
+                            style={({ pressed }) => [styles.restoreButton, pressed && styles.restoreButtonPressed]}
+                        >
+                            <Text style={styles.restoreButtonText}>{isRestoring ? "Restoring…" : "Restore purchase"}</Text>
+                        </Pressable>
+                    ) : null}
+                </View>
             )}
         </ScrollView>
     );
@@ -316,29 +377,96 @@ function createStyles(colours: AppColours) {
             backgroundColor: colours.border,
         },
 
-        unlockButton: {
-            minHeight: 50,
+        purchaseCard: {
+            gap: spacing.md,
+            padding: spacing.lg,
+            borderWidth: 1,
+            borderColor: colours.primaryBorder,
+            borderRadius: radius.lg,
+            backgroundColor: colours.surface,
+        },
 
+        purchaseHeader: {
             flexDirection: "row",
             alignItems: "center",
-            justifyContent: "center",
+            gap: spacing.md,
+        },
 
+        purchaseDetails: {
+            flex: 1,
+            gap: spacing.xs,
+        },
+
+        purchaseTitleRow: {
+            flexDirection: "row",
+            alignItems: "center",
+            flexWrap: "wrap",
             gap: spacing.sm,
+        },
 
+        purchaseTitle: {
+            fontSize: 17,
+            fontWeight: "800",
+            color: colours.text,
+        },
+
+        purchaseDescription: {
+            fontSize: 13,
+            color: colours.textMuted,
+        },
+
+        purchasePrice: {
+            fontSize: 22,
+            fontWeight: "900",
+            color: colours.primary,
+        },
+
+        testBadge: {
+            paddingHorizontal: spacing.sm,
+            paddingVertical: spacing.xs,
+            borderRadius: radius.pill,
+            backgroundColor: colours.primarySoft,
+        },
+
+        testBadgeText: {
+            fontSize: 9,
+            fontWeight: "900",
+            letterSpacing: 0.6,
+            color: colours.primary,
+        },
+
+        setupMessage: {
+            fontSize: 12,
+            lineHeight: 18,
+            textAlign: "center",
+            color: colours.textMuted,
+        },
+
+        errorMessage: {
+            padding: spacing.sm,
+            borderRadius: radius.sm,
+            fontSize: 12,
+            lineHeight: 18,
+            textAlign: "center",
+            color: colours.danger,
+            backgroundColor: colours.dangerSoft,
+        },
+
+        restoreButton: {
+            alignSelf: "center",
+            paddingHorizontal: spacing.md,
+            paddingVertical: spacing.sm,
             borderRadius: radius.md,
-
-            backgroundColor: colours.primary,
         },
 
-        unlockButtonPressed: {
-            backgroundColor: colours.primaryPressed,
+        restoreButtonPressed: {
+            backgroundColor: colours.primarySoft,
         },
 
-        unlockButtonText: {
-            fontSize: 15,
+        restoreButtonText: {
+            fontSize: 13,
             fontWeight: "700",
-
-            color: colours.onPrimary,
+            color: colours.primary,
         },
 
         activeCard: {

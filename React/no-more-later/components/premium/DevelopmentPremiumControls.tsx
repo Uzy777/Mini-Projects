@@ -11,7 +11,7 @@ import type { AppColours } from "@/constants/appearanceColours";
 export function DevelopmentPremiumControls() {
     const { colours } = useAppearance();
 
-    const { hasPremium, setDevelopmentPremium } = usePremium();
+    const { hasDevelopmentPremiumOverride, setDevelopmentPremium } = usePremium();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
 
@@ -25,18 +25,30 @@ export function DevelopmentPremiumControls() {
 
             <View style={styles.card}>
                 <View style={styles.details}>
-                    <Text style={styles.title}>Premium status</Text>
+                    <Text style={styles.title}>Local Premium override</Text>
 
-                    <Text style={styles.description}>Simulate Free and Premium access in this test build.</Text>
+                    <Text style={styles.description}>
+                        Force Premium UI access without changing RevenueCat purchases. Clear it to use RevenueCat normally.
+                    </Text>
                 </View>
 
                 <View style={styles.buttons}>
-                    <Pressable style={[styles.button, !hasPremium && styles.buttonSelected]} onPress={() => setDevelopmentPremium(false)}>
-                        <Text style={[styles.buttonText, !hasPremium && styles.buttonTextSelected]}>Free</Text>
+                    <Pressable
+                        style={[styles.button, !hasDevelopmentPremiumOverride && styles.buttonSelected]}
+                        onPress={() => setDevelopmentPremium(false)}
+                    >
+                        <Text style={[styles.buttonText, !hasDevelopmentPremiumOverride && styles.buttonTextSelected]}>
+                            Use RevenueCat
+                        </Text>
                     </Pressable>
 
-                    <Pressable style={[styles.button, hasPremium && styles.buttonSelected]} onPress={() => setDevelopmentPremium(true)}>
-                        <Text style={[styles.buttonText, hasPremium && styles.buttonTextSelected]}>Premium</Text>
+                    <Pressable
+                        style={[styles.button, hasDevelopmentPremiumOverride && styles.buttonSelected]}
+                        onPress={() => setDevelopmentPremium(true)}
+                    >
+                        <Text style={[styles.buttonText, hasDevelopmentPremiumOverride && styles.buttonTextSelected]}>
+                            Force Premium
+                        </Text>
                     </Pressable>
                 </View>
             </View>

@@ -25,6 +25,46 @@ npx expo start --dev-client
 
 Open the installed No More Later development client rather than Expo Go. Most non-native changes are loaded through Metro with Fast Refresh and do not require another APK.
 
+## RevenueCat Test Store
+
+Development builds use RevenueCat's Test Store so Premium purchases can be tested before Google Play and App Store Connect are connected. Configure the RevenueCat dashboard with these exact values:
+
+- Entitlement: `premium`
+- Test Store product: `no_more_later_premium_lifetime`
+- Product type: lifetime/non-consumable
+- Price: `GBP 4.99`
+- Offering: `default`, marked as the current offering
+- Package: `Lifetime`, attached to the Test Store product
+
+Copy the public Test Store SDK key from **RevenueCat → Project settings → API keys** into `.env.local`:
+
+```bash
+EXPO_PUBLIC_REVENUECAT_TEST_STORE_API_KEY=test_your-public-test-store-sdk-key
+```
+
+For an EAS development build, add the same public key to the EAS `development` environment:
+
+```bash
+npx eas-cli@latest env:create \
+  --environment development \
+  --name EXPO_PUBLIC_REVENUECAT_TEST_STORE_API_KEY \
+  --value test_your-public-test-store-sdk-key \
+  --visibility plaintext
+```
+
+Then create and install a new development APK because `react-native-purchases` adds native code:
+
+```bash
+npx eas-cli@latest build --platform android --profile development
+npx expo start --dev-client
+```
+
+The Test Store purchase dialog can simulate success, failure, and cancellation. A successful purchase must activate the `premium` entitlement. RevenueCat uses the signed-in Supabase user UUID as its App User ID, so the entitlement follows that account across devices.
+
+Before testing, clear any **Force Premium** local override from the Account screen so access is driven by RevenueCat. To repeat the lifetime purchase for the same test account, find its Supabase user UUID under RevenueCat Customers and delete that sandbox customer before trying again.
+
+Do not add this Test Store key to the EAS `production` environment or ship it in a production build. Replace it with the platform-specific Apple, Google, and web configuration when those stores are connected.
+
 To compile and install a development build locally on a USB-connected Android device instead of using EAS Build:
 
 ```bash
