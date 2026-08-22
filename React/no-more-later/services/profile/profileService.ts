@@ -8,7 +8,7 @@ export async function getProfile(userId: string): Promise<{
 }> {
     const { data, error } = await supabase
         .from("profiles")
-        .select("id, display_name, daily_focus_goal_minutes, created_at")
+        .select("id, display_name, display_name_change_used, daily_focus_goal_minutes, created_at")
         .eq("id", userId)
         .maybeSingle();
 
@@ -31,7 +31,7 @@ export async function updateDisplayName(
             display_name: displayName,
         })
         .eq("id", userId)
-        .select("id, display_name, daily_focus_goal_minutes, created_at")
+        .select("id, display_name, display_name_change_used, daily_focus_goal_minutes, created_at")
         .single();
 
     return {
@@ -53,7 +53,7 @@ export async function updateDailyFocusGoal(
             daily_focus_goal_minutes: dailyFocusGoalMinutes,
         })
         .eq("id", userId)
-        .select("id, display_name, daily_focus_goal_minutes, created_at")
+        .select("id, display_name, display_name_change_used, daily_focus_goal_minutes, created_at")
         .single();
 
     return {

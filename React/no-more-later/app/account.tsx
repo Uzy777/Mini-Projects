@@ -17,7 +17,7 @@ import { removeRunningFocusNotification } from "@/services/notifications/focusNo
 import { clearNoMoreLaterStorage } from "@/services/storage/resetAppStorage";
 
 export default function AccountScreen() {
-    const { session } = useAuth();
+    const { session, profile } = useAuth();
     const { colours } = useAppearance();
     const styles = useMemo(() => createStyles(colours), [colours]);
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -117,7 +117,13 @@ export default function AccountScreen() {
                         </View>
                         <View style={styles.settingDetails}>
                             <Text style={styles.settingTitle}>Profile</Text>
-                            <Text style={styles.settingDescription}>Update your account details</Text>
+                            <Text style={styles.settingDescription}>
+                                {profile
+                                    ? profile.display_name_change_used
+                                        ? "Display name locked"
+                                        : "One display name change available"
+                                    : "Update your account details"}
+                            </Text>
                         </View>
                         <ChevronRight size={18} color={colours.textMuted} />
                     </AnimatedPressable>
