@@ -5,12 +5,13 @@ import { useAudioPlayer } from "expo-audio";
 import * as Crypto from "expo-crypto";
 import { Brain, Settings2 } from "lucide-react-native";
 
-import type { ActiveFocusSession, FocusTimelineEvent } from "../../types/models";
+import type { ActiveFocusSession, FocusTimelineEvent, QuestFocusSummary } from "../../types/models";
 import { getActiveFocusSession, saveActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
 import { FocusTimerDisplay } from "../../components/focus/FocusTimerDisplay";
 import { FocusTimerControls } from "../../components/focus/FocusTimerControls";
 import { ActiveSessionNotice } from "../../components/focus/ActiveSessionNotice";
 import { TimerSettingsModal } from "../../components/focus/TimerSettingsModal";
+import { QuestFocusProgressSummary } from "../../components/focus/QuestFocusProgressSummary";
 import { calculateActualFocusedSeconds, getActiveSessionReviewState, getRemainingSecondsFromEndTime } from "../../utils/focusTimer";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
@@ -36,6 +37,7 @@ import {
     resumeRemoteFocusRun,
     startRemoteFocusRun,
 } from "@/services/focusSessions/focusRunService";
+import { getQuestFocusSummary } from "@/services/focusSessions/questFocusSummaryService";
 
 const focusCompleteSound = require("../../assets/sounds/focus-complete.mp3");
 
@@ -66,12 +68,19 @@ export default function FocusScreen() {
     const [serverTracked, setServerTracked] = useState(false);
     const [sessionMessage, setSessionMessage] = useState("");
     const [existingActiveSession, setExistingActiveSession] = useState<ActiveFocusSession | null>(null);
+    const [focusSummary, setFocusSummary] = useState<QuestFocusSummary | null>(null);
 
     useEffect(() => {
         async function loadActiveFocusSession() {
             try {
-                const [storedSession, timerPreferences] = await Promise.all([getActiveFocusSession(), getTimerPreferences()]);
+                const [storedSession, timerPreferences, focusSummaryResult] = await Promise.all([
+                    getActiveFocusSession(),
+                    getTimerPreferences(),
+                    getQuestFocusSummary(questId),
+                ]);
                 setPreferences(timerPreferences);
+                setFocusSummary(focusSummaryResult.data);
+                if (focusSummaryResult.error) console.warn("Failed to load previous Focus progress for this Task or Quest:", focusSummaryResult.error);
 
                 if (!storedSession) {
                     setSelectedMinutes(timerPreferences.focus);
@@ -574,6 +583,8 @@ export default function FocusScreen() {
                             <Settings2 size={18} color={hasSessionStarted ? colours.textMuted : colours.primaryStrong} />
                         </AnimatedPressable>
                     </View>
+
+                    {focusSummary ? <QuestFocusProgressSummary summary={focusSummary} /> : null}
 
                     <ActiveSessionNotice message={sessionMessage} showReturnButton={existingActiveSession !== null} onReturn={handleReturnToActiveSession} />
 

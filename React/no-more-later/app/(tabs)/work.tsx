@@ -336,7 +336,7 @@ export default function WorkScreen() {
                 return;
             }
 
-            const updatedQuests: WorkQuest[] = quests.map((quest) => (quest.id === data.id ? data : quest));
+            const updatedQuests: WorkQuest[] = quests.map((quest) => (quest.id === data.id ? { ...data, ...(quest.focusSummary ? { focusSummary: quest.focusSummary } : {}) } : quest));
 
             setQuests(updatedQuests);
 
@@ -599,6 +599,7 @@ export default function WorkScreen() {
                                     title={quest.title}
                                     journeyName={getJourneyName(quest.journeyId)}
                                     assetId={quest.assetId}
+                                    focusSummary={quest.focusSummary}
                                     onFocus={() => handleFocusQuest(quest)}
                                     onMore={() => setSelectedQuest(quest)}
                                 />

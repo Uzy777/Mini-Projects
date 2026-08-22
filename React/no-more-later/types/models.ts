@@ -4,6 +4,14 @@ export type QuestStatus = "active" | "completed";
 
 export type SessionOutcome = "completed" | "progressed" | "blocked" | "stopped";
 
+export type QuestFocusSummary = {
+    sessionCount: number;
+    totalFocusedSeconds: number;
+    lastOutcome: SessionOutcome;
+    lastSessionFocusedSeconds: number;
+    lastFocusedAt: string;
+};
+
 export type TimerMode = "focus" | "break";
 
 export type FocusSessionKind = "quest" | "quick" | "short_break" | "long_break";
@@ -28,6 +36,7 @@ export type Quest = {
     doneWhen?: string;
     nextAction?: string;
     lastAccomplishment?: string;
+    focusSummary?: QuestFocusSummary;
 };
 
 export type FocusSessionRecord = {

@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 
+import { getQuestFocusSummaries } from "@/services/focusSessions/questFocusSummaryService";
 import type { Quest, QuestStatus } from "@/types/models";
 
 export async function getRemoteQuests(journeyId: string): Promise<{
@@ -30,6 +31,10 @@ export async function getRemoteQuests(journeyId: string): Promise<{
         };
     }
 
+    const focusSummaryResult = await getQuestFocusSummaries(data.map((quest) => quest.id));
+    const focusSummaries = focusSummaryResult.data ?? new Map();
+    if (focusSummaryResult.error) console.warn("Quest Focus progress could not be loaded:", focusSummaryResult.error);
+
     const quests: Quest[] = data.map((quest) => ({
         id: quest.id,
         title: quest.title,
@@ -37,6 +42,7 @@ export async function getRemoteQuests(journeyId: string): Promise<{
         doneWhen: quest.done_when ?? undefined,
         nextAction: quest.next_action ?? undefined,
         lastAccomplishment: quest.last_accomplishment ?? undefined,
+        ...(focusSummaries.get(quest.id) ? { focusSummary: focusSummaries.get(quest.id) } : {}),
     }));
 
     return {

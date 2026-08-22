@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Modal, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 import { AlertCircle, Check, CheckCircle2, ChevronDown, ChevronRight, Clock3, Coffee, Search, Square } from "lucide-react-native";
 import { useRouter } from "expo-router";
 
@@ -16,6 +16,7 @@ type DashboardHistoryProps = {
 };
 
 type HistoryFilter = "all" | "focus" | "break" | SessionOutcome;
+type QuestSessionPosition = { current: number; total: number };
 
 const HISTORY_FILTERS: { id: HistoryFilter; label: string }[] = [
     { id: "all", label: "All sessions" },
@@ -39,6 +40,7 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
     const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
     const journeyTitles = useMemo(() => new Map(journeys.map((journey) => [journey.id, journey.title])), [journeys]);
+    const questSessionPositions = useMemo(() => getQuestSessionPositions(sessions), [sessions]);
     const normalisedSearch = searchQuery.trim().toLowerCase();
     const filteredSessions = useMemo(
         () =>
@@ -139,6 +141,7 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
                                     key={session.id}
                                     session={session}
                                     journeyTitle={getSessionLocationLabel(session, journeyTitles)}
+                                    sessionPosition={questSessionPositions.get(session.id)}
                                     onPress={() =>
                                         router.push({
                                             pathname: "/session/[sessionId]",
@@ -195,14 +198,43 @@ function getSessionLocationLabel(session: FocusSessionRecord, journeyTitles: Map
     return session.journeyId ? journeyTitles.get(session.journeyId) ?? "Journey quests" : "Standalone Quest";
 }
 
-function HistorySessionRow({ session, journeyTitle, onPress }: { session: FocusSessionRecord; journeyTitle: string; onPress: () => void }) {
+function HistorySessionRow({ session, journeyTitle, sessionPosition, onPress }: { session: FocusSessionRecord; journeyTitle: string; sessionPosition?: QuestSessionPosition; onPress: () => void }) {
     const { colours } = useAppearance();
+    const { width } = useWindowDimensions();
+    const compact = width < 560;
     const styles = useMemo(() => createStyles(colours), [colours]);
     const focusedSeconds = getSessionSeconds(session);
     const calculatedStartedAt = new Date(new Date(session.completedAt).getTime() - focusedSeconds * 1000);
     const recordedStartedAt = session.timelineEvents?.find((event) => event.type === "started")?.occurredAt;
     const startedAt = recordedStartedAt ? new Date(recordedStartedAt) : calculatedStartedAt;
     const isBreak = isBreakSession(session);
+
+    if (compact) {
+        return (
+            <AnimatedPressable onPress={onPress} style={[styles.sessionRow, styles.mobileSessionRow]} haptic="selection">
+                <View style={styles.mobileSessionHeader}>
+                    <View style={[styles.outcomeIcon, isBreak && styles.breakOutcomeIcon]}>{isBreak ? <Coffee size={18} color={colours.success} /> : getOutcomeIcon(session.outcome, colours.primary)}</View>
+                    <View style={styles.sessionCopy}>
+                        <Text numberOfLines={2} style={styles.sessionTitle}>{session.questTitle}</Text>
+                        <Text numberOfLines={1} style={styles.journeyTitle}>{journeyTitle}</Text>
+                    </View>
+                    <ChevronRight size={18} color={colours.textMuted} />
+                </View>
+                <View style={styles.mobileSessionMeta}>
+                    <Text style={styles.mobileSessionTime}>{startedAt.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}</Text>
+                    {sessionPosition ? (
+                        <View style={styles.sessionPositionBadge}>
+                            <Text style={styles.sessionPositionText}>Session {sessionPosition.current} of {sessionPosition.total}</Text>
+                        </View>
+                    ) : null}
+                    <View style={styles.mobileSessionTotals}>
+                        <Text style={styles.duration}>{formatProgressDuration(focusedSeconds, true)}</Text>
+                        <Text style={[styles.xp, styles.mobileXp, isBreak && styles.breakXp]}>{isBreak ? "No XP" : `+${session.earnedXp} XP`}</Text>
+                    </View>
+                </View>
+            </AnimatedPressable>
+        );
+    }
 
     return (
         <AnimatedPressable onPress={onPress} style={styles.sessionRow} haptic="selection">
@@ -215,6 +247,7 @@ function HistorySessionRow({ session, journeyTitle, onPress }: { session: FocusS
                 <Text numberOfLines={1} style={styles.journeyTitle}>
                     {journeyTitle}
                 </Text>
+                {sessionPosition ? <Text style={styles.desktopSessionPosition}>Session {sessionPosition.current} of {sessionPosition.total}</Text> : null}
             </View>
             <View style={styles.sessionTotals}>
                 <Text style={styles.duration}>{formatProgressDuration(focusedSeconds, true)}</Text>
@@ -223,6 +256,27 @@ function HistorySessionRow({ session, journeyTitle, onPress }: { session: FocusS
             <ChevronRight size={18} color={colours.textMuted} />
         </AnimatedPressable>
     );
+}
+
+function getQuestSessionPositions(sessions: FocusSessionRecord[]) {
+    const sessionsByQuest = new Map<string, FocusSessionRecord[]>();
+
+    sessions.forEach((session) => {
+        if (!session.questId || session.sessionKind === "quick" || isBreakSession(session)) return;
+        const questSessions = sessionsByQuest.get(session.questId) ?? [];
+        questSessions.push(session);
+        sessionsByQuest.set(session.questId, questSessions);
+    });
+
+    const positions = new Map<string, QuestSessionPosition>();
+
+    sessionsByQuest.forEach((questSessions) => {
+        questSessions
+            .sort((first, second) => new Date(first.completedAt).getTime() - new Date(second.completedAt).getTime())
+            .forEach((session, index) => positions.set(session.id, { current: index + 1, total: questSessions.length }));
+    });
+
+    return positions;
 }
 
 function getOutcomeIcon(outcome: SessionOutcome, colour: string) {
@@ -365,7 +419,7 @@ function createStyles(colours: AppColours) {
             gap: spacing.sm,
         },
         sessionRow: {
-            minHeight: 72,
+            minHeight: 82,
             paddingHorizontal: spacing.md,
             paddingVertical: spacing.sm,
             flexDirection: "row",
@@ -375,6 +429,59 @@ function createStyles(colours: AppColours) {
             borderColor: colours.border,
             borderRadius: radius.lg,
             backgroundColor: colours.surface,
+        },
+        mobileSessionRow: {
+            flexDirection: "column",
+            alignItems: "stretch",
+            gap: spacing.sm,
+            paddingHorizontal: spacing.sm,
+            paddingVertical: spacing.sm,
+        },
+        mobileSessionHeader: {
+            minWidth: 0,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.sm,
+        },
+        mobileSessionMeta: {
+            minWidth: 0,
+            flexDirection: "row",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: spacing.sm,
+            paddingTop: spacing.xs,
+            borderTopWidth: 1,
+            borderTopColor: colours.border,
+        },
+        mobileSessionTime: {
+            fontSize: 11,
+            color: colours.textMuted,
+        },
+        sessionPositionBadge: {
+            minHeight: 24,
+            justifyContent: "center",
+            paddingHorizontal: 8,
+            borderRadius: radius.pill,
+            backgroundColor: colours.primarySoft,
+        },
+        sessionPositionText: {
+            fontSize: 10,
+            lineHeight: 14,
+            fontWeight: "800",
+            color: colours.primaryStrong,
+        },
+        desktopSessionPosition: {
+            marginTop: 4,
+            fontSize: 10,
+            lineHeight: 14,
+            fontWeight: "800",
+            color: colours.primaryStrong,
+        },
+        mobileSessionTotals: {
+            marginLeft: "auto",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.sm,
         },
         sessionTime: {
             width: 58,
@@ -417,6 +524,9 @@ function createStyles(colours: AppColours) {
             fontSize: 11,
             fontWeight: "700",
             color: colours.primary,
+        },
+        mobileXp: {
+            marginTop: 0,
         },
         breakXp: { color: colours.success },
         loadMoreButton: {

@@ -36,7 +36,7 @@ import { confirmDelete } from "@/utils/confirmDelete";
 import { showMessage } from "@/utils/showMessage";
 
 const PROJECT_ROW_HEIGHT = 45;
-const TASK_ROW_HEIGHT = 72;
+const TASK_ROW_HEIGHT = 120;
 
 type OrderedItem = { id: string; sortOrder: number };
 
@@ -180,7 +180,7 @@ export default function TasksScreen() {
         try {
             const result = await updateRemoteWorkQuestJourney(managedItem.id, projectId);
             if (result.error || !result.data) throw result.error ?? new Error("Task was not moved.");
-            const nextTasks = tasks.map((task) => task.id === result.data!.id ? result.data! : task);
+            const nextTasks = tasks.map((task) => task.id === result.data!.id ? { ...result.data!, ...(task.focusSummary ? { focusSummary: task.focusSummary } : {}) } : task);
             setTasks(nextTasks);
             if (previousProjectId) await refreshProjectStatus(previousProjectId, nextTasks);
             if (projectId) await refreshProjectStatus(projectId, nextTasks);

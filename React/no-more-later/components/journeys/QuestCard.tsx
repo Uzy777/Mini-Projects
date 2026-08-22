@@ -6,6 +6,7 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { useMemo } from "react";
+import { QuestFocusProgressSummary } from "@/components/focus/QuestFocusProgressSummary";
 
 type QuestCardProps = {
     quest: Quest;
@@ -36,6 +37,8 @@ export function QuestCard({ quest, onStartSession, onReopenQuest, onDeleteQuest 
             </View>
 
             <Text style={styles.title}>{quest.title}</Text>
+
+            {quest.focusSummary ? <QuestFocusProgressSummary summary={quest.focusSummary} /> : null}
 
             {quest.doneWhen && (
                 <View style={styles.doneWhenBox}>

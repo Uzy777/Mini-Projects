@@ -72,6 +72,7 @@ export default function ReviewSessionScreen() {
     const [awardedCreditedSeconds, setAwardedCreditedSeconds] = useState(0);
     const [xpCreditStatus, setXpCreditStatus] = useState<"credited" | "under_minimum" | "daily_limit" | "unverified" | "legacy">("credited");
     const [serverTracked, setServerTracked] = useState(true);
+    const [savedOutcome, setSavedOutcome] = useState<SessionOutcome | null>(null);
     const earnsNoXp = reviewedSeconds < MINIMUM_XP_FOCUS_SECONDS;
 
     useEffect(() => {
@@ -244,6 +245,7 @@ export default function ReviewSessionScreen() {
             setAwardedBonusXp(completedReview.bonusXp);
             setAwardedCreditedSeconds(completedReview.creditedFocusSeconds);
             setXpCreditStatus(completedReview.xpCreditStatus);
+            setSavedOutcome(verifiedOutcome);
 
             if (updatedLevel > previousLevel) {
                 setReachedLevel(updatedLevel);
@@ -321,6 +323,8 @@ export default function ReviewSessionScreen() {
                         onReturnToJourneys={handleReturnToJourneys}
                         onViewHistory={handleViewHistory}
                         returnLabel={source === "quick-focus" ? "Return Home" : source === "tasks" ? "Return to Tasks" : undefined}
+                        outcome={savedOutcome ?? undefined}
+                        itemKind={isQuestlessQuickFocus ? undefined : source === "tasks" ? "Task" : "Quest"}
                     />
                 ) : (
                     <View style={styles.reviewSections}>

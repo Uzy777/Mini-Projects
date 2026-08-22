@@ -1,3 +1,5 @@
+import type { QuestFocusSummary } from "@/types/models";
+
 export type WorkStatus = "active" | "completed";
 
 export type WorkJourney = {
@@ -15,6 +17,7 @@ export type WorkQuest = {
     journeyId?: string;
     assetId: WorkAssetId;
     sortOrder: number;
+    focusSummary?: QuestFocusSummary;
 };
 
 export type WorkAssetId = "task" | "laptop" | "book" | "fitness" | "home" | "cloud" | "shield" | "creative" | "work" | "study" | "health";

@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 
+import { getQuestFocusSummaries } from "@/services/focusSessions/questFocusSummaryService";
 import type { WorkAssetId, WorkJourney, WorkQuest } from "@/types/work";
 
 export async function getRemoteWorkJourneys(userId: string): Promise<{
@@ -77,12 +78,17 @@ export async function getRemoteWorkQuests(userId: string): Promise<{
         };
     }
 
+    const focusSummaryResult = await getQuestFocusSummaries(data.map((quest) => quest.id));
+    const focusSummaries = focusSummaryResult.data ?? new Map();
+    if (focusSummaryResult.error) console.warn("Task Focus progress could not be loaded:", focusSummaryResult.error);
+
     const quests: WorkQuest[] = data.map((quest) => ({
         id: quest.id,
         title: quest.title,
         status: quest.status,
         assetId: quest.asset_id as WorkAssetId,
         sortOrder: Number(quest.sort_order),
+        ...(focusSummaries.get(quest.id) ? { focusSummary: focusSummaries.get(quest.id) } : {}),
         ...(quest.journey_id
             ? {
                   journeyId: quest.journey_id,

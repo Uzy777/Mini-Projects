@@ -7,6 +7,7 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { useMemo } from "react";
+import type { SessionOutcome } from "@/types/models";
 
 type ReviewResultCardProps = {
     earnedXp: number;
@@ -19,9 +20,11 @@ type ReviewResultCardProps = {
     onReturnToJourneys: () => void;
     onViewHistory: () => void;
     returnLabel?: string;
+    outcome?: SessionOutcome;
+    itemKind?: "Task" | "Quest";
 };
 
-export function ReviewResultCard({ earnedXp, totalXp, reachedLevel, baseXp, bonusXp, creditedFocusSeconds, xpCreditStatus, onReturnToJourneys, onViewHistory, returnLabel = "Return to Journeys" }: ReviewResultCardProps) {
+export function ReviewResultCard({ earnedXp, totalXp, reachedLevel, baseXp, bonusXp, creditedFocusSeconds, xpCreditStatus, onReturnToJourneys, onViewHistory, returnLabel = "Return to Journeys", outcome, itemKind }: ReviewResultCardProps) {
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -35,6 +38,15 @@ export function ReviewResultCard({ earnedXp, totalXp, reachedLevel, baseXp, bonu
 
                 <Text style={styles.totalXp}>{totalXp} total XP</Text>
             </View>
+
+            {outcome && itemKind ? (
+                <View style={[styles.outcomeNotice, outcome === "completed" ? styles.completedNotice : styles.activeNotice]}>
+                    <Text style={[styles.outcomeNoticeTitle, outcome === "completed" ? styles.completedNoticeText : styles.activeNoticeText]}>
+                        {getReviewOutcomeTitle(outcome, itemKind)}
+                    </Text>
+                    <Text style={styles.outcomeNoticeDescription}>{getReviewOutcomeDescription(outcome, itemKind)}</Text>
+                </View>
+            ) : null}
 
             <View style={styles.breakdownCard}>
                 <ResultRow label={`${Math.floor(creditedFocusSeconds / 60)} credited focus minutes`} value={`+${baseXp} XP`} />
@@ -60,6 +72,20 @@ export function ReviewResultCard({ earnedXp, totalXp, reachedLevel, baseXp, bonu
             </View>
         </AppCard>
     );
+}
+
+function getReviewOutcomeTitle(outcome: SessionOutcome, itemKind: "Task" | "Quest") {
+    if (outcome === "completed") return `${itemKind} completed`;
+    if (outcome === "progressed") return "Progress saved";
+    if (outcome === "blocked") return "Blocker recorded";
+    return "Focused time saved";
+}
+
+function getReviewOutcomeDescription(outcome: SessionOutcome, itemKind: "Task" | "Quest") {
+    if (outcome === "completed") return `This ${itemKind} moved to Completed.`;
+    if (outcome === "progressed") return `This ${itemKind} remains Active so you can focus on it again.`;
+    if (outcome === "blocked") return `This ${itemKind} remains Active, with the blocker visible in its Focus history.`;
+    return `This ${itemKind} remains Active. Its focused time is still included in its total.`;
 }
 
 function ResultRow({ label, value, muted = false }: { label: string; value: string; muted?: boolean }) {
@@ -117,6 +143,44 @@ function createStyles(colours: AppColours) {
             borderColor: colours.primaryBorder,
             borderRadius: radius.md,
             backgroundColor: colours.surface,
+        },
+
+        outcomeNotice: {
+            width: "100%",
+            marginTop: spacing.lg,
+            padding: spacing.md,
+            borderWidth: 1,
+            borderRadius: radius.md,
+        },
+
+        completedNotice: {
+            borderColor: colours.success,
+            backgroundColor: colours.successSoft,
+        },
+
+        activeNotice: {
+            borderColor: colours.primaryBorder,
+            backgroundColor: colours.primarySoft,
+        },
+
+        outcomeNoticeTitle: {
+            fontSize: 14,
+            fontWeight: "900",
+        },
+
+        completedNoticeText: {
+            color: colours.success,
+        },
+
+        activeNoticeText: {
+            color: colours.primaryStrong,
+        },
+
+        outcomeNoticeDescription: {
+            marginTop: 4,
+            fontSize: 12,
+            lineHeight: 18,
+            color: colours.textMuted,
         },
 
         breakdownRow: {

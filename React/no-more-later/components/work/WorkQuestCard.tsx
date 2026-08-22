@@ -8,23 +8,55 @@ import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { WorkAssetIcon } from "@/components/work/WorkAssetIcon";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
+import { QuestFocusProgressSummary } from "@/components/focus/QuestFocusProgressSummary";
+import type { QuestFocusSummary } from "@/types/models";
 import type { WorkAssetId } from "@/types/work";
 
 type WorkQuestCardProps = {
     title: string;
     journeyName?: string;
     assetId: WorkAssetId;
+    focusSummary?: QuestFocusSummary;
     onFocus: () => void;
     onMore: () => void;
 };
 
-export function WorkQuestCard({ title, journeyName, assetId, onFocus, onMore }: WorkQuestCardProps) {
+export function WorkQuestCard({ title, journeyName, assetId, focusSummary, onFocus, onMore }: WorkQuestCardProps) {
     const { width } = useWindowDimensions();
     const { colours } = useAppearance();
 
     const isCompact = width < 430;
 
     const styles = useMemo(() => createStyles(colours, isCompact), [colours, isCompact]);
+
+    if (isCompact) {
+        return (
+            <View style={[styles.card, styles.mobileCard]}>
+                <View style={styles.mobileHeader}>
+                    <View style={styles.iconContainer}>
+                        <WorkAssetIcon assetId={assetId} size={22} color={colours.primaryStrong} />
+                    </View>
+                    <View style={styles.details}>
+                        <Text style={styles.title} numberOfLines={2}>{title}</Text>
+                        <View style={styles.metaRow}>
+                            <Folder size={14} color={journeyName ? colours.primary : colours.textMuted} />
+                            <Text style={[styles.journeyName, !journeyName && styles.unassignedJourney]} numberOfLines={1}>{journeyName ?? "No Journey"}</Text>
+                        </View>
+                    </View>
+                    <AnimatedPressable style={styles.moreButton} onPress={onMore}>
+                        <MoreVertical size={20} color={colours.textMuted} />
+                    </AnimatedPressable>
+                </View>
+
+                {focusSummary ? <QuestFocusProgressSummary summary={focusSummary} compact /> : null}
+
+                <AnimatedPressable style={[styles.focusButton, styles.mobileFocusButton]} haptic="light" onPress={onFocus}>
+                    <Play size={16} color={colours.primaryStrong} fill={colours.primaryStrong} />
+                    <Text style={styles.focusText}>Focus</Text>
+                </AnimatedPressable>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.card}>
@@ -44,6 +76,8 @@ export function WorkQuestCard({ title, journeyName, assetId, onFocus, onMore }: 
                         {journeyName ?? "No Journey"}
                     </Text>
                 </View>
+
+                {focusSummary ? <QuestFocusProgressSummary summary={focusSummary} compact={isCompact} /> : null}
 
                 {/* <View style={styles.metaRow}>
                     <Clock3 size={14} color={colours.textMuted} />
@@ -82,6 +116,18 @@ function createStyles(colours: AppColours, isCompact: boolean) {
             borderRadius: radius.lg,
 
             backgroundColor: colours.surface,
+        },
+
+        mobileCard: {
+            flexDirection: "column",
+            alignItems: "stretch",
+        },
+
+        mobileHeader: {
+            minWidth: 0,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.sm,
         },
 
         iconContainer: {
@@ -161,6 +207,10 @@ function createStyles(colours: AppColours, isCompact: boolean) {
             fontWeight: "800",
 
             color: colours.primaryStrong,
+        },
+
+        mobileFocusButton: {
+            width: "100%",
         },
 
         moreButton: {
