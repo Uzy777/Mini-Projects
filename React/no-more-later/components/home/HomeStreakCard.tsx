@@ -106,8 +106,8 @@ export function HomeStreakCard({ sessions }: HomeStreakCardProps) {
 function getMomentumMessage(currentStreak: number, hasFocusedToday: boolean) {
     if (hasFocusedToday && currentStreak > 1) return "Today is secured. Keep the rhythm going tomorrow.";
     if (hasFocusedToday) return "A strong start. Come back tomorrow and build on it.";
-    if (currentStreak > 0) return "One focused session today keeps your streak alive.";
-    return "Complete one focused session today to begin your streak.";
+    if (currentStreak > 0) return "Focus for at least 5 minutes today to keep your streak alive.";
+    return "Complete a 5-minute Focus Session today to begin your streak.";
 }
 
 function createStyles(colours: AppColours) {

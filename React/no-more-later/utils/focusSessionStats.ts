@@ -1,7 +1,17 @@
 import type { FocusSessionRecord } from "../types/models";
+import { MINIMUM_XP_FOCUS_SECONDS } from "../constants/xp";
 
 function isFocusSession(session: FocusSessionRecord) {
     return session.sessionKind !== "short_break" && session.sessionKind !== "long_break";
+}
+
+function isStreakQualifyingFocusSession(session: FocusSessionRecord) {
+    if (!isFocusSession(session) || session.xpCreditStatus === "unverified") return false;
+
+    const actualFocusedSeconds = session.actualSeconds
+        ?? (session.xpVersion === 2 ? 0 : session.plannedMinutes * 60);
+
+    return actualFocusedSeconds >= MINIMUM_XP_FOCUS_SECONDS;
 }
 
 export type TodayFocusSummary = {
@@ -21,7 +31,7 @@ function getLocalDateKey(date: Date) {
 }
 
 function getFocusedDateKeys(sessions: FocusSessionRecord[]) {
-    return new Set(sessions.filter(isFocusSession).map((session) => getLocalDateKey(new Date(session.completedAt))));
+    return new Set(sessions.filter(isStreakQualifyingFocusSession).map((session) => getLocalDateKey(new Date(session.completedAt))));
 }
 
 export type FocusWeekDay = {
