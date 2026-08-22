@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
+import { Sparkles } from "lucide-react-native";
 
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
@@ -33,7 +34,12 @@ export function HomeHeader({ displayName }: HomeHeaderProps) {
         <View style={styles.header}>
             <View style={styles.topRow}>
                 <View style={styles.headingContainer}>
-                    <Text style={styles.appName}>NO MORE LATER</Text>
+                    <View style={styles.brandRow}>
+                        <View style={styles.brandMark}>
+                            <Sparkles size={13} strokeWidth={2.4} color={colours.primaryStrong} />
+                        </View>
+                        <Text style={styles.appName}>NO MORE LATER</Text>
+                    </View>
 
                     <Text style={styles.title}>{displayName ? `${getGreeting()} ${displayName} 👋` : `${getGreeting()} 👋`}</Text>
                 </View>
@@ -45,7 +51,10 @@ export function HomeHeader({ displayName }: HomeHeaderProps) {
                 */}
             </View>
 
-            <Text style={styles.subtitle}>{'Turn "later" into today.'}</Text>
+            <View style={styles.subtitleRow}>
+                <View style={styles.subtitleLine} />
+                <Text style={styles.subtitle}>{'Turn "later" into today.'}</Text>
+            </View>
         </View>
     );
 }
@@ -69,12 +78,27 @@ function createStyles(colours: AppColours) {
             flex: 1,
         },
 
+        brandRow: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.sm,
+            marginBottom: spacing.sm,
+        },
+
+        brandMark: {
+            width: 26,
+            height: 26,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: radius.sm,
+            backgroundColor: colours.primarySoft,
+        },
+
         appName: {
-            marginBottom: spacing.xs,
-            fontSize: 12,
-            fontWeight: "700",
-            letterSpacing: 1,
-            color: colours.primary,
+            fontSize: 11,
+            fontWeight: "900",
+            letterSpacing: 1.15,
+            color: colours.primaryStrong,
         },
 
         title: {
@@ -85,8 +109,21 @@ function createStyles(colours: AppColours) {
             color: colours.text,
         },
 
-        subtitle: {
+        subtitleRow: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.sm,
             marginTop: spacing.sm,
+        },
+
+        subtitleLine: {
+            width: 24,
+            height: 2,
+            borderRadius: radius.pill,
+            backgroundColor: colours.primary,
+        },
+
+        subtitle: {
             fontSize: 15,
             lineHeight: 22,
             color: colours.textMuted,

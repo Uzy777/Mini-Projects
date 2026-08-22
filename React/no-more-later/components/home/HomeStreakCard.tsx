@@ -1,8 +1,12 @@
 import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { Flame, Trophy } from "lucide-react-native";
+import { Flame, Sparkles, Trophy } from "lucide-react-native";
+import Animated, {
+    FadeIn,
+    FadeInUp,
+    useReducedMotion,
+} from "react-native-reanimated";
 
-import { AppCard } from "@/components/ui/AppCard";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
@@ -16,114 +20,219 @@ type HomeStreakCardProps = {
 export function HomeStreakCard({ sessions }: HomeStreakCardProps) {
     const { colours } = useAppearance();
     const styles = useMemo(() => createStyles(colours), [colours]);
+    const reduceMotion = useReducedMotion();
     const currentStreak = useMemo(() => calculateCurrentStreak(sessions), [sessions]);
     const bestStreak = useMemo(() => calculateBestStreak(sessions), [sessions]);
     const weekDays = useMemo(() => getCurrentWeekFocusDays(sessions), [sessions]);
+    const hasFocusedToday = weekDays.some((day) => day.isToday && day.isFocused);
+    const momentumMessage = getMomentumMessage(currentStreak, hasFocusedToday);
 
     return (
-        <AppCard padding="lg" style={styles.card}>
+        <View style={styles.section} accessibilityLabel={`Current streak: ${currentStreak} ${currentStreak === 1 ? "day" : "days"}`}>
             <View style={styles.headingRow}>
                 <View style={styles.flameIcon}>
-                    <Flame size={25} color={colours.warning} fill={colours.warningSoft} />
+                    <Flame size={27} strokeWidth={2.2} color={colours.warning} fill={colours.warningSoft} />
                 </View>
+
                 <View style={styles.headingCopy}>
-                    <Text style={styles.eyebrow}>CURRENT STREAK</Text>
+                    <Text style={styles.eyebrow}>YOUR MOMENTUM</Text>
                     <View style={styles.streakRow}>
-                        <Text style={styles.streakValue}>{currentStreak}</Text>
+                        <Animated.Text key={currentStreak} entering={reduceMotion ? undefined : FadeIn.duration(280)} style={styles.streakValue}>
+                            {currentStreak}
+                        </Animated.Text>
                         <Text style={styles.streakUnit}>{currentStreak === 1 ? "day" : "days"}</Text>
                     </View>
                 </View>
+
+                <View style={[styles.todayStatus, hasFocusedToday && styles.todayStatusComplete]}>
+                    <View style={[styles.statusDot, hasFocusedToday && styles.statusDotComplete]} />
+                    <Text style={[styles.todayStatusText, hasFocusedToday && styles.todayStatusTextComplete]}>
+                        {hasFocusedToday ? "Today done" : "Today open"}
+                    </Text>
+                </View>
             </View>
 
-            <View style={styles.week} accessibilityLabel="Focused days this week">
-                {weekDays.map((day) => (
-                    <View key={day.dateKey} style={styles.day}>
-                        <View
-                            style={[
-                                styles.dayDot,
-                                day.isFocused && styles.focusedDayDot,
-                                day.isToday && styles.todayDot,
-                            ]}
-                            accessibilityLabel={`${day.label}: ${day.isFocused ? "focused" : "not focused"}${day.isToday ? ", today" : ""}`}
+            <View style={styles.momentumMessageRow}>
+                <Sparkles size={14} color={hasFocusedToday ? colours.primaryStrong : colours.warning} />
+                <Text style={styles.momentumMessage}>{momentumMessage}</Text>
+            </View>
+
+            <View style={styles.weekPanel} accessibilityLabel="Focused days this week">
+                <View style={styles.weekHeader}>
+                    <Text style={styles.weekTitle}>THIS WEEK</Text>
+                    <Text style={styles.weekProgress}>{weekDays.filter((day) => day.isFocused).length} of 7 days</Text>
+                </View>
+
+                <View style={styles.week}>
+                    {weekDays.map((day, index) => (
+                        <Animated.View
+                            key={day.dateKey}
+                            entering={reduceMotion ? undefined : FadeInUp.delay(100 + index * 45).duration(300)}
+                            style={styles.day}
                         >
-                            {day.isFocused ? <Flame size={13} color={colours.warning} /> : null}
-                        </View>
-                        <Text style={[styles.dayLabel, day.isToday && styles.todayLabel]}>{day.label}</Text>
-                    </View>
-                ))}
+                            <View
+                                style={[styles.dayDot, day.isFocused && styles.focusedDayDot, day.isToday && styles.todayDot]}
+                                accessibilityLabel={`${day.label}: ${day.isFocused ? "focused" : "not focused"}${day.isToday ? ", today" : ""}`}
+                            >
+                                {day.isFocused ? <Flame size={13} strokeWidth={2.2} color={colours.warning} /> : day.isToday ? <View style={styles.todayInnerDot} /> : null}
+                            </View>
+                            <Text style={[styles.dayLabel, day.isToday && styles.todayLabel]}>{day.label}</Text>
+                        </Animated.View>
+                    ))}
+                </View>
             </View>
-
-            <View style={styles.divider} />
 
             <View style={styles.bestRow}>
-                <View style={styles.trophyIcon}>
-                    <Trophy size={18} color={colours.primaryStrong} />
-                </View>
+                <View style={styles.trophyIcon}><Trophy size={18} color={colours.primaryStrong} /></View>
                 <View style={styles.bestCopy}>
-                    <Text style={styles.bestLabel}>BEST STREAK</Text>
-                    <Text style={styles.bestHint}>Your longest run so far</Text>
+                    <Text style={styles.bestLabel}>PERSONAL BEST</Text>
+                    <Text style={styles.bestHint}>
+                        {bestStreak === 0
+                            ? "Your longest run will appear here"
+                            : bestStreak > currentStreak
+                                ? `${bestStreak - currentStreak} more to match it`
+                                : "You are at your best"}
+                    </Text>
                 </View>
-                <Text style={styles.bestValue}>{bestStreak} {bestStreak === 1 ? "day" : "days"}</Text>
+                <View style={styles.bestValueWrap}>
+                    <Text style={styles.bestValue}>{bestStreak}</Text>
+                    <Text style={styles.bestUnit}>{bestStreak === 1 ? "day" : "days"}</Text>
+                </View>
             </View>
-        </AppCard>
+        </View>
     );
+}
+
+function getMomentumMessage(currentStreak: number, hasFocusedToday: boolean) {
+    if (hasFocusedToday && currentStreak > 1) return "Today is secured. Keep the rhythm going tomorrow.";
+    if (hasFocusedToday) return "A strong start. Come back tomorrow and build on it.";
+    if (currentStreak > 0) return "One focused session today keeps your streak alive.";
+    return "Complete one focused session today to begin your streak.";
 }
 
 function createStyles(colours: AppColours) {
     return StyleSheet.create({
-        card: {
+        section: {
             width: "100%",
             gap: spacing.lg,
+            paddingVertical: spacing.sm,
         },
         headingRow: {
+            minWidth: 0,
             flexDirection: "row",
             alignItems: "center",
             gap: spacing.md,
         },
         flameIcon: {
-            width: 50,
-            height: 50,
+            width: 54,
+            height: 54,
             alignItems: "center",
             justifyContent: "center",
             borderRadius: radius.lg,
             backgroundColor: colours.warningSoft,
         },
         headingCopy: {
+            minWidth: 0,
             flex: 1,
         },
         eyebrow: {
             fontSize: 10,
             lineHeight: 14,
             fontWeight: "900",
-            letterSpacing: 0.8,
+            letterSpacing: 0.9,
             color: colours.textMuted,
         },
         streakRow: {
-            marginTop: 2,
+            marginTop: 1,
             flexDirection: "row",
             alignItems: "baseline",
             gap: 6,
         },
         streakValue: {
-            fontSize: 30,
-            lineHeight: 36,
+            fontSize: 34,
+            lineHeight: 39,
             fontWeight: "900",
+            letterSpacing: -1,
             color: colours.text,
         },
         streakUnit: {
-            fontSize: 14,
-            fontWeight: "700",
+            fontSize: 13,
+            fontWeight: "800",
+            color: colours.textMuted,
+        },
+        todayStatus: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 6,
+            paddingHorizontal: 9,
+            paddingVertical: 7,
+            borderRadius: radius.pill,
+            backgroundColor: colours.warningSoft,
+        },
+        todayStatusComplete: {
+            backgroundColor: colours.successSoft,
+        },
+        statusDot: {
+            width: 6,
+            height: 6,
+            borderRadius: radius.pill,
+            backgroundColor: colours.warning,
+        },
+        statusDotComplete: {
+            backgroundColor: colours.success,
+        },
+        todayStatusText: {
+            fontSize: 9,
+            fontWeight: "900",
+            color: colours.warning,
+        },
+        todayStatusTextComplete: {
+            color: colours.success,
+        },
+        momentumMessageRow: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.sm,
+        },
+        momentumMessage: {
+            minWidth: 0,
+            flex: 1,
+            fontSize: 12,
+            lineHeight: 18,
+            color: colours.textMuted,
+        },
+        weekPanel: {
+            gap: spacing.md,
+            padding: spacing.md,
+            borderRadius: radius.lg,
+            backgroundColor: colours.primarySubtle,
+        },
+        weekHeader: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: spacing.sm,
+        },
+        weekTitle: {
+            fontSize: 9,
+            fontWeight: "900",
+            letterSpacing: 0.85,
+            color: colours.primaryStrong,
+        },
+        weekProgress: {
+            fontSize: 9,
+            fontWeight: "800",
             color: colours.textMuted,
         },
         week: {
             flexDirection: "row",
             justifyContent: "space-between",
-            gap: 4,
+            gap: 3,
         },
         day: {
             flex: 1,
             alignItems: "center",
-            gap: spacing.sm,
+            gap: 7,
         },
         dayDot: {
             width: 30,
@@ -133,7 +242,7 @@ function createStyles(colours: AppColours) {
             borderWidth: 1,
             borderColor: colours.border,
             borderRadius: radius.pill,
-            backgroundColor: colours.background,
+            backgroundColor: colours.surface,
         },
         focusedDayDot: {
             borderColor: colours.warningBorder,
@@ -143,23 +252,28 @@ function createStyles(colours: AppColours) {
             borderWidth: 2,
             borderColor: colours.primary,
         },
+        todayInnerDot: {
+            width: 6,
+            height: 6,
+            borderRadius: radius.pill,
+            backgroundColor: colours.primary,
+        },
         dayLabel: {
-            fontSize: 10,
-            fontWeight: "700",
+            fontSize: 9,
+            fontWeight: "800",
             color: colours.textMuted,
         },
         todayLabel: {
             color: colours.primaryStrong,
-        },
-        divider: {
-            height: 1,
-            backgroundColor: colours.border,
         },
         bestRow: {
             minWidth: 0,
             flexDirection: "row",
             alignItems: "center",
             gap: spacing.sm,
+            paddingTop: spacing.md,
+            borderTopWidth: 1,
+            borderTopColor: colours.border,
         },
         trophyIcon: {
             width: 38,
@@ -174,22 +288,31 @@ function createStyles(colours: AppColours) {
             flex: 1,
         },
         bestLabel: {
-            fontSize: 10,
-            lineHeight: 14,
+            fontSize: 9,
+            lineHeight: 13,
             fontWeight: "900",
-            letterSpacing: 0.7,
+            letterSpacing: 0.75,
             color: colours.primaryStrong,
         },
         bestHint: {
             marginTop: 2,
-            fontSize: 11,
+            fontSize: 10,
             lineHeight: 15,
             color: colours.textMuted,
         },
+        bestValueWrap: {
+            alignItems: "flex-end",
+        },
         bestValue: {
-            fontSize: 16,
+            fontSize: 20,
+            lineHeight: 23,
             fontWeight: "900",
             color: colours.text,
+        },
+        bestUnit: {
+            fontSize: 9,
+            fontWeight: "800",
+            color: colours.textMuted,
         },
     });
 }

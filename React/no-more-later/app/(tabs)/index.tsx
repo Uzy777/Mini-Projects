@@ -1,6 +1,7 @@
 import { StyleSheet, View, ScrollView, useWindowDimensions } from "react-native";
 import { useState, useCallback, useMemo } from "react";
 import { useFocusEffect } from "expo-router";
+import Animated, { FadeInDown, FadeInUp, useReducedMotion } from "react-native-reanimated";
 
 import type { FocusSessionRecord } from "../../types/models";
 import { HomeHeader } from "../../components/home/HomeHeader";
@@ -19,6 +20,7 @@ export default function HomeScreen() {
     const { colours } = useAppearance();
     const { width } = useWindowDimensions();
     const isWide = width >= 900;
+    const reduceMotion = useReducedMotion();
 
     const styles = useMemo(() => createStyles(colours, isWide), [colours, isWide]);
 
@@ -59,7 +61,9 @@ export default function HomeScreen() {
             <AppScreenBackground>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
                     <View style={styles.contentSections}>
-                        <HomeHeader displayName={profile?.display_name ?? null} />
+                        <Animated.View entering={reduceMotion ? undefined : FadeInDown.duration(460)}>
+                            <HomeHeader displayName={profile?.display_name ?? null} />
+                        </Animated.View>
 
                         {/* The Home level card now lives in Progress Overview.
                         <LevelProgressCard
@@ -73,12 +77,12 @@ export default function HomeScreen() {
                         */}
 
                         <View style={styles.homeGrid}>
-                            <View style={styles.focusColumn}>
+                            <Animated.View entering={reduceMotion ? undefined : FadeInUp.delay(100).duration(460)} style={styles.focusColumn}>
                                 <QuickFocusCard />
-                            </View>
-                            <View style={styles.streakColumn}>
+                            </Animated.View>
+                            <Animated.View entering={reduceMotion ? undefined : FadeInUp.delay(190).duration(460)} style={styles.streakColumn}>
                                 <HomeStreakCard sessions={focusSessions} />
-                            </View>
+                            </Animated.View>
                         </View>
                     </View>
                 </ScrollView>
@@ -98,7 +102,7 @@ function createStyles(colours: AppColours, isWide: boolean) {
             paddingBottom: 48,
         },
         contentSections: {
-            gap: spacing.md,
+            gap: spacing.lg,
         },
         homeGrid: {
             flexDirection: isWide ? "row" : "column",
