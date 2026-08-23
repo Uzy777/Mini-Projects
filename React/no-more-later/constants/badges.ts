@@ -88,9 +88,10 @@ export const BADGE_DEFINITIONS: readonly BadgeDefinition[] = [
     },
 ] as const;
 
-export const BADGE_DEFINITION_BY_ID = Object.fromEntries(
-    BADGE_DEFINITIONS.map((definition) => [definition.id, definition]),
-) as Record<BadgeId, BadgeDefinition>;
+export const BADGE_DEFINITION_BY_ID = Object.fromEntries(BADGE_DEFINITIONS.map((definition) => [definition.id, definition])) as Record<
+    BadgeId,
+    BadgeDefinition
+>;
 
 export const BADGE_TIER_ORDER: Record<BadgeTier, number> = {
     bronze: 0,
@@ -104,14 +105,56 @@ export const BADGE_TIER_ORDER: Record<BadgeTier, number> = {
  * Add the final badge artwork here when it is available. Each badge can have a
  * different image for every tier without changing the gallery or celebration.
  *
- * Example:
- * focus_legend: {
- *     bronze: require("../assets/images/badges/focus-legend-bronze.png"),
- * },
- */
+ **/
 export const BADGE_IMAGE_SOURCES: Partial<Record<BadgeId, Partial<Record<BadgeTier, ImageSourcePropType>>>> = {
     focus_legend: {
         bronze: require("../assets/badges/focus-legend-bronze.png"),
+        silver: require("../assets/badges/focus-legend-silver.png"),
+        gold: require("../assets/badges/focus-legend-gold.png"),
+        platinum: require("../assets/badges/focus-legend-platinum.png"),
+        diamond: require("../assets/badges/focus-legend-diamond.png"),
+    },
+    master_of_time: {
+        bronze: require("../assets/badges/master-of-time-bronze.png"),
+        silver: require("../assets/badges/master-of-time-silver.png"),
+        gold: require("../assets/badges/master-of-time-gold.png"),
+        platinum: require("../assets/badges/master-of-time-platinum.png"),
+        diamond: require("../assets/badges/master-of-time-diamond.png"),
+    },
+    streak_champion: {
+        bronze: require("../assets/badges/streak-champion-bronze.png"),
+        silver: require("../assets/badges/streak-champion-silver.png"),
+        gold: require("../assets/badges/streak-champion-gold.png"),
+        platinum: require("../assets/badges/streak-champion-platinum.png"),
+        diamond: require("../assets/badges/streak-champion-diamond.png"),
+    },
+    task_master: {
+        bronze: require("../assets/badges/task-master-bronze.png"),
+        silver: require("../assets/badges/task-master-silver.png"),
+        gold: require("../assets/badges/task-master-gold.png"),
+        platinum: require("../assets/badges/task-master-platinum.png"),
+        diamond: require("../assets/badges/task-master-diamond.png"),
+    },
+    early_bird: {
+        bronze: require("../assets/badges/early-bird-bronze.png"),
+        silver: require("../assets/badges/early-bird-silver.png"),
+        gold: require("../assets/badges/early-bird-gold.png"),
+        platinum: require("../assets/badges/early-bird-platinum.png"),
+        diamond: require("../assets/badges/early-bird-diamond.png"),
+    },
+    night_owl: {
+        bronze: require("../assets/badges/night-owl-bronze.png"),
+        silver: require("../assets/badges/night-owl-silver.png"),
+        gold: require("../assets/badges/night-owl-gold.png"),
+        platinum: require("../assets/badges/night-owl-platinum.png"),
+        diamond: require("../assets/badges/night-owl-diamond.png"),
+    },
+    weekend_warrior: {
+        bronze: require("../assets/badges/weekend-warrior-bronze.png"),
+        silver: require("../assets/badges/weekend-warrior-silver.png"),
+        gold: require("../assets/badges/weekend-warrior-gold.png"),
+        platinum: require("../assets/badges/weekend-warrior-platinum.png"),
+        diamond: require("../assets/badges/weekend-warrior-diamond.png"),
     },
 };
 
