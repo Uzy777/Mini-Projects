@@ -1,24 +1,29 @@
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
-import { useRouter, Link } from "expo-router";
+import { StyleSheet, Text, View } from "react-native";
+import { Link, useRouter } from "expo-router";
+import { LockKeyhole, Mail } from "lucide-react-native";
+import Animated, { FadeInDown, useReducedMotion } from "react-native-reanimated";
 
-import { radius, spacing } from "@/constants/design";
-// import { useAppearance } from "@/contexts/AppearanceContext";
-
+import { AuthInput } from "@/components/auth/AuthInput";
+import { AuthScreenShell } from "@/components/auth/AuthScreenShell";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import type { AppColours } from "@/constants/appearanceColours";
 import { AUTH_COLOURS } from "@/constants/appearanceColours";
+import { radius, spacing } from "@/constants/design";
 import { signInWithEmail } from "@/services/auth/authService";
-// import { useMemo } from "react";
 
 export default function SignInScreen() {
     const colours = AUTH_COLOURS;
     const styles = createStyles(colours);
 
     const router = useRouter();
+    const reduceMotion = useReducedMotion();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+
     const [validationMessage, setValidationMessage] = useState("");
+
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     async function handleSignIn() {
@@ -30,11 +35,13 @@ export default function SignInScreen() {
 
         if (!trimmedEmail) {
             setValidationMessage("Enter your email address.");
+
             return;
         }
 
         if (!password) {
             setValidationMessage("Enter your password.");
+
             return;
         }
 
@@ -46,11 +53,13 @@ export default function SignInScreen() {
 
             if (error) {
                 setValidationMessage(error.message);
+
                 return;
             }
 
             if (!data.session) {
                 setValidationMessage("Could not start your login session.");
+
                 return;
             }
 
@@ -65,204 +74,135 @@ export default function SignInScreen() {
     }
 
     return (
-        <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
-            <View style={styles.header}>
-                <Text style={styles.label}>NO MORE LATER</Text>
+        <AuthScreenShell colours={colours} eyebrow="WELCOME BACK" title="Ready to focus?" description="Sign in and pick up exactly where you left off.">
+            <View style={styles.fields}>
+                <AuthInput
+                    label="EMAIL"
+                    value={email}
+                    onChangeText={setEmail}
+                    placeholder="you@example.com"
+                    colours={colours}
+                    icon={Mail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                />
 
-                <Text style={styles.title}>Welcome back</Text>
-
-                <Text style={styles.description}>Sign in to continue your progress.</Text>
+                <AuthInput
+                    label="PASSWORD"
+                    value={password}
+                    onChangeText={setPassword}
+                    placeholder="Your password"
+                    colours={colours}
+                    icon={LockKeyhole}
+                    secureTextEntry
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                />
             </View>
 
-            <View style={styles.form}>
-                <View style={styles.fieldGroup}>
-                    <Text style={styles.fieldLabel}>EMAIL</Text>
+            {validationMessage ? (
+                <Animated.View entering={reduceMotion ? undefined : FadeInDown.duration(220)} style={styles.errorBox}>
+                    <Text style={styles.errorText}>{validationMessage}</Text>
+                </Animated.View>
+            ) : null}
 
-                    <TextInput
-                        style={styles.input}
-                        value={email}
-                        onChangeText={setEmail}
-                        placeholder="you@example.com"
-                        placeholderTextColor={colours.textMuted}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                    />
-                </View>
+            <AnimatedPressable
+                accessibilityRole="button"
+                disabled={isSubmitting}
+                haptic="light"
+                pressedScale={0.975}
+                onPress={handleSignIn}
+                style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+            >
+                <Text style={styles.submitButtonText}>{isSubmitting ? "Signing in..." : "Sign in"}</Text>
+            </AnimatedPressable>
 
-                <View style={styles.fieldGroup}>
-                    <Text style={styles.fieldLabel}>PASSWORD</Text>
+            <View style={styles.authLinkRow}>
+                <Text style={styles.authLinkText}>Don&apos;t have an account?</Text>
 
-                    <TextInput
-                        style={styles.input}
-                        value={password}
-                        onChangeText={setPassword}
-                        placeholder="Your password"
-                        placeholderTextColor={colours.textMuted}
-                        secureTextEntry
-                    />
-                </View>
-
-                {validationMessage && (
-                    <View style={styles.errorBox}>
-                        <Text style={styles.errorText}>{validationMessage}</Text>
-                    </View>
-                )}
-
-                <Pressable
-                    style={({ pressed }) => [
-                        styles.submitButton,
-                        isSubmitting && styles.submitButtonDisabled,
-                        pressed && !isSubmitting && styles.submitButtonPressed,
-                    ]}
-                    onPress={handleSignIn}
-                    disabled={isSubmitting}
+                <Link
+                    href={{
+                        pathname: "/sign-up",
+                        params: {
+                            email: email.trim().toLowerCase(),
+                        },
+                    }}
+                    asChild
                 >
-                    <Text style={styles.submitButtonText}>{isSubmitting ? "Signing in..." : "Sign in"}</Text>
-                </Pressable>
-
-                <View style={styles.authLinkRow}>
-                    <Text style={styles.authLinkText}>{"Don't have an account?"}</Text>
-                    <Link
-                        href={{
-                            pathname: "/sign-up",
-                            params: {
-                                email: email.trim().toLowerCase(),
-                            },
-                        }}
-                        asChild
-                    >
-                        <Pressable>
-                            <Text style={styles.authLink}>Create one</Text>
-                        </Pressable>
-                    </Link>
-                </View>
+                    <AnimatedPressable haptic="none" pressedScale={0.96}>
+                        <Text style={styles.authLink}>Create one</Text>
+                    </AnimatedPressable>
+                </Link>
             </View>
-        </ScrollView>
+        </AuthScreenShell>
     );
 }
 
 function createStyles(colours: AppColours) {
     return StyleSheet.create({
-        screen: {
-            flex: 1,
-            backgroundColor: colours.background,
+        fields: {
+            gap: spacing.md,
         },
 
-        contentContainer: {
-            width: "100%",
-            maxWidth: 520,
-            alignSelf: "center",
-            paddingHorizontal: spacing.lg,
-            paddingTop: 64,
-            paddingBottom: 48,
-        },
-
-        header: {
-            marginBottom: spacing.xl,
-        },
-
-        label: {
-            fontSize: 12,
-            fontWeight: "800",
-            letterSpacing: 0.8,
-            color: colours.primary,
-        },
-
-        title: {
-            marginTop: spacing.sm,
-            fontSize: 30,
-            lineHeight: 36,
-            fontWeight: "800",
-            color: colours.text,
-        },
-
-        description: {
-            marginTop: spacing.sm,
-            fontSize: 15,
-            lineHeight: 22,
-            color: colours.textMuted,
-        },
-
-        form: {
-            padding: spacing.lg,
-            gap: spacing.lg,
-            borderWidth: 1,
-            borderColor: colours.border,
-            borderRadius: radius.lg,
-            backgroundColor: colours.surface,
-        },
-
-        fieldGroup: {
-            gap: spacing.sm,
-        },
-
-        fieldLabel: {
-            fontSize: 12,
-            fontWeight: "700",
-            letterSpacing: 0.7,
-            color: colours.text,
-        },
-
-        input: {
-            width: "100%",
-            paddingHorizontal: spacing.md,
-            paddingVertical: 13,
-            borderWidth: 1,
-            borderColor: colours.border,
-            borderRadius: radius.md,
-            fontSize: 16,
-            color: colours.text,
-            backgroundColor: colours.background,
-        },
         errorBox: {
             padding: spacing.md,
+
             borderRadius: radius.md,
+
             backgroundColor: colours.dangerSoft,
         },
 
         errorText: {
-            fontSize: 14,
-            lineHeight: 20,
+            fontSize: 13,
+            lineHeight: 19,
+
             color: colours.danger,
         },
 
         submitButton: {
+            minHeight: 50,
+
             alignItems: "center",
-            paddingVertical: 14,
+            justifyContent: "center",
+
             borderRadius: radius.md,
+
             backgroundColor: colours.primary,
         },
 
-        submitButtonPressed: {
-            backgroundColor: colours.primaryPressed,
-        },
-
         submitButtonDisabled: {
-            opacity: 0.6,
+            opacity: 0.55,
         },
 
         submitButtonText: {
             fontSize: 15,
-            fontWeight: "700",
+            fontWeight: "800",
+
             color: colours.onPrimary,
         },
+
         authLinkRow: {
             flexDirection: "row",
-            justifyContent: "center",
+            flexWrap: "wrap",
+
             alignItems: "center",
+            justifyContent: "center",
+
             gap: spacing.xs,
         },
 
         authLinkText: {
-            fontSize: 14,
+            fontSize: 13,
+
             color: colours.textMuted,
         },
 
         authLink: {
-            fontSize: 14,
-            fontWeight: "700",
-            color: colours.primary,
+            fontSize: 13,
+            fontWeight: "800",
+
+            color: colours.primaryStrong,
         },
     });
 }
