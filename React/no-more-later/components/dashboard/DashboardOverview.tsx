@@ -15,10 +15,13 @@ import { DashboardRankCard } from "./DashboardRankCard";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { AnimatedProgressBar } from "@/components/ui/AnimatedProgressBar";
 import { AppButton } from "@/components/ui/AppButton";
+import { BadgeGallery } from "@/components/badges/BadgeGallery";
+import type { BadgeUnlock } from "@/types/badges";
 
 type DashboardOverviewProps = {
     sessions: FocusSessionRecord[];
     journeys: Journey[];
+    badgeUnlocks: BadgeUnlock[];
     dailyGoalMinutes: number;
     onSaveDailyGoal: (minutes: number) => Promise<string | null>;
     referenceDate?: Date;
@@ -26,7 +29,7 @@ type DashboardOverviewProps = {
 
 const GOAL_PRESETS = [60, 120, 180, 240];
 
-export function DashboardOverview({ sessions, journeys, dailyGoalMinutes, onSaveDailyGoal, referenceDate = new Date() }: DashboardOverviewProps) {
+export function DashboardOverview({ sessions, journeys, badgeUnlocks, dailyGoalMinutes, onSaveDailyGoal, referenceDate = new Date() }: DashboardOverviewProps) {
     const { colours } = useAppearance();
     const { width } = useWindowDimensions();
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -40,6 +43,7 @@ export function DashboardOverview({ sessions, journeys, dailyGoalMinutes, onSave
     const focusProgress = stats.todaySeconds / focusGoalSeconds;
     const dayLabels = stats.weekDates.map((date) => date.toLocaleDateString(undefined, { weekday: "short" }).slice(0, 2));
     const todayIndex = stats.weekDates.findIndex((date) => getLocalDateKey(date) === getLocalDateKey(referenceDate));
+    const badgeXp = badgeUnlocks.reduce((total, unlock) => total + unlock.xpAwarded, 0);
 
     function openGoalModal() {
         setGoalDraft(String(dailyGoalMinutes));
@@ -72,7 +76,9 @@ export function DashboardOverview({ sessions, journeys, dailyGoalMinutes, onSave
 
     return (
         <View style={styles.content}>
-            <DashboardRankCard sessions={sessions} />
+            <DashboardRankCard sessions={sessions} badgeXp={badgeXp} />
+
+            <BadgeGallery unlocks={badgeUnlocks} />
 
             <View style={styles.sectionHeading}>
                 <Text style={styles.sectionTitle}>Today</Text>

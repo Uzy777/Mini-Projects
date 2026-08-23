@@ -142,6 +142,12 @@ npx supabase db lint --local --level warning
 
 XP V2 awards 3 XP per complete credited focus minute after five minutes. Completed work adds 20%, every level requires 500 XP, and up to 360 focus minutes per UTC day count toward XP and the focus-time leaderboards. Personal Progress still records time beyond the daily competitive limit.
 
+### Progress badges
+
+Badge names, requirements, tier thresholds, and rewards are defined in `constants/badges.ts`. Add future badge paths there so the gallery and unlock celebration stay data-driven.
+
+Final tier artwork can be added to `BADGE_IMAGE_SOURCES` in the same file. It supports a separate image for every badge and tier; until an image is assigned, the app displays a polished built-in icon fallback. Badge XP is awarded once by Supabase and is protected by the `(user_id, badge_id, tier)` database key.
+
 ## Verify the generated Android manifest
 
 Generate the Android project and run Gradle's manifest merge task:

@@ -14,14 +14,15 @@ import { calculateLevelProgress } from "@/utils/level";
 
 type DashboardRankCardProps = {
     sessions: FocusSessionRecord[];
+    badgeXp?: number;
 };
 
-export function DashboardRankCard({ sessions }: DashboardRankCardProps) {
+export function DashboardRankCard({ sessions, badgeXp = 0 }: DashboardRankCardProps) {
     const { colours } = useAppearance();
     const { width } = useWindowDimensions();
     const styles = useMemo(() => createStyles(colours), [colours]);
     const isWide = width >= 1100;
-    const totalXp = sessions.reduce((total, session) => total + session.earnedXp, 0);
+    const totalXp = sessions.reduce((total, session) => total + session.earnedXp, badgeXp);
     const levelProgress = calculateLevelProgress(totalXp);
     const totalFocusedSeconds = calculateTotalFocusedSeconds(sessions);
     const currentStreak = calculateCurrentStreak(sessions);
@@ -60,7 +61,7 @@ export function DashboardRankCard({ sessions }: DashboardRankCardProps) {
                         </View>
                         <AnimatedProgressBar progress={progressPercentage / 100} height={8} />
                         <Text style={styles.remainingText}>{remainingXp > 0 ? `${remainingXp} XP remaining` : "Next level ready"}</Text>
-                        <Text style={styles.xpRule}>Every level is 500 XP · 3 XP per credited focus minute</Text>
+                        <Text style={styles.xpRule}>Every level is 500 XP · Focus time and badge rewards both count</Text>
                     </View>
                 </View>
 

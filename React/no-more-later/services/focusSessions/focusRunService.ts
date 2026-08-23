@@ -18,6 +18,7 @@ export async function startRemoteFocusRun(focusSessionId: string, plannedMinutes
         p_focus_session_id: focusSessionId,
         p_planned_minutes: plannedMinutes,
         p_session_kind: sessionKind,
+        p_time_zone: getDeviceTimeZone(),
     });
 
     return { tracked: !error, error: error ? new Error(error.message) : null };
@@ -43,4 +44,12 @@ async function runFocusLifecycleRpc(functionName: "pause_focus_session_run" | "r
 async function hasAuthenticatedSession(): Promise<boolean> {
     const { data, error } = await supabase.auth.getSession();
     return !error && Boolean(data.session);
+}
+
+function getDeviceTimeZone() {
+    try {
+        return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    } catch {
+        return "UTC";
+    }
 }

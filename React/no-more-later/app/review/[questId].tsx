@@ -24,6 +24,9 @@ import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import { getActiveSessionReviewState } from "@/utils/focusTimer";
 import { ReviewXpPreview } from "@/components/review/ReviewXpPreview";
 import { MINIMUM_XP_FOCUS_SECONDS } from "@/constants/xp";
+import { BadgeUnlockCelebration } from "@/components/badges/BadgeUnlockCelebration";
+import { evaluateBadgeUnlocks, getMyTotalXp } from "@/services/badges/badgeService";
+import type { BadgeUnlockAward } from "@/types/badges";
 
 export default function ReviewSessionScreen() {
     const { colours } = useAppearance();
@@ -69,10 +72,13 @@ export default function ReviewSessionScreen() {
     const [dailyCreditedSeconds, setDailyCreditedSeconds] = useState(0);
     const [awardedBaseXp, setAwardedBaseXp] = useState(0);
     const [awardedBonusXp, setAwardedBonusXp] = useState(0);
+    const [awardedBadgeXp, setAwardedBadgeXp] = useState(0);
     const [awardedCreditedSeconds, setAwardedCreditedSeconds] = useState(0);
     const [xpCreditStatus, setXpCreditStatus] = useState<"credited" | "under_minimum" | "daily_limit" | "unverified" | "legacy">("credited");
     const [serverTracked, setServerTracked] = useState(true);
     const [savedOutcome, setSavedOutcome] = useState<SessionOutcome | null>(null);
+    const [badgeUnlockAwards, setBadgeUnlockAwards] = useState<BadgeUnlockAward[]>([]);
+    const [badgeCelebrationIndex, setBadgeCelebrationIndex] = useState(0);
     const earnsNoXp = reviewedSeconds < MINIMUM_XP_FOCUS_SECONDS;
 
     useEffect(() => {
@@ -228,10 +234,23 @@ export default function ReviewSessionScreen() {
             }
 
             const sessionXp = completedReview.earnedXp;
+            const { data: badgeEvaluation, error: badgeEvaluationError } = await evaluateBadgeUnlocks();
+            let badgeXp = 0;
+            let unlockedBadges: BadgeUnlockAward[] = [];
+            let updatedTotalXp = completedReview.totalXp;
 
-            const updatedTotalXp = completedReview.totalXp;
+            if (badgeEvaluationError || !badgeEvaluation) {
+                console.warn("Review saved, but badges could not be evaluated:", badgeEvaluationError);
+                const totalXpResult = await getMyTotalXp();
+                updatedTotalXp = totalXpResult.data ?? completedReview.totalXp;
+            } else {
+                badgeXp = badgeEvaluation.badgeXpAwarded;
+                unlockedBadges = badgeEvaluation.unlocks;
+                updatedTotalXp = badgeEvaluation.totalXp;
+            }
 
-            const previousTotalXp = Math.max(0, updatedTotalXp - sessionXp);
+            const reviewAwardXp = sessionXp + badgeXp;
+            const previousTotalXp = Math.max(0, updatedTotalXp - reviewAwardXp);
 
             const previousLevel = calculateLevel(previousTotalXp);
 
@@ -239,13 +258,16 @@ export default function ReviewSessionScreen() {
 
             await clearActiveFocusSession();
 
-            setEarnedXp(sessionXp);
+            setEarnedXp(reviewAwardXp);
             setTotalXp(updatedTotalXp);
             setAwardedBaseXp(completedReview.baseXp);
             setAwardedBonusXp(completedReview.bonusXp);
+            setAwardedBadgeXp(badgeXp);
             setAwardedCreditedSeconds(completedReview.creditedFocusSeconds);
             setXpCreditStatus(completedReview.xpCreditStatus);
             setSavedOutcome(verifiedOutcome);
+            setBadgeUnlockAwards(unlockedBadges);
+            setBadgeCelebrationIndex(0);
 
             if (updatedLevel > previousLevel) {
                 setReachedLevel(updatedLevel);
@@ -253,7 +275,7 @@ export default function ReviewSessionScreen() {
                 setLevelUpDetails({
                     previousLevel,
                     newLevel: updatedLevel,
-                    earnedXp: sessionXp,
+                    earnedXp: reviewAwardXp,
                 });
             } else {
                 setReachedLevel(null);
@@ -281,6 +303,18 @@ export default function ReviewSessionScreen() {
         setLevelUpDetails(null);
     }
 
+    function handleCloseBadgeCelebration() {
+        if (badgeCelebrationIndex + 1 < badgeUnlockAwards.length) {
+            setBadgeCelebrationIndex((current) => current + 1);
+            return;
+        }
+
+        setBadgeUnlockAwards([]);
+        setBadgeCelebrationIndex(0);
+    }
+
+    const activeBadgeAward = badgeUnlockAwards[badgeCelebrationIndex] ?? null;
+
     return (
         <AppScreenBackground>
             <ScrollView
@@ -304,6 +338,15 @@ export default function ReviewSessionScreen() {
                     />
                 )}
 
+                {!levelUpDetails && activeBadgeAward ? (
+                    <BadgeUnlockCelebration
+                        award={activeBadgeAward}
+                        position={badgeCelebrationIndex}
+                        total={badgeUnlockAwards.length}
+                        onContinue={handleCloseBadgeCelebration}
+                    />
+                ) : null}
+
                 <ScreenHeader
                     eyebrow="SESSION REVIEW"
                     title={isQuestlessQuickFocus ? "Quick Focus" : (questTitle ?? (source === "tasks" ? "Untitled Task" : "Untitled Quest"))}
@@ -317,6 +360,7 @@ export default function ReviewSessionScreen() {
                         totalXp={totalXp}
                         baseXp={awardedBaseXp}
                         bonusXp={awardedBonusXp}
+                        badgeXp={awardedBadgeXp}
                         creditedFocusSeconds={awardedCreditedSeconds}
                         xpCreditStatus={xpCreditStatus}
                         reachedLevel={reachedLevel}

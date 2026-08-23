@@ -15,6 +15,7 @@ type ReviewResultCardProps = {
     reachedLevel: number | null;
     baseXp: number;
     bonusXp: number;
+    badgeXp: number;
     creditedFocusSeconds: number;
     xpCreditStatus: "credited" | "under_minimum" | "daily_limit" | "unverified" | "legacy";
     onReturnToJourneys: () => void;
@@ -24,7 +25,7 @@ type ReviewResultCardProps = {
     itemKind?: "Task" | "Quest";
 };
 
-export function ReviewResultCard({ earnedXp, totalXp, reachedLevel, baseXp, bonusXp, creditedFocusSeconds, xpCreditStatus, onReturnToJourneys, onViewHistory, returnLabel = "Return to Journeys", outcome, itemKind }: ReviewResultCardProps) {
+export function ReviewResultCard({ earnedXp, totalXp, reachedLevel, baseXp, bonusXp, badgeXp, creditedFocusSeconds, xpCreditStatus, onReturnToJourneys, onViewHistory, returnLabel = "Return to Journeys", outcome, itemKind }: ReviewResultCardProps) {
     const { colours } = useAppearance();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -51,6 +52,7 @@ export function ReviewResultCard({ earnedXp, totalXp, reachedLevel, baseXp, bonu
             <View style={styles.breakdownCard}>
                 <ResultRow label={`${Math.floor(creditedFocusSeconds / 60)} credited focus minutes`} value={`+${baseXp} XP`} />
                 <ResultRow label="Completed-work bonus" value={`+${bonusXp} XP`} muted={bonusXp === 0} />
+                {badgeXp > 0 ? <ResultRow label="New badge rewards" value={`+${badgeXp} XP`} /> : null}
                 {xpCreditStatus === "under_minimum" ? <Text style={styles.creditNotice}>This session was under five focused minutes.</Text> : null}
                 {xpCreditStatus === "daily_limit" ? <Text style={styles.creditNotice}>Today&apos;s six-hour credit limit was already reached. Your personal focused time was still saved.</Text> : null}
                 {xpCreditStatus === "unverified" ? <Text style={styles.creditNotice}>This session was not server-verified, so it did not award XP or leaderboard time.</Text> : null}

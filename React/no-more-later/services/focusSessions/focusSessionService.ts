@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { getMyTotalXp } from "@/services/badges/badgeService";
 
 import type { FocusSessionRecord, FocusTimelineEvent, TimerMode } from "@/types/models";
 
@@ -186,19 +187,14 @@ export async function getRemoteTotalXp(userId: string): Promise<{
     data: number | null;
     error: Error | null;
 }> {
-    const { data, error } = await supabase.from("focus_sessions").select("earned_xp").eq("user_id", userId);
+    const { data: currentSession } = await supabase.auth.getSession();
 
-    if (error) {
+    if (currentSession.session?.user.id !== userId) {
         return {
             data: null,
-            error,
+            error: new Error("You can only load XP for the signed-in account."),
         };
     }
 
-    const totalXp = data.reduce((total, session) => total + session.earned_xp, 0);
-
-    return {
-        data: totalXp,
-        error: null,
-    };
+    return getMyTotalXp();
 }
