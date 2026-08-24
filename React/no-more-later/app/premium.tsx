@@ -31,6 +31,7 @@ export default function PremiumScreen() {
     const {
         hasPremium,
         isRevenueCatConfigured,
+        revenueCatUnavailableReason,
         isLifetimePurchaseAvailable,
         lifetimePrice,
         isPurchasing,
@@ -100,6 +101,7 @@ export default function PremiumScreen() {
                                 isPurchasing={isPurchasing}
                                 isRestoring={isRestoring}
                                 isRevenueCatConfigured={isRevenueCatConfigured}
+                                revenueCatUnavailableReason={revenueCatUnavailableReason}
                                 isLifetimePurchaseAvailable={isLifetimePurchaseAvailable}
                                 onPurchase={() => void handleUnlockPremium()}
                                 onRestore={() => void handleRestorePremium()}
@@ -176,6 +178,7 @@ type PurchaseCardProps = {
     isPurchasing: boolean;
     isRestoring: boolean;
     isRevenueCatConfigured: boolean;
+    revenueCatUnavailableReason: string | null;
     isLifetimePurchaseAvailable: boolean;
     onPurchase: () => void;
     onRestore: () => void;
@@ -183,7 +186,7 @@ type PurchaseCardProps = {
     styles: ReturnType<typeof createStyles>;
 };
 
-function PurchaseCard({ displayPrice, actionMessage, isPurchasing, isRestoring, isRevenueCatConfigured, isLifetimePurchaseAvailable, onPurchase, onRestore, colours, styles }: PurchaseCardProps) {
+function PurchaseCard({ displayPrice, actionMessage, isPurchasing, isRestoring, isRevenueCatConfigured, revenueCatUnavailableReason, isLifetimePurchaseAvailable, onPurchase, onRestore, colours, styles }: PurchaseCardProps) {
     return (
         <View style={styles.purchaseCard}>
             <View style={styles.purchaseTopRow}>
@@ -206,7 +209,7 @@ function PurchaseCard({ displayPrice, actionMessage, isPurchasing, isRestoring, 
             <AppButton label={`Unlock Premium · ${displayPrice}`} icon={<Crown size={18} color={colours.onPrimary} />} fullWidth size="lg" loading={isPurchasing} disabled={!isRevenueCatConfigured || !isLifetimePurchaseAvailable || isRestoring} onPress={onPurchase} />
 
             {!isRevenueCatConfigured ? (
-                <Text style={styles.setupMessage}>Add the RevenueCat Test Store SDK key to this development build to enable test purchases.</Text>
+                <Text style={styles.setupMessage}>{revenueCatUnavailableReason ?? "Add the RevenueCat Test Store SDK key to this development build to enable test purchases."}</Text>
             ) : !isLifetimePurchaseAvailable ? (
                 <Text style={styles.setupMessage}>No lifetime package was found in the current RevenueCat offering.</Text>
             ) : PREMIUM_TEST_CONTROLS_ENABLED ? (

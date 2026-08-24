@@ -6,6 +6,7 @@ import Purchases, {
     type CustomerInfoUpdateListener,
     type PurchasesPackage,
 } from "react-native-purchases";
+import { NativeModules, Platform } from "react-native";
 
 import {
     REVENUECAT_OFFERING_ID,
@@ -18,12 +19,16 @@ export type RevenueCatConfiguration = {
     configured: boolean;
     customerInfo: CustomerInfo | null;
     lifetimePackage: PurchasesPackage | null;
+    unavailableReason: string | null;
 };
 
 export type RevenueCatPurchaseResult = {
     customerInfo: CustomerInfo | null;
     cancelled: boolean;
 };
+
+export const REVENUECAT_NATIVE_BUILD_REQUIRED_MESSAGE =
+    "RevenueCat is not included in this installed app. Install a newly built development or preview APK to enable purchases.";
 
 export function hasRevenueCatPremium(customerInfo: CustomerInfo | null): boolean {
     return Boolean(customerInfo?.entitlements.active[REVENUECAT_PREMIUM_ENTITLEMENT_ID]);
@@ -35,6 +40,16 @@ export async function configureRevenueCatForUser(userId: string): Promise<Revenu
             configured: false,
             customerInfo: null,
             lifetimePackage: null,
+            unavailableReason: null,
+        };
+    }
+
+    if (!isRevenueCatRuntimeAvailable()) {
+        return {
+            configured: false,
+            customerInfo: null,
+            lifetimePackage: null,
+            unavailableReason: REVENUECAT_NATIVE_BUILD_REQUIRED_MESSAGE,
         };
     }
 
@@ -71,7 +86,12 @@ export async function configureRevenueCatForUser(userId: string): Promise<Revenu
         configured: true,
         customerInfo,
         lifetimePackage,
+        unavailableReason: null,
     };
+}
+
+export function isRevenueCatRuntimeAvailable(): boolean {
+    return Platform.OS === "web" || NativeModules.RNPurchases != null;
 }
 
 export function subscribeToRevenueCatCustomerInfo(listener: CustomerInfoUpdateListener): () => void {

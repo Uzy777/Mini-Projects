@@ -26,6 +26,7 @@ type PremiumContextValue = {
     hasDevelopmentPremiumOverride: boolean;
     isPremiumLoading: boolean;
     isRevenueCatConfigured: boolean;
+    revenueCatUnavailableReason: string | null;
     isLifetimePurchaseAvailable: boolean;
     lifetimePrice: string | null;
     isPurchasing: boolean;
@@ -47,6 +48,7 @@ export function PremiumProvider({ children }: PremiumProviderProps) {
     const [hasDevelopmentAccess, setHasDevelopmentAccess] = useState(false);
     const [isPremiumLoading, setIsPremiumLoading] = useState(true);
     const [isRevenueCatConfigured, setIsRevenueCatConfigured] = useState(false);
+    const [revenueCatUnavailableReason, setRevenueCatUnavailableReason] = useState<string | null>(null);
     const [lifetimePackage, setLifetimePackage] = useState<PurchasesPackage | null>(null);
     const [isPurchasing, setIsPurchasing] = useState(false);
     const [isRestoring, setIsRestoring] = useState(false);
@@ -64,6 +66,7 @@ export function PremiumProvider({ children }: PremiumProviderProps) {
             setHasRevenueCatAccess(false);
             setHasDevelopmentAccess(false);
             setIsRevenueCatConfigured(false);
+            setRevenueCatUnavailableReason(null);
             setLifetimePackage(null);
             setIsPremiumLoading(false);
             return;
@@ -75,6 +78,7 @@ export function PremiumProvider({ children }: PremiumProviderProps) {
         setHasRevenueCatAccess(false);
         setHasDevelopmentAccess(false);
         setIsRevenueCatConfigured(false);
+        setRevenueCatUnavailableReason(null);
         setLifetimePackage(null);
         setIsPremiumLoading(true);
 
@@ -98,6 +102,7 @@ export function PremiumProvider({ children }: PremiumProviderProps) {
 
                 setHasRevenueCatAccess(hasRevenueCatPremium(revenueCat.customerInfo));
                 setIsRevenueCatConfigured(revenueCat.configured);
+                setRevenueCatUnavailableReason(revenueCat.unavailableReason);
                 setLifetimePackage(revenueCat.lifetimePackage);
 
                 if (revenueCat.configured) {
@@ -111,6 +116,7 @@ export function PremiumProvider({ children }: PremiumProviderProps) {
                 console.error("Failed to configure RevenueCat:", revenueCatResult.reason);
                 setHasRevenueCatAccess(false);
                 setIsRevenueCatConfigured(false);
+                setRevenueCatUnavailableReason("RevenueCat could not be initialized in this build.");
                 setLifetimePackage(null);
             }
 
@@ -129,7 +135,7 @@ export function PremiumProvider({ children }: PremiumProviderProps) {
                 success: false,
                 cancelled: false,
                 errorMessage: REVENUECAT_TEST_STORE_ENABLED
-                    ? "The RevenueCat lifetime package is not available. Check the current offering in RevenueCat."
+                    ? revenueCatUnavailableReason ?? "The RevenueCat lifetime package is not available. Check the current offering in RevenueCat."
                     : "RevenueCat Test Store is not configured for this build.",
             };
         }
@@ -173,7 +179,7 @@ export function PremiumProvider({ children }: PremiumProviderProps) {
             return {
                 success: false,
                 cancelled: false,
-                errorMessage: "RevenueCat Test Store is not configured for this build.",
+                errorMessage: revenueCatUnavailableReason ?? "RevenueCat Test Store is not configured for this build.",
             };
         }
 
@@ -222,6 +228,7 @@ export function PremiumProvider({ children }: PremiumProviderProps) {
                 hasDevelopmentPremiumOverride: hasDevelopmentAccess,
                 isPremiumLoading,
                 isRevenueCatConfigured,
+                revenueCatUnavailableReason,
                 isLifetimePurchaseAvailable: lifetimePackage !== null,
                 lifetimePrice: lifetimePackage?.product.priceString ?? null,
                 isPurchasing,
