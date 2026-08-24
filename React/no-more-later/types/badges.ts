@@ -24,3 +24,5 @@ export type BadgeUnlock = {
 export type BadgeUnlockAward = BadgeUnlock & {
     totalXp: number;
 };
+
+export type BadgeProgressMetrics = Record<BadgeId, number>;

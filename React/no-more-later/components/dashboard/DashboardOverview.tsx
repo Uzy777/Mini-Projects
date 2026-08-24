@@ -16,12 +16,13 @@ import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { AnimatedProgressBar } from "@/components/ui/AnimatedProgressBar";
 import { AppButton } from "@/components/ui/AppButton";
 import { BadgeGallery } from "@/components/badges/BadgeGallery";
-import type { BadgeUnlock } from "@/types/badges";
+import type { BadgeProgressMetrics, BadgeUnlock } from "@/types/badges";
 
 type DashboardOverviewProps = {
     sessions: FocusSessionRecord[];
     journeys: Journey[];
     badgeUnlocks: BadgeUnlock[];
+    badgeProgress: BadgeProgressMetrics;
     dailyGoalMinutes: number;
     onSaveDailyGoal: (minutes: number) => Promise<string | null>;
     referenceDate?: Date;
@@ -29,7 +30,7 @@ type DashboardOverviewProps = {
 
 const GOAL_PRESETS = [60, 120, 180, 240];
 
-export function DashboardOverview({ sessions, journeys, badgeUnlocks, dailyGoalMinutes, onSaveDailyGoal, referenceDate = new Date() }: DashboardOverviewProps) {
+export function DashboardOverview({ sessions, journeys, badgeUnlocks, badgeProgress, dailyGoalMinutes, onSaveDailyGoal, referenceDate = new Date() }: DashboardOverviewProps) {
     const { colours } = useAppearance();
     const { width } = useWindowDimensions();
     const styles = useMemo(() => createStyles(colours), [colours]);
@@ -78,7 +79,7 @@ export function DashboardOverview({ sessions, journeys, badgeUnlocks, dailyGoalM
         <View style={styles.content}>
             <DashboardRankCard sessions={sessions} badgeXp={badgeXp} />
 
-            <BadgeGallery unlocks={badgeUnlocks} />
+            <BadgeGallery unlocks={badgeUnlocks} progress={badgeProgress} />
 
             <View style={styles.sectionHeading}>
                 <Text style={styles.sectionTitle}>Today</Text>

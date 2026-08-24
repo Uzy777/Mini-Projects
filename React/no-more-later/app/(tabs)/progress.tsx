@@ -13,11 +13,11 @@ import { layout, radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteFocusSessions } from "@/services/focusSessions/focusSessionService";
-import { getBadgeUnlocks } from "@/services/badges/badgeService";
+import { EMPTY_BADGE_PROGRESS, getBadgeProgress, getBadgeUnlocks } from "@/services/badges/badgeService";
 import { getRemoteJourneys } from "@/services/journeys/journeyService";
 import { updateDailyFocusGoal } from "@/services/profile/profileService";
 import type { FocusSessionRecord, Journey } from "@/types/models";
-import type { BadgeUnlock } from "@/types/badges";
+import type { BadgeProgressMetrics, BadgeUnlock } from "@/types/badges";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import Animated, { FadeIn } from "react-native-reanimated";
@@ -39,6 +39,7 @@ export default function ProgressScreen() {
     const [sessions, setSessions] = useState<FocusSessionRecord[]>([]);
     const [journeys, setJourneys] = useState<Journey[]>([]);
     const [badgeUnlocks, setBadgeUnlocks] = useState<BadgeUnlock[]>([]);
+    const [badgeProgress, setBadgeProgress] = useState<BadgeProgressMetrics>({ ...EMPTY_BADGE_PROGRESS });
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
@@ -59,6 +60,7 @@ export default function ProgressScreen() {
                 setSessions([]);
                 setJourneys([]);
                 setBadgeUnlocks([]);
+                setBadgeProgress({ ...EMPTY_BADGE_PROGRESS });
                 setErrorMessage("Sign in to load your Progress history.");
                 setIsLoading(false);
                 setIsRefreshing(false);
@@ -66,10 +68,11 @@ export default function ProgressScreen() {
             }
 
             try {
-                const [focusSessionsResult, journeysResult, badgeUnlocksResult] = await Promise.all([
+                const [focusSessionsResult, journeysResult, badgeUnlocksResult, badgeProgressResult] = await Promise.all([
                     getRemoteFocusSessions(session.user.id),
                     getRemoteJourneys(session.user.id),
                     getBadgeUnlocks(session.user.id),
+                    getBadgeProgress(),
                 ]);
 
                 if (requestId.current !== currentRequestId) {
@@ -82,9 +85,14 @@ export default function ProgressScreen() {
                     throw loadError;
                 }
 
+                if (badgeProgressResult.error) {
+                    console.error("Failed to load badge progress:", badgeProgressResult.error);
+                }
+
                 setSessions(focusSessionsResult.data ?? []);
                 setJourneys(journeysResult.data ?? []);
                 setBadgeUnlocks(badgeUnlocksResult.data ?? []);
+                setBadgeProgress(badgeProgressResult.data ?? { ...EMPTY_BADGE_PROGRESS });
                 setErrorMessage("");
             } catch (error) {
                 console.error("Failed to load Progress from Supabase:", error);
@@ -207,6 +215,7 @@ export default function ProgressScreen() {
                                 sessions={sessions}
                                 journeys={journeys}
                                 badgeUnlocks={badgeUnlocks}
+                                badgeProgress={badgeProgress}
                                 dailyGoalMinutes={profile?.daily_focus_goal_minutes ?? 180}
                                 onSaveDailyGoal={handleSaveDailyGoal}
                             />

@@ -1,6 +1,6 @@
 begin;
 
-select plan(15);
+select plan(17);
 
 insert into auth.users (
     id, instance_id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -252,6 +252,18 @@ select is(
     has_table_privilege('authenticated', 'public.badge_unlocks', 'INSERT'),
     false,
     'authenticated clients cannot insert arbitrary badge awards'
+);
+
+select is(
+    (public.get_my_badge_progress() ->> 'focus_legend')::integer,
+    25,
+    'badge progress reports the authoritative cumulative qualifying session count'
+);
+
+select is(
+    (public.get_my_badge_progress() ->> 'task_master')::integer,
+    10,
+    'badge progress reports the authoritative unique completed Task count'
 );
 
 select * from finish();

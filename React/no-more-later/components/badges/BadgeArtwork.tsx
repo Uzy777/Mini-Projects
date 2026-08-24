@@ -54,7 +54,6 @@ export function BadgeArtwork({ badgeId, tier, size = 76 }: BadgeArtworkProps) {
             ) : (
                 <Icon size={Math.round(size * 0.42)} strokeWidth={2} color={tone.strong} />
             )}
-            <View style={[styles.gem, { borderColor: tone.soft, backgroundColor: tone.strong }]} />
         </View>
     );
 }
@@ -68,9 +67,9 @@ export function getTierTone(tier: BadgeTier, colours: AppColours) {
         case "gold":
             return { strong: colours.leaderboardGold, soft: colours.leaderboardGoldSoft };
         case "platinum":
-            return { strong: colours.primary, soft: colours.primarySoft };
+            return { strong: "#7c4dca", soft: "rgba(124, 77, 202, 0.14)" };
         case "diamond":
-            return { strong: colours.primaryStrong, soft: colours.primarySubtle };
+            return { strong: "#2799dc", soft: "rgba(39, 153, 220, 0.14)" };
     }
 }
 
@@ -95,15 +94,5 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: radius.pill,
         opacity: 0.28,
-    },
-    gem: {
-        position: "absolute",
-        right: -1,
-        bottom: 4,
-        width: 13,
-        height: 13,
-        borderWidth: 2,
-        borderRadius: 4,
-        transform: [{ rotate: "45deg" }],
     },
 });

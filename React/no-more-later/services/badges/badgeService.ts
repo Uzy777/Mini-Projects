@@ -1,7 +1,17 @@
 import { supabase } from "@/lib/supabase";
 import { BADGE_IDS, BADGE_TIERS } from "@/types/badges";
 
-import type { BadgeId, BadgeTier, BadgeUnlock, BadgeUnlockAward } from "@/types/badges";
+import type { BadgeId, BadgeProgressMetrics, BadgeTier, BadgeUnlock, BadgeUnlockAward } from "@/types/badges";
+
+export const EMPTY_BADGE_PROGRESS: BadgeProgressMetrics = {
+    focus_legend: 0,
+    master_of_time: 0,
+    streak_champion: 0,
+    task_master: 0,
+    early_bird: 0,
+    night_owl: 0,
+    weekend_warrior: 0,
+};
 
 type BadgeEvaluation = {
     unlocks: BadgeUnlockAward[];
@@ -31,6 +41,22 @@ export async function getBadgeUnlocks(userId: string): Promise<{ data: BadgeUnlo
         }),
         error: null,
     };
+}
+
+export async function getBadgeProgress(): Promise<{ data: BadgeProgressMetrics | null; error: Error | null }> {
+    const { data, error } = await supabase.rpc("get_my_badge_progress");
+
+    if (error) return { data: null, error: new Error(error.message) };
+
+    const values = data && typeof data === "object" ? data as Record<string, unknown> : {};
+    const progress = { ...EMPTY_BADGE_PROGRESS };
+
+    BADGE_IDS.forEach((badgeId) => {
+        const value = Number(values[badgeId] ?? 0);
+        progress[badgeId] = Number.isFinite(value) ? Math.max(0, value) : 0;
+    });
+
+    return { data: progress, error: null };
 }
 
 export async function evaluateBadgeUnlocks(): Promise<{ data: BadgeEvaluation | null; error: Error | null }> {
