@@ -1,10 +1,13 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
-import { useFocusEffect } from "expo-router";
-import { Sparkles, Trophy } from "lucide-react-native";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { ChevronRight, QrCode, Settings2, Sparkles, Trophy, UserPlus, UsersRound } from "lucide-react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
+import { BuddyInviteModal } from "@/components/leaderboard/BuddyInviteModal";
+import { BuddyManagerModal } from "@/components/leaderboard/BuddyManagerModal";
+import { LeaderboardProfileModal } from "@/components/leaderboard/LeaderboardProfileModal";
 import { RankBadge } from "@/components/ranks/RankBadge";
 import { AppCard } from "@/components/ui/AppCard";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
@@ -13,7 +16,18 @@ import type { AppColours } from "@/constants/appearanceColours";
 import { layout, radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { getLeaderboard, getMyLeaderboardPosition, type LeaderboardEntry, type LeaderboardPeriod, type MyLeaderboardPosition } from "@/services/leaderboard/leaderboardService";
+import {
+    getLeaderboard,
+    getLeaderboardProfile,
+    getMyBuddies,
+    getMyLeaderboardPosition,
+    normalizeBuddyCode,
+    type LeaderboardEntry,
+    type LeaderboardPeriod,
+    type LeaderboardProfile,
+    type LeaderboardScope,
+    type MyLeaderboardPosition,
+} from "@/services/leaderboard/leaderboardService";
 import { calculateLevel } from "@/utils/level";
 import { getFocusRank } from "@/utils/rank";
 import { formatProgressDuration } from "@/utils/dashboardStats";
@@ -24,33 +38,98 @@ export default function LeaderboardScreen() {
     const { width } = useWindowDimensions();
     const styles = useMemo(() => createStyles(colours), [colours]);
     const isWide = width >= 760;
+    const params = useLocalSearchParams<{ buddyCode?: string | string[] }>();
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [myPosition, setMyPosition] = useState<MyLeaderboardPosition | null>(null);
     const [period, setPeriod] = useState<LeaderboardPeriod>("30_days");
+    const [scope, setScope] = useState<LeaderboardScope>("global");
+    const [selectedEntry, setSelectedEntry] = useState<LeaderboardEntry | null>(null);
+    const [selectedProfile, setSelectedProfile] = useState<LeaderboardProfile | null>(null);
+    const [isProfileLoading, setIsProfileLoading] = useState(false);
+    const [profileError, setProfileError] = useState<string | null>(null);
+    const [buddyCount, setBuddyCount] = useState(0);
+    const [isBuddyInviteVisible, setIsBuddyInviteVisible] = useState(false);
+    const [isBuddyManagerVisible, setIsBuddyManagerVisible] = useState(false);
+    const [incomingBuddyCode, setIncomingBuddyCode] = useState<string | null>(null);
 
     const loadLeaderboard = useCallback(async () => {
         setIsLoading(true);
         setErrorMessage(null);
         try {
-            const [leaderboardData, myPositionData] = await Promise.all([getLeaderboard(period), getMyLeaderboardPosition(period)]);
+            const [leaderboardData, myPositionData, buddies] = await Promise.all([getLeaderboard(period, scope), getMyLeaderboardPosition(period, scope), getMyBuddies()]);
             setLeaderboard(leaderboardData);
             setMyPosition(myPositionData);
+            setBuddyCount(buddies.length);
         } catch (error) {
             console.error("Failed to load leaderboard:", error);
             setErrorMessage("Unable to load the leaderboard. Pull down to try again.");
         } finally {
             setIsLoading(false);
         }
-    }, [period]);
+    }, [period, scope]);
 
     useFocusEffect(useCallback(() => { loadLeaderboard(); }, [loadLeaderboard]));
+
+    useEffect(() => {
+        const rawCode = Array.isArray(params.buddyCode) ? params.buddyCode[0] : params.buddyCode;
+        const normalizedCode = normalizeBuddyCode(rawCode ?? "");
+        if (!normalizedCode) return;
+
+        setIncomingBuddyCode(normalizedCode);
+        setIsBuddyInviteVisible(true);
+    }, [params.buddyCode]);
 
     const topThree = leaderboard.slice(0, 3);
     const remainingEntries = leaderboard.slice(3);
     const myLevel = myPosition ? calculateLevel(myPosition.total_xp) : null;
     const myRank = myLevel !== null ? getFocusRank(myLevel) : null;
+
+    async function openProfile(entry: LeaderboardEntry) {
+        setSelectedEntry(entry);
+        setSelectedProfile(null);
+        setProfileError(null);
+        setIsProfileLoading(true);
+
+        try {
+            setSelectedProfile(await getLeaderboardProfile(entry.user_id, period));
+        } catch (error) {
+            console.error("Failed to load leaderboard profile:", error);
+            setProfileError("This focus profile could not be loaded. Try again in a moment.");
+        } finally {
+            setIsProfileLoading(false);
+        }
+    }
+
+    function closeProfile() {
+        setSelectedEntry(null);
+        setSelectedProfile(null);
+        setProfileError(null);
+        setIsProfileLoading(false);
+    }
+
+    function openBuddyInvite() {
+        setIncomingBuddyCode(null);
+        setIsBuddyInviteVisible(true);
+    }
+
+    function closeBuddyInvite() {
+        setIsBuddyInviteVisible(false);
+        setIncomingBuddyCode(null);
+    }
+
+    async function handleBuddyAdded() {
+        setScope("buddies");
+        const buddies = await getMyBuddies();
+        setBuddyCount(buddies.length);
+    }
+
+    async function handleBuddiesChanged() {
+        const buddies = await getMyBuddies();
+        setBuddyCount(buddies.length);
+        await loadLeaderboard();
+    }
 
     return (
         <AppScreenBackground>
@@ -66,31 +145,76 @@ export default function LeaderboardScreen() {
                     action={<View style={styles.headerIcon}><Trophy size={20} color={colours.primaryStrong} /></View>}
                 />
 
-                <View accessibilityRole="tablist" style={styles.periodControl}>
-                    {([
-                        { id: "30_days", label: "Last 30 days" },
-                        { id: "all_time", label: "All time" },
-                    ] as const).map((option) => {
-                        const selected = option.id === period;
-                        return (
-                            <AnimatedPressable
-                                key={option.id}
-                                accessibilityRole="tab"
-                                accessibilityState={{ selected }}
-                                onPress={() => setPeriod(option.id)}
-                                haptic="selection"
-                                style={[styles.periodOption, selected && styles.periodOptionSelected]}
-                            >
-                                <Text style={[styles.periodOptionText, selected && styles.periodOptionTextSelected]}>{option.label}</Text>
-                            </AnimatedPressable>
-                        );
-                    })}
+                <View style={[styles.filterRow, !isWide && styles.filterRowCompact]}>
+                    <View accessibilityRole="tablist" style={[styles.periodControl, !isWide && styles.controlCompact]}>
+                        {([
+                            { id: "30_days", label: "Last 30 days" },
+                            { id: "all_time", label: "All time" },
+                        ] as const).map((option) => {
+                            const selected = option.id === period;
+                            return (
+                                <AnimatedPressable
+                                    key={option.id}
+                                    accessibilityRole="tab"
+                                    accessibilityState={{ selected }}
+                                    onPress={() => setPeriod(option.id)}
+                                    haptic="selection"
+                                    style={[styles.periodOption, selected && styles.periodOptionSelected]}
+                                >
+                                    <Text style={[styles.periodOptionText, selected && styles.periodOptionTextSelected]}>{option.label}</Text>
+                                </AnimatedPressable>
+                            );
+                        })}
+                    </View>
+
+                    <View accessibilityRole="tablist" style={[styles.scopeControl, !isWide && styles.controlCompact]}>
+                        {([
+                            { id: "global", label: "Everyone" },
+                            { id: "buddies", label: "Buddies" },
+                        ] as const).map((option) => {
+                            const selected = option.id === scope;
+                            return (
+                                <AnimatedPressable
+                                    key={option.id}
+                                    accessibilityRole="tab"
+                                    accessibilityState={{ selected }}
+                                    onPress={() => setScope(option.id)}
+                                    haptic="selection"
+                                    style={[styles.periodOption, selected && styles.periodOptionSelected]}
+                                >
+                                    <Text style={[styles.periodOptionText, selected && styles.periodOptionTextSelected]}>{option.label}</Text>
+                                </AnimatedPressable>
+                            );
+                        })}
+                    </View>
                 </View>
 
                 <AppCard padding="md" tone="subtle">
                     <Text style={styles.rulesTitle}>Focused time, not XP</Text>
                     <Text style={styles.rulesText}>Reviewed Focus Sessions of at least five minutes count. Up to six hours per day can contribute; breaks never count.</Text>
                 </AppCard>
+
+                {scope === "buddies" ? (
+                    <AppCard style={[styles.buddyNotice, !isWide && styles.buddyNoticeCompact]} padding="md" tone="accent">
+                        <View style={styles.buddyNoticeIcon}><UsersRound size={18} color={colours.primaryStrong} /></View>
+                        <View style={styles.buddyNoticeCopy}>
+                            <Text style={styles.rulesTitle}>Your close circle</Text>
+                            <Text style={styles.rulesText}>{buddyCount === 0 ? "Invite your first buddy with a secure code, link or QR." : `${buddyCount} ${buddyCount === 1 ? "buddy" : "buddies"} connected. Private members remain visible here.`}</Text>
+                        </View>
+                        <View style={[styles.buddyActions, !isWide && styles.buddyActionsCompact]}>
+                            {buddyCount > 0 ? (
+                                <AnimatedPressable accessibilityRole="button" onPress={() => setIsBuddyManagerVisible(true)} style={styles.manageAction}>
+                                    <Settings2 size={16} color={colours.primaryStrong} />
+                                    <Text style={styles.manageActionText}>Manage</Text>
+                                </AnimatedPressable>
+                            ) : null}
+                            <AnimatedPressable accessibilityRole="button" onPress={openBuddyInvite} style={styles.buddyAction}>
+                                <QrCode size={16} color="#ffffff" />
+                                <Text style={styles.buddyActionText}>Invite or add</Text>
+                            </AnimatedPressable>
+                        </View>
+                    </AppCard>
+                ) : null}
 
                 {isLoading && leaderboard.length === 0 ? (
                     <AppCard style={styles.messageCard} padding="lg">
@@ -103,9 +227,19 @@ export default function LeaderboardScreen() {
                     </AppCard>
                 ) : leaderboard.length === 0 ? (
                     <AppCard style={styles.messageCard} padding="lg" tone="subtle">
-                        <View style={styles.emptyIcon}><Sparkles size={22} color={colours.primaryStrong} /></View>
-                        <Text style={styles.emptyTitle}>The first spot is waiting</Text>
-                        <Text style={styles.messageText}>Complete and review a five-minute Focus Session to join the leaderboard.</Text>
+                        <View style={styles.emptyIcon}>{scope === "buddies" ? <UsersRound size={22} color={colours.primaryStrong} /> : <Sparkles size={22} color={colours.primaryStrong} />}</View>
+                        <Text style={styles.emptyTitle}>{scope === "buddies" ? "Your buddy circle is waiting" : "The first spot is waiting"}</Text>
+                        <Text style={styles.messageText}>
+                            {scope === "buddies"
+                                ? "Invite a friend with a code, link or QR. Once connected, their qualifying focus will appear here."
+                                : "Complete and review a five-minute Focus Session to join the leaderboard."}
+                        </Text>
+                        {scope === "buddies" ? (
+                            <AnimatedPressable accessibilityRole="button" onPress={openBuddyInvite} style={styles.emptyAction}>
+                                <UserPlus size={16} color="#ffffff" />
+                                <Text style={styles.buddyActionText}>Add a buddy</Text>
+                            </AnimatedPressable>
+                        ) : null}
                     </AppCard>
                 ) : (
                     <>
@@ -115,25 +249,28 @@ export default function LeaderboardScreen() {
                         </View>
                         <View style={[styles.podium, !isWide && styles.podiumCompact]}>
                             {topThree.map((entry, index) => (
-                                <PodiumCard key={entry.user_id} entry={entry} position={index + 1} isCurrentUser={entry.user_id === session?.user.id} compact={!isWide} />
+                                <PodiumCard key={entry.user_id} entry={entry} position={index + 1} isCurrentUser={entry.user_id === session?.user.id} compact={!isWide} onPress={() => void openProfile(entry)} />
                             ))}
                         </View>
 
                         {myPosition && myPosition.leaderboard_position > 25 && myLevel !== null && (
                             <View style={styles.myPositionSection}>
                                 <Text style={styles.sectionLabel}>YOUR POSITION</Text>
-                                <AppCard style={styles.myPositionCard} tone="accent">
-                                    <PositionBadge position={myPosition.leaderboard_position} />
-                                    <RankBadge level={myLevel} />
-                                    <View style={styles.userInfo}>
-                                        <View style={styles.nameRow}>
-                                            <Text numberOfLines={1} style={styles.name}>{myPosition.display_name}</Text>
-                                            <YouBadge />
+                                <AnimatedPressable onPress={() => void openProfile(myPosition)} haptic="selection">
+                                    <AppCard style={styles.myPositionCard} tone="accent">
+                                        <PositionBadge position={myPosition.leaderboard_position} />
+                                        <RankBadge level={myLevel} />
+                                        <View style={styles.userInfo}>
+                                            <View style={styles.nameRow}>
+                                                <Text numberOfLines={1} style={styles.name}>{myPosition.display_name}</Text>
+                                                <YouBadge />
+                                            </View>
+                                            <Text style={styles.details}>Level {myLevel}{myRank ? ` · ${myRank.name}` : ""}</Text>
                                         </View>
-                                        <Text style={styles.details}>Level {myLevel}{myRank ? ` · ${myRank.name}` : ""}</Text>
-                                    </View>
-                                    <Text style={styles.xp}>{formatProgressDuration(myPosition.focused_seconds, true)}</Text>
-                                </AppCard>
+                                        <Text style={styles.xp}>{formatProgressDuration(myPosition.focused_seconds, true)}</Text>
+                                        <ChevronRight size={18} color={colours.textMuted} />
+                                    </AppCard>
+                                </AnimatedPressable>
                             </View>
                         )}
 
@@ -152,18 +289,26 @@ export default function LeaderboardScreen() {
                                             <Animated.View
                                                 entering={FadeInDown.delay(Math.min(index * 28, 280)).duration(260)}
                                                 key={entry.user_id}
-                                                style={[styles.row, index < remainingEntries.length - 1 && styles.rowBorder, isCurrentUser && styles.currentUserRow]}
                                             >
-                                                <PositionBadge position={entry.leaderboard_position} />
-                                                <RankBadge level={level} />
-                                                <View style={styles.userInfo}>
-                                                    <View style={styles.nameRow}>
-                                                        <Text numberOfLines={1} style={styles.name}>{entry.display_name}</Text>
-                                                        {isCurrentUser && <YouBadge />}
+                                                <AnimatedPressable
+                                                    accessibilityRole="button"
+                                                    accessibilityLabel={`View ${entry.display_name}'s focus profile`}
+                                                    haptic="selection"
+                                                    onPress={() => void openProfile(entry)}
+                                                    style={[styles.row, index < remainingEntries.length - 1 && styles.rowBorder, isCurrentUser && styles.currentUserRow]}
+                                                >
+                                                    <PositionBadge position={entry.leaderboard_position} />
+                                                    <RankBadge level={level} />
+                                                    <View style={styles.userInfo}>
+                                                        <View style={styles.nameRow}>
+                                                            <Text numberOfLines={1} style={styles.name}>{entry.display_name}</Text>
+                                                            {isCurrentUser && <YouBadge />}
+                                                        </View>
+                                                        <Text style={styles.details}>Level {level}{rank ? ` · ${rank.name}` : ""}</Text>
                                                     </View>
-                                                    <Text style={styles.details}>Level {level}{rank ? ` · ${rank.name}` : ""}</Text>
-                                                </View>
-                                                <Text style={styles.xp}>{formatProgressDuration(entry.focused_seconds, true)}</Text>
+                                                    <Text style={styles.xp}>{formatProgressDuration(entry.focused_seconds, true)}</Text>
+                                                    <ChevronRight size={18} color={colours.textMuted} />
+                                                </AnimatedPressable>
                                             </Animated.View>
                                         );
                                     })}
@@ -173,11 +318,32 @@ export default function LeaderboardScreen() {
                     </>
                 )}
             </ScrollView>
+
+            <LeaderboardProfileModal
+                visible={selectedEntry !== null}
+                entry={selectedEntry}
+                profile={selectedProfile}
+                period={period}
+                isLoading={isProfileLoading}
+                errorMessage={profileError}
+                onClose={closeProfile}
+            />
+            <BuddyInviteModal
+                visible={isBuddyInviteVisible}
+                incomingCode={incomingBuddyCode}
+                onClose={closeBuddyInvite}
+                onBuddyAdded={handleBuddyAdded}
+            />
+            <BuddyManagerModal
+                visible={isBuddyManagerVisible}
+                onClose={() => setIsBuddyManagerVisible(false)}
+                onBuddiesChanged={handleBuddiesChanged}
+            />
         </AppScreenBackground>
     );
 }
 
-function PodiumCard({ entry, position, isCurrentUser, compact }: { entry: LeaderboardEntry; position: number; isCurrentUser: boolean; compact: boolean }) {
+function PodiumCard({ entry, position, isCurrentUser, compact, onPress }: { entry: LeaderboardEntry; position: number; isCurrentUser: boolean; compact: boolean; onPress: () => void }) {
     const { colours } = useAppearance();
     const styles = useMemo(() => createStyles(colours), [colours]);
     const level = calculateLevel(entry.total_xp);
@@ -185,14 +351,17 @@ function PodiumCard({ entry, position, isCurrentUser, compact }: { entry: Leader
 
     return (
         <Animated.View entering={FadeInDown.delay(position * 70).duration(320)} style={styles.podiumSlot}>
-            <AppCard style={[styles.podiumCard, position === 1 && styles.winnerCard]} tone={isCurrentUser ? "accent" : "default"} padding={compact ? "sm" : "lg"}>
-                <View style={[styles.medal, entry.leaderboard_position === 1 ? styles.gold : entry.leaderboard_position === 2 ? styles.silver : styles.bronze]}><Text style={styles.medalText}>{entry.leaderboard_position}</Text></View>
-                <RankBadge level={level} />
-                <Text numberOfLines={1} style={styles.podiumName}>{entry.display_name}</Text>
-                <Text numberOfLines={1} style={styles.podiumRank}>Level {level} · {rank?.name ?? "Focused"}</Text>
-                <Text style={styles.podiumXp}>{formatProgressDuration(entry.focused_seconds, true)}</Text>
-                {isCurrentUser && <YouBadge />}
-            </AppCard>
+            <AnimatedPressable accessibilityRole="button" accessibilityLabel={`View ${entry.display_name}'s focus profile`} onPress={onPress} haptic="selection" style={styles.podiumButton}>
+                <AppCard style={[styles.podiumCard, position === 1 && styles.winnerCard]} tone={isCurrentUser ? "accent" : "default"} padding={compact ? "sm" : "lg"}>
+                    <View style={[styles.medal, entry.leaderboard_position === 1 ? styles.gold : entry.leaderboard_position === 2 ? styles.silver : styles.bronze]}><Text style={styles.medalText}>{entry.leaderboard_position}</Text></View>
+                    <RankBadge level={level} />
+                    <Text numberOfLines={1} style={styles.podiumName}>{entry.display_name}</Text>
+                    <Text numberOfLines={1} style={styles.podiumRank}>Level {level} · {rank?.name ?? "Focused"}</Text>
+                    <Text style={styles.podiumXp}>{formatProgressDuration(entry.focused_seconds, true)}</Text>
+                    {isCurrentUser && <YouBadge />}
+                    <Text style={styles.viewProfileText}>View profile</Text>
+                </AppCard>
+            </AnimatedPressable>
         </Animated.View>
     );
 }
@@ -214,19 +383,34 @@ function createStyles(colours: AppColours) {
         scrollView: { flex: 1, backgroundColor: "transparent" },
         container: { width: "100%", maxWidth: layout.contentMaxWidth, alignSelf: "center", padding: spacing.lg, paddingBottom: spacing.xxxl, gap: spacing.lg },
         headerIcon: { width: 44, height: 44, alignItems: "center", justifyContent: "center", borderRadius: radius.md, borderWidth: 1, borderColor: colours.primaryBorder, backgroundColor: colours.primarySubtle },
-        periodControl: { flexDirection: "row", padding: 4, borderWidth: 1, borderColor: colours.border, borderRadius: radius.md, backgroundColor: colours.primarySubtle },
+        filterRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+        filterRowCompact: { flexDirection: "column", alignItems: "stretch" },
+        periodControl: { minWidth: 0, flex: 1, flexDirection: "row", padding: 4, borderWidth: 1, borderColor: colours.border, borderRadius: radius.md, backgroundColor: colours.primarySubtle },
+        scopeControl: { width: 280, flexDirection: "row", padding: 4, borderWidth: 1, borderColor: colours.border, borderRadius: radius.md, backgroundColor: colours.primarySubtle },
+        controlCompact: { width: "100%", flex: 0 },
         periodOption: { flex: 1, alignItems: "center", paddingVertical: 10, paddingHorizontal: spacing.sm, borderRadius: radius.sm },
         periodOptionSelected: { backgroundColor: colours.surface },
         periodOptionText: { fontSize: 13, fontWeight: "700", textAlign: "center", color: colours.textMuted },
         periodOptionTextSelected: { color: colours.primaryStrong },
         rulesTitle: { fontSize: 13, fontWeight: "800", color: colours.text },
         rulesText: { marginTop: 3, fontSize: 12, lineHeight: 18, color: colours.textMuted },
+        buddyNotice: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+        buddyNoticeCompact: { flexWrap: "wrap" },
+        buddyNoticeIcon: { width: 38, height: 38, alignItems: "center", justifyContent: "center", borderRadius: radius.md, backgroundColor: colours.primarySoft },
+        buddyNoticeCopy: { minWidth: 0, flex: 1 },
+        buddyActions: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+        buddyActionsCompact: { width: "100%", justifyContent: "flex-end" },
+        buddyAction: { minHeight: 40, paddingHorizontal: spacing.md, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing.sm, borderRadius: radius.md, backgroundColor: colours.primary },
+        buddyActionText: { fontSize: 12, fontWeight: "900", color: "#ffffff" },
+        manageAction: { minHeight: 40, paddingHorizontal: spacing.md, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing.sm, borderWidth: 1, borderColor: colours.primaryBorder, borderRadius: radius.md, backgroundColor: colours.surface },
+        manageActionText: { fontSize: 12, fontWeight: "900", color: colours.primaryStrong },
         sectionHeading: { flexDirection: "row", alignItems: "baseline", justifyContent: "space-between", gap: spacing.md },
         sectionTitle: { fontSize: 17, fontWeight: "800", color: colours.text },
         sectionCaption: { fontSize: 12, fontWeight: "600", color: colours.textMuted },
         podium: { flexDirection: "row", gap: spacing.md },
         podiumCompact: { gap: spacing.sm },
         podiumSlot: { minWidth: 0, flex: 1 },
+        podiumButton: { width: "100%" },
         podiumCard: { minHeight: 218, alignItems: "center", justifyContent: "center", gap: spacing.sm },
         winnerCard: { borderColor: colours.leaderboardGold },
         medal: { position: "absolute", top: spacing.sm, right: spacing.sm, width: 26, height: 26, alignItems: "center", justifyContent: "center", borderRadius: radius.pill },
@@ -237,6 +421,7 @@ function createStyles(colours: AppColours) {
         podiumName: { width: "100%", fontSize: 15, fontWeight: "800", textAlign: "center", color: colours.text },
         podiumRank: { width: "100%", fontSize: 11, textAlign: "center", color: colours.textMuted },
         podiumXp: { fontSize: 14, fontWeight: "900", color: colours.primaryStrong },
+        viewProfileText: { fontSize: 9, fontWeight: "800", color: colours.textMuted },
         rankingSection: { gap: spacing.md },
         leaderboardCard: { overflow: "hidden" },
         row: { flexDirection: "row", alignItems: "center", paddingHorizontal: spacing.sm, paddingVertical: spacing.md, gap: spacing.md, borderRadius: radius.md },
@@ -258,6 +443,7 @@ function createStyles(colours: AppColours) {
         emptyIcon: { width: 48, height: 48, alignItems: "center", justifyContent: "center", borderRadius: radius.pill, backgroundColor: colours.primarySoft },
         emptyTitle: { fontSize: 18, fontWeight: "800", color: colours.text },
         messageText: { maxWidth: 360, fontSize: 14, lineHeight: 20, textAlign: "center", color: colours.textMuted },
+        emptyAction: { minHeight: 42, marginTop: spacing.sm, paddingHorizontal: spacing.lg, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing.sm, borderRadius: radius.md, backgroundColor: colours.primary },
         errorText: { fontSize: 14, textAlign: "center", color: colours.danger },
     });
 }

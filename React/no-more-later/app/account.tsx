@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import { Stack, router } from "expo-router";
-import { ChevronRight, LogOut, Palette, Trash2, UserRoundPen } from "lucide-react-native";
+import { ChevronRight, LogOut, Palette, ShieldCheck, Trash2, UserRoundPen } from "lucide-react-native";
 
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { DeleteAccountModal } from "@/components/account/DeleteAccountModal";
@@ -15,15 +15,23 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { deleteAccount, signOut } from "@/services/auth/authService";
 import { removeRunningFocusNotification } from "@/services/notifications/focusNotificationService";
+import { updateLeaderboardAnonymity } from "@/services/profile/profileService";
 import { clearNoMoreLaterStorage } from "@/services/storage/resetAppStorage";
 
 export default function AccountScreen() {
-    const { session, profile } = useAuth();
+    const { session, profile, refreshProfile } = useAuth();
     const { colours } = useAppearance();
     const styles = useMemo(() => createStyles(colours), [colours]);
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
     const [isDeletingAccount, setIsDeletingAccount] = useState(false);
     const [deleteAccountError, setDeleteAccountError] = useState<string | null>(null);
+    const [isUpdatingPrivacy, setIsUpdatingPrivacy] = useState(false);
+    const [privacyError, setPrivacyError] = useState<string | null>(null);
+    const [isPublicLeaderboardHidden, setIsPublicLeaderboardHidden] = useState(false);
+
+    useEffect(() => {
+        setIsPublicLeaderboardHidden(profile?.leaderboard_anonymous ?? false);
+    }, [profile?.leaderboard_anonymous]);
 
     async function handleSignOut() {
         const { error } = await signOut();
@@ -31,6 +39,27 @@ export default function AccountScreen() {
         if (error) {
             console.error("Failed to sign out:", error);
         }
+    }
+
+    async function handleLeaderboardPrivacyChange(value: boolean) {
+        if (!session || isUpdatingPrivacy) return;
+
+        setIsUpdatingPrivacy(true);
+        setPrivacyError(null);
+        setIsPublicLeaderboardHidden(value);
+
+        const { error } = await updateLeaderboardAnonymity(session.user.id, value);
+
+        if (error) {
+            console.error("Failed to update leaderboard privacy:", error);
+            setPrivacyError("Your leaderboard privacy setting could not be saved. Try again.");
+            setIsPublicLeaderboardHidden(!value);
+            setIsUpdatingPrivacy(false);
+            return;
+        }
+
+        await refreshProfile();
+        setIsUpdatingPrivacy(false);
     }
 
     function openDeleteAccountModal() {
@@ -144,6 +173,31 @@ export default function AccountScreen() {
 
                             <ChevronRight size={18} color={colours.textMuted} />
                         </AnimatedPressable>
+                    </View>
+                </View>
+
+                <View style={styles.section}>
+                    <Text style={styles.sectionLabel}>LEADERBOARD PRIVACY</Text>
+
+                    <View style={styles.privacyCard}>
+                        <View style={styles.privacyIcon}>
+                            <ShieldCheck size={20} color={colours.primaryStrong} />
+                        </View>
+                        <View style={styles.privacyDetails}>
+                            <Text style={styles.settingTitle}>Hide from public leaderboard</Text>
+                            <Text style={styles.settingDescription}>
+                                Removes you entirely from Everyone rankings. Your accepted buddies will still see your real name and stats in Buddies.
+                            </Text>
+                            {privacyError ? <Text style={styles.privacyError}>{privacyError}</Text> : null}
+                        </View>
+                        <Switch
+                            accessibilityLabel="Hide from the public leaderboard"
+                            disabled={!profile || isUpdatingPrivacy}
+                            value={isPublicLeaderboardHidden}
+                            onValueChange={(value) => void handleLeaderboardPrivacyChange(value)}
+                            trackColor={{ false: colours.border, true: colours.primaryMuted }}
+                            thumbColor={isPublicLeaderboardHidden ? colours.primary : colours.surface}
+                        />
                     </View>
                 </View>
 
@@ -311,6 +365,38 @@ function createStyles(colours: AppColours) {
             height: 1,
             marginLeft: 70,
             backgroundColor: colours.border,
+        },
+
+        privacyCard: {
+            flexDirection: "row",
+            alignItems: "flex-start",
+            gap: spacing.md,
+            padding: spacing.md,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.lg,
+            backgroundColor: colours.surface,
+        },
+
+        privacyIcon: {
+            width: 40,
+            height: 40,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: radius.md,
+            backgroundColor: colours.primarySoft,
+        },
+
+        privacyDetails: {
+            minWidth: 0,
+            flex: 1,
+        },
+
+        privacyError: {
+            marginTop: spacing.sm,
+            fontSize: 11,
+            lineHeight: 16,
+            color: colours.danger,
         },
 
         signOutButton: {

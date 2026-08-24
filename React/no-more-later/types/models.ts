@@ -84,5 +84,6 @@ export type Profile = {
     display_name: string | null;
     display_name_change_used: boolean;
     daily_focus_goal_minutes: number;
+    leaderboard_anonymous: boolean;
     created_at: string;
 };
