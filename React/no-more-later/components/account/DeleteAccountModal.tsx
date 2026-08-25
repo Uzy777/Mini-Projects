@@ -5,13 +5,13 @@ import {
     ScrollView,
     StyleSheet,
     Text,
-    TextInput,
     View,
 } from "react-native";
 
 import { AlertTriangle, X } from "lucide-react-native";
 
 import { AppButton } from "@/components/ui/AppButton";
+import { AppTextInput } from "@/components/ui/AppTextInput";
 import { KeyboardAwareView } from "@/components/ui/KeyboardAwareLayout";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
@@ -107,7 +107,7 @@ export function DeleteAccountModal({
                         <Text style={styles.inputLabel}>
                             Type <Text style={styles.confirmationWord}>{CONFIRMATION_TEXT}</Text> to confirm
                         </Text>
-                        <TextInput
+                        <AppTextInput
                             accessibilityLabel="Type DELETE to confirm account deletion"
                             value={confirmation}
                             onChangeText={setConfirmation}

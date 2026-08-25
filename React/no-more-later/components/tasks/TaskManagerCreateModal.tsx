@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { FolderKanban, ListChecks, X } from "lucide-react-native";
 
 import { AppButton } from "@/components/ui/AppButton";
+import { AppTextInput } from "@/components/ui/AppTextInput";
 import { KeyboardAwareView } from "@/components/ui/KeyboardAwareLayout";
 import { WORK_JOURNEY_ASSETS, WORK_QUEST_ASSETS, WorkAssetIcon } from "@/components/work/WorkAssetIcon";
 import type { AppColours } from "@/constants/appearanceColours";
@@ -77,7 +78,7 @@ export function TaskManagerCreateModal({ visible, kind, projects, initialProject
                     </View>
 
                     <ScrollView contentContainerStyle={styles.form} keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-                        <TextInput value={title} onChangeText={setTitle} style={styles.input} placeholder={details.placeholder} placeholderTextColor={colours.textMuted} selectionColor={colours.primary} autoFocus returnKeyType="done" onSubmitEditing={submit} />
+                        <AppTextInput value={title} onChangeText={setTitle} style={styles.input} placeholder={details.placeholder} placeholderTextColor={colours.textMuted} selectionColor={colours.primary} autoFocus returnKeyType="done" onSubmitEditing={submit} />
 
                         <View style={styles.field}>
                             <Text style={styles.fieldLabel}>ICON</Text>

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
+import { Modal, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { AlertCircle, Check, CheckCircle2, ChevronDown, ChevronRight, Clock3, Coffee, Search, Square } from "lucide-react-native";
 import { useRouter } from "expo-router";
 
@@ -9,6 +9,7 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import type { FocusSessionRecord, Journey, SessionOutcome } from "@/types/models";
 import { formatProgressDuration, getLocalDateKey, getSessionSeconds, isBreakSession } from "@/utils/dashboardStats";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
+import { AppTextInput, getInputFocusStyle } from "@/components/ui/AppTextInput";
 
 type DashboardHistoryProps = {
     sessions: FocusSessionRecord[];
@@ -37,6 +38,7 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
     const [filter, setFilter] = useState<HistoryFilter>("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [isSearchVisible, setIsSearchVisible] = useState(false);
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
     const journeyTitles = useMemo(() => new Map(journeys.map((journey) => [journey.id, journey.title])), [journeys]);
@@ -89,6 +91,7 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
                             setIsSearchVisible((current) => !current);
                             if (isSearchVisible) {
                                 setSearchQuery("");
+                                setIsSearchFocused(false);
                             }
                         }}
                         style={[styles.actionButton, isSearchVisible && styles.activeActionButton]}
@@ -101,9 +104,10 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
             </View>
 
             {isSearchVisible ? (
-                <View style={styles.searchField}>
-                    <Search size={17} color={colours.textMuted} />
-                    <TextInput
+                <View style={[styles.searchField, isSearchFocused && styles.searchFieldFocused]}>
+                    <Search size={17} color={isSearchFocused ? colours.primary : colours.textMuted} />
+                    <AppTextInput
+                        variant="bare"
                         autoFocus
                         value={searchQuery}
                         onChangeText={(value) => {
@@ -113,6 +117,8 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
                         placeholder="Search sessions"
                         placeholderTextColor={colours.textMuted}
                         returnKeyType="search"
+                        onFocus={() => setIsSearchFocused(true)}
+                        onBlur={() => setIsSearchFocused(false)}
                         style={styles.searchInput}
                     />
                 </View>
@@ -389,6 +395,7 @@ function createStyles(colours: AppColours) {
             borderRadius: radius.md,
             backgroundColor: colours.surface,
         },
+        searchFieldFocused: getInputFocusStyle(colours),
         searchInput: {
             flex: 1,
             paddingVertical: 10,

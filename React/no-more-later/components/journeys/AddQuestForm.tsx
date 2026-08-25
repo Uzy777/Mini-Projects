@@ -1,7 +1,8 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import { AppTextInput } from "@/components/ui/AppTextInput";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { useMemo } from "react";
@@ -27,7 +28,7 @@ export function AddQuestForm({ questTitle, doneWhen, onChangeQuestTitle, onChang
 
             <Text style={styles.formDescription}>Break this Journey into one clear, achievable step.</Text>
 
-            <TextInput
+            <AppTextInput
                 style={styles.input}
                 value={questTitle}
                 onChangeText={onChangeQuestTitle}
@@ -43,7 +44,7 @@ export function AddQuestForm({ questTitle, doneWhen, onChangeQuestTitle, onChang
 
                 <Text style={styles.helperText}>Give this Quest a clear finish line.</Text>
 
-                <TextInput
+                <AppTextInput
                     style={[styles.input, styles.doneWhenInput]}
                     value={doneWhen}
                     onChangeText={onChangeDoneWhen}

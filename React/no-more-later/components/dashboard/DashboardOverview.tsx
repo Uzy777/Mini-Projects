@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
+import { Modal, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { CheckCircle2, Clock3, Coffee, Folder, Pencil, Star, Zap } from "lucide-react-native";
 
 import type { ReactNode } from "react";
@@ -15,6 +15,7 @@ import { DashboardRankCard } from "./DashboardRankCard";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { AnimatedProgressBar } from "@/components/ui/AnimatedProgressBar";
 import { AppButton } from "@/components/ui/AppButton";
+import { AppTextInput } from "@/components/ui/AppTextInput";
 import { KeyboardAwareView } from "@/components/ui/KeyboardAwareLayout";
 import { BadgeGallery } from "@/components/badges/BadgeGallery";
 import type { BadgeProgressMetrics, BadgeUnlock } from "@/types/badges";
@@ -203,7 +204,7 @@ export function DashboardOverview({ sessions, journeys, badgeUnlocks, badgeProgr
                         </View>
 
                         <Text style={styles.inputLabel}>Custom goal in minutes</Text>
-                        <TextInput
+                        <AppTextInput
                             value={goalDraft}
                             onChangeText={(value) => {
                                 setGoalDraft(value.replace(/[^0-9]/g, ""));

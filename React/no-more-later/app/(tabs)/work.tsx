@@ -1,9 +1,10 @@
 import { useMemo, useState, useCallback } from "react";
-import { StyleSheet, Text, View, TextInput } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
-import { Folder, FolderPlus, ListTodo } from "lucide-react-native";
+import { Folder, FolderPlus, ListTodo, Search } from "lucide-react-native";
 
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
+import { AppTextInput, getInputFocusStyle } from "@/components/ui/AppTextInput";
 import { CreateWorkQuestModal } from "@/components/work/CreateWorkQuestModal";
 import { WorkJourneyCard } from "@/components/work/WorkJourneyCard";
 import { WorkQuestCard } from "@/components/work/WorkQuestCard";
@@ -48,6 +49,7 @@ export default function WorkScreen() {
     const [selectedFilter, setSelectedFilter] = useState<WorkViewFilter>("all");
     const [statusFilter, setStatusFilter] = useState<WorkStatusFilter>("active");
     const [isSearchVisible, setIsSearchVisible] = useState(false);
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [selectedQuest, setSelectedQuest] = useState<WorkQuest | null>(null);
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -179,6 +181,7 @@ export default function WorkScreen() {
         setIsSearchVisible((currentValue) => {
             if (currentValue) {
                 setSearchQuery("");
+                setIsSearchFocused(false);
             }
 
             return !currentValue;
@@ -546,10 +549,14 @@ export default function WorkScreen() {
                 />
 
                 {isSearchVisible && (
-                    <View style={styles.searchContainer}>
-                        <TextInput
+                    <View style={[styles.searchContainer, isSearchFocused && styles.searchContainerFocused]}>
+                        <Search size={17} color={isSearchFocused ? colours.primary : colours.textMuted} />
+                        <AppTextInput
+                            variant="bare"
                             value={searchQuery}
                             onChangeText={setSearchQuery}
+                            onFocus={() => setIsSearchFocused(true)}
+                            onBlur={() => setIsSearchFocused(false)}
                             style={styles.searchInput}
                             placeholder="Search Journeys and Quests"
                             placeholderTextColor={colours.textMuted}
@@ -764,20 +771,22 @@ function createStyles(colours: AppColours) {
         },
         searchContainer: {
             marginTop: spacing.md,
+            minHeight: 48,
+            paddingHorizontal: spacing.md,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.sm,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+            backgroundColor: colours.surface,
         },
+        searchContainerFocused: getInputFocusStyle(colours),
 
         searchInput: {
-            minHeight: 48,
-
-            paddingHorizontal: spacing.md,
+            minWidth: 0,
+            flex: 1,
             paddingVertical: 12,
-
-            borderWidth: 1,
-            borderColor: colours.primaryBorder,
-            borderRadius: radius.md,
-
-            backgroundColor: colours.surface,
-
             fontSize: 15,
             color: colours.text,
         },

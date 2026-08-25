@@ -1,6 +1,7 @@
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { AppButton } from "@/components/ui/AppButton";
+import { AppTextInput } from "@/components/ui/AppTextInput";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
@@ -36,7 +37,7 @@ export function ReviewForm({
 
                     <Text style={styles.helperText}>Briefly describe what you completed or moved forward.</Text>
 
-                    <TextInput
+                    <AppTextInput
                         style={[styles.input, styles.multilineInput]}
                         value={accomplishment}
                         onChangeText={onChangeAccomplishment}

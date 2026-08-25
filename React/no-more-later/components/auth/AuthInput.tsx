@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { StyleSheet, Text, TextInput, View, type KeyboardTypeOptions } from "react-native";
+import { StyleSheet, Text, View, type KeyboardTypeOptions } from "react-native";
 import { Eye, EyeOff, type LucideIcon } from "lucide-react-native";
 
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
+import { AppTextInput, getInputFocusStyle } from "@/components/ui/AppTextInput";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 
@@ -56,7 +57,8 @@ export function AuthInput({
             <View style={[styles.inputShell, isFocused && styles.inputShellFocused]}>
                 <Icon size={18} strokeWidth={2} color={isFocused ? colours.primary : colours.textMuted} />
 
-                <TextInput
+                <AppTextInput
+                    variant="bare"
                     style={styles.input}
                     value={value}
                     onChangeText={onChangeText}
@@ -122,10 +124,7 @@ function createStyles(colours: AppColours) {
             backgroundColor: colours.background,
         },
 
-        inputShellFocused: {
-            borderColor: colours.primary,
-            backgroundColor: colours.primarySubtle,
-        },
+        inputShellFocused: getInputFocusStyle(colours),
 
         input: {
             minWidth: 0,

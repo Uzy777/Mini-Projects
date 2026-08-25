@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Alert, Platform, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
+import { ActivityIndicator, Alert, Platform, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { CheckCircle2, ListChecks, MoreHorizontal, Plus, Search } from "lucide-react-native";
 
@@ -12,6 +12,7 @@ import { TaskManagerTaskRow } from "@/components/tasks/TaskManagerTaskRow";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { AnimatedProgressBar } from "@/components/ui/AnimatedProgressBar";
 import { AppCard } from "@/components/ui/AppCard";
+import { AppTextInput, getInputFocusStyle } from "@/components/ui/AppTextInput";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareLayout";
@@ -63,6 +64,7 @@ export default function TasksScreen() {
     const [status, setStatus] = useState<WorkStatus>("active");
     const [scope, setScope] = useState<TaskManagerScope>({ kind: "all" });
     const [query, setQuery] = useState("");
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState("");
     const [createKind, setCreateKind] = useState<TaskManagerCreateKind | null>(null);
@@ -341,7 +343,20 @@ export default function TasksScreen() {
 
                 <View style={styles.toolbar}>
                     <View accessibilityRole="tablist" style={styles.statusControl}>{(["active", "completed"] as const).map((value) => <AnimatedPressable key={value} accessibilityRole="tab" accessibilityState={{ selected: status === value }} onPress={() => setStatus(value)} style={[styles.statusButton, status === value && styles.selectedStatusButton]}><Text style={[styles.statusText, status === value && styles.selectedStatusText]}>{value === "active" ? "Active" : "Completed"}</Text></AnimatedPressable>)}</View>
-                    <View style={styles.searchBox}><Search size={17} color={colours.textMuted} /><TextInput value={query} onChangeText={setQuery} style={styles.searchInput} placeholder="Search Tasks or Projects" placeholderTextColor={colours.textMuted} selectionColor={colours.primary} /></View>
+                    <View style={[styles.searchBox, isSearchFocused && styles.searchBoxFocused]}>
+                        <Search size={17} color={isSearchFocused ? colours.primary : colours.textMuted} />
+                        <AppTextInput
+                            variant="bare"
+                            value={query}
+                            onChangeText={setQuery}
+                            onFocus={() => setIsSearchFocused(true)}
+                            onBlur={() => setIsSearchFocused(false)}
+                            style={styles.searchInput}
+                            placeholder="Search Tasks or Projects"
+                            placeholderTextColor={colours.textMuted}
+                            selectionColor={colours.primary}
+                        />
+                    </View>
                 </View>
 
                 {!isDesktop ? (
@@ -505,6 +520,7 @@ function createStyles(colours: AppColours, isDesktop: boolean, width: number) {
         statusText: { fontSize: 12, fontWeight: "700", color: colours.textMuted },
         selectedStatusText: { color: colours.primaryStrong },
         searchBox: { minHeight: 44, flex: 1, flexDirection: "row", alignItems: "center", gap: spacing.sm, paddingHorizontal: spacing.md, borderWidth: 1, borderColor: colours.border, borderRadius: radius.md, backgroundColor: colours.surface },
+        searchBoxFocused: getInputFocusStyle(colours),
         searchInput: { minWidth: 0, flex: 1, paddingVertical: 10, fontSize: 13, color: colours.text },
         mobileHierarchyPanel: { width: "100%" },
         manager: { flexDirection: isDesktop ? "row" : "column", alignItems: "flex-start", gap: spacing.md },

@@ -1,9 +1,10 @@
 import { useEffect, useState, useMemo } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { Stack } from "expo-router";
 import { AlertTriangle, LockKeyhole } from "lucide-react-native";
 
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
+import { AppTextInput } from "@/components/ui/AppTextInput";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
@@ -115,7 +116,7 @@ export default function ProfileScreen() {
                 <View style={styles.field}>
                     <Text style={styles.fieldLabel}>DISPLAY NAME</Text>
 
-                    <TextInput
+                    <AppTextInput
                         style={[styles.input, hasUsedDisplayNameChange && styles.inputLocked]}
                         value={displayName}
                         onChangeText={setDisplayName}

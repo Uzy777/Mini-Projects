@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Modal, Platform, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
+import { ActivityIndicator, Modal, Platform, Pressable, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Check, Link2, QrCode, Send, UserPlus, UsersRound, X } from "lucide-react-native";
 import Animated, { FadeIn, FadeInUp, ZoomIn, useReducedMotion } from "react-native-reanimated";
 import QRCode from "react-native-qrcode-svg";
 
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
+import { AppTextInput } from "@/components/ui/AppTextInput";
 import { KeyboardAwareView } from "@/components/ui/KeyboardAwareLayout";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
@@ -240,7 +241,7 @@ export function BuddyInviteModal({ visible, incomingCode, onClose, onBuddyAdded 
 
                                     {!preview ? (
                                         <>
-                                            <TextInput
+                                            <AppTextInput
                                                 accessibilityLabel="Buddy invite code"
                                                 autoCapitalize="characters"
                                                 autoCorrect={false}

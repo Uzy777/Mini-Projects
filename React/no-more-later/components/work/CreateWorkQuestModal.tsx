@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { X } from "lucide-react-native";
 
@@ -8,6 +8,7 @@ import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { WORK_QUEST_ASSETS, WorkAssetIcon } from "@/components/work/WorkAssetIcon";
 import { KeyboardAwareView } from "@/components/ui/KeyboardAwareLayout";
+import { AppTextInput } from "@/components/ui/AppTextInput";
 
 import type { WorkAssetId, WorkJourney } from "@/types/work";
 
@@ -73,7 +74,7 @@ export function CreateWorkQuestModal({ visible, journeys, initialJourneyId, onCl
                         </Pressable>
                     </View>
 
-                    <TextInput
+                    <AppTextInput
                         value={title}
                         onChangeText={setTitle}
                         style={styles.input}

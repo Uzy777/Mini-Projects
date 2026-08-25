@@ -1,7 +1,8 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import { AppTextInput } from "@/components/ui/AppTextInput";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { useMemo } from "react";
@@ -25,7 +26,7 @@ export function AddJourneyForm({ journeyTitle, onChangeJourneyTitle, onAddJourne
 
             <Text style={styles.formDescription}>Add a larger goal that you want to make steady progress towards.</Text>
 
-            <TextInput
+            <AppTextInput
                 style={styles.input}
                 value={journeyTitle}
                 onChangeText={onChangeJourneyTitle}
