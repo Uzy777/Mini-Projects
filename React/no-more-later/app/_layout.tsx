@@ -195,14 +195,6 @@ function RootNavigator() {
                         title: "Appearance",
                     }}
                 />
-
-                <Stack.Screen
-                    name="modal"
-                    options={{
-                        presentation: "modal",
-                        title: "Modal",
-                    }}
-                />
             </Stack.Protected>
         </Stack>
     );

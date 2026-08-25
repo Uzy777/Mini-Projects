@@ -78,12 +78,6 @@ export function WorkQuestCard({ title, journeyName, assetId, focusSummary, onFoc
                 </View>
 
                 {focusSummary ? <QuestFocusProgressSummary summary={focusSummary} compact={isCompact} /> : null}
-
-                {/* <View style={styles.metaRow}>
-                    <Clock3 size={14} color={colours.textMuted} />
-
-                    <Text style={styles.metaText}>No time set</Text>
-                </View> */}
             </View>
 
             <AnimatedPressable style={styles.focusButton} haptic="light" onPress={onFocus}>
@@ -175,12 +169,6 @@ function createStyles(colours: AppColours, isCompact: boolean) {
         },
 
         unassignedJourney: {
-            color: colours.textMuted,
-        },
-
-        metaText: {
-            fontSize: 12,
-
             color: colours.textMuted,
         },
 

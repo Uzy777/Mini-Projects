@@ -120,18 +120,6 @@ export default function AccountScreen() {
 
                 <ScreenHeader eyebrow="ACCOUNT" title="Your account" subtitle="Manage your profile and app preferences." />
 
-                {/* <View style={styles.profileCard}>
-                    <View style={styles.profileIcon}>
-                        <UserRound size={24} color={colours.primary} />
-                    </View>
-
-                    <View style={styles.profileDetails}>
-                        <Text style={styles.profileName}>{profile?.display_name ?? "No display name"}</Text>
-
-                        <Text style={styles.profileEmail}>{session?.user.email ?? ""}</Text>
-                    </View>
-                </View> */}
-
                 <View style={styles.section}>
                     <Text style={styles.sectionLabel}>PLAN</Text>
 
@@ -265,48 +253,6 @@ function createStyles(colours: AppColours) {
             alignSelf: "center",
             padding: spacing.lg,
             paddingBottom: 48,
-        },
-
-        profileCard: {
-            marginTop: spacing.xl,
-            flexDirection: "row",
-            alignItems: "center",
-            gap: spacing.md,
-
-            padding: spacing.lg,
-
-            borderWidth: 1,
-            borderColor: colours.border,
-            borderRadius: radius.lg,
-
-            backgroundColor: colours.surface,
-        },
-
-        profileIcon: {
-            width: 48,
-            height: 48,
-
-            alignItems: "center",
-            justifyContent: "center",
-
-            borderRadius: radius.pill,
-            backgroundColor: colours.primarySoft,
-        },
-
-        profileDetails: {
-            flex: 1,
-        },
-
-        profileName: {
-            fontSize: 17,
-            fontWeight: "700",
-            color: colours.text,
-        },
-
-        profileEmail: {
-            marginTop: spacing.xs,
-            fontSize: 13,
-            color: colours.textMuted,
         },
 
         section: {

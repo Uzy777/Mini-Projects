@@ -1,24 +1,20 @@
-import { useState, useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter, useFocusEffect } from "expo-router";
-import { StyleSheet, Text, View, Alert, Platform, Pressable } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import type { Journey } from "../../../types/models";
-import { getJourneys, saveJourneys } from "../../../services/storage/journeysStorage";
+import { saveJourneys } from "../../../services/storage/journeysStorage";
 import { JourneyCard } from "../../../components/journeys/JourneyCard";
 import { AddJourneyForm } from "../../../components/journeys/AddJourneyForm";
 import { confirmDelete } from "../../../utils/confirmDelete";
-import { clearQuestsForJourney } from "../../../services/storage/questsStorage";
 import { getActiveFocusSession } from "../../../services/storage/activeFocusSessionStorage";
 import { showMessage } from "../../../utils/showMessage";
-import { clearNoMoreLaterStorage } from "../../../services/storage/resetAppStorage";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { useAuth } from "@/contexts/AuthContext";
-import { getRemoteJourneys } from "@/services/journeys/journeyService";
-import { createRemoteJourney, deleteRemoteJourney } from "@/services/journeys/journeyService";
-import { useMemo } from "react";
+import { createRemoteJourney, deleteRemoteJourney, getRemoteJourneys } from "@/services/journeys/journeyService";
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareLayout";
 
@@ -49,6 +45,7 @@ export default function JourneyScreen() {
 
     const router = useRouter();
     const { session } = useAuth();
+    const userId = session?.user.id;
 
     const [journeyTitle, setJourneyTitle] = useState("");
     const [journeys, setJourneys] = useState<Journey[]>([]);
@@ -57,13 +54,13 @@ export default function JourneyScreen() {
     useFocusEffect(
         useCallback(() => {
             async function loadJourneys() {
-                if (!session) {
+                if (!userId) {
                     setJourneys([]);
                     return;
                 }
 
                 try {
-                    const { data, error } = await getRemoteJourneys(session.user.id);
+                    const { data, error } = await getRemoteJourneys(userId);
 
                     if (error) {
                         console.error("Failed to load remote Journeys:", error);
@@ -82,7 +79,7 @@ export default function JourneyScreen() {
             }
 
             loadJourneys();
-        }, [session?.user.id]),
+        }, [userId]),
     );
 
     async function handleAddJourney() {
@@ -123,8 +120,6 @@ export default function JourneyScreen() {
 
             setJourneys(updatedJourneys);
             setJourneyTitle("");
-
-            console.log("Created Journey:", newJourney);
         } catch (error) {
             console.error("Failed to create Journey:", error);
         }
@@ -186,20 +181,6 @@ export default function JourneyScreen() {
 
         return journey.status === selectedFilter;
     });
-
-    async function handleResetAppDate() {
-        try {
-            await clearNoMoreLaterStorage();
-
-            setJourneys([]);
-
-            showMessage("App data cleared", "All Journeys, Quests, sessions and XP have been removed.");
-        } catch (error) {
-            console.error("Failed to clear app data:", error);
-
-            showMessage("Reset failed", "The app data could not be cleared.");
-        }
-    }
 
     return (
         <AppScreenBackground>

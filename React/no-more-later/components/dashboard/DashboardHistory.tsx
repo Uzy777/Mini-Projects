@@ -97,13 +97,6 @@ export function DashboardHistory({ sessions, journeys }: DashboardHistoryProps) 
                         <Search size={17} color={isSearchVisible ? colours.primary : colours.textMuted} />
                         <Text style={[styles.actionButtonText, isSearchVisible && styles.activeActionButtonText]}>Search</Text>
                     </AnimatedPressable>
-                    {/*
-                        The left dropdown is the single History filter control.
-                        <Pressable onPress={() => setIsFilterVisible(true)} style={({ pressed }) => [styles.actionButton, pressed && styles.pressed]}>
-                            <SlidersHorizontal size={17} color={colours.textMuted} />
-                            <Text style={styles.actionButtonText}>Filter</Text>
-                        </Pressable>
-                    */}
                 </View>
             </View>
 

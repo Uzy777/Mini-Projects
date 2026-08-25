@@ -241,10 +241,8 @@ export default function AppearanceScreen() {
                                     ) : null}
                                 </View>
 
-                                <View style={styles.timerStyleDetails}>
+                                <View>
                                     <Text style={[styles.timerStyleName, isSelected && styles.timerStyleNameSelected]}>{option.name}</Text>
-                                    {/* <Text style={styles.timerStyleDescription}>{option.description}</Text> */}
-                                    {/* <Text style={[styles.timerStyleAccess, !option.requiresPremium && styles.timerStyleIncluded]}>{option.requiresPremium ? "Premium" : "Included"}</Text> */}
                                 </View>
                             </Pressable>
                         );
@@ -645,10 +643,6 @@ function createStyles(colours: AppColours) {
             backgroundColor: colours.primary,
         },
 
-        timerStyleDetails: {
-            // minHeight: 76,
-        },
-
         timerStyleName: {
             fontSize: 14,
             fontWeight: "800",
@@ -658,26 +652,6 @@ function createStyles(colours: AppColours) {
 
         timerStyleNameSelected: {
             color: colours.primaryStrong,
-        },
-
-        timerStyleDescription: {
-            marginTop: 3,
-            fontSize: 11,
-            lineHeight: 16,
-            color: colours.textMuted,
-        },
-
-        timerStyleAccess: {
-            marginTop: spacing.xs,
-            fontSize: 9,
-            fontWeight: "800",
-            letterSpacing: 0.5,
-            textTransform: "uppercase",
-            color: colours.primary,
-        },
-
-        timerStyleIncluded: {
-            color: colours.success,
         },
 
         backdropCard: {

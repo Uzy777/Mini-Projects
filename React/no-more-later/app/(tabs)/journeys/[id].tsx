@@ -1,10 +1,9 @@
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { useState, useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { StyleSheet, Text, View, Pressable } from "react-native";
 
 import type { Quest } from "../../../types/models";
-import { getJourneys, saveJourneys } from "../../../services/storage/journeysStorage";
-import { getQuests, saveQuests } from "../../../services/storage/questsStorage";
+import { saveQuests } from "../../../services/storage/questsStorage";
 import { QuestCard } from "../../../components/journeys/QuestCard";
 import { JourneyProgressCard } from "../../../components/journeys/JourneyProgressCard";
 import { AddQuestForm } from "../../../components/journeys/AddQuestForm";
@@ -17,7 +16,6 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { getRemoteQuests, createRemoteQuest, deleteRemoteQuest, updateRemoteQuestStatus } from "@/services/quests/questService";
-import { useMemo } from "react";
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareLayout";
 import { useAuth } from "@/contexts/AuthContext";

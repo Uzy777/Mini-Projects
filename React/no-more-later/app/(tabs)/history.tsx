@@ -1,5 +1,5 @@
 import { useFocusEffect } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import type { FocusSessionRecord } from "../../types/models";
@@ -10,7 +10,6 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import type { AppColours } from "@/constants/appearanceColours";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteFocusSessions } from "@/services/focusSessions/focusSessionService";
-import { useMemo } from "react";
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 
 export default function HistoryScreen() {
@@ -19,19 +18,20 @@ export default function HistoryScreen() {
     const styles = useMemo(() => createStyles(colours), [colours]);
 
     const { session } = useAuth();
+    const userId = session?.user.id;
 
     const [sessions, setSessions] = useState<FocusSessionRecord[]>([]);
 
     useFocusEffect(
         useCallback(() => {
             async function loadSessions() {
-                if (!session) {
+                if (!userId) {
                     setSessions([]);
                     return;
                 }
 
                 try {
-                    const { data, error } = await getRemoteFocusSessions(session.user.id);
+                    const { data, error } = await getRemoteFocusSessions(userId);
 
                     if (error) {
                         console.error("Failed to load remote Focus Sessions:", error);
@@ -46,7 +46,7 @@ export default function HistoryScreen() {
             }
 
             loadSessions();
-        }, [session?.user.id]),
+        }, [userId]),
     );
 
     return (

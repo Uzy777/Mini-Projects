@@ -248,13 +248,6 @@ function SessionDetailsContent({ session, journeyTitle }: { session: FocusSessio
                     ) : null}
                 </View>
             </View> : null}
-
-            {/*
-                Editing completed Focus Sessions is intentionally disabled for now.
-                <Pressable style={styles.editSessionButton} onPress={handleEditSession}>
-                    <Text style={styles.editSessionButtonText}>Edit Session</Text>
-                </Pressable>
-            */}
         </View>
     );
 }
@@ -662,20 +655,6 @@ function createStyles(colours: AppColours) {
             lineHeight: 18,
             fontWeight: "600",
             color: colours.text,
-        },
-        editSessionButton: {
-            minHeight: 46,
-            alignItems: "center",
-            justifyContent: "center",
-            borderWidth: 1,
-            borderColor: colours.primaryBorder,
-            borderRadius: radius.md,
-            backgroundColor: colours.primarySoft,
-        },
-        editSessionButtonText: {
-            fontSize: 13,
-            fontWeight: "800",
-            color: colours.primary,
         },
     });
 }
