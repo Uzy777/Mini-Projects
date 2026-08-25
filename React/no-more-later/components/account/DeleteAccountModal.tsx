@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-    KeyboardAvoidingView,
     Modal,
-    Platform,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -14,6 +12,7 @@ import {
 import { AlertTriangle, X } from "lucide-react-native";
 
 import { AppButton } from "@/components/ui/AppButton";
+import { KeyboardAwareView } from "@/components/ui/KeyboardAwareLayout";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
@@ -63,7 +62,7 @@ export function DeleteAccountModal({
             statusBarTranslucent
             onRequestClose={handleClose}
         >
-            <KeyboardAvoidingView style={styles.overlay} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+            <KeyboardAwareView style={styles.overlay}>
                 <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Close delete account confirmation"
@@ -84,6 +83,7 @@ export function DeleteAccountModal({
 
                     <ScrollView
                         contentContainerStyle={styles.cardContent}
+                        keyboardDismissMode="on-drag"
                         keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={false}
                     >
@@ -147,7 +147,7 @@ export function DeleteAccountModal({
                         </View>
                     </ScrollView>
                 </View>
-            </KeyboardAvoidingView>
+            </KeyboardAwareView>
         </Modal>
     );
 }

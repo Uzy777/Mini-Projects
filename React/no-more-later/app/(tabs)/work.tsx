@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from "react";
-import { ScrollView, StyleSheet, Text, View, TextInput } from "react-native";
+import { StyleSheet, Text, View, TextInput } from "react-native";
 
 import { Folder, FolderPlus, ListTodo } from "lucide-react-native";
 
@@ -33,6 +33,7 @@ import { getActiveFocusSession } from "@/services/storage/activeFocusSessionStor
 import { showMessage } from "@/utils/showMessage";
 import { WorkJourneyActionsModal } from "@/components/work/WorkJourneyActionsModal";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareLayout";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 
@@ -530,7 +531,7 @@ export default function WorkScreen() {
 
     return (
         <AppScreenBackground>
-            <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+            <KeyboardAwareScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 <ScreenHeader eyebrow="WORK" title="Your Work" subtitle="Keep Quests clear and actionable. Use Journeys only when a group helps you see the bigger picture." />
 
                 <WorkQuickActions onNewQuest={handleNewQuest} onNewJourney={handleNewJourney} onQuickStart={handleQuickStart} />
@@ -662,7 +663,7 @@ export default function WorkScreen() {
                         )}
                     </View>
                 )}
-            </ScrollView>
+            </KeyboardAwareScrollView>
             <CreateWorkQuestModal
                 visible={isCreateQuestVisible}
                 journeys={journeys}

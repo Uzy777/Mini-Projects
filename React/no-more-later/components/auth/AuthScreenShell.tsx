@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Check, Timer } from "lucide-react-native";
 import Animated, { FadeInDown, FadeInUp, useReducedMotion } from "react-native-reanimated";
 
@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
+import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareLayout";
 
 type AuthScreenShellProps = {
     colours: AppColours;
@@ -28,7 +29,7 @@ export function AuthScreenShell({ colours, eyebrow, title, description, children
     const styles = createStyles(colours, isWide);
 
     return (
-        <ScrollView
+        <KeyboardAwareScrollView
             style={styles.screen}
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled"
@@ -83,7 +84,7 @@ export function AuthScreenShell({ colours, eyebrow, title, description, children
                     </View>
                 </Animated.View>
             </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
     );
 }
 

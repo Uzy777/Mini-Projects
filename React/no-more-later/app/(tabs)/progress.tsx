@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { BarChart3, CalendarDays, LayoutDashboard, RotateCcwClock } from "lucide-react-native";
 import { useFocusEffect } from "expo-router";
 
@@ -20,6 +20,7 @@ import type { FocusSessionRecord, Journey } from "@/types/models";
 import type { BadgeProgressMetrics, BadgeUnlock } from "@/types/badges";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
+import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareLayout";
 import Animated, { FadeIn } from "react-native-reanimated";
 
 type ProgressSection = "overview" | "calendar" | "stats" | "history";
@@ -143,7 +144,7 @@ export default function ProgressScreen() {
 
     return (
         <AppScreenBackground>
-            <ScrollView
+            <KeyboardAwareScrollView
                 style={styles.scrollView}
                 contentContainerStyle={styles.contentContainer}
                 showsVerticalScrollIndicator={false}
@@ -225,7 +226,7 @@ export default function ProgressScreen() {
                         {selectedView === "history" && <DashboardHistory sessions={sessions} journeys={journeys} />}
                     </Animated.View>
                 ) : null}
-            </ScrollView>
+            </KeyboardAwareScrollView>
         </AppScreenBackground>
     );
 }

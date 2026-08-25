@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useRouter, useFocusEffect } from "expo-router";
-import { StyleSheet, Text, View, ScrollView, Alert, Platform, Pressable } from "react-native";
+import { StyleSheet, Text, View, Alert, Platform, Pressable } from "react-native";
 
 import type { Journey } from "../../../types/models";
 import { getJourneys, saveJourneys } from "../../../services/storage/journeysStorage";
@@ -20,6 +20,7 @@ import { getRemoteJourneys } from "@/services/journeys/journeyService";
 import { createRemoteJourney, deleteRemoteJourney } from "@/services/journeys/journeyService";
 import { useMemo } from "react";
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
+import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareLayout";
 
 type JourneyFilter = "all" | "active" | "completed";
 
@@ -202,7 +203,7 @@ export default function JourneyScreen() {
 
     return (
         <AppScreenBackground>
-            <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+            <KeyboardAwareScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
                 <View style={styles.header}>
                     <Text style={styles.title}>Journeys</Text>
 
@@ -245,7 +246,7 @@ export default function JourneyScreen() {
                         ))
                     )}
                 </View>
-            </ScrollView>
+            </KeyboardAwareScrollView>
         </AppScreenBackground>
     );
 }

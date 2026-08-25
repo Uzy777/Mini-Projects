@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { StyleSheet, Text, ScrollView, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { Info } from "lucide-react-native";
 
 import { calculateLevel } from "../../utils/level";
@@ -21,6 +21,7 @@ import { LevelUpCelebration } from "@/components/level/LevelUpCelebration";
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareLayout";
 import { getActiveSessionReviewState } from "@/utils/focusTimer";
 import { ReviewXpPreview } from "@/components/review/ReviewXpPreview";
 import { MINIMUM_XP_FOCUS_SECONDS } from "@/constants/xp";
@@ -317,7 +318,7 @@ export default function ReviewSessionScreen() {
 
     return (
         <AppScreenBackground>
-            <ScrollView
+            <KeyboardAwareScrollView
                 style={styles.scrollView}
                 contentContainerStyle={styles.contentContainer}
                 keyboardShouldPersistTaps="handled"
@@ -425,7 +426,7 @@ export default function ReviewSessionScreen() {
                         />
                     </View>
                 )}
-            </ScrollView>
+            </KeyboardAwareScrollView>
         </AppScreenBackground>
     );
 }

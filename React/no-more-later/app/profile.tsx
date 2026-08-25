@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 import { Stack } from "expo-router";
 import { AlertTriangle, LockKeyhole } from "lucide-react-native";
 
@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { updateDisplayName } from "@/services/profile/profileService";
 import { AppButton } from "@/components/ui/AppButton";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareLayout";
 import { getUsernameValidationMessage } from "@/utils/usernameValidation";
 
 export default function ProfileScreen() {
@@ -82,7 +83,7 @@ export default function ProfileScreen() {
     }
 
     const screenContent = (
-        <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+        <KeyboardAwareScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
             <Stack.Screen options={{ title: "Profile" }} />
 
             <ScreenHeader eyebrow="PROFILE" title="Profile details" subtitle="Manage the information shown on your account." />
@@ -151,7 +152,7 @@ export default function ProfileScreen() {
                     size="lg"
                 />
             </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
     );
 
     return <AppScreenBackground>{screenContent}</AppScreenBackground>;

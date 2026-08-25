@@ -1,8 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
     StyleSheet,
     Text,
     useWindowDimensions,
@@ -34,6 +31,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AuthInput } from "@/components/auth/AuthInput";
 import { FocusTimerDisplay } from "@/components/focus/FocusTimerDisplay";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
+import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareLayout";
 import type { AppColours } from "@/constants/appearanceColours";
 import { AUTH_COLOURS } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
@@ -206,11 +204,9 @@ export default function OnboardingScreen() {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <KeyboardAvoidingView style={styles.keyboardView} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-                <ScrollView
+                <KeyboardAwareScrollView
                     style={styles.screen}
                     contentContainerStyle={styles.contentContainer}
-                    keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
                 >
                     <View pointerEvents="none" style={styles.glowOne} />
@@ -271,8 +267,7 @@ export default function OnboardingScreen() {
                             </Animated.View>
                         </Animated.View>
                     </View>
-                </ScrollView>
-            </KeyboardAvoidingView>
+                </KeyboardAwareScrollView>
         </SafeAreaView>
     );
 }
@@ -428,7 +423,6 @@ function PrimaryButton({ label, onPress, disabled = false, styles }: { label: st
 function createStyles(colours: AppColours, isWide: boolean) {
     return StyleSheet.create({
         safeArea: { flex: 1, backgroundColor: colours.background },
-        keyboardView: { flex: 1 },
         screen: { flex: 1, backgroundColor: colours.background },
         contentContainer: { flexGrow: 1, justifyContent: "center", paddingHorizontal: isWide ? spacing.xl : spacing.sm, paddingVertical: isWide ? spacing.xl : spacing.sm },
         glowOne: { position: "absolute", top: -170, left: -120, width: 420, height: 420, borderRadius: radius.pill, backgroundColor: colours.primarySoft, opacity: 0.85 },

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { X } from "lucide-react-native";
 
@@ -7,6 +7,7 @@ import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { WORK_QUEST_ASSETS, WorkAssetIcon } from "@/components/work/WorkAssetIcon";
+import { KeyboardAwareView } from "@/components/ui/KeyboardAwareLayout";
 
 import type { WorkAssetId, WorkJourney } from "@/types/work";
 
@@ -48,10 +49,16 @@ export function CreateWorkQuestModal({ visible, journeys, initialJourneyId, onCl
 
     return (
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-            <KeyboardAvoidingView style={styles.overlay} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+            <KeyboardAwareView style={styles.overlay}>
                 <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
 
                 <View style={styles.card}>
+                    <ScrollView
+                        contentContainerStyle={styles.cardContent}
+                        keyboardDismissMode="on-drag"
+                        keyboardShouldPersistTaps="handled"
+                        showsVerticalScrollIndicator={false}
+                    >
                     <View style={styles.header}>
                         <View style={styles.headerText}>
                             <Text style={styles.eyebrow}>NEW QUEST</Text>
@@ -142,8 +149,9 @@ export function CreateWorkQuestModal({ visible, journeys, initialJourneyId, onCl
                             <Text style={styles.createText}>Create Quest</Text>
                         </Pressable>
                     </View>
+                    </ScrollView>
                 </View>
-            </KeyboardAvoidingView>
+            </KeyboardAwareView>
         </Modal>
     );
 }
@@ -163,15 +171,20 @@ function createStyles(colours: AppColours) {
         card: {
             width: "100%",
             maxWidth: 520,
+            maxHeight: "95%",
 
-            gap: spacing.lg,
-            padding: spacing.lg,
+            overflow: "hidden",
 
             borderWidth: 1,
             borderColor: colours.primaryBorder,
             borderRadius: radius.lg,
 
             backgroundColor: colours.surface,
+        },
+
+        cardContent: {
+            gap: spacing.lg,
+            padding: spacing.lg,
         },
 
         header: {

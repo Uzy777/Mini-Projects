@@ -1,6 +1,6 @@
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useState, useCallback } from "react";
-import { StyleSheet, Text, View, ScrollView, Pressable } from "react-native";
+import { StyleSheet, Text, View, Pressable } from "react-native";
 
 import type { Quest } from "../../../types/models";
 import { getJourneys, saveJourneys } from "../../../services/storage/journeysStorage";
@@ -19,6 +19,7 @@ import type { AppColours } from "@/constants/appearanceColours";
 import { getRemoteQuests, createRemoteQuest, deleteRemoteQuest, updateRemoteQuestStatus } from "@/services/quests/questService";
 import { useMemo } from "react";
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
+import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareLayout";
 import { useAuth } from "@/contexts/AuthContext";
 
 type QuestFilter = "all" | "active" | "completed";
@@ -237,7 +238,7 @@ export default function JourneyDetailsScreen() {
 
     return (
         <AppScreenBackground>
-            <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+            <KeyboardAwareScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
                 <Stack.Screen options={{ title: "Journey" }} />
                 <View style={styles.pageHeader}>
                     <Text style={styles.title}>{title ?? "Journey"}</Text>
@@ -295,7 +296,7 @@ export default function JourneyDetailsScreen() {
                         )}
                     </View>
                 </View>
-            </ScrollView>
+            </KeyboardAwareScrollView>
         </AppScreenBackground>
     );
 }

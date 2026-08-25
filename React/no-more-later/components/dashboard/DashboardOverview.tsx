@@ -15,6 +15,7 @@ import { DashboardRankCard } from "./DashboardRankCard";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { AnimatedProgressBar } from "@/components/ui/AnimatedProgressBar";
 import { AppButton } from "@/components/ui/AppButton";
+import { KeyboardAwareView } from "@/components/ui/KeyboardAwareLayout";
 import { BadgeGallery } from "@/components/badges/BadgeGallery";
 import type { BadgeProgressMetrics, BadgeUnlock } from "@/types/badges";
 
@@ -176,8 +177,9 @@ export function DashboardOverview({ sessions, journeys, badgeUnlocks, badgeProgr
             </View>
 
             <Modal transparent animationType="fade" visible={isGoalModalVisible} onRequestClose={() => !isSavingGoal && setIsGoalModalVisible(false)}>
-                <Pressable style={styles.modalBackdrop} onPress={() => !isSavingGoal && setIsGoalModalVisible(false)}>
-                    <Pressable style={styles.goalModal} onPress={() => undefined}>
+                <KeyboardAwareView style={styles.keyboardModalContainer}>
+                    <Pressable style={styles.modalBackdrop} onPress={() => !isSavingGoal && setIsGoalModalVisible(false)}>
+                        <Pressable style={styles.goalModal} onPress={() => undefined}>
                         <Text style={styles.modalTitle}>Daily focus goal</Text>
                         <Text style={styles.modalDescription}>Set the amount of focused time you want to aim for each day.</Text>
 
@@ -220,8 +222,9 @@ export function DashboardOverview({ sessions, journeys, badgeUnlocks, badgeProgr
                             <AppButton label="Cancel" variant="secondary" disabled={isSavingGoal} onPress={() => setIsGoalModalVisible(false)} style={styles.modalButton} />
                             <AppButton label="Save goal" loading={isSavingGoal} onPress={() => void saveGoal()} style={styles.modalButton} />
                         </View>
+                        </Pressable>
                     </Pressable>
-                </Pressable>
+                </KeyboardAwareView>
             </Modal>
         </View>
     );
@@ -437,6 +440,9 @@ function createStyles(colours: AppColours) {
             lineHeight: 19,
             color: colours.textMuted,
             textAlign: "center",
+        },
+        keyboardModalContainer: {
+            flex: 1,
         },
         modalBackdrop: {
             flex: 1,

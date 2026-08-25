@@ -21,6 +21,7 @@
         "foregroundImage": "./assets/no-more-later-1-1254.png"
       },
       "edgeToEdgeEnabled": true,
+      "softwareKeyboardLayoutMode": "resize",
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "android.permission.RECORD_AUDIO",

@@ -5,6 +5,7 @@ import Animated, { FadeIn, FadeInUp, ZoomIn, useReducedMotion } from "react-nati
 import QRCode from "react-native-qrcode-svg";
 
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
+import { KeyboardAwareView } from "@/components/ui/KeyboardAwareLayout";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
@@ -165,7 +166,8 @@ export function BuddyInviteModal({ visible, incomingCode, onClose, onBuddyAdded 
 
     return (
         <Modal transparent visible={visible} animationType={reduceMotion ? "none" : "fade"} statusBarTranslucent onRequestClose={onClose}>
-            <View style={[styles.backdrop, isCompact && styles.backdropCompact]}>
+            <KeyboardAwareView style={styles.keyboardContainer}>
+                <View style={[styles.backdrop, isCompact && styles.backdropCompact]}>
                 <Pressable accessibilityRole="button" accessibilityLabel="Close buddy invite" onPress={onClose} style={StyleSheet.absoluteFill} />
                 <Animated.View
                     entering={reduceMotion ? undefined : FadeInUp.duration(220)}
@@ -197,6 +199,7 @@ export function BuddyInviteModal({ visible, incomingCode, onClose, onBuddyAdded 
                         <ScrollView
                             style={styles.bodyScroll}
                             contentContainerStyle={[styles.body, isCompact && styles.bodyCompact]}
+                            keyboardDismissMode="on-drag"
                             keyboardShouldPersistTaps="handled"
                             showsVerticalScrollIndicator={false}
                         >
@@ -284,7 +287,8 @@ export function BuddyInviteModal({ visible, incomingCode, onClose, onBuddyAdded 
                         </ScrollView>
                     )}
                 </Animated.View>
-            </View>
+                </View>
+            </KeyboardAwareView>
         </Modal>
     );
 }
@@ -339,6 +343,7 @@ function isShareCancellation(error: unknown): boolean {
 
 function createStyles(colours: AppColours) {
     return StyleSheet.create({
+        keyboardContainer: { flex: 1 },
         backdrop: { flex: 1, alignItems: "center", justifyContent: "center", padding: spacing.xl, backgroundColor: "rgba(4, 6, 14, 0.72)" },
         backdropCompact: { padding: spacing.sm },
         sheet: { width: "100%", maxWidth: 720, overflow: "hidden", borderWidth: 1, borderColor: colours.primaryBorder, borderRadius: radius.xl, backgroundColor: colours.surface, shadowColor: "#000", shadowOffset: { width: 0, height: 18 }, shadowOpacity: 0.28, shadowRadius: 34, elevation: 24 },

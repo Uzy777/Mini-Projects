@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
+import { ActivityIndicator, Alert, Platform, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { CheckCircle2, ListChecks, MoreHorizontal, Plus, Search } from "lucide-react-native";
 
@@ -14,6 +14,7 @@ import { AnimatedProgressBar } from "@/components/ui/AnimatedProgressBar";
 import { AppCard } from "@/components/ui/AppCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareLayout";
 import type { AppColours } from "@/constants/appearanceColours";
 import { layout, radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
@@ -335,7 +336,7 @@ export default function TasksScreen() {
 
     return (
         <AppScreenBackground>
-            <ScrollView style={styles.screen} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+            <KeyboardAwareScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 <ScreenHeader eyebrow="TASKS" title="Get things done" subtitle="Create Tasks first. Use a Project only when several Tasks belong together." />
 
                 <View style={styles.toolbar}>
@@ -416,7 +417,7 @@ export default function TasksScreen() {
                         </AppCard>
                     </View>
                 )}
-            </ScrollView>
+            </KeyboardAwareScrollView>
 
             <TaskManagerCreateModal visible={createKind !== null} kind={createKind ?? "task"} projects={projects} initialProjectId={initialProjectId} onClose={() => setCreateKind(null)} onCreate={(title, assetId, projectId) => void handleCreate(title, assetId, projectId)} />
             <TaskManagerActionsModal item={managedItem} projects={projects} onClose={() => setManagedItem(null)} onMoveTask={managedItem?.kind === "task" ? (projectId) => void moveTask(projectId) : undefined} onToggleComplete={managedItem?.kind === "task" ? () => { const task = tasks.find((entry) => entry.id === managedItem.id); if (task) requestTaskStatusChange(task); } : undefined} onDelete={requestDeleteManagedItem} />

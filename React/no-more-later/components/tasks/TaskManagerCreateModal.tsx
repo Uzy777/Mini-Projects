@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { FolderKanban, ListChecks, X } from "lucide-react-native";
 
 import { AppButton } from "@/components/ui/AppButton";
+import { KeyboardAwareView } from "@/components/ui/KeyboardAwareLayout";
 import { WORK_JOURNEY_ASSETS, WORK_QUEST_ASSETS, WorkAssetIcon } from "@/components/work/WorkAssetIcon";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
@@ -62,7 +63,7 @@ export function TaskManagerCreateModal({ visible, kind, projects, initialProject
 
     return (
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-            <KeyboardAvoidingView style={styles.overlay} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+            <KeyboardAwareView style={styles.overlay}>
                 <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
                 <View style={styles.card}>
                     <View style={styles.header}>
@@ -75,7 +76,7 @@ export function TaskManagerCreateModal({ visible, kind, projects, initialProject
                         <Pressable accessibilityLabel="Close" hitSlop={8} onPress={onClose} style={styles.closeButton}><X size={19} color={colours.textMuted} /></Pressable>
                     </View>
 
-                    <ScrollView contentContainerStyle={styles.form} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+                    <ScrollView contentContainerStyle={styles.form} keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
                         <TextInput value={title} onChangeText={setTitle} style={styles.input} placeholder={details.placeholder} placeholderTextColor={colours.textMuted} selectionColor={colours.primary} autoFocus returnKeyType="done" onSubmitEditing={submit} />
 
                         <View style={styles.field}>
@@ -105,7 +106,7 @@ export function TaskManagerCreateModal({ visible, kind, projects, initialProject
 
                     <View style={styles.actions}><AppButton label="Cancel" onPress={onClose} variant="ghost" /><AppButton label={details.action} onPress={submit} disabled={!trimmedTitle} /></View>
                 </View>
-            </KeyboardAvoidingView>
+            </KeyboardAwareView>
         </Modal>
     );
 }
