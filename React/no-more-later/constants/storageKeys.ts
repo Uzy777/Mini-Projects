@@ -10,6 +10,8 @@ export const APPEARANCE_STORAGE_KEY = "@no-more-later/appearance";
 
 export const TIMER_PREFERENCES_STORAGE_KEY = "@no-more-later/timer-preferences";
 
+export const ONBOARDING_COMPLETED_STORAGE_KEY = "@no-more-later/onboarding-completed";
+
 export function getPremiumTestOverrideStorageKey(userId: string) {
     return `@no-more-later/premium-test-override:${userId}`;
 }

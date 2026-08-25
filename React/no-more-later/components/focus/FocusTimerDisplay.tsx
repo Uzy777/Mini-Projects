@@ -16,18 +16,32 @@ type FocusTimerDisplayProps = {
     label?: string;
     hint?: string;
     mode?: TimerMode;
+    timerStyleOverride?: TimerStyleId;
+    sizeOverride?: number;
+    preview?: boolean;
 };
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const BLOCK_COUNT = 12;
 
-export function FocusTimerDisplay({ seconds, totalSeconds = seconds, label = "FOCUS TIME", hint = "Stay with this Quest until the timer ends.", mode = "focus" }: FocusTimerDisplayProps) {
-    const { colours, timerStyle } = useAppearance();
+export function FocusTimerDisplay({
+    seconds,
+    totalSeconds = seconds,
+    label = "FOCUS TIME",
+    hint = "Stay with this Quest until the timer ends.",
+    mode = "focus",
+    timerStyleOverride,
+    sizeOverride,
+    preview = false,
+}: FocusTimerDisplayProps) {
+    const { colours, timerStyle: selectedTimerStyle } = useAppearance();
     const { width } = useWindowDimensions();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
+    const timerStyle = timerStyleOverride ?? selectedTimerStyle;
     const tone = getTimerTone(mode, colours);
-    const size = Math.min(238, Math.max(184, width - 112));
+    const responsiveSize = Math.min(238, Math.max(184, width - 112));
+    const size = sizeOverride ?? responsiveSize;
     const strokeWidth = 10;
     const ringRadius = (size - strokeWidth) / 2;
     const circumference = 2 * Math.PI * ringRadius;
@@ -63,10 +77,10 @@ export function FocusTimerDisplay({ seconds, totalSeconds = seconds, label = "FO
     });
 
     return (
-        <View style={styles.timerSection}>
-            <Text style={styles.label}>{label}</Text>
+        <View style={[styles.timerSection, preview && styles.timerSectionPreview]}>
+            {label ? <Text style={styles.label}>{label}</Text> : null}
             {timerVisual}
-            <Text style={styles.hint}>{hint}</Text>
+            {hint ? <Text style={styles.hint}>{hint}</Text> : null}
         </View>
     );
 }
@@ -194,6 +208,9 @@ function createStyles(colours: AppColours) {
             width: "100%",
             marginTop: spacing.xl,
             alignItems: "center",
+        },
+        timerSectionPreview: {
+            marginTop: 0,
         },
         label: {
             alignSelf: "flex-start",

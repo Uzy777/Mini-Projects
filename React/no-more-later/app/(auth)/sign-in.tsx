@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { Link, useRouter } from "expo-router";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { LockKeyhole, Mail } from "lucide-react-native";
 import Animated, { FadeInDown, useReducedMotion } from "react-native-reanimated";
 
@@ -18,6 +18,7 @@ export default function SignInScreen() {
 
     const router = useRouter();
     const reduceMotion = useReducedMotion();
+    const { notice } = useLocalSearchParams<{ notice?: string }>();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -101,6 +102,12 @@ export default function SignInScreen() {
                 />
             </View>
 
+            {notice ? (
+                <Animated.View entering={reduceMotion ? undefined : FadeInDown.duration(220)} style={styles.noticeBox}>
+                    <Text style={styles.noticeText}>{notice}</Text>
+                </Animated.View>
+            ) : null}
+
             {validationMessage ? (
                 <Animated.View entering={reduceMotion ? undefined : FadeInDown.duration(220)} style={styles.errorBox}>
                     <Text style={styles.errorText}>{validationMessage}</Text>
@@ -151,6 +158,23 @@ function createStyles(colours: AppColours) {
             borderRadius: radius.md,
 
             backgroundColor: colours.dangerSoft,
+        },
+
+        noticeBox: {
+            padding: spacing.md,
+
+            borderWidth: 1,
+            borderColor: colours.primaryBorder,
+            borderRadius: radius.md,
+
+            backgroundColor: colours.primarySoft,
+        },
+
+        noticeText: {
+            fontSize: 13,
+            lineHeight: 19,
+
+            color: colours.primaryStrong,
         },
 
         errorText: {

@@ -10,6 +10,7 @@ import "react-native-reanimated";
 import { AUTH_COLOURS } from "@/constants/appearanceColours";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AppearanceProvider, useAppearance } from "@/contexts/AppearanceContext";
+import { OnboardingProvider, useOnboarding } from "@/contexts/OnboardingContext";
 import { PremiumProvider } from "@/contexts/PremiumContext";
 import {
     reconcileFocusNotificationWithStoredSession,
@@ -22,17 +23,20 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
     return (
         <AuthProvider>
-            <PremiumProvider>
-                <AppearanceProvider>
-                    <AppShell />
-                </AppearanceProvider>
-            </PremiumProvider>
+            <OnboardingProvider>
+                <PremiumProvider>
+                    <AppearanceProvider>
+                        <AppShell />
+                    </AppearanceProvider>
+                </PremiumProvider>
+            </OnboardingProvider>
         </AuthProvider>
     );
 }
 
 function AppShell() {
     const { colours, resolvedColourMode, isAppearanceLoading } = useAppearance();
+    const { isOnboardingLoading } = useOnboarding();
 
     const { session, isLoading: isAuthLoading } = useAuth();
 
@@ -60,12 +64,12 @@ function AppShell() {
     }, [shellColours, shellColourMode]);
 
     useEffect(() => {
-        if (!isAppearanceLoading && !isAuthLoading) {
+        if (!isAppearanceLoading && !isAuthLoading && !isOnboardingLoading) {
             SplashScreen.hideAsync();
         }
-    }, [isAppearanceLoading, isAuthLoading]);
+    }, [isAppearanceLoading, isAuthLoading, isOnboardingLoading]);
 
-    if (isAppearanceLoading || isAuthLoading) {
+    if (isAppearanceLoading || isAuthLoading || isOnboardingLoading) {
         return null;
     }
 
@@ -80,6 +84,7 @@ function AppShell() {
 
 function RootNavigator() {
     const { session, isLoading } = useAuth();
+    const { hasCompletedOnboarding, isOnboardingLoading } = useOnboarding();
     const { colours } = useAppearance();
     const router = useRouter();
 
@@ -101,7 +106,7 @@ function RootNavigator() {
         }
     }, [isLoading, session]);
 
-    if (isLoading) {
+    if (isLoading || isOnboardingLoading) {
         return null;
     }
 
@@ -121,7 +126,16 @@ function RootNavigator() {
                 headerShadowVisible: false,
             }}
         >
-            <Stack.Protected guard={!session}>
+            <Stack.Protected guard={!session && !hasCompletedOnboarding}>
+                <Stack.Screen
+                    name="onboarding"
+                    options={{
+                        headerShown: false,
+                    }}
+                />
+            </Stack.Protected>
+
+            <Stack.Protected guard={!session && hasCompletedOnboarding}>
                 <Stack.Screen
                     name="(auth)"
                     options={{
