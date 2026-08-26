@@ -2,7 +2,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native
 
 import { Stack, type Href, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as SplashScreen from "expo-splash-screen";
 
 import "react-native-reanimated";
@@ -13,10 +13,12 @@ import { AppearanceProvider, useAppearance } from "@/contexts/AppearanceContext"
 import { OnboardingProvider, useOnboarding } from "@/contexts/OnboardingContext";
 import { PremiumProvider } from "@/contexts/PremiumContext";
 import {
+    clearFocusNotifications,
+    getFocusNotificationPermissionState,
     reconcileFocusNotificationWithStoredSession,
-    removeRunningFocusNotification,
     subscribeToFocusNotificationPress,
 } from "@/services/notifications/focusNotificationService";
+import { getNotificationEducationCompleted } from "@/services/storage/notificationEducationStorage";
 import { Platform } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
@@ -88,6 +90,7 @@ function RootNavigator() {
     const { hasCompletedOnboarding, isOnboardingLoading } = useOnboarding();
     const { colours } = useAppearance();
     const router = useRouter();
+    const notificationEducationCheckRef = useRef<string | null>(null);
 
     useEffect(() => {
         return subscribeToFocusNotificationPress((route) => {
@@ -103,9 +106,46 @@ function RootNavigator() {
         if (session) {
             void reconcileFocusNotificationWithStoredSession();
         } else {
-            void removeRunningFocusNotification();
+            void clearFocusNotifications();
         }
     }, [isLoading, session]);
+
+    useEffect(() => {
+        if (isLoading || !session || Platform.OS === "web") {
+            if (!session) notificationEducationCheckRef.current = null;
+            return;
+        }
+
+        const userId = session.user.id;
+        if (notificationEducationCheckRef.current === userId) {
+            return;
+        }
+
+        notificationEducationCheckRef.current = userId;
+        let isCurrent = true;
+
+        Promise.all([getNotificationEducationCompleted(), getFocusNotificationPermissionState()])
+            .then(([hasSeenEducation, permissionState]) => {
+                if (!isCurrent || hasSeenEducation) {
+                    return;
+                }
+
+                const shouldShowEducation =
+                    permissionState === "not-determined" ||
+                    (Platform.OS === "android" && permissionState === "denied");
+
+                if (shouldShowEducation) {
+                    router.push("/notifications?education=true" as Href);
+                }
+            })
+            .catch((error) => {
+                console.warn("Failed to prepare notification education:", error);
+            });
+
+        return () => {
+            isCurrent = false;
+        };
+    }, [isLoading, router, session]);
 
     if (isLoading || isOnboardingLoading) {
         return null;
@@ -200,6 +240,13 @@ function RootNavigator() {
                     name="appearance"
                     options={{
                         title: "Appearance",
+                    }}
+                />
+
+                <Stack.Screen
+                    name="notifications"
+                    options={{
+                        title: "Notifications",
                     }}
                 />
             </Stack.Protected>

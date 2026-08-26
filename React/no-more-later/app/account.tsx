@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Switch, Text, useWindowDimensions, View, Platform } from "react-native";
-import { Stack, router } from "expo-router";
-import { ChevronRight, LogOut, Palette, ShieldCheck, Trash2, UserRoundPen } from "lucide-react-native";
+import { Stack, router, type Href } from "expo-router";
+import { BellRing, ChevronRight, LogOut, Palette, ShieldCheck, Trash2, UserRoundPen } from "lucide-react-native";
 
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { DeleteAccountModal } from "@/components/account/DeleteAccountModal";
@@ -14,7 +14,7 @@ import { getScreenGutter, radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { deleteAccount, signOut } from "@/services/auth/authService";
-import { removeRunningFocusNotification } from "@/services/notifications/focusNotificationService";
+import { clearFocusNotifications } from "@/services/notifications/focusNotificationService";
 import { updateLeaderboardAnonymity } from "@/services/profile/profileService";
 import { clearNoMoreLaterStorage } from "@/services/storage/resetAppStorage";
 
@@ -94,7 +94,7 @@ export default function AccountScreen() {
             return;
         }
 
-        const cleanupResults = await Promise.allSettled([removeRunningFocusNotification(), clearNoMoreLaterStorage()]);
+        const cleanupResults = await Promise.allSettled([clearFocusNotifications(), clearNoMoreLaterStorage()]);
 
         cleanupResults.forEach((result) => {
             if (result.status === "rejected") {
@@ -159,6 +159,25 @@ export default function AccountScreen() {
 
                             <ChevronRight size={18} color={colours.textMuted} />
                         </AnimatedPressable>
+
+                        {Platform.OS !== "web" ? (
+                            <>
+                                <View style={styles.rowDivider} />
+
+                                <AnimatedPressable style={styles.settingRow} onPress={() => router.push("/notifications" as Href)}>
+                                    <View style={styles.settingIcon}>
+                                        <BellRing size={19} color={colours.primary} />
+                                    </View>
+
+                                    <View style={styles.settingDetails}>
+                                        <Text style={styles.settingTitle}>Notifications</Text>
+                                        <Text style={styles.settingDescription}>Focus completion alerts</Text>
+                                    </View>
+
+                                    <ChevronRight size={18} color={colours.textMuted} />
+                                </AnimatedPressable>
+                            </>
+                        ) : null}
                     </View>
                 </View>
 

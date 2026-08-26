@@ -29,6 +29,7 @@ import { MINIMUM_XP_FOCUS_SECONDS } from "@/constants/xp";
 import { BadgeUnlockCelebration } from "@/components/badges/BadgeUnlockCelebration";
 import { evaluateBadgeUnlocks, getMyTotalXp } from "@/services/badges/badgeService";
 import type { BadgeUnlockAward } from "@/types/badges";
+import { clearFocusNotifications } from "@/services/notifications/focusNotificationService";
 
 export default function ReviewSessionScreen() {
     const { colours } = useAppearance();
@@ -261,6 +262,7 @@ export default function ReviewSessionScreen() {
             const updatedLevel = calculateLevel(updatedTotalXp);
 
             await clearActiveFocusSession();
+            await clearFocusNotifications();
 
             setEarnedXp(reviewAwardXp);
             setTotalXp(updatedTotalXp);

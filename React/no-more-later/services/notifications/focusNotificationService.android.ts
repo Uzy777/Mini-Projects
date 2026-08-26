@@ -2,6 +2,7 @@ import notifee, {
     AndroidCategory,
     AndroidForegroundServiceType,
     AndroidImportance,
+    AuthorizationStatus,
     EventType,
     type Event,
     type Notification,
@@ -11,6 +12,7 @@ import { Platform } from "react-native";
 import { getActiveFocusSession, saveActiveFocusSession } from "@/services/storage/activeFocusSessionStorage";
 import { finishRemoteFocusRun } from "@/services/focusSessions/focusRunService";
 import type { ActiveFocusSession, FocusTimelineEvent } from "@/types/models";
+import type { FocusNotificationPermissionState } from "@/services/notifications/focusNotificationTypes";
 
 const FOCUS_CHANNEL_ID = "focus-sessions";
 const LEGACY_FOCUS_COMPLETE_CHANNEL_ID = "focus-session-complete";
@@ -128,6 +130,56 @@ export async function removeRunningFocusNotification(): Promise<void> {
         await notifee.stopForegroundService();
         await notifee.cancelNotification(FOCUS_NOTIFICATION_ID);
     });
+}
+
+export async function clearFocusNotifications(): Promise<void> {
+    if (Platform.OS !== "android") {
+        return;
+    }
+
+    await safelyRunNotificationAction("clear Focus notifications", async () => {
+        await Promise.all([
+            notifee.stopForegroundService(),
+            notifee.cancelNotification(FOCUS_NOTIFICATION_ID),
+            notifee.cancelNotification(FOCUS_COMPLETE_NOTIFICATION_ID),
+        ]);
+    });
+}
+
+export async function getFocusNotificationPermissionState(): Promise<FocusNotificationPermissionState> {
+    if (Platform.OS !== "android") {
+        return "unavailable";
+    }
+
+    try {
+        const settings = await notifee.getNotificationSettings();
+        return settings.authorizationStatus === AuthorizationStatus.AUTHORIZED ? "authorized" : "denied";
+    } catch (error) {
+        console.warn("Failed to inspect Android notification permission:", error);
+        return "unavailable";
+    }
+}
+
+export async function requestFocusNotificationPermission(): Promise<FocusNotificationPermissionState> {
+    if (Platform.OS !== "android") {
+        return "unavailable";
+    }
+
+    try {
+        const settings = await notifee.requestPermission();
+        return settings.authorizationStatus === AuthorizationStatus.AUTHORIZED ? "authorized" : "denied";
+    } catch (error) {
+        console.warn("Failed to request Android notification permission:", error);
+        return "unavailable";
+    }
+}
+
+export async function openFocusNotificationSettings(): Promise<void> {
+    if (Platform.OS !== "android") {
+        return;
+    }
+
+    await safelyRunNotificationAction("open Android notification settings", () => notifee.openNotificationSettings());
 }
 
 export async function showFocusSessionCompleteNotification(session: ActiveFocusSession): Promise<void> {
