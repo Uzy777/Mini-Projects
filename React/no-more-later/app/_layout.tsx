@@ -17,6 +17,7 @@ import {
     removeRunningFocusNotification,
     subscribeToFocusNotificationPress,
 } from "@/services/notifications/focusNotificationService";
+import { Platform } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -124,6 +125,12 @@ function RootNavigator() {
                 },
 
                 headerShadowVisible: false,
+
+                ...(Platform.OS === "ios"
+                    ? {
+                          headerBackButtonDisplayMode: "minimal",
+                      }
+                    : {}),
             }}
         >
             <Stack.Protected guard={!session && !hasCompletedOnboarding}>
