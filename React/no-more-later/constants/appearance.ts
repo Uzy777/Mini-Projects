@@ -144,14 +144,14 @@ export const TIMER_STYLE_OPTIONS: TimerStyleOption[] = [
     },
     {
         id: "segmented",
-        name: "Segments",
-        description: "A precision dial with a measured segmented arc.",
+        name: "Focus Pulse",
+        description: "A smooth waveform that fades with the countdown.",
         requiresPremium: true,
     },
     {
         id: "soft",
-        name: "Soft Dial",
-        description: "An open, low-contrast dial with a calm centre.",
+        name: "Flip Clock",
+        description: "A retro split-flap clock with animated digits.",
         requiresPremium: true,
     },
     {

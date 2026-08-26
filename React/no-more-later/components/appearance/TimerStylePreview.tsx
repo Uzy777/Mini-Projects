@@ -1,16 +1,12 @@
 import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import Svg, { Circle, Defs, Mask } from "react-native-svg";
+import Svg, { Circle } from "react-native-svg";
 
 import { radius } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import type { TimerStyleId } from "@/types/appearance";
-
-const PREVIEW_RING_SIZE = 76;
-const PREVIEW_RING_RADIUS = 32;
-const PREVIEW_CIRCUMFERENCE = 2 * Math.PI * PREVIEW_RING_RADIUS;
 
 export function TimerStylePreview({ timerStyle }: { timerStyle: TimerStyleId }) {
     const { colours } = useAppearance();
@@ -26,56 +22,19 @@ export function TimerStylePreview({ timerStyle }: { timerStyle: TimerStyleId }) 
     }
 
     if (timerStyle === "soft") {
-        const softArcLength = PREVIEW_CIRCUMFERENCE * 0.76;
-
         return (
             <View style={styles.preview}>
-                <View style={styles.softDial}>
-                    <Svg width={PREVIEW_RING_SIZE} height={PREVIEW_RING_SIZE} style={StyleSheet.absoluteFillObject}>
-                        <Defs>
-                            <Mask id="soft-preview-mask">
-                                <Circle
-                                    cx={38}
-                                    cy={38}
-                                    r={PREVIEW_RING_RADIUS}
-                                    fill="none"
-                                    stroke="#ffffff"
-                                    strokeWidth={7}
-                                    strokeDasharray={`${softArcLength} ${PREVIEW_CIRCUMFERENCE}`}
-                                    strokeLinecap="round"
-                                    rotation="133"
-                                    origin="38, 38"
-                                />
-                            </Mask>
-                        </Defs>
-                        <Circle
-                            cx={38}
-                            cy={38}
-                            r={PREVIEW_RING_RADIUS}
-                            fill="none"
-                            stroke={colours.primarySoft}
-                            strokeWidth={7}
-                            strokeDasharray={`${softArcLength} ${PREVIEW_CIRCUMFERENCE}`}
-                            strokeLinecap="round"
-                            rotation="133"
-                            origin="38, 38"
-                        />
-                        <Circle
-                            mask="url(#soft-preview-mask)"
-                            cx={38}
-                            cy={38}
-                            r={PREVIEW_RING_RADIUS}
-                            fill="none"
-                            stroke={colours.primary}
-                            strokeWidth={7}
-                            strokeDasharray={`${softArcLength * 0.68} ${PREVIEW_CIRCUMFERENCE}`}
-                            strokeLinecap="round"
-                            rotation="133"
-                            origin="38, 38"
-                        />
-                    </Svg>
-                    <View style={styles.softPreviewFace}>
-                        <Text style={styles.time}>25:00</Text>
+                <View style={styles.flipPreviewCard}>
+                    <Text style={styles.flipPreviewEyebrow}>FLIP CLOCK</Text>
+                    <View style={styles.flipPreviewRow}>
+                        {["2", "5", "0", "0"].map((digit, index) => (
+                            <View key={index} style={styles.flipPreviewGroup}>
+                                {index === 2 ? <Text style={styles.flipPreviewColon}>:</Text> : null}
+                                <View style={styles.flipPreviewDigit}>
+                                    <Text style={styles.flipPreviewNumber}>{digit}</Text>
+                                </View>
+                            </View>
+                        ))}
                     </View>
                 </View>
             </View>
@@ -110,56 +69,18 @@ export function TimerStylePreview({ timerStyle }: { timerStyle: TimerStyleId }) 
     const isConcentric = timerStyle === "concentric";
 
     if (isSegmented) {
-        const segmentStep = PREVIEW_CIRCUMFERENCE / 36;
-        const segmentLength = segmentStep * 0.58;
-        const segmentGap = segmentStep - segmentLength;
-
         return (
             <View style={styles.preview}>
-                <View style={[styles.ringPreview, styles.segmentedBackground]}>
-                    <Svg width={PREVIEW_RING_SIZE} height={PREVIEW_RING_SIZE} style={StyleSheet.absoluteFillObject}>
-                        <Defs>
-                            <Mask id="segmented-preview-mask">
-                                <Circle
-                                    cx={38}
-                                    cy={38}
-                                    r={PREVIEW_RING_RADIUS}
-                                    fill="none"
-                                    stroke="#ffffff"
-                                    strokeWidth={6}
-                                    strokeDasharray={`${segmentLength} ${segmentGap}`}
-                                    strokeLinecap="round"
-                                />
-                            </Mask>
-                        </Defs>
-                        <Circle
-                            cx={38}
-                            cy={38}
-                            r={PREVIEW_RING_RADIUS}
-                            fill="none"
-                            stroke={colours.primarySoft}
-                            strokeWidth={6}
-                            strokeDasharray={`${segmentLength} ${segmentGap}`}
-                            strokeLinecap="round"
-                        />
-                        <Circle
-                            mask="url(#segmented-preview-mask)"
-                            cx={38}
-                            cy={38}
-                            r={PREVIEW_RING_RADIUS}
-                            fill="none"
-                            stroke={colours.primary}
-                            strokeWidth={6}
-                            strokeDasharray={`${PREVIEW_CIRCUMFERENCE * 0.68} ${PREVIEW_CIRCUMFERENCE}`}
-                            strokeLinecap="round"
-                            rotation="-90"
-                            origin="38, 38"
-                        />
-                        <Circle cx={38} cy={38} r={23} fill="none" stroke={colours.primaryBorder} strokeWidth={1} />
-                    </Svg>
-                    <View style={styles.segmentedPreviewCore}>
-                        <Text style={styles.time}>25:00</Text>
-                        <Text style={styles.segmentedPreviewLabel}>PRECISION</Text>
+                <View style={styles.pulsePreviewCard}>
+                    <View style={styles.pulsePreviewHeader}>
+                        <Text style={styles.pulsePreviewEyebrow}>FOCUS PULSE</Text>
+                        <Text style={styles.pulsePreviewPercent}>68%</Text>
+                    </View>
+                    <Text style={styles.pulsePreviewTime}>25:00</Text>
+                    <View style={styles.pulsePreviewWave}>
+                        {[7, 12, 19, 28, 20, 14, 24, 31, 22, 15, 9].map((height, index) => (
+                            <View key={index} style={[styles.pulsePreviewBar, { height }, index > 6 && styles.pulsePreviewBarInactive]} />
+                        ))}
                     </View>
                 </View>
             </View>
@@ -229,22 +150,55 @@ function createStyles(colours: AppColours) {
             borderRadius: radius.pill,
             backgroundColor: colours.primary,
         },
-        softDial: {
-            width: 78,
-            height: 78,
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: radius.pill,
-        },
-        softPreviewFace: {
-            width: 52,
-            height: 52,
-            alignItems: "center",
-            justifyContent: "center",
+        flipPreviewCard: {
+            width: "84%",
+            paddingHorizontal: 9,
+            paddingVertical: 8,
             borderWidth: 1,
             borderColor: colours.primaryBorder,
-            borderRadius: radius.pill,
+            borderRadius: radius.md,
             backgroundColor: colours.primarySubtle,
+        },
+        flipPreviewEyebrow: {
+            fontSize: 5,
+            fontWeight: "900",
+            letterSpacing: 0.8,
+            color: colours.primaryStrong,
+        },
+        flipPreviewRow: {
+            marginTop: 6,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 3,
+        },
+        flipPreviewGroup: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 3,
+        },
+        flipPreviewDigit: {
+            width: 29,
+            height: 43,
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+            borderWidth: 1,
+            borderColor: colours.primaryBorder,
+            borderRadius: radius.sm,
+            backgroundColor: colours.surface,
+        },
+        flipPreviewNumber: {
+            fontSize: 26,
+            lineHeight: 31,
+            fontWeight: "900",
+            fontVariant: ["tabular-nums"],
+            color: colours.text,
+        },
+        flipPreviewColon: {
+            fontSize: 16,
+            fontWeight: "900",
+            color: colours.primary,
         },
         digitalCard: {
             width: "82%",
@@ -313,25 +267,57 @@ function createStyles(colours: AppColours) {
         blockInactive: {
             backgroundColor: colours.primarySoft,
         },
-        segmentedBackground: {
-            backgroundColor: colours.primarySubtle,
-        },
-        segmentedPreviewCore: {
-            width: 48,
-            height: 48,
-            alignItems: "center",
-            justifyContent: "center",
+        pulsePreviewCard: {
+            width: "84%",
+            minHeight: 90,
+            paddingHorizontal: 10,
+            paddingVertical: 8,
             borderWidth: 1,
             borderColor: colours.primaryBorder,
-            borderRadius: radius.pill,
-            backgroundColor: colours.surface,
+            borderRadius: radius.md,
+            backgroundColor: colours.primarySubtle,
         },
-        segmentedPreviewLabel: {
-            marginTop: 1,
+        pulsePreviewHeader: {
+            width: "100%",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+        },
+        pulsePreviewEyebrow: {
             fontSize: 5,
             fontWeight: "900",
-            letterSpacing: 0.6,
+            letterSpacing: 0.7,
             color: colours.primaryStrong,
+        },
+        pulsePreviewPercent: {
+            fontSize: 6,
+            fontWeight: "900",
+            color: colours.primaryStrong,
+        },
+        pulsePreviewTime: {
+            marginTop: 2,
+            fontSize: 20,
+            lineHeight: 24,
+            fontWeight: "900",
+            fontVariant: ["tabular-nums"],
+            color: colours.text,
+        },
+        pulsePreviewWave: {
+            height: 32,
+            marginTop: 3,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 3,
+        },
+        pulsePreviewBar: {
+            flex: 1,
+            maxWidth: 7,
+            borderRadius: radius.pill,
+            backgroundColor: colours.primary,
+        },
+        pulsePreviewBarInactive: {
+            backgroundColor: colours.primarySoft,
         },
     });
 }

@@ -1,7 +1,7 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
-import Svg, { Circle, Defs, Mask } from "react-native-svg";
-import Animated, { Easing, useAnimatedProps, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming, type SharedValue } from "react-native-reanimated";
+import Svg, { Circle } from "react-native-svg";
+import Animated, { cancelAnimation, Easing, Extrapolation, interpolate, useAnimatedProps, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming, type SharedValue } from "react-native-reanimated";
 
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
@@ -23,6 +23,7 @@ type FocusTimerDisplayProps = {
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const BLOCK_COUNT = 12;
+const PULSE_BAR_HEIGHTS = [14, 22, 32, 46, 60, 42, 28, 50, 64, 48, 34, 24, 16];
 
 export function FocusTimerDisplay({
     seconds,
@@ -53,16 +54,11 @@ export function FocusTimerDisplay({
     useEffect(() => {
         animatedProgress.value = reduceMotion
             ? safeProgress
-            : withTiming(safeProgress, { duration: 420, easing: Easing.out(Easing.cubic) });
+            : withTiming(safeProgress, { duration: 900, easing: Easing.linear });
     }, [animatedProgress, reduceMotion, safeProgress]);
 
     const animatedCircleProps = useAnimatedProps(() => ({
         strokeDashoffset: circumference * (1 - animatedProgress.value),
-    }));
-
-    const softArcLength = circumference * 0.76;
-    const animatedSoftCircleProps = useAnimatedProps(() => ({
-        strokeDashoffset: circumference - softArcLength * animatedProgress.value,
     }));
 
     const animatedBarStyle = useAnimatedStyle<{ width: `${number}%` }>(() => ({
@@ -81,9 +77,9 @@ export function FocusTimerDisplay({
         colours,
         styles,
         animatedCircleProps,
-        animatedSoftCircleProps,
         animatedBarStyle,
         animatedProgress,
+        reduceMotion,
     });
 
     return (
@@ -107,12 +103,12 @@ type TimerVisualProps = {
     colours: AppColours;
     styles: ReturnType<typeof createStyles>;
     animatedCircleProps: ReturnType<typeof useAnimatedProps>;
-    animatedSoftCircleProps: ReturnType<typeof useAnimatedProps>;
     animatedBarStyle: { width: `${number}%` };
     animatedProgress: SharedValue<number>;
+    reduceMotion: boolean;
 };
 
-function renderTimerVisual({ timerStyle, formattedTime, timerState, size, ringRadius, circumference, safeProgress, tone, colours, styles, animatedCircleProps, animatedSoftCircleProps, animatedBarStyle, animatedProgress }: TimerVisualProps) {
+function renderTimerVisual({ timerStyle, formattedTime, timerState, size, ringRadius, circumference, safeProgress, tone, colours, styles, animatedCircleProps, animatedBarStyle, animatedProgress, reduceMotion }: TimerVisualProps) {
     const timerCopy = (
         <View style={styles.timerCopy}>
             <Text style={styles.timerText}>{formattedTime}</Text>
@@ -133,68 +129,15 @@ function renderTimerVisual({ timerStyle, formattedTime, timerState, size, ringRa
     }
 
     if (timerStyle === "soft") {
-        const softArcLength = circumference * 0.76;
-
         return (
-            <View style={[styles.softContainer, { width: size, height: size }]}>
-                <Svg width={size} height={size} style={StyleSheet.absoluteFillObject}>
-                    <Defs>
-                        <Mask id="soft-dial-mask">
-                            <Circle
-                                cx={size / 2}
-                                cy={size / 2}
-                                r={ringRadius}
-                                fill="none"
-                                stroke="#ffffff"
-                                strokeWidth={14}
-                                strokeDasharray={`${softArcLength} ${circumference}`}
-                                strokeLinecap="round"
-                                rotation="133"
-                                origin={`${size / 2}, ${size / 2}`}
-                            />
-                        </Mask>
-                    </Defs>
-                    <Circle
-                        cx={size / 2}
-                        cy={size / 2}
-                        r={ringRadius}
-                        fill="none"
-                        stroke={tone.track}
-                        strokeWidth={14}
-                        strokeDasharray={`${softArcLength} ${circumference}`}
-                        strokeLinecap="round"
-                        rotation="133"
-                        origin={`${size / 2}, ${size / 2}`}
-                    />
-                    <AnimatedCircle
-                        animatedProps={animatedSoftCircleProps}
-                        mask="url(#soft-dial-mask)"
-                        cx={size / 2}
-                        cy={size / 2}
-                        r={ringRadius}
-                        fill="none"
-                        stroke={tone.active}
-                        strokeWidth={14}
-                        strokeLinecap="round"
-                        strokeDasharray={`${circumference} ${circumference}`}
-                        rotation="133"
-                        origin={`${size / 2}, ${size / 2}`}
-                    />
-                </Svg>
-                <View
-                    style={[
-                        styles.softFace,
-                        {
-                            width: size * 0.7,
-                            height: size * 0.7,
-                            borderRadius: size,
-                            borderColor: tone.track,
-                            backgroundColor: tone.soft,
-                        },
-                    ]}
-                >
-                    <Text style={styles.softTime}>{formattedTime}</Text>
-                    <Text style={[styles.softState, { color: tone.strong }]}>{timerState}</Text>
+            <View style={[styles.flipClockContainer, { borderColor: tone.track, backgroundColor: tone.soft }]}>
+                <View style={styles.flipClockHeader}>
+                    <Text style={[styles.flipClockEyebrow, { color: tone.strong }]}>FLIP CLOCK</Text>
+                    <Text style={styles.flipClockState}>{timerState}</Text>
+                </View>
+                <FlipClock time={formattedTime} reduceMotion={reduceMotion} colours={colours} tone={tone} styles={styles} />
+                <View style={[styles.flipClockRail, { backgroundColor: tone.track }]}>
+                    <Animated.View style={[styles.flipClockRailFill, { backgroundColor: tone.active }, animatedBarStyle]} />
                 </View>
             </View>
         );
@@ -237,65 +180,26 @@ function renderTimerVisual({ timerStyle, formattedTime, timerState, size, ringRa
     const isConcentric = timerStyle === "concentric";
 
     if (isSegmented) {
-        const segmentStep = circumference / 36;
-        const segmentLength = segmentStep * 0.58;
-        const segmentGap = segmentStep - segmentLength;
-
         return (
-            <View style={[styles.timerContainer, styles.segmentedContainer, { width: size, height: size }]}>
-                <Svg width={size} height={size} style={StyleSheet.absoluteFillObject}>
-                    <Defs>
-                        <Mask id="segmented-dial-mask">
-                            <Circle
-                                cx={size / 2}
-                                cy={size / 2}
-                                r={ringRadius}
-                                fill="none"
-                                stroke="#ffffff"
-                                strokeWidth={10}
-                                strokeDasharray={`${segmentLength} ${segmentGap}`}
-                                strokeLinecap="round"
-                            />
-                        </Mask>
-                    </Defs>
-                    <Circle
-                        cx={size / 2}
-                        cy={size / 2}
-                        r={ringRadius}
-                        fill="none"
-                        stroke={tone.track}
-                        strokeWidth={10}
-                        strokeDasharray={`${segmentLength} ${segmentGap}`}
-                        strokeLinecap="round"
-                    />
-                    <AnimatedCircle
-                        animatedProps={animatedCircleProps}
-                        mask="url(#segmented-dial-mask)"
-                        cx={size / 2}
-                        cy={size / 2}
-                        r={ringRadius}
-                        fill="none"
-                        stroke={tone.active}
-                        strokeWidth={10}
-                        strokeLinecap="round"
-                        strokeDasharray={`${circumference} ${circumference}`}
-                        rotation="-90"
-                        origin={`${size / 2}, ${size / 2}`}
-                    />
-                    <Circle
-                        cx={size / 2}
-                        cy={size / 2}
-                        r={ringRadius - 18}
-                        fill="none"
-                        stroke={tone.track}
-                        strokeOpacity={0.72}
-                        strokeWidth={1}
-                    />
-                </Svg>
-                <View style={[styles.segmentedCore, { borderColor: tone.track, backgroundColor: colours.surface }]}>
-                    <Text style={styles.segmentedTime}>{formattedTime}</Text>
-                    <Text style={[styles.segmentedLabel, { color: tone.strong }]}>PRECISION DIAL</Text>
-                    <Text style={styles.segmentedState}>{timerState}</Text>
+            <View style={[styles.pulseContainer, { borderColor: tone.track, backgroundColor: tone.soft }]}>
+                <View style={styles.pulseHeader}>
+                    <Text style={[styles.pulseEyebrow, { color: tone.strong }]}>FOCUS PULSE</Text>
+                    <Text style={[styles.pulsePercent, { color: tone.strong }]}>{Math.round(safeProgress * 100)}%</Text>
+                </View>
+                <Text style={styles.pulseTime}>{formattedTime}</Text>
+                <Text style={styles.pulseState}>{timerState}</Text>
+                <View style={styles.pulseWave}>
+                    {PULSE_BAR_HEIGHTS.map((height, index) => (
+                        <PulseBar
+                            key={index}
+                            index={index}
+                            height={height}
+                            progress={animatedProgress}
+                            trackColor={tone.track}
+                            activeColor={tone.active}
+                            styles={styles}
+                        />
+                    ))}
                 </View>
             </View>
         );
@@ -329,6 +233,132 @@ function renderTimerVisual({ timerStyle, formattedTime, timerState, size, ringRa
                 {isConcentric ? <Circle cx={size / 2} cy={size / 2} r={ringRadius - 18} fill="none" stroke={tone.active} strokeOpacity={0.32} strokeWidth={2} /> : null}
             </Svg>
             {isConcentric ? <View style={[styles.concentricCore, { borderColor: tone.track }]}>{timerCopy}</View> : timerCopy}
+        </View>
+    );
+}
+
+function FlipClock({
+    time,
+    reduceMotion,
+    colours,
+    tone,
+    styles,
+}: {
+    time: string;
+    reduceMotion: boolean;
+    colours: AppColours;
+    tone: ReturnType<typeof getTimerTone>;
+    styles: ReturnType<typeof createStyles>;
+}) {
+    const [minutes, seconds] = time.split(":");
+    const compact = minutes.length > 2;
+
+    return (
+        <View style={styles.flipClockRow} accessible accessibilityLabel={time}>
+            {minutes.split("").map((digit, index) => (
+                <FlipDigit key={`minute-${minutes.length - index}`} digit={digit} compact={compact} reduceMotion={reduceMotion} colours={colours} tone={tone} styles={styles} />
+            ))}
+            <View style={styles.flipClockColon}>
+                <View style={[styles.flipClockColonDot, { backgroundColor: tone.active }]} />
+                <View style={[styles.flipClockColonDot, { backgroundColor: tone.active }]} />
+            </View>
+            {seconds.split("").map((digit, index) => (
+                <FlipDigit key={`second-${index}`} digit={digit} compact={compact} reduceMotion={reduceMotion} colours={colours} tone={tone} styles={styles} />
+            ))}
+        </View>
+    );
+}
+
+function FlipDigit({
+    digit,
+    compact,
+    reduceMotion,
+    colours,
+    tone,
+    styles,
+}: {
+    digit: string;
+    compact: boolean;
+    reduceMotion: boolean;
+    colours: AppColours;
+    tone: ReturnType<typeof getTimerTone>;
+    styles: ReturnType<typeof createStyles>;
+}) {
+    const lastDigit = useRef(digit);
+    const [previousDigit, setPreviousDigit] = useState(digit);
+    const [currentDigit, setCurrentDigit] = useState(digit);
+    const flipProgress = useSharedValue(1);
+
+    useEffect(() => {
+        if (lastDigit.current === digit) return;
+
+        cancelAnimation(flipProgress);
+        flipProgress.value = 0;
+        setPreviousDigit(lastDigit.current);
+        setCurrentDigit(digit);
+        lastDigit.current = digit;
+    }, [digit, flipProgress]);
+
+    useEffect(() => {
+        if (currentDigit === previousDigit) return;
+
+        flipProgress.value = reduceMotion
+            ? 1
+            : withTiming(1, { duration: 720, easing: Easing.bezier(0.22, 0.72, 0.28, 1) });
+    }, [currentDigit, flipProgress, previousDigit, reduceMotion]);
+
+    const outgoingStyle = useAnimatedStyle(() => ({
+        opacity: interpolate(flipProgress.value, [0.48, 0.54], [1, 0], Extrapolation.CLAMP),
+        transform: [
+            { perspective: 900 },
+            { rotateX: `${interpolate(flipProgress.value, [0, 0.52], [0, -90], Extrapolation.CLAMP)}deg` },
+        ],
+    }));
+
+    const incomingStyle = useAnimatedStyle(() => ({
+        opacity: interpolate(flipProgress.value, [0.44, 0.52], [0, 1], Extrapolation.CLAMP),
+        transform: [
+            { perspective: 900 },
+            { rotateX: `${interpolate(flipProgress.value, [0.46, 1], [90, 0], Extrapolation.CLAMP)}deg` },
+        ],
+    }));
+
+    return (
+        <View style={[styles.flipDigit, compact && styles.flipDigitCompact, { borderColor: tone.track, backgroundColor: colours.surface }]} accessible={false}>
+            <Animated.View style={[styles.flipDigitFace, { backgroundColor: colours.surface }, outgoingStyle]}>
+                <Text style={[styles.flipDigitText, compact && styles.flipDigitTextCompact]}>{previousDigit}</Text>
+            </Animated.View>
+            <Animated.View style={[styles.flipDigitFace, { backgroundColor: colours.surface }, incomingStyle]}>
+                <Text style={[styles.flipDigitText, compact && styles.flipDigitTextCompact]}>{currentDigit}</Text>
+            </Animated.View>
+        </View>
+    );
+}
+
+function PulseBar({
+    index,
+    height,
+    progress,
+    trackColor,
+    activeColor,
+    styles,
+}: {
+    index: number;
+    height: number;
+    progress: SharedValue<number>;
+    trackColor: string;
+    activeColor: string;
+    styles: ReturnType<typeof createStyles>;
+}) {
+    const animatedFillStyle = useAnimatedStyle<{ height: `${number}%` }>(() => {
+        const barProgress = Math.min(1, Math.max(0, progress.value * PULSE_BAR_HEIGHTS.length - index));
+
+        return { height: `${barProgress * 100}%` as `${number}%` };
+    });
+
+    return (
+        <View style={[styles.pulseBarTrack, { height, backgroundColor: trackColor }]}>
+            <Animated.View style={[styles.pulseBarFill, { backgroundColor: activeColor }, animatedFillStyle]} />
         </View>
     );
 }
@@ -451,76 +481,166 @@ function createStyles(colours: AppColours) {
             height: "100%",
             borderRadius: radius.pill,
         },
-        softContainer: {
+        flipClockContainer: {
+            width: "100%",
+            maxWidth: 342,
+            minHeight: 220,
             marginTop: spacing.md,
+            padding: spacing.lg,
+            borderWidth: 1,
+            borderRadius: radius.xl,
+            shadowColor: colours.primaryStrong,
+            shadowOffset: { width: 0, height: 10 },
+            shadowOpacity: 0.09,
+            shadowRadius: 20,
+            elevation: 2,
+        },
+        flipClockHeader: {
+            width: "100%",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: spacing.sm,
+        },
+        flipClockEyebrow: {
+            fontSize: 9,
+            fontWeight: "900",
+            letterSpacing: 1.3,
+        },
+        flipClockState: {
+            flexShrink: 1,
+            fontSize: 10,
+            fontWeight: "700",
+            textAlign: "right",
+            color: colours.textMuted,
+        },
+        flipClockRow: {
+            width: "100%",
+            marginTop: spacing.lg,
+            flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
-            borderRadius: radius.pill,
+            gap: 5,
         },
-        softFace: {
+        flipDigit: {
+            width: 54,
+            height: 82,
+            overflow: "hidden",
             alignItems: "center",
             justifyContent: "center",
             borderWidth: 1,
-            shadowColor: colours.primaryStrong,
-            shadowOffset: { width: 0, height: 8 },
-            shadowOpacity: 0.08,
-            shadowRadius: 18,
-            elevation: 2,
+            borderRadius: radius.md,
         },
-        softTime: {
-            fontSize: 44,
-            lineHeight: 52,
-            fontWeight: "800",
+        flipDigitCompact: {
+            width: 44,
+        },
+        flipDigitFace: {
+            position: "absolute",
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            zIndex: 2,
+            alignItems: "center",
+            justifyContent: "center",
+            backfaceVisibility: "hidden",
+        },
+        flipDigitText: {
+            textAlign: "center",
+            fontSize: 55,
+            lineHeight: 82,
+            fontWeight: "900",
             fontVariant: ["tabular-nums"],
-            letterSpacing: -1.2,
+            letterSpacing: -2,
             color: colours.text,
         },
-        softState: {
-            marginTop: 3,
-            maxWidth: "76%",
+        flipDigitTextCompact: {
+            fontSize: 48,
+            letterSpacing: -1.5,
+        },
+        flipClockColon: {
+            width: 10,
+            height: 34,
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginHorizontal: 1,
+        },
+        flipClockColonDot: {
+            width: 6,
+            height: 6,
+            borderRadius: radius.pill,
+        },
+        flipClockRail: {
+            width: "100%",
+            height: 4,
+            marginTop: spacing.lg,
+            overflow: "hidden",
+            borderRadius: radius.pill,
+        },
+        flipClockRailFill: {
+            height: "100%",
+            borderRadius: radius.pill,
+        },
+        pulseContainer: {
+            width: "100%",
+            maxWidth: 342,
+            minHeight: 232,
+            marginTop: spacing.md,
+            padding: spacing.lg,
+            borderWidth: 1,
+            borderRadius: radius.xl,
+        },
+        pulseHeader: {
+            width: "100%",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+        },
+        pulseEyebrow: {
+            fontSize: 9,
+            fontWeight: "900",
+            letterSpacing: 1.3,
+        },
+        pulsePercent: {
+            fontSize: 11,
+            fontWeight: "900",
+            fontVariant: ["tabular-nums"],
+        },
+        pulseTime: {
+            marginTop: spacing.md,
+            fontSize: 50,
+            lineHeight: 57,
+            fontWeight: "900",
+            fontVariant: ["tabular-nums"],
+            letterSpacing: -1.8,
+            color: colours.text,
+        },
+        pulseState: {
+            marginTop: 1,
             fontSize: 10,
             lineHeight: 14,
             fontWeight: "700",
-            textAlign: "center",
-        },
-        segmentedContainer: {
-            backgroundColor: colours.primarySubtle,
-        },
-        segmentedCore: {
-            width: "68%",
-            height: "68%",
-            alignItems: "center",
-            justifyContent: "center",
-            borderWidth: 1,
-            borderRadius: radius.pill,
-            shadowColor: colours.primaryStrong,
-            shadowOffset: { width: 0, height: 6 },
-            shadowOpacity: 0.07,
-            shadowRadius: 14,
-            elevation: 1,
-        },
-        segmentedTime: {
-            fontSize: 42,
-            lineHeight: 49,
-            fontWeight: "900",
-            fontVariant: ["tabular-nums"],
-            letterSpacing: -1,
-            color: colours.text,
-        },
-        segmentedLabel: {
-            marginTop: 2,
-            fontSize: 8,
-            fontWeight: "900",
-            letterSpacing: 1.2,
-        },
-        segmentedState: {
-            marginTop: 4,
-            maxWidth: "82%",
-            fontSize: 10,
-            lineHeight: 14,
-            fontWeight: "600",
-            textAlign: "center",
             color: colours.textMuted,
+        },
+        pulseWave: {
+            width: "100%",
+            height: 66,
+            marginTop: spacing.md,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 6,
+        },
+        pulseBarTrack: {
+            flex: 1,
+            maxWidth: 12,
+            overflow: "hidden",
+            justifyContent: "flex-end",
+            borderRadius: radius.pill,
+        },
+        pulseBarFill: {
+            width: "100%",
+            borderRadius: radius.pill,
         },
         blocksContainer: {
             width: "100%",
