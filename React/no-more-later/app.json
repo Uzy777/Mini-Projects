@@ -28,7 +28,7 @@
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.nomorelaterfocus.app",
-      "versionCode": "1"
+      "versionCode": 1
     },
     "web": {
       "output": "static",
