@@ -21,6 +21,7 @@ A collection of small projects built while learning and experimenting with diffe
 |--------|--------|------|
 | **Adventure Story 🌋**<br/>A choice-based story, fight enemies, explore biomes, get keys. | Abandoned 💀 | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/React/adventure-story) |
 | **Country Explorer 🌍**<br/>Browse countries using an external API with filters, dynamic views and leaflet maps integration. | Completed ✅ | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/React/country-explorer) |
+| **No More Later 🕛**<br/>A gamified productivity and focus app for turning tasks into focused, measurable progress. Originally developed in Mini Projects and now maintained as a standalone project. | In Progress 👨‍💻 | [Website](https://nomorelaterfocus.com) |
 | **Pig Dice Game 🐷**<br/>A turn-based dice game where rolling a 1 wipes your turn’s score. | Completed ✅ | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/React/pig-dice-game) |
 | **Typing Game ⌨️**<br/>A speed and accuracy typing game with live feedback and scoring. | In Progress 👨‍💻 | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/React/typing-game) |
 | **Wallpaper Dashboard 🖼️**<br/>A collection of wallpapers ready to download. | In Progress 👨‍💻 | [Open](https://github.com/Uzy777/Mini-Projects/tree/main/React/wallpaper-dashboard) |
