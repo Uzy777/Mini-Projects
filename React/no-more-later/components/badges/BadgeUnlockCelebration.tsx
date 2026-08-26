@@ -52,7 +52,7 @@ export function BadgeUnlockCelebration({ award, position, total, onContinue }: B
         >
             <Animated.View
                 key={celebrationKey}
-                entering={reduceMotion ? undefined : FadeIn.duration(170)}
+                entering={reduceMotion ? undefined : FadeIn.duration(240)}
                 style={styles.content}
             >
                 <CelebrationHeader
@@ -66,12 +66,12 @@ export function BadgeUnlockCelebration({ award, position, total, onContinue }: B
 
                 <View style={[styles.artworkStage, compact && styles.artworkStageCompact]}>
                     <View style={[styles.tierHalo, compact && styles.tierHaloCompact, { backgroundColor: tone.soft }]} />
-                    <CelebrationParticles kind="badge" colors={[tone.strong, colours.textMuted, tone.strong]} delay={100} />
+                    <CelebrationParticles kind="badge" colors={[tone.strong, colours.textMuted, tone.strong]} delay={240} />
                     <Animated.View
                         entering={
                             reduceMotion
                                 ? undefined
-                                : FadeInUp.delay(60).duration(250).easing(Easing.out(Easing.cubic))
+                                : FadeInUp.delay(180).duration(360).easing(Easing.out(Easing.cubic))
                         }
                     >
                         <BadgeArtwork badgeId={award.badgeId} tier={award.tier} size={compact ? 108 : 132} />

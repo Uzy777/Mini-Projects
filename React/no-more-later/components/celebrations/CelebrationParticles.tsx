@@ -63,9 +63,9 @@ export function CelebrationParticles({ kind, colors, delay = 0 }: CelebrationPar
                         key={index}
                         angle={angle}
                         color={colors[index % colors.length]}
-                        delay={delay + (index % 4) * 24}
+                        delay={delay + (index % 4) * 36}
                         distance={distance}
-                        duration={kind === "level" ? 520 : 680}
+                        duration={kind === "level" ? 700 : 900}
                         round={index % 3 === 0}
                         size={(kind === "level" ? 4 : 5) + (index % 3)}
                     />

@@ -102,8 +102,8 @@ function LevelUpContent({ previousLevel, newLevel, earnedXp, compact, onContinue
             />
 
             <View style={[styles.levelArtworkStage, compact && styles.levelArtworkStageCompact]}>
-                <CelebrationParticles kind="level" colors={[colours.primary, colours.primaryMuted]} delay={90} />
-                <Animated.View entering={reduceMotion ? undefined : FadeInUp.delay(50).duration(240).easing(Easing.out(Easing.cubic))}>
+                <CelebrationParticles kind="level" colors={[colours.primary, colours.primaryMuted]} delay={220} />
+                <Animated.View entering={reduceMotion ? undefined : FadeInUp.delay(180).duration(360).easing(Easing.out(Easing.cubic))}>
                     <FocusRankMedallion
                         level={newLevel}
                         previousLevel={previousLevel}
@@ -133,24 +133,24 @@ function RankUpContent({ previousLevel, newLevel, earnedXp, compact, onContinue 
     useEffect(() => {
         phase.value = reduceMotion
             ? 1
-            : withDelay(210, withTiming(1, { duration: 330, easing: Easing.inOut(Easing.cubic) }));
+            : withDelay(480, withTiming(1, { duration: 640, easing: Easing.inOut(Easing.cubic) }));
 
         return () => cancelAnimation(phase);
     }, [phase, reduceMotion]);
 
     const previousStyle = useAnimatedStyle(() => ({
-        opacity: interpolate(phase.value, [0, 0.5, 1], [1, 0, 0]),
+        opacity: interpolate(phase.value, [0, 0.28, 0.62, 1], [1, 1, 0, 0]),
         transform: [
-            { translateY: interpolate(phase.value, [0, 1], [0, -8]) },
-            { scale: interpolate(phase.value, [0, 1], [1, 0.95]) },
+            { translateY: interpolate(phase.value, [0, 0.28, 1], [0, 0, -8]) },
+            { scale: interpolate(phase.value, [0, 0.28, 1], [1, 1, 0.95]) },
         ],
     }));
 
     const newStyle = useAnimatedStyle(() => ({
-        opacity: interpolate(phase.value, [0, 0.42, 1], [0, 0, 1]),
+        opacity: interpolate(phase.value, [0, 0.5, 1], [0, 0, 1]),
         transform: [
-            { translateY: interpolate(phase.value, [0, 1], [8, 0]) },
-            { scale: interpolate(phase.value, [0, 1], [0.96, 1]) },
+            { translateY: interpolate(phase.value, [0, 0.5, 1], [8, 8, 0]) },
+            { scale: interpolate(phase.value, [0, 0.5, 1], [0.96, 0.96, 1]) },
         ],
     }));
 
@@ -166,7 +166,7 @@ function RankUpContent({ previousLevel, newLevel, earnedXp, compact, onContinue 
             />
 
             <View style={[styles.rankTransitionStage, compact && styles.rankTransitionStageCompact]}>
-                <CelebrationParticles kind="rank" colors={[colours.primary, colours.primaryMuted, colours.text]} delay={360} />
+                <CelebrationParticles kind="rank" colors={[colours.primary, colours.primaryMuted, colours.text]} delay={820} />
 
                 <Animated.View style={[styles.rankLayer, previousStyle]}>
                     <Text style={styles.transitionCaption}>FROM {previousRank.name.toUpperCase()}</Text>

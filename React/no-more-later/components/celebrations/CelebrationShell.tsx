@@ -34,7 +34,7 @@ export function CelebrationShell({ kind, accessibilityLabel, accentColor, childr
                         entering={
                             reduceMotion
                                 ? undefined
-                                : FadeInUp.duration(kind === "rank" ? 280 : 220).easing(Easing.out(Easing.cubic))
+                                : FadeInUp.duration(kind === "rank" ? 360 : 320).easing(Easing.out(Easing.cubic))
                         }
                         style={[
                             styles.card,

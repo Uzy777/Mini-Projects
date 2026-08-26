@@ -62,7 +62,7 @@ export function FocusRankMedallion({ level, previousLevel, size = 132, showProgr
                                 <View style={styles.diamondRemaining} />
                                 {completed ? (
                                     <Animated.View
-                                        entering={reduceMotion || !newlyCompleted ? undefined : FadeIn.delay(150 + index * 45).duration(180)}
+                                        entering={reduceMotion || !newlyCompleted ? undefined : FadeIn.delay(220 + index * 70).duration(280)}
                                         style={styles.diamondCompleted}
                                     />
                                 ) : null}
