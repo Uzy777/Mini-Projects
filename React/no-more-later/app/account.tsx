@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Switch, Text, View, Platform } from "react-native";
 import { Stack, router } from "expo-router";
 import { ChevronRight, LogOut, Palette, ShieldCheck, Trash2, UserRoundPen } from "lucide-react-native";
 
@@ -93,10 +93,7 @@ export default function AccountScreen() {
             return;
         }
 
-        const cleanupResults = await Promise.allSettled([
-            removeRunningFocusNotification(),
-            clearNoMoreLaterStorage(),
-        ]);
+        const cleanupResults = await Promise.allSettled([removeRunningFocusNotification(), clearNoMoreLaterStorage()]);
 
         cleanupResults.forEach((result) => {
             if (result.status === "rejected") {
@@ -178,14 +175,33 @@ export default function AccountScreen() {
                             </Text>
                             {privacyError ? <Text style={styles.privacyError}>{privacyError}</Text> : null}
                         </View>
-                        <Switch
-                            accessibilityLabel="Hide from the public leaderboard"
-                            disabled={!profile || isUpdatingPrivacy}
-                            value={isPublicLeaderboardHidden}
-                            onValueChange={(value) => void handleLeaderboardPrivacyChange(value)}
-                            trackColor={{ false: colours.border, true: colours.primaryMuted }}
-                            thumbColor={isPublicLeaderboardHidden ? colours.primary : colours.surface}
-                        />
+                        {Platform.OS === "web" ? (
+                            <AnimatedPressable
+                                accessibilityRole="switch"
+                                accessibilityState={{
+                                    checked: isPublicLeaderboardHidden,
+                                    disabled: !profile || isUpdatingPrivacy,
+                                }}
+                                accessibilityLabel="Hide from the public leaderboard"
+                                disabled={!profile || isUpdatingPrivacy}
+                                onPress={() => void handleLeaderboardPrivacyChange(!isPublicLeaderboardHidden)}
+                                style={[styles.webSwitch, isPublicLeaderboardHidden && styles.webSwitchActive]}
+                            >
+                                <View style={[styles.webSwitchThumb, isPublicLeaderboardHidden && styles.webSwitchThumbActive]} />
+                            </AnimatedPressable>
+                        ) : (
+                            <Switch
+                                accessibilityLabel="Hide from the public leaderboard"
+                                disabled={!profile || isUpdatingPrivacy}
+                                value={isPublicLeaderboardHidden}
+                                onValueChange={(value) => void handleLeaderboardPrivacyChange(value)}
+                                trackColor={{
+                                    false: colours.border,
+                                    true: colours.primaryMuted,
+                                }}
+                                thumbColor={isPublicLeaderboardHidden ? colours.primary : colours.surface}
+                            />
+                        )}
                     </View>
                 </View>
 
@@ -208,9 +224,7 @@ export default function AccountScreen() {
 
                             <View style={styles.dangerDetails}>
                                 <Text style={styles.dangerTitle}>Delete account</Text>
-                                <Text style={styles.dangerDescription}>
-                                    Permanently remove your account and all associated data.
-                                </Text>
+                                <Text style={styles.dangerDescription}>Permanently remove your account and all associated data.</Text>
                             </View>
                         </View>
 
@@ -435,6 +449,30 @@ function createStyles(colours: AppColours) {
             fontSize: 14,
             fontWeight: "800",
             color: "#ffffff",
+        },
+        webSwitch: {
+            width: 44,
+            height: 24,
+            justifyContent: "center",
+            paddingHorizontal: 2,
+            borderRadius: radius.pill,
+            backgroundColor: colours.border,
+        },
+
+        webSwitchActive: {
+            backgroundColor: colours.primaryMuted,
+        },
+
+        webSwitchThumb: {
+            width: 20,
+            height: 20,
+            borderRadius: radius.pill,
+            backgroundColor: colours.surface,
+        },
+
+        webSwitchThumbActive: {
+            alignSelf: "flex-end",
+            backgroundColor: colours.primary,
         },
     });
 }
