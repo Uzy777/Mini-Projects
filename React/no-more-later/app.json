@@ -1,72 +1,74 @@
 {
-  "expo": {
-    "name": "No More Later",
-    "slug": "nomorelater",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/no-more-later-1-1254.png",
-    "scheme": "nomorelater",
-    "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.nomorelaterfocus.app",
-      "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
-    },
-    "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#ede9fe",
-        "foregroundImage": "./assets/no-more-later-1-1254.png"
-      },
-      "edgeToEdgeEnabled": true,
-      "softwareKeyboardLayoutMode": "resize",
-      "predictiveBackGestureEnabled": false,
-      "permissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS"
-      ],
-      "package": "com.nomorelaterfocus.app",
-      "versionCode": 1
-    },
-    "web": {
-      "output": "static",
-      "favicon": "./assets/no-more-later-1-1254.png"
-    },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/no-more-later-1-1254.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
-          "dark": {
-            "backgroundColor": "#000000"
-          }
+    "expo": {
+        "name": "No More Later",
+        "slug": "no-more-later",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "icon": "./assets/no-more-later-1-1254.png",
+        "scheme": "nomorelater",
+        "userInterfaceStyle": "automatic",
+        "newArchEnabled": true,
+        "ios": {
+            "supportsTablet": true,
+            "bundleIdentifier": "com.nomorelaterfocus.app",
+            "infoPlist": {
+                "ITSAppUsesNonExemptEncryption": false
+            }
+        },
+        "android": {
+            "adaptiveIcon": {
+                "backgroundColor": "#ede9fe",
+                "foregroundImage": "./assets/no-more-later-1-1254.png"
+            },
+            "edgeToEdgeEnabled": true,
+            "softwareKeyboardLayoutMode": "resize",
+            "predictiveBackGestureEnabled": false,
+            "package": "com.nomorelaterfocus.app",
+            "versionCode": 1
+        },
+        "web": {
+            "output": "static",
+            "favicon": "./assets/no-more-later-1-1254.png"
+        },
+        "plugins": [
+            "expo-router",
+            [
+                "expo-splash-screen",
+                {
+                    "image": "./assets/no-more-later-1-1254.png",
+                    "imageWidth": 200,
+                    "resizeMode": "contain",
+                    "backgroundColor": "#ffffff",
+                    "dark": {
+                        "backgroundColor": "#000000"
+                    }
+                }
+            ],
+            [
+                "expo-audio",
+                {
+                    "microphonePermission": false,
+                    "recordAudioAndroid": false
+                }
+            ],
+            "expo-asset",
+            "./plugins/withNotifeeAndroid"
+        ],
+        "experiments": {
+            "typedRoutes": true,
+            "reactCompiler": true
+        },
+        "extra": {
+            "router": {},
+            "eas": {
+                "projectId": "570b0835-2376-4a59-a7a5-760ce4c49274"
+            }
+        },
+        "runtimeVersion": {
+            "policy": "appVersion"
+        },
+        "updates": {
+            "url": "https://u.expo.dev/570b0835-2376-4a59-a7a5-760ce4c49274"
         }
-      ],
-      "expo-audio",
-      "expo-asset",
-      "./plugins/withNotifeeAndroid"
-    ],
-    "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
-    },
-    "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "570b0835-2376-4a59-a7a5-760ce4c49274"
-      }
-    },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/570b0835-2376-4a59-a7a5-760ce4c49274"
     }
-  }
 }
