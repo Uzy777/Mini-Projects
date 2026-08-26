@@ -1,15 +1,22 @@
 import { useMemo, type ReactNode } from "react";
-import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
+import { StyleSheet, View, type StyleProp, type ViewProps, type ViewStyle } from "react-native";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
-export function AppCard({ children, tone = "default", padding = "md", style }: { children: ReactNode; tone?: "default" | "subtle" | "accent"; padding?: "sm" | "md" | "lg"; style?: StyleProp<ViewStyle> }) {
+type AppCardProps = Omit<ViewProps, "children" | "style"> & {
+    children: ReactNode;
+    tone?: "default" | "subtle" | "accent";
+    padding?: "sm" | "md" | "lg";
+    style?: StyleProp<ViewStyle>;
+};
+
+export function AppCard({ children, tone = "default", padding = "md", style, ...viewProps }: AppCardProps) {
     const { colours } = useAppearance();
     const styles = useMemo(() => createStyles(colours), [colours]);
 
-    return <View style={[styles.card, styles[`${tone}Tone`], styles[`${padding}Padding`], style]}>{children}</View>;
+    return <View {...viewProps} style={[styles.card, styles[`${tone}Tone`], styles[`${padding}Padding`], style]}>{children}</View>;
 }
 
 function createStyles(colours: AppColours) {

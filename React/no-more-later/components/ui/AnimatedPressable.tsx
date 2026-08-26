@@ -1,19 +1,27 @@
-import { useCallback, useState } from "react";
-import { Pressable, type PressableProps } from "react-native";
+import { useCallback, useRef, useState } from "react";
+import { Platform, Pressable, type PressableProps, type StyleProp, type ViewStyle } from "react-native";
 import * as Haptics from "expo-haptics";
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
+import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from "react-native-reanimated";
+
+import { useAppearance } from "@/contexts/AppearanceContext";
 
 const MotionPressable = Animated.createAnimatedComponent(Pressable);
 
+export type AnimatedPressableState = {
+    pressed: boolean;
+    hovered: boolean;
+    focused: boolean;
+};
+
 type AnimatedPressableProps = Omit<PressableProps, "style"> & {
-    style?: PressableProps["style"];
+    style?: StyleProp<ViewStyle> | ((state: AnimatedPressableState) => StyleProp<ViewStyle>);
     pressedScale?: number;
     haptic?: "none" | "selection" | "light";
 };
 
 export function AnimatedPressable({
     style,
-    pressedScale = 0.975,
+    pressedScale = 1,
     haptic = "selection",
     onPressIn,
     onPressOut,
@@ -23,55 +31,74 @@ export function AnimatedPressable({
     onBlur,
     ...props
 }: AnimatedPressableProps) {
-    const [interactionState, setInteractionState] = useState({ pressed: false, hovered: false, focused: false });
+    const { colours } = useAppearance();
+    const reduceMotion = useReducedMotion();
+    const pointerInteractionRef = useRef(false);
+    const [interactionState, setInteractionState] = useState<AnimatedPressableState>({ pressed: false, hovered: false, focused: false });
     const scale = useSharedValue(1);
     const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
     const resolvedStyle = typeof style === "function" ? style(interactionState) : style;
+    const webInteractionStyle = Platform.OS === "web"
+        ? ({ cursor: props.disabled ? "default" : "pointer" } as unknown as ViewStyle)
+        : undefined;
+    const webFocusStyle = Platform.OS === "web" && interactionState.focused
+        ? ({ outlineColor: colours.primaryBorder, outlineOffset: -2, outlineStyle: "solid", outlineWidth: 1 } as unknown as ViewStyle)
+        : undefined;
 
     const handlePressIn = useCallback<NonNullable<PressableProps["onPressIn"]>>(
         (event) => {
-            setInteractionState((current) => ({ ...current, pressed: true }));
-            scale.value = withTiming(pressedScale, { duration: 90 });
+            if (Platform.OS === "web") {
+                pointerInteractionRef.current = true;
+            }
+            setInteractionState((current) => ({ ...current, pressed: true, focused: Platform.OS === "web" ? false : current.focused }));
+            if (!reduceMotion) {
+                scale.value = withTiming(pressedScale, { duration: 90 });
+            }
 
-            if (haptic === "selection") {
+            if (Platform.OS !== "web" && haptic === "selection") {
                 void Haptics.selectionAsync();
-            } else if (haptic === "light") {
+            } else if (Platform.OS !== "web" && haptic === "light") {
                 void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             }
 
             onPressIn?.(event);
         },
-        [haptic, onPressIn, pressedScale, scale],
+        [haptic, onPressIn, pressedScale, reduceMotion, scale],
     );
 
     const handlePressOut = useCallback<NonNullable<PressableProps["onPressOut"]>>(
         (event) => {
             setInteractionState((current) => ({ ...current, pressed: false }));
-            scale.value = withSpring(1, { damping: 18, stiffness: 260 });
+            scale.value = reduceMotion ? 1 : withTiming(interactionState.hovered ? 1.008 : 1, { duration: 100 });
+            pointerInteractionRef.current = false;
             onPressOut?.(event);
         },
-        [onPressOut, scale],
+        [interactionState.hovered, onPressOut, reduceMotion, scale],
     );
 
     const handleHoverIn = useCallback<NonNullable<PressableProps["onHoverIn"]>>(
         (event) => {
             setInteractionState((current) => ({ ...current, hovered: true }));
+            if (!reduceMotion && !interactionState.pressed) {
+                scale.value = withTiming(1.008, { duration: 120 });
+            }
             onHoverIn?.(event);
         },
-        [onHoverIn],
+        [interactionState.pressed, onHoverIn, reduceMotion, scale],
     );
 
     const handleHoverOut = useCallback<NonNullable<PressableProps["onHoverOut"]>>(
         (event) => {
             setInteractionState((current) => ({ ...current, hovered: false, pressed: false }));
+            scale.value = reduceMotion ? 1 : withTiming(1, { duration: 120 });
             onHoverOut?.(event);
         },
-        [onHoverOut],
+        [onHoverOut, reduceMotion, scale],
     );
 
     const handleFocus = useCallback<NonNullable<PressableProps["onFocus"]>>(
         (event) => {
-            setInteractionState((current) => ({ ...current, focused: true }));
+            setInteractionState((current) => ({ ...current, focused: !pointerInteractionRef.current }));
             onFocus?.(event);
         },
         [onFocus],
@@ -94,7 +121,7 @@ export function AnimatedPressable({
             onHoverOut={handleHoverOut}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            style={[resolvedStyle, animatedStyle]}
+            style={[webInteractionStyle, webFocusStyle, resolvedStyle, animatedStyle]}
         />
     );
 }

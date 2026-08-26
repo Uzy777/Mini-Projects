@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Platform, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Stack } from "expo-router";
 import { Check, Crown, Image as ImageIcon, Infinity as InfinityIcon, MoonStar, Palette, ShieldCheck, Sparkles, Timer } from "lucide-react-native";
 import type { LucideIcon } from "lucide-react-native";
@@ -8,8 +8,9 @@ import Animated, { FadeInDown, FadeInUp, useReducedMotion } from "react-native-r
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { PremiumFeatureShowcase } from "@/components/premium/PremiumFeatureShowcase";
 import { AppButton } from "@/components/ui/AppButton";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import type { AppColours } from "@/constants/appearanceColours";
-import { radius, spacing } from "@/constants/design";
+import { getScreenGutter, radius, spacing } from "@/constants/design";
 import { PREMIUM_TEST_CONTROLS_ENABLED } from "@/constants/premium";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { usePremium } from "@/contexts/PremiumContext";
@@ -40,7 +41,7 @@ export default function PremiumScreen() {
         restorePremium,
     } = usePremium();
 
-    const styles = useMemo(() => createStyles(colours, isWide), [colours, isWide]);
+    const styles = useMemo(() => createStyles(colours, isWide, getScreenGutter(width)), [colours, isWide, width]);
     const displayPrice = lifetimePrice ?? "£4.99";
 
     async function handleUnlockPremium() {
@@ -221,9 +222,9 @@ function PurchaseCard({ displayPrice, actionMessage, isPurchasing, isRestoring, 
             {actionMessage ? <Text accessibilityRole="alert" style={styles.errorMessage}>{actionMessage}</Text> : null}
 
             {Platform.OS !== "web" && isRevenueCatConfigured ? (
-                <Pressable accessibilityRole="button" disabled={isPurchasing || isRestoring} onPress={onRestore} style={({ pressed }) => [styles.restoreButton, pressed && styles.restoreButtonPressed]}>
+                <AnimatedPressable accessibilityRole="button" disabled={isPurchasing || isRestoring} onPress={onRestore} style={({ pressed }) => [styles.restoreButton, pressed && styles.restoreButtonPressed]}>
                     <Text style={styles.restoreButtonText}>{isRestoring ? "Restoring…" : "Restore purchase"}</Text>
-                </Pressable>
+                </AnimatedPressable>
             ) : null}
         </View>
     );
@@ -237,10 +238,10 @@ function ValueChip({ icon: Icon, label, styles, colours }: { icon: LucideIcon; l
     return <View style={styles.valueChip}><Icon size={14} color={colours.primaryStrong} /><Text style={styles.valueChipText}>{label}</Text></View>;
 }
 
-function createStyles(colours: AppColours, isWide: boolean) {
+function createStyles(colours: AppColours, isWide: boolean, gutter: number) {
     return StyleSheet.create({
         screen: { flex: 1, backgroundColor: "transparent" },
-        contentContainer: { width: "100%", maxWidth: 960, alignSelf: "center", gap: spacing.xxl, paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: spacing.xxxl },
+        contentContainer: { width: "100%", maxWidth: 960, alignSelf: "center", gap: spacing.xxl, paddingHorizontal: gutter, paddingTop: spacing.lg, paddingBottom: spacing.xxxl },
         heroShell: { overflow: "hidden", padding: isWide ? spacing.xl : spacing.lg, borderWidth: 1, borderColor: colours.primaryBorder, borderRadius: radius.xl, backgroundColor: colours.surface },
         heroGlowOne: { position: "absolute", top: -110, right: -70, width: 280, height: 280, borderRadius: radius.pill, backgroundColor: colours.primarySoft, opacity: 0.9 },
         heroGlowTwo: { position: "absolute", bottom: -130, left: -90, width: 250, height: 250, borderRadius: radius.pill, backgroundColor: colours.primarySubtle },

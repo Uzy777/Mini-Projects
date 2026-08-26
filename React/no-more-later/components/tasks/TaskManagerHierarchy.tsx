@@ -1,7 +1,7 @@
 import { useMemo, type ReactNode } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Inbox, ListChecks, MoreHorizontal, Plus } from "lucide-react-native";
-import Animated, { LinearTransition } from "react-native-reanimated";
+import Animated, { LinearTransition, useReducedMotion } from "react-native-reanimated";
 
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { WorkAssetIcon } from "@/components/work/WorkAssetIcon";
@@ -27,6 +27,7 @@ type Props = {
 
 export function TaskManagerHierarchy({ projects, tasks, status, selected, compact = false, onSelect, onNewProject, onProjectMore, renderProjectDragHandle, draggingProjectId }: Props) {
     const { colours } = useAppearance();
+    const reduceMotion = useReducedMotion();
     const styles = useMemo(() => createStyles(colours), [colours]);
     const statusTasks = tasks.filter((task) => task.status === status);
 
@@ -49,7 +50,7 @@ export function TaskManagerHierarchy({ projects, tasks, status, selected, compac
                 {projects.length ? projects.map((project, index) => {
                     const selectedProject = selectedScope({ kind: "project", id: project.id });
                     return (
-                        <Animated.View key={project.id} layout={LinearTransition.duration(150)} style={[styles.projectRow, selectedProject && styles.selectedRow, draggingProjectId === project.id && styles.draggingRow]}>
+                        <Animated.View key={project.id} layout={reduceMotion ? undefined : LinearTransition.duration(150)} style={[styles.projectRow, selectedProject && styles.selectedRow, draggingProjectId === project.id && styles.draggingRow]}>
                             {renderProjectDragHandle?.(project, index)}
                             <AnimatedPressable onPress={() => onSelect({ kind: "project", id: project.id })} style={styles.rowMain}>
                                 <View style={[styles.projectIcon, selectedProject && styles.selectedProjectIcon]}><WorkAssetIcon assetId={project.assetId} size={17} color={selectedProject ? colours.primaryStrong : colours.textMuted} /></View>

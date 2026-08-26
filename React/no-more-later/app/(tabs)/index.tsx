@@ -7,7 +7,7 @@ import type { FocusSessionRecord } from "../../types/models";
 import { HomeHeader } from "../../components/home/HomeHeader";
 import { QuickFocusCard } from "../../components/home/QuickFocusCard";
 import { HomeStreakCard } from "../../components/home/HomeStreakCard";
-import { layout, spacing } from "@/constants/design";
+import { getScreenGutter, layout, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
@@ -22,7 +22,7 @@ export default function HomeScreen() {
     const isWide = width >= 900;
     const reduceMotion = useReducedMotion();
 
-    const styles = useMemo(() => createStyles(colours, isWide), [colours, isWide]);
+    const styles = useMemo(() => createStyles(colours, isWide, getScreenGutter(width)), [colours, isWide, width]);
 
     const [focusSessions, setFocusSessions] = useState<FocusSessionRecord[]>([]);
 
@@ -91,13 +91,13 @@ export default function HomeScreen() {
     );
 }
 
-function createStyles(colours: AppColours, isWide: boolean) {
+function createStyles(colours: AppColours, isWide: boolean, gutter: number) {
     return StyleSheet.create({
         contentContainer: {
             width: "100%",
             maxWidth: layout.contentMaxWidth,
             alignSelf: "center",
-            paddingHorizontal: spacing.lg,
+            paddingHorizontal: gutter,
             paddingTop: spacing.lg,
             paddingBottom: 48,
         },

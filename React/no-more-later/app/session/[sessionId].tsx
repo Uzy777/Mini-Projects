@@ -1,11 +1,13 @@
 import { useCallback, useMemo, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { AlertCircle, ArrowLeft, CheckCircle2, Clock3, Coffee, FileText, Flag, Folder, Pause, Play, Square, Star, Target, TimerReset } from "lucide-react-native";
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
+import { AppButton } from "@/components/ui/AppButton";
 import type { AppColours } from "@/constants/appearanceColours";
-import { radius, spacing } from "@/constants/design";
+import { getScreenGutter, radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteFocusSession } from "@/services/focusSessions/focusSessionService";
@@ -23,9 +25,10 @@ const OUTCOME_LABELS: Record<SessionOutcome, string> = {
 export default function SessionDetailsScreen() {
     const { colours } = useAppearance();
     const { session: authSession } = useAuth();
+    const { width } = useWindowDimensions();
     const router = useRouter();
     const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
-    const styles = useMemo(() => createStyles(colours), [colours]);
+    const styles = useMemo(() => createStyles(colours, getScreenGutter(width)), [colours, width]);
     const [focusSession, setFocusSession] = useState<FocusSessionRecord | null>(null);
     const [journeyTitle, setJourneyTitle] = useState("Standalone quests");
     const [isLoading, setIsLoading] = useState(true);
@@ -94,9 +97,9 @@ export default function SessionDetailsScreen() {
 
             <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
                 <View style={styles.navigationRow}>
-                    <Pressable accessibilityLabel="Back to Progress history" onPress={() => router.back()} style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}>
+                    <AnimatedPressable accessibilityLabel="Back to Progress history" haptic="none" onPress={() => router.back()} style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}>
                         <ArrowLeft size={22} color={colours.text} />
-                    </Pressable>
+                    </AnimatedPressable>
                 </View>
 
                 <Text style={styles.screenTitle}>Session Details</Text>
@@ -111,9 +114,7 @@ export default function SessionDetailsScreen() {
                         <AlertCircle size={30} color={colours.danger} />
                         <Text style={styles.errorTitle}>Session unavailable</Text>
                         <Text style={styles.errorText}>{errorMessage}</Text>
-                        <Pressable onPress={() => void loadSession()} style={({ pressed }) => [styles.retryButton, pressed && styles.pressed]}>
-                            <Text style={styles.retryButtonText}>Try again</Text>
-                        </Pressable>
+                        <AppButton label="Try again" onPress={() => void loadSession()} />
                     </View>
                 ) : (
                     <SessionDetailsContent session={focusSession} journeyTitle={journeyTitle} />
@@ -343,7 +344,7 @@ function getOutcomeIcon(outcome: SessionOutcome, colour: string) {
     return <Clock3 size={18} color={colour} />;
 }
 
-function createStyles(colours: AppColours) {
+function createStyles(colours: AppColours, gutter: number = spacing.md) {
     return StyleSheet.create({
         screen: {
             flex: 1,
@@ -353,7 +354,7 @@ function createStyles(colours: AppColours) {
             width: "100%",
             maxWidth: 720,
             alignSelf: "center",
-            paddingHorizontal: spacing.md,
+            paddingHorizontal: gutter,
             paddingTop: spacing.md,
             paddingBottom: 56,
         },
@@ -416,20 +417,6 @@ function createStyles(colours: AppColours) {
             lineHeight: 18,
             color: colours.textMuted,
             textAlign: "center",
-        },
-        retryButton: {
-            minHeight: 40,
-            marginTop: spacing.lg,
-            paddingHorizontal: spacing.lg,
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: radius.md,
-            backgroundColor: colours.primary,
-        },
-        retryButtonText: {
-            fontSize: 12,
-            fontWeight: "800",
-            color: colours.onPrimary,
         },
         sections: {
             gap: spacing.lg,

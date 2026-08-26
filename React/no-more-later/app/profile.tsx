@@ -1,11 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Stack } from "expo-router";
 import { AlertTriangle, LockKeyhole } from "lucide-react-native";
 
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { AppTextInput } from "@/components/ui/AppTextInput";
-import { radius, spacing } from "@/constants/design";
+import { getScreenGutter, radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
@@ -19,8 +19,9 @@ import { getUsernameValidationMessage } from "@/utils/usernameValidation";
 export default function ProfileScreen() {
     const { session, profile, refreshProfile } = useAuth();
     const { colours } = useAppearance();
+    const { width } = useWindowDimensions();
 
-    const styles = useMemo(() => createStyles(colours), [colours]);
+    const styles = useMemo(() => createStyles(colours, width < 480, getScreenGutter(width)), [colours, width]);
 
     const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
     const [isSaving, setIsSaving] = useState(false);
@@ -159,7 +160,7 @@ export default function ProfileScreen() {
     return <AppScreenBackground>{screenContent}</AppScreenBackground>;
 }
 
-function createStyles(colours: AppColours) {
+function createStyles(colours: AppColours, compact: boolean, gutter: number) {
     return StyleSheet.create({
         screen: {
             flex: 1,
@@ -170,14 +171,15 @@ function createStyles(colours: AppColours) {
             width: "100%",
             maxWidth: 640,
             alignSelf: "center",
-            padding: spacing.lg,
+            paddingHorizontal: gutter,
+            paddingTop: spacing.lg,
             paddingBottom: 48,
         },
 
         formCard: {
             marginTop: spacing.xl,
             gap: spacing.lg,
-            padding: spacing.lg,
+            padding: compact ? spacing.md : spacing.lg,
 
             borderWidth: 1,
             borderColor: colours.border,

@@ -1,5 +1,5 @@
 import { useMemo, type ReactNode } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
@@ -7,7 +7,9 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 
 export function ScreenHeader({ eyebrow = "NO MORE LATER", title, subtitle, action }: { eyebrow?: string; title: string; subtitle?: string; action?: ReactNode }) {
     const { colours } = useAppearance();
-    const styles = useMemo(() => createStyles(colours), [colours]);
+    const { width } = useWindowDimensions();
+    const compact = width < 520;
+    const styles = useMemo(() => createStyles(colours, compact), [colours, compact]);
 
     return (
         <View style={styles.header}>
@@ -21,13 +23,13 @@ export function ScreenHeader({ eyebrow = "NO MORE LATER", title, subtitle, actio
     );
 }
 
-function createStyles(colours: AppColours) {
+function createStyles(colours: AppColours, compact: boolean) {
     return StyleSheet.create({
         header: { marginTop: spacing.xl, flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: spacing.md },
         copy: { minWidth: 0, flex: 1 },
         eyebrow: { fontSize: 10, fontWeight: "900", letterSpacing: 1.1, color: colours.primary },
-        title: { marginTop: spacing.xs, fontSize: 30, lineHeight: 36, fontWeight: "900", letterSpacing: -0.6, color: colours.text },
+        title: { marginTop: spacing.xs, fontSize: compact ? 28 : 30, lineHeight: compact ? 34 : 36, fontWeight: "900", letterSpacing: -0.6, color: colours.text },
         subtitle: { maxWidth: 620, marginTop: spacing.xs, fontSize: 14, lineHeight: 21, color: colours.textMuted },
-        action: { minHeight: 42, alignItems: "center", justifyContent: "center", borderRadius: radius.md },
+        action: { minHeight: 42, flexShrink: 0, alignItems: "center", justifyContent: "center", borderRadius: radius.md },
     });
 }

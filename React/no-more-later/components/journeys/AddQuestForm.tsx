@@ -1,8 +1,9 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { AppTextInput } from "@/components/ui/AppTextInput";
+import { AppButton } from "@/components/ui/AppButton";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { useMemo } from "react";
@@ -55,13 +56,7 @@ export function AddQuestForm({ questTitle, doneWhen, onChangeQuestTitle, onChang
                     textAlignVertical="top"
                 />
             </View>
-            <Pressable
-                style={({ pressed }) => [styles.addButton, titleIsEmpty && styles.disabledButton, pressed && !titleIsEmpty && styles.addButtonPressed]}
-                onPress={onAddQuest}
-                disabled={titleIsEmpty}
-            >
-                <Text style={[styles.addButtonText, titleIsEmpty && styles.disabledButtonText]}>Add Quest</Text>
-            </Pressable>
+            <AppButton label="Add Quest" disabled={titleIsEmpty} fullWidth onPress={onAddQuest} style={styles.addButton} />
         </View>
     );
 }
@@ -106,28 +101,6 @@ function createStyles(colours: AppColours) {
 
         addButton: {
             marginTop: spacing.md,
-            alignItems: "center",
-            paddingVertical: 13,
-            borderRadius: radius.md,
-            backgroundColor: colours.primary,
-        },
-
-        addButtonPressed: {
-            backgroundColor: colours.primaryPressed,
-        },
-
-        addButtonText: {
-            fontSize: 15,
-            fontWeight: "700",
-            color: colours.onPrimary,
-        },
-
-        disabledButton: {
-            backgroundColor: colours.primarySoft,
-        },
-
-        disabledButtonText: {
-            color: colours.textMuted,
         },
         fieldGroup: {
             marginTop: spacing.md,

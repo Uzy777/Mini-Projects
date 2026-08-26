@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { useRouter, useFocusEffect } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
 import type { Journey } from "../../../types/models";
 import { saveJourneys } from "../../../services/storage/journeysStorage";
@@ -9,7 +9,7 @@ import { AddJourneyForm } from "../../../components/journeys/AddJourneyForm";
 import { confirmDelete } from "../../../utils/confirmDelete";
 import { getActiveFocusSession } from "../../../services/storage/activeFocusSessionStorage";
 import { showMessage } from "../../../utils/showMessage";
-import { radius, spacing } from "@/constants/design";
+import { getScreenGutter, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
@@ -17,6 +17,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { createRemoteJourney, deleteRemoteJourney, getRemoteJourneys } from "@/services/journeys/journeyService";
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareLayout";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 
 type JourneyFilter = "all" | "active" | "completed";
 
@@ -40,8 +42,9 @@ const journeyFilters: {
 
 export default function JourneyScreen() {
     const { colours } = useAppearance();
+    const { width } = useWindowDimensions();
 
-    const styles = useMemo(() => createStyles(colours), [colours]);
+    const styles = useMemo(() => createStyles(colours, getScreenGutter(width)), [colours, width]);
 
     const router = useRouter();
     const { session } = useAuth();
@@ -185,29 +188,11 @@ export default function JourneyScreen() {
     return (
         <AppScreenBackground>
             <KeyboardAwareScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-                <View style={styles.header}>
-                    <Text style={styles.title}>Journeys</Text>
-
-                    <Text style={styles.subtitle}>Choose a goal and keep moving it forward.</Text>
-                </View>
+                <ScreenHeader eyebrow="JOURNEYS" title="Journeys" subtitle="Choose a goal and keep moving it forward." />
 
                 <AddJourneyForm journeyTitle={journeyTitle} onChangeJourneyTitle={setJourneyTitle} onAddJourney={handleAddJourney} />
 
-                <View style={styles.filterContainer}>
-                    {journeyFilters.map((filter) => {
-                        const isSelected = selectedFilter === filter.value;
-
-                        return (
-                            <Pressable
-                                key={filter.value}
-                                style={[styles.filterButton, isSelected && styles.filterButtonSelected]}
-                                onPress={() => setSelectedFilter(filter.value)}
-                            >
-                                <Text style={[styles.filterButtonText, isSelected && styles.filterButtonTextSelected]}>{filter.label}</Text>
-                            </Pressable>
-                        );
-                    })}
-                </View>
+                <SegmentedControl value={selectedFilter} onChange={setSelectedFilter} options={journeyFilters} />
 
                 <View style={styles.journeyList}>
                     {journeys.length === 0 ? (
@@ -232,76 +217,27 @@ export default function JourneyScreen() {
     );
 }
 
-function createStyles(colours: AppColours) {
+function createStyles(colours: AppColours, gutter: number) {
     return StyleSheet.create({
         emptyText: {
             marginTop: 24,
             textAlign: "center",
             fontSize: 15,
             lineHeight: 22,
-            color: "#737373",
+            color: colours.textMuted,
         },
 
         contentContainer: {
             width: "100%",
             maxWidth: 720,
             alignSelf: "center",
-            paddingHorizontal: spacing.lg,
+            paddingHorizontal: gutter,
             paddingTop: spacing.lg,
             paddingBottom: 48,
-        },
-        header: {
-            marginBottom: spacing.lg,
-        },
-        title: {
-            fontSize: 30,
-            lineHeight: 36,
-            fontWeight: "800",
-            color: colours.text,
-        },
-        subtitle: {
-            marginTop: spacing.sm,
-            fontSize: 15,
-            lineHeight: 22,
-            color: colours.textMuted,
+            gap: spacing.lg,
         },
         journeyList: {
             gap: spacing.md,
-            marginTop: spacing.md,
-        },
-        filterContainer: {
-            width: "100%",
-            flexDirection: "row",
-            gap: spacing.xs,
-            marginTop: spacing.lg,
-            padding: spacing.xs,
-            borderWidth: 1,
-            borderColor: colours.border,
-            borderRadius: radius.md,
-            backgroundColor: colours.surface,
-        },
-
-        filterButton: {
-            flex: 1,
-            alignItems: "center",
-            justifyContent: "center",
-            paddingVertical: 10,
-            paddingHorizontal: spacing.sm,
-            borderRadius: radius.sm,
-        },
-
-        filterButtonSelected: {
-            backgroundColor: colours.primary,
-        },
-
-        filterButtonText: {
-            fontSize: 13,
-            fontWeight: "700",
-            color: colours.textMuted,
-        },
-
-        filterButtonTextSelected: {
-            color: colours.onPrimary,
         },
         scrollView: {
             flex: 1,

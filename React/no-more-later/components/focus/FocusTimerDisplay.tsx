@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
-import Animated, { Easing, useAnimatedProps, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, { Easing, useAnimatedProps, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from "react-native-reanimated";
 
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
@@ -36,6 +36,7 @@ export function FocusTimerDisplay({
 }: FocusTimerDisplayProps) {
     const { colours, timerStyle: selectedTimerStyle } = useAppearance();
     const { width } = useWindowDimensions();
+    const reduceMotion = useReducedMotion();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
     const timerStyle = timerStyleOverride ?? selectedTimerStyle;
@@ -50,8 +51,10 @@ export function FocusTimerDisplay({
     const timerState = seconds === totalSeconds ? getReadyLabel(mode) : seconds === 0 ? (mode === "focus" ? "Session complete" : "Break complete") : "Time remaining";
 
     useEffect(() => {
-        animatedProgress.value = withTiming(safeProgress, { duration: 420, easing: Easing.out(Easing.cubic) });
-    }, [animatedProgress, safeProgress]);
+        animatedProgress.value = reduceMotion
+            ? safeProgress
+            : withTiming(safeProgress, { duration: 420, easing: Easing.out(Easing.cubic) });
+    }, [animatedProgress, reduceMotion, safeProgress]);
 
     const animatedCircleProps = useAnimatedProps(() => ({
         strokeDashoffset: circumference * (1 - animatedProgress.value),

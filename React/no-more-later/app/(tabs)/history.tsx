@@ -1,10 +1,10 @@
 import { useFocusEffect } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
 import type { FocusSessionRecord } from "../../types/models";
 import { FocusSessionHistoryCard } from "../../components/history/FocusSessionHistoryCard";
-import { radius, spacing } from "@/constants/design";
+import { getScreenGutter, radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
@@ -14,8 +14,9 @@ import { AppScreenBackground } from "@/components/appearance/AppScreenBackground
 
 export default function HistoryScreen() {
     const { colours } = useAppearance();
+    const { width } = useWindowDimensions();
 
-    const styles = useMemo(() => createStyles(colours), [colours]);
+    const styles = useMemo(() => createStyles(colours, getScreenGutter(width)), [colours, width]);
 
     const { session } = useAuth();
     const userId = session?.user.id;
@@ -80,7 +81,7 @@ export default function HistoryScreen() {
     );
 }
 
-function createStyles(colours: AppColours) {
+function createStyles(colours: AppColours, gutter: number) {
     return StyleSheet.create({
         list: {
             flex: 1,
@@ -90,7 +91,7 @@ function createStyles(colours: AppColours) {
             width: "100%",
             maxWidth: 720,
             alignSelf: "center",
-            paddingHorizontal: spacing.lg,
+            paddingHorizontal: gutter,
             paddingTop: spacing.lg,
             paddingBottom: 48,
         },

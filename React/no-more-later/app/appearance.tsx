@@ -1,18 +1,20 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { Check, Image, LockKeyhole, Palette, SunMoon, Timer } from "lucide-react-native";
 
 import { ACCENT_COLOUR_OPTIONS, COLOUR_MODE_OPTIONS, BACKDROP_OPTIONS, TIMER_STYLE_OPTIONS } from "@/constants/appearance";
-import { radius, spacing } from "@/constants/design";
+import { getScreenGutter, radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useMemo, useState } from "react";
-import type { AppColours } from "@/constants/appearanceColours";
+import { getAppColours, type AppColours } from "@/constants/appearanceColours";
 import { usePremium } from "@/contexts/PremiumContext";
 import { PremiumUpsellModal } from "@/components/premium/PremiumUpsellModal";
 import type { AccentColourId, ColourMode, BackdropId, TimerStyleId } from "@/types/appearance";
 import { AppBackdrop } from "@/components/appearance/AppBackdrop";
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { TimerStylePreview } from "@/components/appearance/TimerStylePreview";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
 
 type RequestedPremiumFeature =
     | {
@@ -38,24 +40,19 @@ type RequestedPremiumFeature =
 
 export default function AppearanceScreen() {
     const router = useRouter();
+    const { width } = useWindowDimensions();
 
-    const { colourMode, accentColour, backdrop, timerStyle, colours, setColourMode, setAccentColour, setBackdrop, setTimerStyle } = useAppearance();
+    const { colourMode, accentColour, backdrop, timerStyle, colours, resolvedColourMode, setColourMode, setAccentColour, setBackdrop, setTimerStyle } = useAppearance();
     const [requestedPremiumFeature, setRequestedPremiumFeature] = useState<RequestedPremiumFeature | null>(null);
     const { hasPremium } = usePremium();
 
-    const styles = useMemo(() => createStyles(colours), [colours]);
+    const styles = useMemo(() => createStyles(colours, width < 390, getScreenGutter(width)), [colours, width]);
 
     const screenContent = (
         <ScrollView style={styles.screen} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
             <Stack.Screen options={{ title: "Appearance" }} />
 
-            <View style={styles.header}>
-                <Text style={styles.label}>APPEARANCE</Text>
-
-                <Text style={styles.title}>Make it yours</Text>
-
-                <Text style={styles.description}>Choose how No More Later looks and feels.</Text>
-            </View>
+            <ScreenHeader eyebrow="APPEARANCE" title="Make it yours" subtitle="Choose how No More Later looks and feels." />
 
             <View style={styles.section}>
                 <View style={styles.sectionHeading}>
@@ -75,7 +72,10 @@ export default function AppearanceScreen() {
 
                         return (
                             <View key={option.id}>
-                                <Pressable
+                                <AnimatedPressable
+                                    accessibilityRole="radio"
+                                    accessibilityState={{ checked: isSelected }}
+                                    accessibilityLabel={`${option.name} colour mode${isLocked ? ", Premium" : ""}`}
                                     style={({ pressed }) => [styles.modeRow, isLocked && styles.lockedOption, pressed && !isLocked && styles.optionPressed]}
                                     onPress={() => {
                                         if (isLocked) {
@@ -107,7 +107,7 @@ export default function AppearanceScreen() {
                                             <Text style={styles.lockText}>Premium</Text>
                                         </View>
                                     )}
-                                </Pressable>
+                                </AnimatedPressable>
 
                                 {index < COLOUR_MODE_OPTIONS.length - 1 && <View style={styles.divider} />}
                             </View>
@@ -134,8 +134,11 @@ export default function AppearanceScreen() {
                             const isLocked = option.requiresPremium && !hasPremium;
 
                             return (
-                                <Pressable
+                                <AnimatedPressable
                                     key={option.id}
+                                    accessibilityRole="radio"
+                                    accessibilityState={{ checked: isSelected }}
+                                    accessibilityLabel={`${option.name} accent colour${isLocked ? ", Premium" : ""}`}
                                     style={({ pressed }) => [
                                         styles.accentOption,
                                         isLocked && styles.lockedAccentOption,
@@ -176,7 +179,7 @@ export default function AppearanceScreen() {
                                                     <LockKeyhole size={15} strokeWidth={2.5} color="#ffffff" />
                                                 </View>
                                             ) : (
-                                                isSelected && <Check size={16} strokeWidth={3} color="#ffffff" />
+                                                isSelected && <Check size={16} strokeWidth={3} color={getAppColours(resolvedColourMode, option.id).onPrimary} />
                                             )}
                                         </View>
                                     </View>
@@ -184,7 +187,7 @@ export default function AppearanceScreen() {
                                     <Text style={[styles.accentName, isSelected && styles.accentNameSelected]}>{option.name}</Text>
 
                                     {isLocked && <Text style={styles.premiumAccentLabel}>Premium</Text>}
-                                </Pressable>
+                                </AnimatedPressable>
                             );
                         })}
                     </View>
@@ -208,10 +211,10 @@ export default function AppearanceScreen() {
                         const isLocked = option.requiresPremium && !hasPremium;
 
                         return (
-                            <Pressable
+                            <AnimatedPressable
                                 key={option.id}
                                 accessibilityRole="radio"
-                                accessibilityState={{ checked: isSelected, disabled: isLocked }}
+                                accessibilityState={{ checked: isSelected }}
                                 accessibilityLabel={`${option.name} timer style${isLocked ? ", Premium" : ""}`}
                                 style={({ pressed }) => [
                                     styles.timerStyleOption,
@@ -244,7 +247,7 @@ export default function AppearanceScreen() {
                                 <View>
                                     <Text style={[styles.timerStyleName, isSelected && styles.timerStyleNameSelected]}>{option.name}</Text>
                                 </View>
-                            </Pressable>
+                            </AnimatedPressable>
                         );
                     })}
                 </View>
@@ -280,8 +283,11 @@ export default function AppearanceScreen() {
                         const isSelected = option.id === backdrop;
 
                         return (
-                            <Pressable
+                            <AnimatedPressable
                                 key={option.id}
+                                accessibilityRole="radio"
+                                accessibilityState={{ checked: isSelected }}
+                                accessibilityLabel={`${option.name} backdrop${isLocked ? ", Premium" : ""}`}
                                 style={({ pressed }) => [
                                     styles.backdropOption,
 
@@ -316,7 +322,7 @@ export default function AppearanceScreen() {
 
                                     {isSelected && !isLocked && (
                                         <View style={styles.backdropCheck}>
-                                            <Check size={13} strokeWidth={3} color="#ffffff" />
+                                            <Check size={13} strokeWidth={3} color={colours.onPrimary} />
                                         </View>
                                     )}
                                 </View>
@@ -324,7 +330,7 @@ export default function AppearanceScreen() {
                                 <Text style={[styles.backdropName, isSelected && styles.backdropNameSelected]}>{option.name}</Text>
 
                                 {isLocked && <Text style={styles.backdropPremiumLabel}>Premium</Text>}
-                            </Pressable>
+                            </AnimatedPressable>
                         );
                     })}
                 </View>
@@ -335,7 +341,7 @@ export default function AppearanceScreen() {
     return <AppScreenBackground>{screenContent}</AppScreenBackground>;
 }
 
-function createStyles(colours: AppColours) {
+function createStyles(colours: AppColours, isCompact: boolean, gutter: number) {
     return StyleSheet.create({
         screen: {
             flex: 1,
@@ -346,43 +352,18 @@ function createStyles(colours: AppColours) {
             width: "100%",
             maxWidth: 640,
             alignSelf: "center",
-            padding: spacing.lg,
+            paddingHorizontal: gutter,
+            paddingTop: spacing.lg,
             paddingBottom: 48,
         },
 
-        header: {
-            marginBottom: spacing.xl,
-        },
-
-        label: {
-            fontSize: 12,
-            fontWeight: "800",
-            letterSpacing: 0.8,
-            color: colours.primary,
-        },
-
-        title: {
-            marginTop: spacing.sm,
-            fontSize: 30,
-            lineHeight: 36,
-            fontWeight: "800",
-            color: colours.text,
-        },
-
-        description: {
-            marginTop: spacing.sm,
-            fontSize: 15,
-            lineHeight: 22,
-            color: colours.textMuted,
-        },
-
         section: {
-            marginBottom: spacing.xl,
+            marginTop: spacing.xl,
         },
 
         sectionHeading: {
             flexDirection: "row",
-            alignItems: "center",
+            alignItems: isCompact ? "flex-start" : "center",
             gap: spacing.md,
             marginBottom: spacing.md,
         },
@@ -594,6 +575,7 @@ function createStyles(colours: AppColours) {
 
         timerStyleOption: {
             width: "47%",
+            flexGrow: 1,
             gap: spacing.sm,
             padding: spacing.sm,
             borderWidth: 1,
@@ -611,9 +593,7 @@ function createStyles(colours: AppColours) {
             opacity: 0.78,
         },
 
-        timerStyleOptionPressed: {
-            transform: [{ scale: 0.985 }],
-        },
+        timerStyleOptionPressed: { opacity: 0.82 },
 
         timerPreviewWrap: {
             position: "relative",
@@ -703,6 +683,7 @@ function createStyles(colours: AppColours) {
 
         backdropOption: {
             width: "47%",
+            flexGrow: 1,
 
             gap: spacing.sm,
 

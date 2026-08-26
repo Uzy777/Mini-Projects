@@ -1,7 +1,7 @@
 import { useMemo, type ReactNode } from "react";
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { MoreHorizontal, Play } from "lucide-react-native";
-import Animated, { LinearTransition } from "react-native-reanimated";
+import Animated, { LinearTransition, useReducedMotion } from "react-native-reanimated";
 
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { QuestFocusProgressSummary } from "@/components/focus/QuestFocusProgressSummary";
@@ -23,13 +23,14 @@ type Props = {
 export function TaskManagerTaskRow({ task, projectName, onFocus, onMore, dragHandle, isDragging = false }: Props) {
     const { colours } = useAppearance();
     const { width } = useWindowDimensions();
+    const reduceMotion = useReducedMotion();
     const compact = width < 520;
     const styles = useMemo(() => createStyles(colours, compact), [colours, compact]);
     const completed = task.status === "completed";
     const path = projectName ?? "Standalone Task";
 
     return (
-        <Animated.View layout={LinearTransition.duration(150)} style={[styles.row, styles.mobileRow, !task.focusSummary && styles.mobileRowWithoutProgress, isDragging && styles.draggingRow]}>
+        <Animated.View layout={reduceMotion ? undefined : LinearTransition.duration(150)} style={[styles.row, styles.mobileRow, !task.focusSummary && styles.mobileRowWithoutProgress, isDragging && styles.draggingRow]}>
             <View style={styles.mobileMainRow}>
                 {dragHandle}
                 <View style={styles.icon}><WorkAssetIcon assetId={task.assetId} size={19} color={completed ? colours.textMuted : colours.primaryStrong} /></View>

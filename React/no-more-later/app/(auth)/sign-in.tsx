@@ -118,7 +118,6 @@ export default function SignInScreen() {
                 accessibilityRole="button"
                 disabled={isSubmitting}
                 haptic="light"
-                pressedScale={0.975}
                 onPress={handleSignIn}
                 style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
             >
@@ -137,7 +136,7 @@ export default function SignInScreen() {
                     }}
                     asChild
                 >
-                    <AnimatedPressable haptic="none" pressedScale={0.96}>
+                    <AnimatedPressable haptic="none">
                         <Text style={styles.authLink}>Create one</Text>
                     </AnimatedPressable>
                 </Link>

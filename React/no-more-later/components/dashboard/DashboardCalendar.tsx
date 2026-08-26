@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Coffee } from "lucide-react-native";
 
 import type { AppColours } from "@/constants/appearanceColours";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import type { FocusSessionRecord } from "@/types/models";
@@ -42,13 +43,13 @@ export function DashboardCalendar({ sessions, referenceDate = new Date() }: Dash
         <View style={[styles.content, isWide && styles.desktopContent]}>
             <ProgressCard style={[styles.calendarCard, isWide && styles.desktopCalendarCard]}>
                 <View style={styles.monthHeader}>
-                    <Pressable accessibilityLabel="Previous month" hitSlop={8} onPress={() => changeMonth(-1)} style={({ pressed }) => [styles.arrowButton, pressed && styles.pressed]}>
+                    <AnimatedPressable accessibilityLabel="Previous month" hitSlop={8} onPress={() => changeMonth(-1)} style={({ pressed }) => [styles.arrowButton, pressed && styles.pressed]}>
                         <ChevronLeft size={20} color={colours.text} />
-                    </Pressable>
+                    </AnimatedPressable>
                     <Text style={styles.monthTitle}>{visibleMonth.toLocaleDateString(undefined, { month: "long", year: "numeric" })}</Text>
-                    <Pressable accessibilityLabel="Next month" hitSlop={8} onPress={() => changeMonth(1)} style={({ pressed }) => [styles.arrowButton, pressed && styles.pressed]}>
+                    <AnimatedPressable accessibilityLabel="Next month" hitSlop={8} onPress={() => changeMonth(1)} style={({ pressed }) => [styles.arrowButton, pressed && styles.pressed]}>
                         <ChevronRight size={20} color={colours.text} />
-                    </Pressable>
+                    </AnimatedPressable>
                 </View>
 
                 <View style={styles.calendarLegend}>
@@ -83,7 +84,7 @@ export function DashboardCalendar({ sessions, referenceDate = new Date() }: Dash
                             const isCurrentMonth = date.getMonth() === visibleMonth.getMonth();
 
                             return (
-                                <Pressable
+                                <AnimatedPressable
                                     key={getLocalDateKey(date)}
                                     accessibilityLabel={`${date.toLocaleDateString()}${isToday ? ", today" : ""}. ${daySessions.length} timer ${daySessions.length === 1 ? "entry" : "entries"}.`}
                                     accessibilityState={{ selected: isSelected }}
@@ -112,7 +113,7 @@ export function DashboardCalendar({ sessions, referenceDate = new Date() }: Dash
                                             />
                                         ))}
                                     </View>
-                                </Pressable>
+                                </AnimatedPressable>
                             );
                         })}
                     </View>

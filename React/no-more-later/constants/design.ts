@@ -23,3 +23,7 @@ export const layout = {
     mobileBreakpoint: 700,
     desktopBreakpoint: 960,
 } as const;
+
+export function getScreenGutter(width: number) {
+    return width < 480 ? spacing.md : spacing.lg;
+}

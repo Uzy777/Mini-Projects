@@ -38,7 +38,7 @@ export default function TabLayout() {
                 },
 
                 tabBarLabelStyle: {
-                    fontSize: isDesktop ? 13 : 11,
+                    fontSize: isDesktop ? 13 : width < 390 ? 9 : 11,
                     fontWeight: "700",
                 },
 
@@ -46,7 +46,7 @@ export default function TabLayout() {
                     minHeight: isDesktop ? 48 : undefined,
                     maxHeight: isDesktop ? 48 : undefined,
                     marginVertical: isDesktop ? 3 : 0,
-                    paddingVertical: isDesktop ? 0 : 4,
+                    paddingVertical: isDesktop ? 0 : width < 390 ? 3 : 4,
                     borderRadius: isDesktop ? radius.md : 0,
                 },
                 tabBarActiveBackgroundColor: isDesktop ? colours.primarySoft : "transparent",

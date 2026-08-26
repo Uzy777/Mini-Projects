@@ -417,7 +417,7 @@ function RequirementRow({ styles, colours, complete, text, optional = false }: {
 }
 
 function PrimaryButton({ label, onPress, disabled = false, styles }: { label: string; onPress: () => void; disabled?: boolean; styles: StepStyles }) {
-    return <AnimatedPressable accessibilityRole="button" disabled={disabled} haptic="light" pressedScale={0.98} onPress={onPress} style={[styles.primaryButton, disabled && styles.primaryButtonDisabled]}><Text style={styles.primaryButtonText}>{label}</Text>{!disabled ? <ArrowRight size={18} strokeWidth={2.5} color="#ffffff" /> : null}</AnimatedPressable>;
+    return <AnimatedPressable accessibilityRole="button" disabled={disabled} haptic="light" onPress={onPress} style={[styles.primaryButton, disabled && styles.primaryButtonDisabled]}><Text style={styles.primaryButtonText}>{label}</Text>{!disabled ? <ArrowRight size={18} strokeWidth={2.5} color={AUTH_COLOURS.onPrimary} /> : null}</AnimatedPressable>;
 }
 
 function createStyles(colours: AppColours, isWide: boolean) {

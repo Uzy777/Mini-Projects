@@ -78,7 +78,6 @@ export function AuthInput({
                         accessibilityRole="button"
                         accessibilityLabel={isPasswordVisible ? "Hide password" : "Show password"}
                         haptic="none"
-                        pressedScale={0.92}
                         onPress={() => setIsPasswordVisible((current) => !current)}
                         style={styles.visibilityButton}
                     >

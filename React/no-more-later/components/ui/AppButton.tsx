@@ -34,6 +34,7 @@ export function AppButton({
     const { colours } = useAppearance();
     const styles = useMemo(() => createStyles(colours), [colours]);
     const isDisabled = disabled || loading;
+    const loadingColour = variant === "primary" ? colours.onPrimary : variant === "danger" ? colours.onDanger : colours.primary;
 
     return (
         <AnimatedPressable
@@ -42,9 +43,10 @@ export function AppButton({
             disabled={isDisabled}
             haptic={variant === "primary" ? "light" : "selection"}
             onPress={onPress}
-            style={[
+            style={({ pressed, hovered }) => [
                 styles.button,
                 styles[`${variant}Button`],
+                (pressed || hovered) && styles[`${variant}ButtonInteractive`],
                 styles[`${size}Button`],
                 fullWidth && styles.fullWidth,
                 isDisabled && styles.disabled,
@@ -52,7 +54,7 @@ export function AppButton({
             ]}
         >
             {loading ? (
-                <ActivityIndicator size="small" color={variant === "primary" ? colours.onPrimary : colours.primary} />
+                <ActivityIndicator size="small" color={loadingColour} />
             ) : (
                 <View style={styles.content}>
                     {icon}
@@ -84,10 +86,15 @@ function createStyles(colours: AppColours) {
         mdButton: { minHeight: 44, paddingHorizontal: spacing.md },
         lgButton: { minHeight: 50, paddingHorizontal: spacing.lg },
         primaryButton: { borderColor: colours.primary, backgroundColor: colours.primary },
+        primaryButtonInteractive: { borderColor: colours.primaryPressed, backgroundColor: colours.primaryPressed },
         secondaryButton: { borderColor: colours.border, backgroundColor: colours.surface },
+        secondaryButtonInteractive: { borderColor: colours.primaryBorder, backgroundColor: colours.primarySubtle },
         softButton: { borderColor: colours.primaryBorder, backgroundColor: colours.primarySoft },
+        softButtonInteractive: { borderColor: colours.primary, backgroundColor: colours.primarySubtle },
         ghostButton: { borderColor: "transparent", backgroundColor: "transparent" },
+        ghostButtonInteractive: { borderColor: colours.primaryBorder, backgroundColor: colours.primarySubtle },
         dangerButton: { borderColor: colours.danger, backgroundColor: colours.danger },
+        dangerButtonInteractive: { opacity: 0.86 },
         label: { fontWeight: "800", textAlign: "center" },
         smLabel: { fontSize: 12 },
         mdLabel: { fontSize: 14 },
@@ -96,6 +103,6 @@ function createStyles(colours: AppColours) {
         secondaryLabel: { color: colours.text },
         softLabel: { color: colours.primaryStrong },
         ghostLabel: { color: colours.primary },
-        dangerLabel: { color: "#ffffff" },
+        dangerLabel: { color: colours.onDanger },
     });
 }

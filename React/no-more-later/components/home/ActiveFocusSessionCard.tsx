@@ -1,9 +1,10 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { useMemo } from "react";
 
 type ActiveSessionStatus = "In progress" | "Paused" | "Ready for review";
@@ -22,7 +23,7 @@ export function ActiveFocusSessionCard({ questTitle, status, onReturn }: ActiveF
     const actionText = status === "Ready for review" ? "Review session" : "Return to session";
 
     return (
-        <Pressable style={({ pressed }) => [styles.card, pressed && styles.cardPressed]} onPress={onReturn}>
+        <AnimatedPressable style={({ pressed }) => [styles.card, pressed && styles.cardPressed]} onPress={onReturn}>
             <View style={styles.topRow}>
                 <Text style={styles.label}>ACTIVE FOCUS SESSION</Text>
 
@@ -38,7 +39,7 @@ export function ActiveFocusSessionCard({ questTitle, status, onReturn }: ActiveF
 
                 <Text style={styles.arrow}>→</Text>
             </View>
-        </Pressable>
+        </AnimatedPressable>
     );
 }
 

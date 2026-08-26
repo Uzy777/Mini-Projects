@@ -1,6 +1,6 @@
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { StyleSheet, Text, View, Pressable } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
 import type { Quest } from "../../../types/models";
 import { saveQuests } from "../../../services/storage/questsStorage";
@@ -11,7 +11,7 @@ import { confirmDelete } from "../../../utils/confirmDelete";
 import { getActiveFocusSession } from "../../../services/storage/activeFocusSessionStorage";
 import { showMessage } from "../../../utils/showMessage";
 import { syncJourneyStatusFromQuests } from "../../../services/journeyStatusService";
-import { radius, spacing } from "@/constants/design";
+import { getScreenGutter, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
@@ -19,6 +19,8 @@ import { getRemoteQuests, createRemoteQuest, deleteRemoteQuest, updateRemoteQues
 import { AppScreenBackground } from "@/components/appearance/AppScreenBackground";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareLayout";
 import { useAuth } from "@/contexts/AuthContext";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 
 type QuestFilter = "all" | "active" | "completed";
 
@@ -43,8 +45,9 @@ const questFilters: {
 export default function JourneyDetailsScreen() {
     const { session } = useAuth();
     const { colours } = useAppearance();
+    const { width } = useWindowDimensions();
 
-    const styles = useMemo(() => createStyles(colours), [colours]);
+    const styles = useMemo(() => createStyles(colours, getScreenGutter(width)), [colours, width]);
 
     const router = useRouter();
 
@@ -238,11 +241,7 @@ export default function JourneyDetailsScreen() {
         <AppScreenBackground>
             <KeyboardAwareScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
                 <Stack.Screen options={{ title: "Journey" }} />
-                <View style={styles.pageHeader}>
-                    <Text style={styles.title}>{title ?? "Journey"}</Text>
-
-                    <Text style={styles.description}>Break this Journey into small Quests and keep moving forward.</Text>
-                </View>
+                <ScreenHeader eyebrow="JOURNEY" title={title ?? "Journey"} subtitle="Break this Journey into small Quests and keep moving forward." />
                 <View style={styles.sections}>
                     <JourneyProgressCard totalQuestCount={totalQuestCount} completedQuestCount={completedQuestCount} />
 
@@ -254,25 +253,7 @@ export default function JourneyDetailsScreen() {
                         onAddQuest={handleAddQuest}
                     />
 
-                    <View style={styles.filterContainer}>
-                        {questFilters.map((filter) => {
-                            const isSelected = selectedQuestFilter === filter.value;
-
-                            return (
-                                <Pressable
-                                    key={filter.value}
-                                    style={({ pressed }) => [
-                                        styles.filterButton,
-                                        isSelected && styles.filterButtonSelected,
-                                        pressed && !isSelected && styles.filterButtonPressed,
-                                    ]}
-                                    onPress={() => setSelectedQuestFilter(filter.value)}
-                                >
-                                    <Text style={[styles.filterButtonText, isSelected && styles.filterButtonTextSelected]}>{filter.label}</Text>
-                                </Pressable>
-                            );
-                        })}
-                    </View>
+                    <SegmentedControl value={selectedQuestFilter} onChange={setSelectedQuestFilter} options={questFilters} />
 
                     <View style={styles.questList}>
                         {quests.length === 0 ? (
@@ -299,72 +280,17 @@ export default function JourneyDetailsScreen() {
     );
 }
 
-function createStyles(colours: AppColours) {
+function createStyles(colours: AppColours, gutter: number) {
     return StyleSheet.create({
         contentContainer: {
             width: "100%",
             maxWidth: 720,
             alignSelf: "center",
-            paddingHorizontal: spacing.lg,
+            paddingHorizontal: gutter,
             paddingTop: spacing.lg,
             paddingBottom: 48,
         },
 
-        pageHeader: {
-            marginBottom: spacing.lg,
-        },
-
-        title: {
-            fontSize: 30,
-            lineHeight: 36,
-            fontWeight: "800",
-            color: colours.text,
-        },
-
-        description: {
-            marginTop: spacing.sm,
-            fontSize: 15,
-            lineHeight: 22,
-            color: colours.textMuted,
-        },
-
-        filterContainer: {
-            width: "100%",
-            flexDirection: "row",
-            gap: spacing.xs,
-            padding: spacing.xs,
-            borderWidth: 1,
-            borderColor: colours.border,
-            borderRadius: radius.md,
-            backgroundColor: colours.surface,
-        },
-
-        filterButton: {
-            flex: 1,
-            alignItems: "center",
-            justifyContent: "center",
-            paddingVertical: 10,
-            paddingHorizontal: spacing.sm,
-            borderRadius: radius.sm,
-        },
-
-        filterButtonPressed: {
-            backgroundColor: colours.background,
-        },
-
-        filterButtonSelected: {
-            backgroundColor: colours.primary,
-        },
-
-        filterButtonText: {
-            fontSize: 13,
-            fontWeight: "700",
-            color: colours.textMuted,
-        },
-
-        filterButtonTextSelected: {
-            color: colours.onPrimary,
-        },
 
         questList: {
             gap: spacing.md,
@@ -379,6 +305,7 @@ function createStyles(colours: AppColours) {
         },
         sections: {
             gap: spacing.md,
+            marginTop: spacing.xl,
         },
         scrollView: {
             flex: 1,

@@ -11,13 +11,14 @@ import { TaskManagerHierarchy, type TaskManagerScope } from "@/components/tasks/
 import { TaskManagerTaskRow } from "@/components/tasks/TaskManagerTaskRow";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { AnimatedProgressBar } from "@/components/ui/AnimatedProgressBar";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { AppCard } from "@/components/ui/AppCard";
 import { AppTextInput, getInputFocusStyle } from "@/components/ui/AppTextInput";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareLayout";
 import type { AppColours } from "@/constants/appearanceColours";
-import { layout, radius, spacing } from "@/constants/design";
+import { getScreenGutter, layout, radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { syncJourneyStatusFromQuests } from "@/services/journeyStatusService";
@@ -342,7 +343,15 @@ export default function TasksScreen() {
                 <ScreenHeader eyebrow="TASKS" title="Get things done" subtitle="Create Tasks first. Use a Project only when several Tasks belong together." />
 
                 <View style={styles.toolbar}>
-                    <View accessibilityRole="tablist" style={styles.statusControl}>{(["active", "completed"] as const).map((value) => <AnimatedPressable key={value} accessibilityRole="tab" accessibilityState={{ selected: status === value }} onPress={() => setStatus(value)} style={[styles.statusButton, status === value && styles.selectedStatusButton]}><Text style={[styles.statusText, status === value && styles.selectedStatusText]}>{value === "active" ? "Active" : "Completed"}</Text></AnimatedPressable>)}</View>
+                    <SegmentedControl
+                        value={status}
+                        onChange={setStatus}
+                        style={styles.statusControl}
+                        options={[
+                            { value: "active", label: "Active" },
+                            { value: "completed", label: "Completed" },
+                        ]}
+                    />
                     <View style={[styles.searchBox, isSearchFocused && styles.searchBoxFocused]}>
                         <Search size={17} color={isSearchFocused ? colours.primary : colours.textMuted} />
                         <AppTextInput
@@ -512,13 +521,9 @@ function withoutProject(task: WorkQuest): WorkQuest { const { journeyId: _journe
 function createStyles(colours: AppColours, isDesktop: boolean, width: number) {
     return StyleSheet.create({
         screen: { flex: 1, backgroundColor: "transparent" },
-        content: { width: "100%", maxWidth: layout.contentMaxWidth, alignSelf: "center", paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: 100, gap: spacing.md },
+        content: { width: "100%", maxWidth: layout.contentMaxWidth, alignSelf: "center", paddingHorizontal: getScreenGutter(width), paddingTop: spacing.lg, paddingBottom: 100, gap: spacing.md },
         toolbar: { flexDirection: isDesktop ? "row" : "column", alignItems: isDesktop ? "center" : "stretch", gap: spacing.sm },
-        statusControl: { flexDirection: "row", padding: 3, borderRadius: radius.md, backgroundColor: colours.primarySubtle },
-        statusButton: { minHeight: 38, minWidth: isDesktop ? 108 : 0, flex: isDesktop ? undefined : 1, alignItems: "center", justifyContent: "center", paddingHorizontal: spacing.md, borderRadius: radius.sm },
-        selectedStatusButton: { borderWidth: 1, borderColor: colours.primaryBorder, backgroundColor: colours.primarySoft },
-        statusText: { fontSize: 12, fontWeight: "700", color: colours.textMuted },
-        selectedStatusText: { color: colours.primaryStrong },
+        statusControl: { width: isDesktop ? 232 : "100%" },
         searchBox: { minHeight: 44, flex: 1, flexDirection: "row", alignItems: "center", gap: spacing.sm, paddingHorizontal: spacing.md, borderWidth: 1, borderColor: colours.border, borderRadius: radius.md, backgroundColor: colours.surface },
         searchBoxFocused: getInputFocusStyle(colours),
         searchInput: { minWidth: 0, flex: 1, paddingVertical: 10, fontSize: 13, color: colours.text },

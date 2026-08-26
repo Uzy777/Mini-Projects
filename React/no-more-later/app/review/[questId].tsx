@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Info } from "lucide-react-native";
+import Animated, { FadeInUp, useReducedMotion } from "react-native-reanimated";
 
 import { calculateLevel } from "../../utils/level";
 import type { SessionOutcome } from "../../types/models";
@@ -10,7 +11,7 @@ import { ReviewResultCard } from "../../components/review/ReviewResultCard";
 import { ReviewForm } from "../../components/review/ReviewForm";
 import { getReviewValidationMessage } from "../../utils/reviewValidation";
 import { clearActiveFocusSession, getActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
-import { radius, spacing } from "@/constants/design";
+import { getScreenGutter, radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
@@ -31,8 +32,10 @@ import type { BadgeUnlockAward } from "@/types/badges";
 
 export default function ReviewSessionScreen() {
     const { colours } = useAppearance();
+    const { width } = useWindowDimensions();
+    const reduceMotion = useReducedMotion();
 
-    const styles = useMemo(() => createStyles(colours), [colours]);
+    const styles = useMemo(() => createStyles(colours, getScreenGutter(width)), [colours, width]);
 
     const router = useRouter();
     const { session } = useAuth();
@@ -355,8 +358,9 @@ export default function ReviewSessionScreen() {
                     action={<View style={styles.sessionBadge}><Text style={styles.sessionLength}>{plannedMinutes ?? "0"} min</Text></View>}
                 />
 
-                {earnedXp !== null && totalXp !== null ? (
-                    <ReviewResultCard
+                <Animated.View entering={reduceMotion ? undefined : FadeInUp.duration(260)}>
+                    {earnedXp !== null && totalXp !== null ? (
+                        <ReviewResultCard
                         earnedXp={earnedXp}
                         totalXp={totalXp}
                         baseXp={awardedBaseXp}
@@ -370,9 +374,9 @@ export default function ReviewSessionScreen() {
                         returnLabel={source === "quick-focus" ? "Return Home" : source === "tasks" ? "Return to Tasks" : undefined}
                         outcome={savedOutcome ?? undefined}
                         itemKind={isQuestlessQuickFocus ? undefined : source === "tasks" ? "Task" : "Quest"}
-                    />
-                ) : (
-                    <View style={styles.reviewSections}>
+                        />
+                    ) : (
+                        <View style={styles.reviewSections}>
                         {earnsNoXp || isEndedEarly ? (
                             <View style={[styles.xpNotice, earnsNoXp ? styles.noXpNotice : styles.earlyXpNotice]}>
                                 <Info size={18} color={earnsNoXp ? colours.warning : colours.primaryStrong} />
@@ -424,14 +428,15 @@ export default function ReviewSessionScreen() {
                             isSubmitting={isSubmitting}
                             onSubmit={handleCompleteReview}
                         />
-                    </View>
-                )}
+                        </View>
+                    )}
+                </Animated.View>
             </KeyboardAwareScrollView>
         </AppScreenBackground>
     );
 }
 
-function createStyles(colours: AppColours) {
+function createStyles(colours: AppColours, gutter: number) {
     return StyleSheet.create({
         screen: {
             flex: 1,
@@ -442,7 +447,7 @@ function createStyles(colours: AppColours) {
             width: "100%",
             maxWidth: 720,
             alignSelf: "center",
-            paddingHorizontal: spacing.lg,
+            paddingHorizontal: gutter,
             paddingTop: spacing.lg,
             paddingBottom: 48,
         },

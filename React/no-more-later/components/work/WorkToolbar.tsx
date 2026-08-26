@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-n
 import { Search } from "lucide-react-native";
 
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
@@ -34,24 +35,15 @@ export function WorkToolbar({ selectedFilter, statusFilter, isSearchVisible, onS
     return (
         <View style={styles.container}>
             <View style={styles.topRow}>
-                <View accessibilityRole="tablist" style={styles.statusControl}>
-                    {(["active", "completed"] as const).map((status) => {
-                        const isSelected = statusFilter === status;
-                        return (
-                            <AnimatedPressable
-                                key={status}
-                                accessibilityRole="tab"
-                                accessibilityState={{ selected: isSelected }}
-                                onPress={() => onSelectStatus(status)}
-                                style={[styles.statusButton, isSelected && styles.selectedStatusButton]}
-                            >
-                                <Text style={[styles.statusText, isSelected && styles.selectedStatusText]}>
-                                    {status === "active" ? "Active" : "Completed"}
-                                </Text>
-                            </AnimatedPressable>
-                        );
-                    })}
-                </View>
+                <SegmentedControl
+                    value={statusFilter}
+                    onChange={onSelectStatus}
+                    style={styles.statusControl}
+                    options={[
+                        { value: "active", label: "Active" },
+                        { value: "completed", label: "Completed" },
+                    ]}
+                />
 
                 <AnimatedPressable
                     accessibilityLabel={isSearchVisible ? "Close work search" : "Search work"}
@@ -95,24 +87,8 @@ function createStyles(colours: AppColours, isMobile: boolean) {
         topRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.sm },
         statusControl: {
             flex: isMobile ? 1 : undefined,
-            padding: 3,
-            flexDirection: "row",
-            gap: 3,
-            borderRadius: radius.md,
-            backgroundColor: colours.primarySubtle,
+            width: isMobile ? undefined : 232,
         },
-        statusButton: {
-            minHeight: 36,
-            minWidth: isMobile ? 0 : 108,
-            flex: isMobile ? 1 : undefined,
-            alignItems: "center",
-            justifyContent: "center",
-            paddingHorizontal: spacing.md,
-            borderRadius: radius.sm,
-        },
-        selectedStatusButton: { borderWidth: 1, borderColor: colours.primaryBorder, backgroundColor: colours.primarySoft },
-        statusText: { fontSize: 12, fontWeight: "700", color: colours.textMuted },
-        selectedStatusText: { color: colours.primaryStrong },
         searchButton: {
             minHeight: 42,
             paddingHorizontal: spacing.md,

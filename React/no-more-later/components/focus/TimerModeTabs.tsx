@@ -35,6 +35,7 @@ export function TimerModeTabs({ selectedMode, minutes, disabled = false, onSelec
                         onPress={() => onSelectMode(mode.id)}
                         style={[styles.tab, selected && { borderColor: tone.border, backgroundColor: tone.soft }]}
                         haptic="selection"
+                        pressedScale={0.985}
                     >
                         <Icon size={15} color={selected ? tone.strong : colours.textMuted} />
                         <Text numberOfLines={1} style={[styles.label, selected && { color: tone.strong }]}>{mode.label}</Text>

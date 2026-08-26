@@ -176,7 +176,6 @@ export default function SignUpScreen() {
                 accessibilityRole="button"
                 disabled={isSubmitting}
                 haptic="light"
-                pressedScale={0.975}
                 onPress={handleSignUp}
                 style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
             >
@@ -187,7 +186,7 @@ export default function SignUpScreen() {
                 <Text style={styles.authLinkText}>Already have an account?</Text>
 
                 <Link href="/sign-in" asChild>
-                    <AnimatedPressable haptic="none" pressedScale={0.96}>
+                    <AnimatedPressable haptic="none">
                         <Text style={styles.authLink}>Sign in</Text>
                     </AnimatedPressable>
                 </Link>

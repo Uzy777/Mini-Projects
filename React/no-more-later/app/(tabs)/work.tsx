@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
 import { Folder, FolderPlus, ListTodo, Search } from "lucide-react-native";
 
@@ -11,7 +11,7 @@ import { WorkQuestCard } from "@/components/work/WorkQuestCard";
 import { WorkQuickActions } from "@/components/work/WorkQuickActions";
 
 import type { AppColours } from "@/constants/appearanceColours";
-import { layout, radius, spacing } from "@/constants/design";
+import { getScreenGutter, layout, radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { CreateWorkJourneyModal } from "@/components/work/CreateWorkJourneyModal";
 import type { WorkAssetId, WorkJourney, WorkQuest, WorkStatus } from "@/types/work";
@@ -40,11 +40,12 @@ import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 
 export default function WorkScreen() {
     const { colours } = useAppearance();
+    const { width } = useWindowDimensions();
     const { session } = useAuth();
 
     const router = useRouter();
 
-    const styles = useMemo(() => createStyles(colours), [colours]);
+    const styles = useMemo(() => createStyles(colours, getScreenGutter(width)), [colours, width]);
 
     const [selectedFilter, setSelectedFilter] = useState<WorkViewFilter>("all");
     const [statusFilter, setStatusFilter] = useState<WorkStatusFilter>("active");
@@ -693,7 +694,7 @@ export default function WorkScreen() {
     );
 }
 
-function createStyles(colours: AppColours) {
+function createStyles(colours: AppColours, gutter: number) {
     return StyleSheet.create({
         screen: {
             flex: 1,
@@ -705,7 +706,7 @@ function createStyles(colours: AppColours) {
             maxWidth: layout.contentMaxWidth,
             alignSelf: "center",
 
-            paddingHorizontal: spacing.lg,
+            paddingHorizontal: gutter,
             paddingTop: spacing.lg,
             paddingBottom: 100,
         },

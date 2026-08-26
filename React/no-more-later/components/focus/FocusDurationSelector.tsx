@@ -43,6 +43,7 @@ export function FocusDurationSelector({ selectedMinutes, disabled = false, onSel
                             ]}
                             onPress={() => onSelectMinutes(minutes)}
                             disabled={disabled}
+                            pressedScale={0.985}
                         >
                             <Text style={[styles.durationButtonText, isSelected && styles.selectedDurationButtonText]}>{minutes} min</Text>
                         </AnimatedPressable>

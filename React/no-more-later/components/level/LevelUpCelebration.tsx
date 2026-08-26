@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
-import { Animated, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Animated, Modal, StyleSheet, Text, View } from "react-native";
+import { useReducedMotion } from "react-native-reanimated";
 
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
@@ -7,6 +8,7 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import type { AppColours } from "@/constants/appearanceColours";
 import { getFocusRank } from "@/utils/rank";
 import { getRankImage } from "@/utils/rankImage";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 
 type LevelUpCelebrationProps = {
     previousLevel: number;
@@ -61,6 +63,7 @@ function RankMedallion({ level }: RankMedallionProps) {
 
 export function LevelUpCelebration({ previousLevel, newLevel, earnedXp, onContinue }: LevelUpCelebrationProps) {
     const { colours } = useAppearance();
+    const reduceMotion = useReducedMotion();
 
     const styles = useMemo(() => createStyles(colours), [colours]);
 
@@ -92,6 +95,17 @@ export function LevelUpCelebration({ previousLevel, newLevel, earnedXp, onContin
     ).current;
 
     useEffect(() => {
+        if (reduceMotion) {
+            opacity.setValue(1);
+            scale.setValue(1);
+            previousRankOpacity.setValue(rankChanged ? 0 : 1);
+            previousRankScale.setValue(1);
+            newRankOpacity.setValue(1);
+            newRankScale.setValue(1);
+            diamondAnimations.forEach((animation, index) => animation.setValue(index < newCompletedSteps ? 1 : 0));
+            return;
+        }
+
         const newlyCompletedDiamondAnimations = diamondAnimations.slice(previousCompletedSteps, newCompletedSteps).map((diamondAnimation) =>
             Animated.spring(diamondAnimation, {
                 toValue: 1,
@@ -134,7 +148,7 @@ export function LevelUpCelebration({ previousLevel, newLevel, earnedXp, onContin
               ]
             : [];
 
-        Animated.sequence([
+        const celebration = Animated.sequence([
             Animated.parallel([
                 Animated.timing(opacity, {
                     toValue: 1,
@@ -157,8 +171,12 @@ export function LevelUpCelebration({ previousLevel, newLevel, earnedXp, onContin
             Animated.delay(200),
 
             ...newlyCompletedDiamondAnimations,
-        ]).start();
-    }, [diamondAnimations, newCompletedSteps, newRankOpacity, newRankScale, opacity, previousCompletedSteps, previousRankOpacity, previousRankScale, rankChanged, scale]);
+        ]);
+
+        celebration.start();
+
+        return () => celebration.stop();
+    }, [diamondAnimations, newCompletedSteps, newRankOpacity, newRankScale, opacity, previousCompletedSteps, previousRankOpacity, previousRankScale, rankChanged, reduceMotion, scale]);
 
     if (!newRank) {
         return null;
@@ -284,9 +302,9 @@ export function LevelUpCelebration({ previousLevel, newLevel, earnedXp, onContin
                         <Text style={styles.rewardText}>+{earnedXp} XP</Text>
                     </View>
 
-                    <Pressable style={({ pressed }) => [styles.continueButton, pressed && styles.continueButtonPressed]} onPress={onContinue}>
+                    <AnimatedPressable style={({ pressed }) => [styles.continueButton, pressed && styles.continueButtonPressed]} onPress={onContinue}>
                         <Text style={styles.continueButtonText}>Continue</Text>
-                    </Pressable>
+                    </AnimatedPressable>
                 </Animated.View>
             </View>
         </Modal>

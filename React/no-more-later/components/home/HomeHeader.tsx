@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Sparkles } from "lucide-react-native";
 
 import { radius, spacing } from "@/constants/design";
@@ -27,8 +27,9 @@ function getGreeting(): string {
 
 export function HomeHeader({ displayName }: HomeHeaderProps) {
     const { colours } = useAppearance();
+    const { width } = useWindowDimensions();
 
-    const styles = useMemo(() => createStyles(colours), [colours]);
+    const styles = useMemo(() => createStyles(colours, width < 420), [colours, width]);
 
     return (
         <View style={styles.header}>
@@ -59,7 +60,7 @@ export function HomeHeader({ displayName }: HomeHeaderProps) {
     );
 }
 
-function createStyles(colours: AppColours) {
+function createStyles(colours: AppColours, compact: boolean) {
     return StyleSheet.create({
         header: {
             width: "100%",
@@ -102,8 +103,8 @@ function createStyles(colours: AppColours) {
         },
 
         title: {
-            fontSize: 28,
-            lineHeight: 34,
+            fontSize: compact ? 25 : 28,
+            lineHeight: compact ? 31 : 34,
             fontWeight: "900",
             letterSpacing: -0.5,
             color: colours.text,

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { radius, spacing } from "@/constants/design";
 import { PREMIUM_TEST_CONTROLS_ENABLED } from "@/constants/premium";
@@ -7,6 +7,7 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import { usePremium } from "@/contexts/PremiumContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 
 export function DevelopmentPremiumControls() {
     const { colours } = useAppearance();
@@ -32,25 +33,14 @@ export function DevelopmentPremiumControls() {
                     </Text>
                 </View>
 
-                <View style={styles.buttons}>
-                    <Pressable
-                        style={[styles.button, !hasDevelopmentPremiumOverride && styles.buttonSelected]}
-                        onPress={() => setDevelopmentPremium(false)}
-                    >
-                        <Text style={[styles.buttonText, !hasDevelopmentPremiumOverride && styles.buttonTextSelected]}>
-                            Use RevenueCat
-                        </Text>
-                    </Pressable>
-
-                    <Pressable
-                        style={[styles.button, hasDevelopmentPremiumOverride && styles.buttonSelected]}
-                        onPress={() => setDevelopmentPremium(true)}
-                    >
-                        <Text style={[styles.buttonText, hasDevelopmentPremiumOverride && styles.buttonTextSelected]}>
-                            Force Premium
-                        </Text>
-                    </Pressable>
-                </View>
+                <SegmentedControl
+                    value={hasDevelopmentPremiumOverride ? "forced" : "revenuecat"}
+                    onChange={(value) => setDevelopmentPremium(value === "forced")}
+                    options={[
+                        { value: "revenuecat", label: "Use RevenueCat" },
+                        { value: "forced", label: "Force Premium" },
+                    ]}
+                />
             </View>
         </View>
     );
@@ -60,6 +50,7 @@ function createStyles(colours: AppColours) {
     return StyleSheet.create({
         container: {
             gap: spacing.sm,
+            marginTop: spacing.xl,
         },
 
         label: {
@@ -100,40 +91,5 @@ function createStyles(colours: AppColours) {
             color: colours.textMuted,
         },
 
-        buttons: {
-            flexDirection: "row",
-            gap: spacing.sm,
-        },
-
-        button: {
-            flex: 1,
-
-            minHeight: 40,
-
-            alignItems: "center",
-            justifyContent: "center",
-
-            borderWidth: 1,
-            borderColor: colours.border,
-            borderRadius: radius.md,
-
-            backgroundColor: colours.background,
-        },
-
-        buttonSelected: {
-            borderColor: colours.primary,
-            backgroundColor: colours.primarySoft,
-        },
-
-        buttonText: {
-            fontSize: 13,
-            fontWeight: "700",
-
-            color: colours.textMuted,
-        },
-
-        buttonTextSelected: {
-            color: colours.primary,
-        },
     });
 }

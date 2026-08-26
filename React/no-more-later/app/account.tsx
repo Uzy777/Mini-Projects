@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Switch, Text, View, Platform } from "react-native";
+import { ScrollView, StyleSheet, Switch, Text, useWindowDimensions, View, Platform } from "react-native";
 import { Stack, router } from "expo-router";
 import { ChevronRight, LogOut, Palette, ShieldCheck, Trash2, UserRoundPen } from "lucide-react-native";
 
@@ -10,7 +10,7 @@ import { PremiumStatusCard } from "@/components/premium/PremiumStatusCard";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import type { AppColours } from "@/constants/appearanceColours";
-import { radius, spacing } from "@/constants/design";
+import { getScreenGutter, radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { deleteAccount, signOut } from "@/services/auth/authService";
@@ -21,7 +21,8 @@ import { clearNoMoreLaterStorage } from "@/services/storage/resetAppStorage";
 export default function AccountScreen() {
     const { session, profile, refreshProfile } = useAuth();
     const { colours } = useAppearance();
-    const styles = useMemo(() => createStyles(colours), [colours]);
+    const { width } = useWindowDimensions();
+    const styles = useMemo(() => createStyles(colours, width < 520, getScreenGutter(width)), [colours, width]);
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
     const [isDeletingAccount, setIsDeletingAccount] = useState(false);
     const [deleteAccountError, setDeleteAccountError] = useState<string | null>(null);
@@ -175,33 +176,35 @@ export default function AccountScreen() {
                             </Text>
                             {privacyError ? <Text style={styles.privacyError}>{privacyError}</Text> : null}
                         </View>
-                        {Platform.OS === "web" ? (
-                            <AnimatedPressable
-                                accessibilityRole="switch"
-                                accessibilityState={{
-                                    checked: isPublicLeaderboardHidden,
-                                    disabled: !profile || isUpdatingPrivacy,
-                                }}
-                                accessibilityLabel="Hide from the public leaderboard"
-                                disabled={!profile || isUpdatingPrivacy}
-                                onPress={() => void handleLeaderboardPrivacyChange(!isPublicLeaderboardHidden)}
-                                style={[styles.webSwitch, isPublicLeaderboardHidden && styles.webSwitchActive]}
-                            >
-                                <View style={[styles.webSwitchThumb, isPublicLeaderboardHidden && styles.webSwitchThumbActive]} />
-                            </AnimatedPressable>
-                        ) : (
-                            <Switch
-                                accessibilityLabel="Hide from the public leaderboard"
-                                disabled={!profile || isUpdatingPrivacy}
-                                value={isPublicLeaderboardHidden}
-                                onValueChange={(value) => void handleLeaderboardPrivacyChange(value)}
-                                trackColor={{
-                                    false: colours.border,
-                                    true: colours.primaryMuted,
-                                }}
-                                thumbColor={isPublicLeaderboardHidden ? colours.primary : colours.surface}
-                            />
-                        )}
+                        <View style={styles.privacyControl}>
+                            {Platform.OS === "web" ? (
+                                <AnimatedPressable
+                                    accessibilityRole="switch"
+                                    accessibilityState={{
+                                        checked: isPublicLeaderboardHidden,
+                                        disabled: !profile || isUpdatingPrivacy,
+                                    }}
+                                    accessibilityLabel="Hide from the public leaderboard"
+                                    disabled={!profile || isUpdatingPrivacy}
+                                    onPress={() => void handleLeaderboardPrivacyChange(!isPublicLeaderboardHidden)}
+                                    style={[styles.webSwitch, isPublicLeaderboardHidden && styles.webSwitchActive]}
+                                >
+                                    <View style={[styles.webSwitchThumb, isPublicLeaderboardHidden && styles.webSwitchThumbActive]} />
+                                </AnimatedPressable>
+                            ) : (
+                                <Switch
+                                    accessibilityLabel="Hide from the public leaderboard"
+                                    disabled={!profile || isUpdatingPrivacy}
+                                    value={isPublicLeaderboardHidden}
+                                    onValueChange={(value) => void handleLeaderboardPrivacyChange(value)}
+                                    trackColor={{
+                                        false: colours.border,
+                                        true: colours.primaryMuted,
+                                    }}
+                                    thumbColor={isPublicLeaderboardHidden ? colours.primary : colours.surface}
+                                />
+                            )}
+                        </View>
                     </View>
                 </View>
 
@@ -235,7 +238,7 @@ export default function AccountScreen() {
                             onPress={openDeleteAccountModal}
                             style={styles.deleteButton}
                         >
-                            <Trash2 size={17} color="#ffffff" />
+                            <Trash2 size={17} color={colours.onDanger} />
                             <Text style={styles.deleteButtonText}>Delete account</Text>
                         </AnimatedPressable>
                     </View>
@@ -254,7 +257,7 @@ export default function AccountScreen() {
     );
 }
 
-function createStyles(colours: AppColours) {
+function createStyles(colours: AppColours, compact: boolean, gutter: number) {
     return StyleSheet.create({
         screen: {
             flex: 1,
@@ -265,7 +268,8 @@ function createStyles(colours: AppColours) {
             width: "100%",
             maxWidth: 640,
             alignSelf: "center",
-            padding: spacing.lg,
+            paddingHorizontal: gutter,
+            paddingTop: spacing.lg,
             paddingBottom: 48,
         },
 
@@ -350,6 +354,11 @@ function createStyles(colours: AppColours) {
         privacyDetails: {
             minWidth: 0,
             flex: 1,
+        },
+        privacyControl: {
+            flexShrink: 0,
+            alignItems: "flex-end",
+            paddingTop: compact ? 2 : 0,
         },
 
         privacyError: {
@@ -448,7 +457,7 @@ function createStyles(colours: AppColours) {
         deleteButtonText: {
             fontSize: 14,
             fontWeight: "800",
-            color: "#ffffff",
+            color: colours.onDanger,
         },
         webSwitch: {
             width: 44,

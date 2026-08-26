@@ -7,6 +7,7 @@ import QRCode from "react-native-qrcode-svg";
 import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { AppTextInput } from "@/components/ui/AppTextInput";
 import { KeyboardAwareView } from "@/components/ui/KeyboardAwareLayout";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
@@ -204,10 +205,14 @@ export function BuddyInviteModal({ visible, incomingCode, onClose, onBuddyAdded 
                             keyboardShouldPersistTaps="handled"
                             showsVerticalScrollIndicator={false}
                         >
-                            <View accessibilityRole="tablist" style={styles.modeControl}>
-                                <ModeButton label="Share mine" icon={QrCode} selected={mode === "share"} onPress={() => changeMode("share")} />
-                                <ModeButton label="Enter code" icon={UserPlus} selected={mode === "join"} onPress={() => changeMode("join")} />
-                            </View>
+                            <SegmentedControl
+                                value={mode}
+                                onChange={changeMode}
+                                options={[
+                                    { value: "share", label: "Share mine", icon: (selected) => <QrCode size={16} color={selected ? colours.primaryStrong : colours.textMuted} /> },
+                                    { value: "join", label: "Enter code", icon: (selected) => <UserPlus size={16} color={selected ? colours.primaryStrong : colours.textMuted} /> },
+                                ]}
+                            />
 
                             {isLoading ? (
                                 <View style={styles.loadingState}>
@@ -227,7 +232,7 @@ export function BuddyInviteModal({ visible, incomingCode, onClose, onBuddyAdded 
                                             <Text style={styles.codeLabel}>BUDDY CODE</Text>
                                         </View>
                                         <AnimatedPressable accessibilityRole="button" onPress={() => void shareInvite()} style={styles.primaryButton}>
-                                            <Send size={17} color="#ffffff" />
+                                            <Send size={17} color={colours.onPrimary} />
                                             <Text style={styles.primaryButtonText}>Share invite</Text>
                                         </AnimatedPressable>
                                         {shareFeedback ? <Text style={styles.feedbackText}>{shareFeedback}</Text> : null}
@@ -255,7 +260,7 @@ export function BuddyInviteModal({ visible, incomingCode, onClose, onBuddyAdded 
                                                 value={code}
                                             />
                                             <AnimatedPressable accessibilityRole="button" disabled={code.length !== 8} onPress={() => void checkCode()} style={[styles.primaryButton, code.length !== 8 && styles.buttonDisabled]}>
-                                                <UserPlus size={17} color="#ffffff" />
+                                                <UserPlus size={17} color={colours.onPrimary} />
                                                 <Text style={styles.primaryButtonText}>Check invite</Text>
                                             </AnimatedPressable>
                                         </>
@@ -276,7 +281,7 @@ export function BuddyInviteModal({ visible, incomingCode, onClose, onBuddyAdded 
                                                 <Text style={styles.secondaryButtonText}>Use another</Text>
                                             </AnimatedPressable>
                                             <AnimatedPressable accessibilityRole="button" disabled={isAccepting} onPress={() => void acceptInvite()} style={styles.primaryButton}>
-                                                {isAccepting ? <ActivityIndicator size="small" color="#ffffff" /> : <UserPlus size={17} color="#ffffff" />}
+                                                {isAccepting ? <ActivityIndicator size="small" color={colours.onPrimary} /> : <UserPlus size={17} color={colours.onPrimary} />}
                                                 <Text style={styles.primaryButtonText}>{isAccepting ? "Adding…" : "Add buddy"}</Text>
                                             </AnimatedPressable>
                                         </View>
@@ -291,18 +296,6 @@ export function BuddyInviteModal({ visible, incomingCode, onClose, onBuddyAdded 
                 </View>
             </KeyboardAwareView>
         </Modal>
-    );
-}
-
-function ModeButton({ label, icon: Icon, selected, onPress }: { label: string; icon: typeof QrCode; selected: boolean; onPress: () => void }) {
-    const { colours } = useAppearance();
-    const styles = useMemo(() => createStyles(colours), [colours]);
-
-    return (
-        <AnimatedPressable accessibilityRole="tab" accessibilityState={{ selected }} haptic="selection" onPress={onPress} style={[styles.modeButton, selected && styles.modeButtonSelected]}>
-            <Icon size={16} color={selected ? colours.primaryStrong : colours.textMuted} />
-            <Text style={[styles.modeButtonText, selected && styles.modeButtonTextSelected]}>{label}</Text>
-        </AnimatedPressable>
     );
 }
 
@@ -359,11 +352,6 @@ function createStyles(colours: AppColours) {
         bodyScroll: { minHeight: 0 },
         body: { padding: spacing.lg, gap: spacing.lg },
         bodyCompact: { padding: spacing.md, gap: spacing.md },
-        modeControl: { flexDirection: "row", padding: 4, borderWidth: 1, borderColor: colours.border, borderRadius: radius.md, backgroundColor: colours.background },
-        modeButton: { flex: 1, minHeight: 42, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing.sm, borderRadius: radius.sm },
-        modeButtonSelected: { backgroundColor: colours.surface },
-        modeButtonText: { fontSize: 13, fontWeight: "800", color: colours.textMuted },
-        modeButtonTextSelected: { color: colours.primaryStrong },
         loadingState: { minHeight: 250, alignItems: "center", justifyContent: "center", gap: spacing.sm },
         inviteLayout: { flexDirection: "row", alignItems: "center", gap: spacing.xl },
         inviteLayoutCompact: { flexDirection: "column", gap: spacing.sm },
@@ -379,7 +367,7 @@ function createStyles(colours: AppColours) {
         codeTextNarrow: { fontSize: 21, letterSpacing: 2.5 },
         codeLabel: { marginTop: 4, fontSize: 8, fontWeight: "900", letterSpacing: 1, color: colours.textMuted },
         primaryButton: { minHeight: 46, marginTop: spacing.md, paddingHorizontal: spacing.lg, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing.sm, borderRadius: radius.md, backgroundColor: colours.primary },
-        primaryButtonText: { fontSize: 14, fontWeight: "900", color: "#ffffff" },
+        primaryButtonText: { fontSize: 14, fontWeight: "900", color: colours.onPrimary },
         buttonDisabled: { opacity: 0.45 },
         feedbackText: { marginTop: spacing.sm, fontSize: 11, fontWeight: "700", textAlign: "center", color: colours.success },
         joinSection: { width: "100%", maxWidth: 500, minHeight: 250, alignSelf: "center", alignItems: "stretch" },

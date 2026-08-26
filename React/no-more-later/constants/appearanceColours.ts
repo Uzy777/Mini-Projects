@@ -18,6 +18,7 @@ type ModeColours = {
 
     danger: string;
     dangerSoft: string;
+    onDanger: string;
 
     leaderboardGold: string;
     leaderboardGoldSoft: string;
@@ -69,6 +70,7 @@ const MODE_COLOURS: Record<ResolvedColourMode, ModeColours> = {
 
         danger: "#b91c1c",
         dangerSoft: "#fee2e2",
+        onDanger: "#ffffff",
 
         leaderboardGold: "#a16207",
         leaderboardGoldSoft: "#fef3c7",
@@ -98,6 +100,7 @@ const MODE_COLOURS: Record<ResolvedColourMode, ModeColours> = {
 
         danger: "#f87171",
         dangerSoft: "#2b1618",
+        onDanger: "#26080b",
 
         leaderboardGold: "#fbbf24",
         leaderboardGoldSoft: "#2a2110",
@@ -127,6 +130,7 @@ const MODE_COLOURS: Record<ResolvedColourMode, ModeColours> = {
 
         danger: "#f87171",
         dangerSoft: "#210d0f",
+        onDanger: "#26080b",
 
         leaderboardGold: "#fbbf24",
         leaderboardGoldSoft: "#1d1708",

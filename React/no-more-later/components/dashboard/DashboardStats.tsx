@@ -5,6 +5,7 @@ import { Check, ChevronDown, Clock3, Coffee, Info, Target, Zap } from "lucide-re
 import type { ReactNode } from "react";
 
 import type { AppColours } from "@/constants/appearanceColours";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import type { FocusSessionRecord, Journey } from "@/types/models";
@@ -58,10 +59,10 @@ export function DashboardStats({ sessions, journeys, referenceDate = new Date() 
         <View style={styles.content}>
             <View style={styles.toolbar}>
                 <Text style={styles.toolbarTitle}>Your progress over time</Text>
-                <Pressable onPress={() => setIsPeriodPickerVisible(true)} style={({ pressed }) => [styles.periodButton, pressed && styles.pressed]}>
+                <AnimatedPressable onPress={() => setIsPeriodPickerVisible(true)} style={({ pressed }) => [styles.periodButton, pressed && styles.pressed]}>
                     <Text style={styles.periodButtonText}>{periodLabel}</Text>
                     <ChevronDown size={15} color={colours.textMuted} />
-                </Pressable>
+                </AnimatedPressable>
             </View>
 
             <View style={styles.chartGuide}>
@@ -159,7 +160,7 @@ export function DashboardStats({ sessions, journeys, referenceDate = new Date() 
                         {PERIOD_OPTIONS.map((option) => {
                             const isSelected = option.id === period;
                             return (
-                                <Pressable
+                                <AnimatedPressable
                                     key={option.id}
                                     onPress={() => {
                                         setPeriod(option.id);
@@ -169,7 +170,7 @@ export function DashboardStats({ sessions, journeys, referenceDate = new Date() 
                                 >
                                     <Text style={[styles.periodOptionText, isSelected && styles.selectedPeriodOptionText]}>{option.label}</Text>
                                     {isSelected && <Check size={18} color={colours.primary} />}
-                                </Pressable>
+                                </AnimatedPressable>
                             );
                         })}
                     </Pressable>

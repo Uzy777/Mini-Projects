@@ -1,9 +1,10 @@
 import { useMemo } from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Modal, StyleSheet, Text, View } from "react-native";
 import { Sparkles } from "lucide-react-native";
 import Animated, { FadeIn, FadeInUp, ZoomIn, useReducedMotion } from "react-native-reanimated";
 
 import { BadgeArtwork, getTierTone } from "@/components/badges/BadgeArtwork";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { BADGE_DEFINITION_BY_ID } from "@/constants/badges";
 import type { AppColours } from "@/constants/appearanceColours";
 import { radius, spacing } from "@/constants/design";
@@ -53,13 +54,13 @@ export function BadgeUnlockCelebration({ award, position, total, onContinue }: B
 
                     {total > 1 ? <Text style={styles.queueText}>{position + 1} of {total} badges unlocked</Text> : null}
 
-                    <Pressable
+                    <AnimatedPressable
                         accessibilityRole="button"
                         onPress={onContinue}
                         style={({ pressed }) => [styles.continueButton, pressed && styles.continuePressed]}
                     >
                         <Text style={styles.continueText}>{position + 1 < total ? "Next badge" : "Continue"}</Text>
-                    </Pressable>
+                    </AnimatedPressable>
                 </Animated.View>
             </View>
         </Modal>

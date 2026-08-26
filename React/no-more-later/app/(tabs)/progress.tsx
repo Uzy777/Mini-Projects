@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, RefreshControl, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { BarChart3, CalendarDays, LayoutDashboard, RotateCcwClock } from "lucide-react-native";
 import { useFocusEffect } from "expo-router";
 
@@ -9,7 +9,7 @@ import { DashboardHistory } from "@/components/dashboard/DashboardHistory";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import type { AppColours } from "@/constants/appearanceColours";
-import { layout, radius, spacing } from "@/constants/design";
+import { getScreenGutter, layout, radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRemoteFocusSessions } from "@/services/focusSessions/focusSessionService";
@@ -19,9 +19,10 @@ import { updateDailyFocusGoal } from "@/services/profile/profileService";
 import type { FocusSessionRecord, Journey } from "@/types/models";
 import type { BadgeProgressMetrics, BadgeUnlock } from "@/types/badges";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
-import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
+import { AppButton } from "@/components/ui/AppButton";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareLayout";
-import Animated, { FadeIn } from "react-native-reanimated";
+import Animated, { FadeIn, useReducedMotion } from "react-native-reanimated";
 
 type ProgressSection = "overview" | "calendar" | "stats" | "history";
 
@@ -35,7 +36,9 @@ const PROGRESS_VIEWS: { id: ProgressSection; label: string; icon: typeof LayoutD
 export default function ProgressScreen() {
     const { colours } = useAppearance();
     const { session, profile, refreshProfile } = useAuth();
-    const styles = useMemo(() => createStyles(colours), [colours]);
+    const { width } = useWindowDimensions();
+    const reduceMotion = useReducedMotion();
+    const styles = useMemo(() => createStyles(colours, getScreenGutter(width), width < 420), [colours, width]);
     const [selectedView, setSelectedView] = useState<ProgressSection>("overview");
     const [sessions, setSessions] = useState<FocusSessionRecord[]>([]);
     const [journeys, setJourneys] = useState<Journey[]>([]);
@@ -167,36 +170,30 @@ export default function ProgressScreen() {
                     }
                 />
 
-                <View accessibilityRole="tablist" style={styles.segmentedControl}>
-                    {PROGRESS_VIEWS.map((view) => {
-                        const isSelected = view.id === selectedView;
+                <SegmentedControl
+                    value={selectedView}
+                    onChange={setSelectedView}
+                    compact={width < 560}
+                    options={PROGRESS_VIEWS.map((view) => {
                         const Icon = view.icon;
-                        return (
-                            <AnimatedPressable
-                                key={view.id}
-                                accessibilityRole="tab"
-                                accessibilityState={{ selected: isSelected }}
-                                onPress={() => setSelectedView(view.id)}
-                                style={({ pressed }) => [styles.segment, isSelected && styles.selectedSegment, pressed && styles.pressedSegment]}
-                            >
-                                <Icon size={15} color={isSelected ? colours.primaryStrong : colours.textMuted} />
-                                <Text style={[styles.segmentText, isSelected && styles.selectedSegmentText]}>{view.label}</Text>
-                            </AnimatedPressable>
-                        );
+
+                        return {
+                            value: view.id,
+                            label: view.label,
+                            icon: (selected: boolean) => <Icon size={15} color={selected ? colours.primaryStrong : colours.textMuted} />,
+                        };
                     })}
-                </View>
+                />
 
                 {errorMessage ? (
-                    <View style={styles.errorNotice}>
+                    <View accessibilityRole="alert" style={styles.errorNotice}>
                         <Text style={styles.errorText}>{errorMessage}</Text>
-                        <Pressable onPress={() => void loadProgress("refresh")} style={({ pressed }) => [styles.retryButton, pressed && styles.pressedSegment]}>
-                            <Text style={styles.retryButtonText}>Try again</Text>
-                        </Pressable>
+                        <AppButton label="Try again" size="sm" onPress={() => void loadProgress("refresh")} />
                     </View>
                 ) : null}
 
                 {isLoading ? (
-                    <View style={styles.loadingState}>
+                    <View accessibilityLiveRegion="polite" style={styles.loadingState}>
                         <ActivityIndicator size="small" color={colours.primary} />
                         <Text style={styles.loadingText}>Loading your Progress…</Text>
                     </View>
@@ -210,7 +207,7 @@ export default function ProgressScreen() {
                 )}
 
                 {!isLoading && !errorMessage ? (
-                    <Animated.View key={selectedView} entering={FadeIn.duration(180)}>
+                    <Animated.View key={selectedView} entering={reduceMotion ? undefined : FadeIn.duration(180)}>
                         {selectedView === "overview" && (
                             <DashboardOverview
                                 sessions={sessions}
@@ -231,7 +228,7 @@ export default function ProgressScreen() {
     );
 }
 
-function createStyles(colours: AppColours) {
+function createStyles(colours: AppColours, gutter: number, compact: boolean) {
     return StyleSheet.create({
         scrollView: {
             flex: 1,
@@ -241,7 +238,7 @@ function createStyles(colours: AppColours) {
             width: "100%",
             maxWidth: layout.contentMaxWidth,
             alignSelf: "center",
-            paddingHorizontal: spacing.lg,
+            paddingHorizontal: gutter,
             paddingTop: spacing.lg,
             paddingBottom: 56,
             gap: spacing.md,
@@ -253,42 +250,6 @@ function createStyles(colours: AppColours) {
             justifyContent: "center",
             borderRadius: radius.pill,
             backgroundColor: colours.primarySubtle,
-        },
-        segmentedControl: {
-            width: "100%",
-            padding: 4,
-            flexDirection: "row",
-            gap: 4,
-            borderWidth: 1,
-            borderColor: colours.border,
-            borderRadius: radius.md,
-            backgroundColor: colours.surface,
-        },
-        segment: {
-            flex: 1,
-            minHeight: 40,
-            paddingHorizontal: spacing.sm,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 6,
-            borderRadius: radius.sm,
-        },
-        selectedSegment: {
-            borderWidth: 1,
-            borderColor: colours.primaryBorder,
-            backgroundColor: colours.primarySoft,
-        },
-        pressedSegment: {
-            opacity: 0.75,
-        },
-        segmentText: {
-            fontSize: 12,
-            fontWeight: "700",
-            color: colours.textMuted,
-        },
-        selectedSegmentText: {
-            color: colours.primaryStrong,
         },
         emptyNotice: {
             minHeight: 34,
@@ -330,8 +291,8 @@ function createStyles(colours: AppColours) {
         errorNotice: {
             minHeight: 52,
             padding: spacing.md,
-            flexDirection: "row",
-            alignItems: "center",
+            flexDirection: compact ? "column" : "row",
+            alignItems: compact ? "stretch" : "center",
             gap: spacing.md,
             borderWidth: 1,
             borderColor: colours.warningBorder,
@@ -343,19 +304,6 @@ function createStyles(colours: AppColours) {
             fontSize: 12,
             lineHeight: 18,
             color: colours.warning,
-        },
-        retryButton: {
-            minHeight: 34,
-            paddingHorizontal: spacing.md,
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: radius.sm,
-            backgroundColor: colours.primary,
-        },
-        retryButtonText: {
-            fontSize: 11,
-            fontWeight: "800",
-            color: colours.onPrimary,
         },
     });
 }

@@ -5,7 +5,7 @@ import Animated, { FadeInDown, FadeInUp, useReducedMotion } from "react-native-r
 import type { ReactNode } from "react";
 
 import type { AppColours } from "@/constants/appearanceColours";
-import { radius, spacing } from "@/constants/design";
+import { getScreenGutter, radius, spacing } from "@/constants/design";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareLayout";
 
 type AuthScreenShellProps = {
@@ -24,9 +24,10 @@ export function AuthScreenShell({ colours, eyebrow, title, description, children
     const { width } = useWindowDimensions();
 
     const isWide = width >= 820;
+    const isNarrow = width < 480;
     const reduceMotion = useReducedMotion();
 
-    const styles = createStyles(colours, isWide);
+    const styles = createStyles(colours, isWide, isNarrow, getScreenGutter(width));
 
     return (
         <KeyboardAwareScrollView
@@ -88,7 +89,7 @@ export function AuthScreenShell({ colours, eyebrow, title, description, children
     );
 }
 
-function createStyles(colours: AppColours, isWide: boolean) {
+function createStyles(colours: AppColours, isWide: boolean, isNarrow: boolean, gutter: number) {
     return StyleSheet.create({
         screen: {
             flex: 1,
@@ -102,7 +103,7 @@ function createStyles(colours: AppColours, isWide: boolean) {
 
             justifyContent: "center",
 
-            paddingHorizontal: spacing.lg,
+            paddingHorizontal: gutter,
             paddingVertical: spacing.xl,
         },
 
@@ -160,7 +161,7 @@ function createStyles(colours: AppColours, isWide: boolean) {
 
             justifyContent: "center",
 
-            padding: isWide ? spacing.xxl : spacing.lg,
+            padding: isWide ? spacing.xxl : isNarrow ? spacing.md : spacing.lg,
         },
 
         brandRow: {
@@ -258,7 +259,7 @@ function createStyles(colours: AppColours, isWide: boolean) {
 
             justifyContent: "center",
 
-            padding: isWide ? spacing.xl : spacing.lg,
+            padding: isWide ? spacing.xl : isNarrow ? spacing.sm : spacing.lg,
 
             backgroundColor: isWide ? colours.primarySubtle : "transparent",
         },
@@ -266,7 +267,7 @@ function createStyles(colours: AppColours, isWide: boolean) {
         formCard: {
             gap: spacing.lg,
 
-            padding: isWide ? spacing.xl : spacing.lg,
+            padding: isWide ? spacing.xl : isNarrow ? spacing.md : spacing.lg,
 
             borderWidth: 1,
             borderColor: colours.border,

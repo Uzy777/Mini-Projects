@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { Platform, StyleSheet, ScrollView, Text, View } from "react-native";
+import { Platform, StyleSheet, ScrollView, Text, useWindowDimensions, View } from "react-native";
 import { useAudioPlayer } from "expo-audio";
 import * as Crypto from "expo-crypto";
 import { Brain, Settings2 } from "lucide-react-native";
+import Animated, { FadeInUp, useReducedMotion } from "react-native-reanimated";
 
 import type { ActiveFocusSession, FocusTimelineEvent, QuestFocusSummary } from "../../types/models";
 import { getActiveFocusSession, saveActiveFocusSession } from "../../services/storage/activeFocusSessionStorage";
@@ -13,7 +14,7 @@ import { ActiveSessionNotice } from "../../components/focus/ActiveSessionNotice"
 import { TimerSettingsModal } from "../../components/focus/TimerSettingsModal";
 import { QuestFocusProgressSummary } from "../../components/focus/QuestFocusProgressSummary";
 import { calculateActualFocusedSeconds, getActiveSessionReviewState, getRemainingSecondsFromEndTime } from "../../utils/focusTimer";
-import { radius, spacing } from "@/constants/design";
+import { getScreenGutter, radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
@@ -43,8 +44,10 @@ const focusCompleteSound = require("../../assets/sounds/focus-complete.mp3");
 
 export default function FocusScreen() {
     const { colours } = useAppearance();
+    const { width } = useWindowDimensions();
+    const reduceMotion = useReducedMotion();
 
-    const styles = useMemo(() => createStyles(colours), [colours]);
+    const styles = useMemo(() => createStyles(colours, getScreenGutter(width)), [colours, width]);
 
     const router = useRouter();
 
@@ -564,47 +567,49 @@ export default function FocusScreen() {
 
                 <ScreenHeader eyebrow="FOCUS SESSION" title={questTitle ?? (source === "tasks" ? "Untitled Task" : "Untitled Quest")} subtitle="Give this one thing your attention." />
 
-                <AppCard style={styles.sessionContent} padding="lg" tone="subtle">
-                    <View style={[styles.timerSetup, hasSessionStarted && styles.timerSetupDisabled]}>
-                        <View style={styles.timerSetupIcon}>
-                            <Brain size={18} color={colours.primaryStrong} />
+                <Animated.View entering={reduceMotion ? undefined : FadeInUp.duration(260)}>
+                    <AppCard style={styles.sessionContent} padding="lg" tone="subtle">
+                        <View style={[styles.timerSetup, hasSessionStarted && styles.timerSetupDisabled]}>
+                            <View style={styles.timerSetupIcon}>
+                                <Brain size={18} color={colours.primaryStrong} />
+                            </View>
+                            <View style={styles.timerSetupCopy}>
+                                <Text style={styles.timerSetupEyebrow}>FOCUS TIMER</Text>
+                                <Text style={styles.timerSetupTitle}>{selectedMinutes} minute{selectedMinutes === 1 ? "" : "s"}</Text>
+                                <Text style={styles.timerSetupHint}>Change it for this session; your selected clock style still applies.</Text>
+                            </View>
+                            <AnimatedPressable
+                                accessibilityLabel="Customise timer durations"
+                                disabled={hasSessionStarted}
+                                onPress={() => setSettingsVisible(true)}
+                                style={styles.settingsButton}
+                            >
+                                <Settings2 size={18} color={hasSessionStarted ? colours.textMuted : colours.primaryStrong} />
+                            </AnimatedPressable>
                         </View>
-                        <View style={styles.timerSetupCopy}>
-                            <Text style={styles.timerSetupEyebrow}>FOCUS TIMER</Text>
-                            <Text style={styles.timerSetupTitle}>{selectedMinutes} minute{selectedMinutes === 1 ? "" : "s"}</Text>
-                            <Text style={styles.timerSetupHint}>Change it for this session; your selected clock style still applies.</Text>
-                        </View>
-                        <AnimatedPressable
-                            accessibilityLabel="Customise timer durations"
-                            disabled={hasSessionStarted}
-                            onPress={() => setSettingsVisible(true)}
-                            style={styles.settingsButton}
-                        >
-                            <Settings2 size={18} color={hasSessionStarted ? colours.textMuted : colours.primaryStrong} />
-                        </AnimatedPressable>
-                    </View>
 
-                    {focusSummary ? <QuestFocusProgressSummary summary={focusSummary} /> : null}
+                        {focusSummary ? <QuestFocusProgressSummary summary={focusSummary} /> : null}
 
-                    <ActiveSessionNotice message={sessionMessage} showReturnButton={existingActiveSession !== null} onReturn={handleReturnToActiveSession} />
+                        <ActiveSessionNotice message={sessionMessage} showReturnButton={existingActiveSession !== null} onReturn={handleReturnToActiveSession} />
 
-                    <FocusTimerDisplay
-                        seconds={shownSeconds}
-                        totalSeconds={selectedMinutes * 60}
-                        label={hasSessionFinished ? "SESSION COMPLETE" : isRunning ? "STAY WITH IT" : hasSessionStarted ? "PAUSED" : "READY TO FOCUS"}
-                        hint={source === "tasks" ? "Stay with this Task until the timer ends." : undefined}
-                    />
+                        <FocusTimerDisplay
+                            seconds={shownSeconds}
+                            totalSeconds={selectedMinutes * 60}
+                            label={hasSessionFinished ? "SESSION COMPLETE" : isRunning ? "STAY WITH IT" : hasSessionStarted ? "PAUSED" : "READY TO FOCUS"}
+                            hint={source === "tasks" ? "Stay with this Task until the timer ends." : undefined}
+                        />
 
-                    <FocusTimerControls
-                        hasStarted={hasSessionStarted}
-                        hasFinished={hasSessionFinished}
-                        isRunning={isRunning}
-                        onStart={handleStartSession}
-                        onToggleTimer={handleToggleTimer}
-                        onEndEarly={handleEndSessionEarly}
-                        onReview={() => void handleReviewSession()}
-                    />
-                </AppCard>
+                        <FocusTimerControls
+                            hasStarted={hasSessionStarted}
+                            hasFinished={hasSessionFinished}
+                            isRunning={isRunning}
+                            onStart={handleStartSession}
+                            onToggleTimer={handleToggleTimer}
+                            onEndEarly={handleEndSessionEarly}
+                            onReview={() => void handleReviewSession()}
+                        />
+                    </AppCard>
+                </Animated.View>
             </ScrollView>
 
             <TimerSettingsModal
@@ -632,7 +637,7 @@ function appendCompletedEvent(events: FocusTimelineEvent[], completedAt: number)
     ];
 }
 
-function createStyles(colours: AppColours) {
+function createStyles(colours: AppColours, gutter: number) {
     return StyleSheet.create({
         screen: {
             flex: 1,
@@ -643,7 +648,7 @@ function createStyles(colours: AppColours) {
             width: "100%",
             maxWidth: 640,
             alignSelf: "center",
-            paddingHorizontal: spacing.lg,
+            paddingHorizontal: gutter,
             paddingTop: spacing.lg,
             paddingBottom: 48,
         },

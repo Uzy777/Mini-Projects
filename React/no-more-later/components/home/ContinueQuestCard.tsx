@@ -1,9 +1,10 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { useMemo } from "react";
 
 type ContinueQuestCardProps = {
@@ -18,7 +19,7 @@ export function ContinueQuestCard({ questTitle, nextAction, onContinue }: Contin
     const styles = useMemo(() => createStyles(colours), [colours]);
 
     return (
-        <Pressable style={({ pressed }) => [styles.card, pressed && styles.cardPressed]} onPress={onContinue}>
+        <AnimatedPressable style={({ pressed }) => [styles.card, pressed && styles.cardPressed]} onPress={onContinue}>
             <Text style={styles.label}>CONTINUE WHERE YOU LEFT OFF</Text>
 
             <Text style={styles.title}>{questTitle}</Text>
@@ -36,7 +37,7 @@ export function ContinueQuestCard({ questTitle, nextAction, onContinue }: Contin
 
                 <Text style={styles.arrow}>→</Text>
             </View>
-        </Pressable>
+        </AnimatedPressable>
     );
 }
 
