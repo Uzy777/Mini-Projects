@@ -1,31 +1,47 @@
-# No More Later
+# No More Later - Codex Instructions
 
-## Project
-Expo / React Native productivity application.
+## Working style
 
-## Development principles
-- Preserve Android, iOS and web compatibility.
-- Follow existing design components and appearance colours.
-- Do not introduce new dependencies unless required.
-- Keep Quest as the primary actionable unit.
-- Journeys are optional groupings of Quests.
-- Preserve existing Supabase RLS and ownership rules.
+- Inspect the existing relevant implementation before making changes.
+- Follow existing project patterns where practical.
+- Keep changes focused on the requested task.
+- Avoid unrelated refactors.
+- Prefer existing components, helpers and services over duplication.
+
+## Project safety
+
+- Preserve Android, iOS and web compatibility unless the task explicitly
+  targets one platform.
+- Do not alter existing behaviour outside the requested feature unless
+  required for the implementation.
+- Do not change database schemas, RLS policies or migrations unless the
+  task requires it.
+- Do not add new dependencies unless they provide a clear benefit for the
+  requested task.
+- Never expose secrets or service-role credentials to client code.
 
 ## Validation
-The user runs validation locally.
 
-Do not run lint, TypeScript checks, Expo Doctor, EAS builds or
-tests unless explicitly requested.
+The user normally performs project validation locally.
 
-After changes, state which checks the user should run.
+Do not run:
+- lint
+- TypeScript checks
+- Expo Doctor
+- automated tests
+- EAS builds
 
-Normal checks:
-- npm run check
+unless the current task explicitly asks for them.
 
-Native/dependency/config changes:
-- npm run check:full
+After making changes, tell the user which validation command they should run.
 
-## Code changes
-- Inspect the relevant existing implementation before editing.
-- Prefer existing components/services/helpers over duplication.
-- Avoid unrelated refactors.
+Normal validation:
+`npm run check`
+
+Native/config/dependency validation:
+`npm run check:full`
+
+## Task instructions
+
+Instructions in the current user request may override these defaults when
+necessary for that task.
