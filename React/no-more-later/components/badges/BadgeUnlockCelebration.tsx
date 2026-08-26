@@ -1,15 +1,21 @@
 import { useMemo } from "react";
-import { Modal, StyleSheet, Text, View } from "react-native";
-import { Sparkles } from "lucide-react-native";
-import Animated, { FadeIn, FadeInUp, ZoomIn, useReducedMotion } from "react-native-reanimated";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { Award, Check } from "lucide-react-native";
+import Animated, { Easing, FadeIn, FadeInUp, useReducedMotion } from "react-native-reanimated";
 
 import { BadgeArtwork, getTierTone } from "@/components/badges/BadgeArtwork";
-import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
-import { BADGE_DEFINITION_BY_ID } from "@/constants/badges";
+import { CelebrationParticles } from "@/components/celebrations/CelebrationParticles";
+import {
+    CelebrationContinueButton,
+    CelebrationHeader,
+    CelebrationXpRow,
+} from "@/components/celebrations/CelebrationPrimitives";
+import { CelebrationShell } from "@/components/celebrations/CelebrationShell";
 import type { AppColours } from "@/constants/appearanceColours";
+import { BADGE_DEFINITION_BY_ID, BADGE_TIER_ORDER } from "@/constants/badges";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
-
+import { useCelebrationSound } from "@/services/audio/celebrationSounds";
 import type { BadgeUnlockAward } from "@/types/badges";
 
 type BadgeUnlockCelebrationProps = {
@@ -21,69 +27,216 @@ type BadgeUnlockCelebrationProps = {
 
 export function BadgeUnlockCelebration({ award, position, total, onContinue }: BadgeUnlockCelebrationProps) {
     const { colours } = useAppearance();
+    const { height, width } = useWindowDimensions();
     const reduceMotion = useReducedMotion();
     const styles = useMemo(() => createStyles(colours), [colours]);
     const definition = BADGE_DEFINITION_BY_ID[award.badgeId];
     const tierDefinition = definition.tiers.find((tier) => tier.tier === award.tier);
     const tone = getTierTone(award.tier, colours);
+    const compact = height < 700 || width < 390;
+    const celebrationKey = `${award.badgeId}-${award.tier}`;
+    const tierNumber = BADGE_TIER_ORDER[award.tier] + 1;
+
+    useCelebrationSound("badge-unlock", celebrationKey);
+
+    const requirement = tierDefinition
+        ? definition.requirement(tierDefinition.threshold)
+        : definition.shortDescription;
 
     return (
-        <Modal transparent animationType="none" statusBarTranslucent onRequestClose={onContinue}>
-            <View style={styles.overlay}>
-                <Animated.View entering={reduceMotion ? undefined : ZoomIn.springify().damping(15)} style={styles.card}>
-                    <View style={[styles.glow, { backgroundColor: tone.soft }]} />
-                    <Animated.View entering={reduceMotion ? undefined : FadeIn.delay(150)} style={styles.labelRow}>
-                        <Sparkles size={14} color={tone.strong} />
-                        <Text style={[styles.label, { color: tone.strong }]}>BADGE UNLOCKED</Text>
-                    </Animated.View>
+        <CelebrationShell
+            kind="badge"
+            accessibilityLabel={`Badge unlocked. ${definition.name}, ${award.tier} tier. ${requirement}. Earned ${award.xpAwarded} XP.`}
+            accentColor={tone.strong}
+            onRequestClose={onContinue}
+        >
+            <Animated.View
+                key={celebrationKey}
+                entering={reduceMotion ? undefined : FadeIn.duration(170)}
+                style={styles.content}
+            >
+                <CelebrationHeader
+                    icon={<Award size={16} strokeWidth={2.2} color={tone.strong} />}
+                    eyebrow="ACHIEVEMENT EARNED"
+                    title="BADGE UNLOCKED"
+                    accentColor={tone.strong}
+                    accentSoft={tone.soft}
+                    compact={compact}
+                />
 
-                    <Animated.View entering={reduceMotion ? undefined : FadeInUp.delay(140).duration(380)}>
-                        <BadgeArtwork badgeId={award.badgeId} tier={award.tier} size={126} />
-                    </Animated.View>
-
-                    <Text style={styles.name}>{definition.name}</Text>
-                    <View style={[styles.tierPill, { backgroundColor: tone.soft }]}>
-                        <Text style={[styles.tierText, { color: tone.strong }]}>{award.tier.toUpperCase()} TIER</Text>
-                    </View>
-                    <Text style={styles.requirement}>{tierDefinition ? definition.requirement(tierDefinition.threshold) : definition.shortDescription}</Text>
-
-                    <View style={styles.reward}>
-                        <Text style={styles.rewardLabel}>BADGE REWARD</Text>
-                        <Text style={styles.rewardValue}>+{award.xpAwarded} XP</Text>
-                    </View>
-
-                    {total > 1 ? <Text style={styles.queueText}>{position + 1} of {total} badges unlocked</Text> : null}
-
-                    <AnimatedPressable
-                        accessibilityRole="button"
-                        onPress={onContinue}
-                        style={({ pressed }) => [styles.continueButton, pressed && styles.continuePressed]}
+                <View style={[styles.artworkStage, compact && styles.artworkStageCompact]}>
+                    <View style={[styles.tierHalo, compact && styles.tierHaloCompact, { backgroundColor: tone.soft }]} />
+                    <CelebrationParticles kind="badge" colors={[tone.strong, colours.textMuted, tone.strong]} delay={100} />
+                    <Animated.View
+                        entering={
+                            reduceMotion
+                                ? undefined
+                                : FadeInUp.delay(60).duration(250).easing(Easing.out(Easing.cubic))
+                        }
                     >
-                        <Text style={styles.continueText}>{position + 1 < total ? "Next badge" : "Continue"}</Text>
-                    </AnimatedPressable>
-                </Animated.View>
-            </View>
-        </Modal>
+                        <BadgeArtwork badgeId={award.badgeId} tier={award.tier} size={compact ? 108 : 132} />
+                    </Animated.View>
+                </View>
+
+                <Text style={[styles.name, compact && styles.nameCompact]}>{definition.name}</Text>
+                <View style={[styles.tierPill, { borderColor: tone.strong, backgroundColor: tone.soft }]}>
+                    <Text style={[styles.tierText, { color: tone.strong }]}>
+                        {award.tier.toUpperCase()} · TIER {tierNumber} OF 5
+                    </Text>
+                </View>
+
+                <View style={[styles.requirementCard, compact && styles.requirementCardCompact]}>
+                    <View style={[styles.requirementIcon, { backgroundColor: tone.soft }]}>
+                        <Check size={14} strokeWidth={2.5} color={tone.strong} />
+                    </View>
+                    <View style={styles.requirementCopy}>
+                        <Text style={styles.requirementLabel}>ACHIEVEMENT COMPLETE</Text>
+                        <Text style={styles.requirement}>{requirement}</Text>
+                    </View>
+                </View>
+
+                <CelebrationXpRow earnedXp={award.xpAwarded} compact={compact} />
+
+                {total > 1 ? (
+                    <View style={styles.queue}>
+                        <View style={styles.queueTrack}>
+                            <View
+                                style={[
+                                    styles.queueProgress,
+                                    { width: `${((position + 1) / total) * 100}%` as `${number}%`, backgroundColor: tone.strong },
+                                ]}
+                            />
+                        </View>
+                        <Text style={styles.queueText}>Badge {position + 1} of {total}</Text>
+                    </View>
+                ) : null}
+
+                <CelebrationContinueButton
+                    label={position + 1 < total ? "Next badge" : "Continue"}
+                    accessibilityLabel={position + 1 < total ? "Show next unlocked badge" : "Continue from badge celebration"}
+                    onContinue={onContinue}
+                />
+            </Animated.View>
+        </CelebrationShell>
     );
 }
 
 function createStyles(colours: AppColours) {
     return StyleSheet.create({
-        overlay: { flex: 1, alignItems: "center", justifyContent: "center", padding: spacing.lg, backgroundColor: "rgba(0, 0, 0, 0.55)" },
-        card: { width: "100%", maxWidth: 410, position: "relative", overflow: "hidden", alignItems: "center", padding: spacing.xl, borderWidth: 1, borderColor: colours.primaryBorder, borderRadius: radius.xl, backgroundColor: colours.surface },
-        glow: { position: "absolute", top: -95, width: 270, height: 210, borderRadius: radius.pill, opacity: 0.8 },
-        labelRow: { zIndex: 1, flexDirection: "row", alignItems: "center", gap: 7, marginBottom: spacing.lg },
-        label: { fontSize: 10, fontWeight: "900", letterSpacing: 1.2 },
-        name: { marginTop: spacing.lg, fontSize: 27, lineHeight: 33, fontWeight: "900", textAlign: "center", color: colours.text },
-        tierPill: { marginTop: spacing.sm, paddingHorizontal: 11, paddingVertical: 6, borderRadius: radius.pill },
-        tierText: { fontSize: 9, fontWeight: "900", letterSpacing: 1 },
-        requirement: { maxWidth: 300, marginTop: spacing.md, fontSize: 13, lineHeight: 19, textAlign: "center", color: colours.textMuted },
-        reward: { width: "100%", marginTop: spacing.lg, padding: spacing.md, alignItems: "center", borderWidth: 1, borderColor: colours.primaryBorder, borderRadius: radius.md, backgroundColor: colours.primarySubtle },
-        rewardLabel: { fontSize: 8, fontWeight: "900", letterSpacing: 0.9, color: colours.textMuted },
-        rewardValue: { marginTop: 3, fontSize: 22, fontWeight: "900", color: colours.primaryStrong },
-        queueText: { marginTop: spacing.md, fontSize: 11, fontWeight: "700", color: colours.textMuted },
-        continueButton: { width: "100%", minHeight: 48, marginTop: spacing.lg, alignItems: "center", justifyContent: "center", borderRadius: radius.md, backgroundColor: colours.primary },
-        continuePressed: { backgroundColor: colours.primaryPressed },
-        continueText: { fontSize: 14, fontWeight: "800", color: colours.onPrimary },
+        content: {
+            width: "100%",
+            alignItems: "center",
+        },
+        artworkStage: {
+            width: "100%",
+            height: 164,
+            marginTop: spacing.sm,
+            position: "relative",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "visible",
+        },
+        artworkStageCompact: {
+            height: 138,
+            marginTop: spacing.xs,
+        },
+        tierHalo: {
+            width: 172,
+            height: 172,
+            position: "absolute",
+            borderRadius: radius.pill,
+            opacity: 0.72,
+        },
+        tierHaloCompact: {
+            width: 142,
+            height: 142,
+        },
+        name: {
+            marginTop: spacing.xs,
+            fontSize: 29,
+            lineHeight: 35,
+            fontWeight: "900",
+            letterSpacing: -0.5,
+            textAlign: "center",
+            color: colours.text,
+        },
+        nameCompact: {
+            fontSize: 25,
+            lineHeight: 30,
+        },
+        tierPill: {
+            marginTop: spacing.sm,
+            paddingHorizontal: 11,
+            paddingVertical: 6,
+            borderWidth: 1,
+            borderRadius: radius.pill,
+        },
+        tierText: {
+            fontSize: 9,
+            fontWeight: "900",
+            letterSpacing: 0.9,
+        },
+        requirementCard: {
+            width: "100%",
+            marginTop: spacing.md,
+            padding: 14,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.md,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.md,
+            backgroundColor: colours.background,
+        },
+        requirementCardCompact: {
+            marginTop: spacing.md,
+            paddingVertical: 12,
+        },
+        requirementIcon: {
+            width: 30,
+            height: 30,
+            flexShrink: 0,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: radius.pill,
+        },
+        requirementCopy: {
+            flex: 1,
+        },
+        requirementLabel: {
+            fontSize: 8,
+            fontWeight: "900",
+            letterSpacing: 0.9,
+            color: colours.textMuted,
+        },
+        requirement: {
+            marginTop: 3,
+            fontSize: 12,
+            lineHeight: 17,
+            fontWeight: "600",
+            color: colours.text,
+        },
+        queue: {
+            width: "100%",
+            marginTop: spacing.xs,
+            alignItems: "center",
+            gap: 6,
+        },
+        queueTrack: {
+            width: 76,
+            height: 4,
+            overflow: "hidden",
+            borderRadius: radius.pill,
+            backgroundColor: colours.border,
+        },
+        queueProgress: {
+            height: "100%",
+            borderRadius: radius.pill,
+        },
+        queueText: {
+            fontSize: 10,
+            fontWeight: "700",
+            color: colours.textMuted,
+        },
     });
 }

@@ -1,14 +1,31 @@
-import { useEffect, useMemo, useRef } from "react";
-import { Animated, Modal, StyleSheet, Text, View } from "react-native";
-import { useReducedMotion } from "react-native-reanimated";
+import { useEffect, useMemo } from "react";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { ArrowUpRight, Crown } from "lucide-react-native";
+import Animated, {
+    cancelAnimation,
+    Easing,
+    FadeInUp,
+    interpolate,
+    useAnimatedStyle,
+    useReducedMotion,
+    useSharedValue,
+    withDelay,
+    withTiming,
+} from "react-native-reanimated";
 
-import { radius, spacing } from "@/constants/design";
-import { useAppearance } from "@/contexts/AppearanceContext";
-
+import { CelebrationParticles } from "@/components/celebrations/CelebrationParticles";
+import {
+    CelebrationContinueButton,
+    CelebrationHeader,
+    CelebrationXpRow,
+} from "@/components/celebrations/CelebrationPrimitives";
+import { CelebrationShell } from "@/components/celebrations/CelebrationShell";
+import { FocusRankMedallion } from "@/components/celebrations/FocusRankMedallion";
 import type { AppColours } from "@/constants/appearanceColours";
+import { spacing } from "@/constants/design";
+import { useAppearance } from "@/contexts/AppearanceContext";
+import { useCelebrationSound } from "@/services/audio/celebrationSounds";
 import { getFocusRank } from "@/utils/rank";
-import { getRankImage } from "@/utils/rankImage";
-import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 
 type LevelUpCelebrationProps = {
     previousLevel: number;
@@ -17,523 +34,246 @@ type LevelUpCelebrationProps = {
     onContinue: () => void;
 };
 
-type RankMedallionProps = {
-    level: number;
+type CelebrationContentProps = LevelUpCelebrationProps & {
+    compact: boolean;
 };
-
-function RankMedallion({ level }: RankMedallionProps) {
-    const { colours } = useAppearance();
-
-    const styles = useMemo(() => createStyles(colours), [colours]);
-
-    const rank = getFocusRank(level);
-
-    if (!rank) {
-        return null;
-    }
-
-    const image = getRankImage(rank.id);
-
-    const totalRankSteps = rank.maximumLevel !== null ? rank.maximumLevel - rank.minimumLevel : 0;
-
-    const completedRankSteps = level - rank.minimumLevel;
-
-    return (
-        <View style={styles.badgeContainer}>
-            <View style={styles.imageFrame}>
-                <Animated.Image source={image} style={styles.image} resizeMode="contain" />
-            </View>
-
-            {totalRankSteps > 0 && (
-                <View style={styles.rankTray}>
-                    {Array.from({ length: totalRankSteps }).map((_, index) => {
-                        const isCompleted = index < completedRankSteps;
-
-                        return (
-                            <View key={index} style={styles.rankDiamondSlot}>
-                                <View style={[styles.staticRankDiamond, isCompleted ? styles.staticRankDiamondCompleted : styles.staticRankDiamondRemaining]} />
-                            </View>
-                        );
-                    })}
-                </View>
-            )}
-        </View>
-    );
-}
 
 export function LevelUpCelebration({ previousLevel, newLevel, earnedXp, onContinue }: LevelUpCelebrationProps) {
     const { colours } = useAppearance();
-    const reduceMotion = useReducedMotion();
-
-    const styles = useMemo(() => createStyles(colours), [colours]);
-
-    const opacity = useRef(new Animated.Value(0)).current;
-    const scale = useRef(new Animated.Value(0.9)).current;
-
+    const { height, width } = useWindowDimensions();
     const previousRank = getFocusRank(previousLevel);
     const newRank = getFocusRank(newLevel);
-
     const rankChanged = previousRank !== null && newRank !== null && previousRank.id !== newRank.id;
+    const compact = height < 700 || width < 390;
 
-    const previousRankOpacity = useRef(new Animated.Value(1)).current;
-    const previousRankScale = useRef(new Animated.Value(1)).current;
-
-    const newRankOpacity = useRef(new Animated.Value(rankChanged ? 0 : 1)).current;
-
-    const newRankScale = useRef(new Animated.Value(rankChanged ? 0.8 : 1)).current;
-
-    const totalRankSteps = newRank?.maximumLevel !== null && newRank ? newRank.maximumLevel - newRank.minimumLevel : 0;
-
-    const previousCompletedSteps = previousRank?.id === newRank?.id ? previousLevel - (previousRank?.minimumLevel ?? previousLevel) : 0;
-
-    const newCompletedSteps = newRank ? newLevel - newRank.minimumLevel : 0;
-
-    const diamondAnimations = useRef(
-        Array.from({ length: totalRankSteps }, (_, index) => {
-            return new Animated.Value(index < previousCompletedSteps ? 1 : 0);
-        }),
-    ).current;
-
-    useEffect(() => {
-        if (reduceMotion) {
-            opacity.setValue(1);
-            scale.setValue(1);
-            previousRankOpacity.setValue(rankChanged ? 0 : 1);
-            previousRankScale.setValue(1);
-            newRankOpacity.setValue(1);
-            newRankScale.setValue(1);
-            diamondAnimations.forEach((animation, index) => animation.setValue(index < newCompletedSteps ? 1 : 0));
-            return;
-        }
-
-        const newlyCompletedDiamondAnimations = diamondAnimations.slice(previousCompletedSteps, newCompletedSteps).map((diamondAnimation) =>
-            Animated.spring(diamondAnimation, {
-                toValue: 1,
-                friction: 5,
-                tension: 120,
-                useNativeDriver: true,
-            }),
-        );
-
-        const rankTransitionAnimations = rankChanged
-            ? [
-                  Animated.parallel([
-                      Animated.timing(previousRankOpacity, {
-                          toValue: 0,
-                          duration: 250,
-                          useNativeDriver: true,
-                      }),
-
-                      Animated.timing(previousRankScale, {
-                          toValue: 0.75,
-                          duration: 250,
-                          useNativeDriver: true,
-                      }),
-                  ]),
-
-                  Animated.parallel([
-                      Animated.timing(newRankOpacity, {
-                          toValue: 1,
-                          duration: 250,
-                          useNativeDriver: true,
-                      }),
-
-                      Animated.spring(newRankScale, {
-                          toValue: 1,
-                          friction: 5,
-                          tension: 100,
-                          useNativeDriver: true,
-                      }),
-                  ]),
-              ]
-            : [];
-
-        const celebration = Animated.sequence([
-            Animated.parallel([
-                Animated.timing(opacity, {
-                    toValue: 1,
-                    duration: 250,
-                    useNativeDriver: true,
-                }),
-
-                Animated.spring(scale, {
-                    toValue: 1,
-                    friction: 7,
-                    tension: 80,
-                    useNativeDriver: true,
-                }),
-            ]),
-
-            Animated.delay(350),
-
-            ...rankTransitionAnimations,
-
-            Animated.delay(200),
-
-            ...newlyCompletedDiamondAnimations,
-        ]);
-
-        celebration.start();
-
-        return () => celebration.stop();
-    }, [diamondAnimations, newCompletedSteps, newRankOpacity, newRankScale, opacity, previousCompletedSteps, previousRankOpacity, previousRankScale, rankChanged, reduceMotion, scale]);
+    useCelebrationSound(rankChanged ? "rank-up" : "level-up", `${previousLevel}-${newLevel}`);
 
     if (!newRank) {
         return null;
     }
 
-    const newRankImage = getRankImage(newRank.id);
+    const accessibilityLabel = rankChanged && previousRank
+        ? `New Focus Rank. ${newRank.name}, Level ${newLevel}. Advanced from ${previousRank.name}. Earned ${earnedXp} XP.`
+        : `Level up. Level ${newLevel}, ${newRank.name} Focus Rank. Earned ${earnedXp} XP.`;
 
     return (
-        <Modal transparent animationType="none" statusBarTranslucent onRequestClose={onContinue}>
-            <View style={styles.overlay}>
-                <Animated.View
-                    style={[
-                        styles.card,
-                        {
-                            opacity,
-                            transform: [{ scale }],
-                        },
-                    ]}
-                >
-                    <Text style={styles.label}>{rankChanged ? "NEW FOCUS RANK" : "LEVEL UP"}</Text>
+        <CelebrationShell
+            kind={rankChanged ? "rank" : "level"}
+            accessibilityLabel={accessibilityLabel}
+            accentColor={colours.primary}
+            onRequestClose={onContinue}
+        >
+            {rankChanged && previousRank ? (
+                <RankUpContent
+                    previousLevel={previousLevel}
+                    newLevel={newLevel}
+                    earnedXp={earnedXp}
+                    compact={compact}
+                    onContinue={onContinue}
+                />
+            ) : (
+                <LevelUpContent
+                    previousLevel={previousLevel}
+                    newLevel={newLevel}
+                    earnedXp={earnedXp}
+                    compact={compact}
+                    onContinue={onContinue}
+                />
+            )}
+        </CelebrationShell>
+    );
+}
 
-                    {rankChanged ? (
-                        <View style={styles.rankTransitionStage}>
-                            <Animated.View
-                                style={[
-                                    styles.rankTransitionMedallion,
-                                    {
-                                        opacity: previousRankOpacity,
-                                        transform: [{ scale: previousRankScale }],
-                                    },
-                                ]}
-                            >
-                                <RankMedallion level={previousLevel} />
-                            </Animated.View>
+function LevelUpContent({ previousLevel, newLevel, earnedXp, compact, onContinue }: CelebrationContentProps) {
+    const { colours } = useAppearance();
+    const reduceMotion = useReducedMotion();
+    const styles = useMemo(() => createStyles(colours), [colours]);
+    const rank = getFocusRank(newLevel)!;
 
-                            <Animated.View
-                                style={[
-                                    styles.rankTransitionMedallion,
-                                    {
-                                        opacity: newRankOpacity,
-                                        transform: [{ scale: newRankScale }],
-                                    },
-                                ]}
-                            >
-                                <RankMedallion level={newLevel} />
-                            </Animated.View>
-                        </View>
-                    ) : (
-                        <View style={styles.badgeContainer}>
-                            <View style={styles.imageFrame}>
-                                <Animated.Image source={newRankImage} style={styles.image} resizeMode="contain" />
-                            </View>
+    return (
+        <>
+            <CelebrationHeader
+                icon={<ArrowUpRight size={16} strokeWidth={2.4} color={colours.primaryStrong} />}
+                eyebrow="PROGRESS MADE"
+                title="LEVEL UP"
+                accentColor={colours.primaryStrong}
+                accentSoft={colours.primarySoft}
+                compact={compact}
+            />
 
-                            {totalRankSteps > 0 && (
-                                <View style={styles.rankTray}>
-                                    {Array.from({ length: totalRankSteps }).map((_, index) => {
-                                        const isCompleted = index < newCompletedSteps;
-
-                                        const animatedScale = diamondAnimations[index]?.interpolate({
-                                            inputRange: [0, 1],
-                                            outputRange: [0.3, 1],
-                                        });
-
-                                        return (
-                                            <View key={index} style={styles.rankDiamondSlot}>
-                                                <View style={styles.rankDiamondRemaining} />
-
-                                                {isCompleted && (
-                                                    <Animated.View
-                                                        style={[
-                                                            styles.rankDiamondCompleted,
-                                                            {
-                                                                opacity: diamondAnimations[index],
-                                                                transform: [{ rotate: "45deg" }, { scale: animatedScale }],
-                                                            },
-                                                        ]}
-                                                    />
-                                                )}
-                                            </View>
-                                        );
-                                    })}
-                                </View>
-                            )}
-                        </View>
-                    )}
-
-                    {rankChanged && previousRank ? (
-                        <View style={styles.rankTextStage}>
-                            <Animated.View
-                                style={[
-                                    styles.rankTextLayer,
-                                    {
-                                        opacity: previousRankOpacity,
-                                        transform: [{ scale: previousRankScale }],
-                                    },
-                                ]}
-                            >
-                                <Text style={styles.level}>Level {previousLevel}</Text>
-                                <Text style={styles.rankName}>{previousRank.name}</Text>
-                            </Animated.View>
-
-                            <Animated.View
-                                style={[
-                                    styles.rankTextLayer,
-                                    {
-                                        opacity: newRankOpacity,
-                                        transform: [{ scale: newRankScale }],
-                                    },
-                                ]}
-                            >
-                                <Text style={styles.level}>Level {newLevel}</Text>
-                                <Text style={styles.rankName}>{newRank.name}</Text>
-                            </Animated.View>
-                        </View>
-                    ) : (
-                        <View style={styles.standardRankText}>
-                            <Text style={styles.level}>Level {newLevel}</Text>
-                            <Text style={styles.rankName}>{newRank.name}</Text>
-                        </View>
-                    )}
-
-                    <View style={styles.rewardBadge}>
-                        <Text style={styles.rewardText}>+{earnedXp} XP</Text>
-                    </View>
-
-                    <AnimatedPressable style={({ pressed }) => [styles.continueButton, pressed && styles.continueButtonPressed]} onPress={onContinue}>
-                        <Text style={styles.continueButtonText}>Continue</Text>
-                    </AnimatedPressable>
+            <View style={[styles.levelArtworkStage, compact && styles.levelArtworkStageCompact]}>
+                <CelebrationParticles kind="level" colors={[colours.primary, colours.primaryMuted]} delay={90} />
+                <Animated.View entering={reduceMotion ? undefined : FadeInUp.delay(50).duration(240).easing(Easing.out(Easing.cubic))}>
+                    <FocusRankMedallion
+                        level={newLevel}
+                        previousLevel={previousLevel}
+                        size={compact ? 104 : 124}
+                    />
                 </Animated.View>
             </View>
-        </Modal>
+
+            <Text style={[styles.levelNumber, compact && styles.levelNumberCompact]}>Level {newLevel}</Text>
+            <Text style={styles.rankName}>{rank.name} · Focus Rank</Text>
+            <Text style={styles.levelMessage}>Good progress. Keep the momentum going.</Text>
+
+            <CelebrationXpRow earnedXp={earnedXp} compact={compact} />
+            <CelebrationContinueButton onContinue={onContinue} />
+        </>
+    );
+}
+
+function RankUpContent({ previousLevel, newLevel, earnedXp, compact, onContinue }: CelebrationContentProps) {
+    const { colours } = useAppearance();
+    const reduceMotion = useReducedMotion();
+    const styles = useMemo(() => createStyles(colours), [colours]);
+    const phase = useSharedValue(reduceMotion ? 1 : 0);
+    const previousRank = getFocusRank(previousLevel)!;
+    const newRank = getFocusRank(newLevel)!;
+
+    useEffect(() => {
+        phase.value = reduceMotion
+            ? 1
+            : withDelay(210, withTiming(1, { duration: 330, easing: Easing.inOut(Easing.cubic) }));
+
+        return () => cancelAnimation(phase);
+    }, [phase, reduceMotion]);
+
+    const previousStyle = useAnimatedStyle(() => ({
+        opacity: interpolate(phase.value, [0, 0.5, 1], [1, 0, 0]),
+        transform: [
+            { translateY: interpolate(phase.value, [0, 1], [0, -8]) },
+            { scale: interpolate(phase.value, [0, 1], [1, 0.95]) },
+        ],
+    }));
+
+    const newStyle = useAnimatedStyle(() => ({
+        opacity: interpolate(phase.value, [0, 0.42, 1], [0, 0, 1]),
+        transform: [
+            { translateY: interpolate(phase.value, [0, 1], [8, 0]) },
+            { scale: interpolate(phase.value, [0, 1], [0.96, 1]) },
+        ],
+    }));
+
+    return (
+        <>
+            <CelebrationHeader
+                icon={<Crown size={16} strokeWidth={2.2} color={colours.primaryStrong} />}
+                eyebrow="MILESTONE REACHED"
+                title="NEW FOCUS RANK"
+                accentColor={colours.primaryStrong}
+                accentSoft={colours.primarySoft}
+                compact={compact}
+            />
+
+            <View style={[styles.rankTransitionStage, compact && styles.rankTransitionStageCompact]}>
+                <CelebrationParticles kind="rank" colors={[colours.primary, colours.primaryMuted, colours.text]} delay={360} />
+
+                <Animated.View style={[styles.rankLayer, previousStyle]}>
+                    <Text style={styles.transitionCaption}>FROM {previousRank.name.toUpperCase()}</Text>
+                    <FocusRankMedallion level={previousLevel} size={compact ? 98 : 116} showProgress={false} />
+                </Animated.View>
+
+                <Animated.View style={[styles.rankLayer, newStyle]}>
+                    <FocusRankMedallion level={newLevel} size={compact ? 122 : 148} showProgress={false} strongGlow />
+                </Animated.View>
+            </View>
+
+            <Animated.View style={[styles.newRankDetails, newStyle]}>
+                <Text style={[styles.newRankName, compact && styles.newRankNameCompact]}>{newRank.name}</Text>
+                <Text style={styles.newRankLevel}>Focus Rank · Level {newLevel}</Text>
+            </Animated.View>
+
+            <CelebrationXpRow earnedXp={earnedXp} compact={compact} />
+            <CelebrationContinueButton onContinue={onContinue} />
+        </>
     );
 }
 
 function createStyles(colours: AppColours) {
     return StyleSheet.create({
-        overlay: {
-            flex: 1,
+        levelArtworkStage: {
+            width: "100%",
+            minHeight: 164,
+            marginTop: spacing.md,
             alignItems: "center",
             justifyContent: "center",
-            padding: spacing.lg,
-            backgroundColor: "rgba(0, 0, 0, 0.45)",
+            overflow: "visible",
         },
-
-        card: {
-            width: "100%",
-            maxWidth: 420,
-
-            alignItems: "center",
-
-            padding: spacing.xl,
-
-            borderWidth: 1,
-            borderColor: colours.primaryBorder,
-            borderRadius: radius.lg,
-
-            backgroundColor: colours.surface,
+        levelArtworkStageCompact: {
+            minHeight: 130,
+            marginTop: spacing.sm,
         },
-
-        label: {
-            fontSize: 12,
-            fontWeight: "800",
-            letterSpacing: 1,
-            color: colours.primary,
-        },
-
-        level: {
-            fontSize: 30,
-            fontWeight: "800",
+        levelNumber: {
+            marginTop: spacing.sm,
+            fontSize: 36,
+            lineHeight: 42,
+            fontWeight: "900",
+            letterSpacing: -0.8,
             color: colours.text,
         },
-
-        rankName: {
+        levelNumberCompact: {
             marginTop: spacing.xs,
-            fontSize: 17,
+            fontSize: 31,
+            lineHeight: 36,
+        },
+        rankName: {
+            marginTop: 2,
+            fontSize: 15,
+            lineHeight: 20,
             fontWeight: "700",
             color: colours.textMuted,
         },
-
-        rewardBadge: {
-            marginTop: spacing.md,
-
-            paddingHorizontal: spacing.md,
-            paddingVertical: spacing.sm,
-
-            borderRadius: radius.pill,
-
-            backgroundColor: colours.primarySoft,
-        },
-
-        rewardText: {
-            fontSize: 14,
-            fontWeight: "800",
-
-            color: colours.primary,
-        },
-
-        continueButton: {
-            width: "100%",
-
-            marginTop: spacing.xl,
-            paddingVertical: 14,
-
-            alignItems: "center",
-
-            borderRadius: radius.md,
-            backgroundColor: colours.primary,
-        },
-
-        continueButtonPressed: {
-            backgroundColor: colours.primaryPressed,
-        },
-
-        continueButtonText: {
-            fontSize: 15,
-            fontWeight: "700",
-
-            color: colours.onPrimary,
-        },
-        badgeContainer: {
-            width: 132,
-            height: 146,
-
-            marginTop: spacing.lg,
-
-            position: "relative",
-            alignItems: "center",
-        },
-
-        imageFrame: {
-            width: 132,
-            height: 132,
-
-            alignItems: "center",
-            justifyContent: "center",
-
-            borderWidth: 2,
-            borderColor: colours.primary,
-            borderRadius: radius.pill,
-
-            backgroundColor: colours.primarySoft,
-            overflow: "hidden",
-        },
-
-        image: {
-            width: 98,
-            height: 98,
-        },
-
-        rankTray: {
-            position: "absolute",
-            top: 116,
-
-            minHeight: 28,
-            paddingHorizontal: spacing.sm,
-
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-
-            borderWidth: 2,
-            borderColor: colours.primary,
-            borderRadius: radius.pill,
-
-            backgroundColor: colours.surface,
-        },
-
-        rankDiamondSlot: {
-            width: 17,
-            height: 17,
-
-            position: "relative",
-
-            alignItems: "center",
-            justifyContent: "center",
-        },
-
-        rankDiamondRemaining: {
-            width: 9,
-            height: 9,
-
-            position: "absolute",
-
-            borderWidth: 1,
-            borderColor: colours.primaryBorder,
-
-            backgroundColor: colours.surface,
-
-            transform: [{ rotate: "45deg" }],
-        },
-
-        rankDiamondCompleted: {
-            width: 9,
-            height: 9,
-
-            position: "absolute",
-
-            borderWidth: 1,
-            borderColor: colours.primary,
-
-            backgroundColor: colours.primary,
-        },
-        absoluteImage: {
-            position: "absolute",
-        },
-        staticRankDiamond: {
-            width: 9,
-            height: 9,
-            transform: [{ rotate: "45deg" }],
-        },
-
-        staticRankDiamondCompleted: {
-            borderWidth: 1,
-            borderColor: colours.primary,
-            backgroundColor: colours.primary,
-        },
-
-        staticRankDiamondRemaining: {
-            borderWidth: 1,
-            borderColor: colours.primaryBorder,
-            backgroundColor: colours.surface,
+        levelMessage: {
+            marginTop: spacing.sm,
+            fontSize: 12,
+            lineHeight: 18,
+            textAlign: "center",
+            color: colours.textMuted,
         },
         rankTransitionStage: {
-            width: 132,
-            height: 146,
-
-            marginTop: spacing.lg,
-
-            position: "relative",
-        },
-
-        rankTransitionMedallion: {
-            position: "absolute",
-            top: 0,
-            left: 0,
-        },
-        rankTextStage: {
             width: "100%",
-            height: 70,
-
-            marginTop: spacing.lg,
-
+            height: 190,
+            marginTop: spacing.sm,
             position: "relative",
             alignItems: "center",
+            justifyContent: "center",
+            overflow: "visible",
         },
-
-        rankTextLayer: {
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-
+        rankTransitionStageCompact: {
+            height: 146,
+            marginTop: spacing.xs,
+        },
+        rankLayer: {
+            ...StyleSheet.absoluteFillObject,
+            alignItems: "center",
+            justifyContent: "center",
+        },
+        transitionCaption: {
+            marginBottom: spacing.sm,
+            fontSize: 8,
+            fontWeight: "900",
+            letterSpacing: 1.1,
+            color: colours.textMuted,
+        },
+        newRankDetails: {
             alignItems: "center",
         },
-        standardRankText: {
-            marginTop: spacing.lg,
-            alignItems: "center",
+        newRankName: {
+            fontSize: 32,
+            lineHeight: 38,
+            fontWeight: "900",
+            letterSpacing: -0.6,
+            color: colours.text,
+        },
+        newRankNameCompact: {
+            fontSize: 27,
+            lineHeight: 32,
+        },
+        newRankLevel: {
+            marginTop: 2,
+            fontSize: 13,
+            fontWeight: "700",
+            color: colours.textMuted,
         },
     });
 }
