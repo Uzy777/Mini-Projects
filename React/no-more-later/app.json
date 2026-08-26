@@ -23,8 +23,7 @@
             "edgeToEdgeEnabled": true,
             "softwareKeyboardLayoutMode": "resize",
             "predictiveBackGestureEnabled": false,
-            "package": "com.nomorelaterfocus.app",
-            "versionCode": 1
+            "package": "com.nomorelaterfocus.app"
         },
         "web": {
             "output": "static",
