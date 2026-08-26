@@ -1,8 +1,11 @@
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
-import { Sparkles } from "lucide-react-native";
+import { Crown, Sparkles } from "lucide-react-native";
+import { useRouter } from "expo-router";
 
+import { AnimatedPressable } from "@/components/ui/AnimatedPressable";
 import { radius, spacing } from "@/constants/design";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import { usePremium } from "@/contexts/PremiumContext";
 
 import type { AppColours } from "@/constants/appearanceColours";
 import { useMemo } from "react";
@@ -26,7 +29,9 @@ function getGreeting(): string {
 }
 
 export function HomeHeader({ displayName }: HomeHeaderProps) {
+    const router = useRouter();
     const { colours } = useAppearance();
+    const { hasPremium, isPremiumLoading } = usePremium();
     const { width } = useWindowDimensions();
 
     const styles = useMemo(() => createStyles(colours, width < 420), [colours, width]);
@@ -42,7 +47,27 @@ export function HomeHeader({ displayName }: HomeHeaderProps) {
                         <Text style={styles.appName}>NO MORE LATER</Text>
                     </View>
 
-                    <Text style={styles.title}>{displayName ? `${getGreeting()} ${displayName} 👋` : `${getGreeting()} 👋`}</Text>
+                    <View style={styles.greetingRow}>
+                        <Text style={styles.title}>{displayName ? `${getGreeting()} ${displayName} 👋` : `${getGreeting()} 👋`}</Text>
+                        {!isPremiumLoading ? (
+                            <AnimatedPressable
+                                accessibilityRole="button"
+                                accessibilityLabel={hasPremium ? "Premium membership active. View Premium." : "Free plan. Explore Premium."}
+                                haptic="light"
+                                pressedScale={0.96}
+                                style={({ pressed, hovered }) => [
+                                    styles.planBadge,
+                                    hasPremium && styles.premiumPlanBadge,
+                                    hovered && styles.planBadgeHovered,
+                                    pressed && styles.planBadgePressed,
+                                ]}
+                                onPress={() => router.push("/premium")}
+                            >
+                                {hasPremium ? <Crown size={11} strokeWidth={2.7} color={colours.primaryStrong} /> : null}
+                                <Text style={[styles.planBadgeText, hasPremium && styles.premiumPlanBadgeText]}>{hasPremium ? "PREMIUM" : "FREE PLAN"}</Text>
+                            </AnimatedPressable>
+                        ) : null}
+                    </View>
                 </View>
 
                 {/* The original Home account entry is intentionally hidden now that Account lives in the main navigation.
@@ -103,11 +128,62 @@ function createStyles(colours: AppColours, compact: boolean) {
         },
 
         title: {
+            flexShrink: 1,
             fontSize: compact ? 25 : 28,
             lineHeight: compact ? 31 : 34,
             fontWeight: "900",
             letterSpacing: -0.5,
             color: colours.text,
+        },
+
+        greetingRow: {
+            flexDirection: "row",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: spacing.sm,
+        },
+
+        planBadge: {
+            minHeight: 24,
+            paddingHorizontal: 9,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 5,
+            borderWidth: 1,
+            borderColor: colours.border,
+            borderRadius: radius.pill,
+            backgroundColor: colours.surface,
+        },
+
+        premiumPlanBadge: {
+            borderColor: colours.primaryBorder,
+            backgroundColor: colours.primarySoft,
+            shadowColor: colours.primaryStrong,
+            shadowOffset: { width: 0, height: 3 },
+            shadowOpacity: 0.13,
+            shadowRadius: 7,
+            elevation: 1,
+        },
+
+        planBadgeHovered: {
+            borderColor: colours.primaryBorder,
+        },
+
+        planBadgePressed: {
+            opacity: 0.72,
+        },
+
+        planBadgeText: {
+            fontSize: 8,
+            lineHeight: 11,
+            fontWeight: "900",
+            letterSpacing: 0.9,
+            color: colours.textMuted,
+        },
+
+        premiumPlanBadgeText: {
+            color: colours.primaryStrong,
         },
 
         subtitleRow: {

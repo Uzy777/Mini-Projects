@@ -18,7 +18,7 @@ import { usePremium } from "@/contexts/PremiumContext";
 const PREMIUM_FEATURES: { icon: LucideIcon; metric: string; title: string; description: string }[] = [
     { icon: ImageIcon, metric: "9", title: "Atmospheric backdrops", description: "Wheat, hills, forest, ocean, meadow, mountains, desert, sky and jungle." },
     { icon: Palette, metric: "5", title: "Additional accents", description: "Blue, emerald, amber, rose and violet palettes throughout the experience." },
-    { icon: Timer, metric: "5", title: "Premium timer faces", description: "Minimal, Segments, Soft Dial, Blocks and Concentric on every shared timer." },
+    { icon: Timer, metric: "5", title: "Premium timer faces", description: "Minimal, Focus Pulse, Flip Clock, Blocks and Concentric on every shared timer." },
     { icon: MoonStar, metric: "3", title: "Adaptive colour modes", description: "System appearance, comfortable Dark mode and deep-black AMOLED mode." },
 ];
 
