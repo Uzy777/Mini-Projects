@@ -145,19 +145,19 @@ export const TIMER_STYLE_OPTIONS: TimerStyleOption[] = [
     {
         id: "segmented",
         name: "Segments",
-        description: "A precise, stepped circular dial.",
+        description: "A precision dial with a measured segmented arc.",
         requiresPremium: true,
     },
     {
         id: "soft",
         name: "Soft Dial",
-        description: "A calm, low-contrast timer face.",
+        description: "An open, low-contrast dial with a calm centre.",
         requiresPremium: true,
     },
     {
         id: "blocks",
         name: "Blocks",
-        description: "A compact digital progress display.",
+        description: "Split digital tiles with staged progress blocks.",
         requiresPremium: true,
     },
     {
