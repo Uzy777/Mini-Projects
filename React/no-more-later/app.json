@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "no-more-later",
-    "slug": "no-more-later",
+    "name": "No More Later - Focus Tracking",
+    "slug": "nomorelater",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/no-more-later-1-1254.png",
@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.uzy777.nomorelater",
+      "bundleIdentifier": "com.nomorelaterfocus.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -27,7 +27,8 @@
         "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
-      "package": "com.uzy777.nomorelater"
+      "package": "com.nomorelaterfocus.app",
+      "versionCode": "1"
     },
     "web": {
       "output": "static",
