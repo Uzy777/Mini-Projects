@@ -4,6 +4,7 @@ import VideoToGifPage from "./features/video-to-gif/VideoToGifPage";
 import DocxToPdfPage from "./features/docx-to-pdf/DocxToPdfPage";
 import ImageConverterPage from "./features/image-converter/ImageConverterPage";
 import HomePage from "../pages/HomePage";
+import { Analytics } from "@vercel/analytics/react";
 
 function App() {
     return (
@@ -14,6 +15,7 @@ function App() {
             <Route path="/tools/video-to-gif" element={<VideoToGifPage />} />
             <Route path="/tools/docx-to-pdf" element={<DocxToPdfPage />} />
             <Route path="/tools/image-converter" element={<ImageConverterPage />} />
+            <Analytics />
         </Routes>
     );
 }
