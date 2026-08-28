@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
+import { Analytics } from "@vercel/analytics/react";
 
 // Components
 import CountryGrid from "./components/CountryGrid";
@@ -196,6 +197,7 @@ function App() {
 
                 <CountryModal country={selectedCountry} geoJsonFeature={matchesGeoJson} onClose={() => setSelectedCountry(null)} />
             </div>
+            <Analytics />
         </div>
     );
 }
