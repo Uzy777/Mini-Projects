@@ -5,7 +5,7 @@ import WallhavenSearch from "./components/WallhavenSearch";
 import { wallpapers } from "./data/wallpapers";
 import type { WallpaperWithDetails } from "./types/wallpaper";
 import { loadWallpaperDetails } from "./utils/wallpaperDetails";
-import { Analytics } from "@vercel/analytics/next";
+import { Analytics } from "@vercel/analytics/react";
 
 type ActiveView = "local" | "wallhaven";
 
