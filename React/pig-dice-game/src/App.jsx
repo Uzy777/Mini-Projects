@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Analytics } from "@vercel/analytics/react";
 
 function createPlayers() {
     return [
@@ -260,6 +261,7 @@ export default function App() {
                     </section>
                 </div>
             </main>
+            <Analytics />
         </div>
     );
 }
