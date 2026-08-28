@@ -8,15 +8,17 @@ import { Analytics } from "@vercel/analytics/react";
 
 function App() {
     return (
-        <Routes>
-            <Route path="/" element={<HomePage />} />
+        <>
+            <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/tools/url-to-markdown" element={<UrlToMarkdownPage />} />
+                <Route path="/tools/video-to-gif" element={<VideoToGifPage />} />
+                <Route path="/tools/docx-to-pdf" element={<DocxToPdfPage />} />
+                <Route path="/tools/image-converter" element={<ImageConverterPage />} />
+            </Routes>
 
-            <Route path="/tools/url-to-markdown" element={<UrlToMarkdownPage />} />
-            <Route path="/tools/video-to-gif" element={<VideoToGifPage />} />
-            <Route path="/tools/docx-to-pdf" element={<DocxToPdfPage />} />
-            <Route path="/tools/image-converter" element={<ImageConverterPage />} />
             <Analytics />
-        </Routes>
+        </>
     );
 }
 
