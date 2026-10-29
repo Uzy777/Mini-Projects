@@ -97,8 +97,8 @@
     .zoom-switch button { @apply min-h-7 min-w-10 rounded-md px-2 text-[10px] font-medium text-muted; }
     .zoom-switch button[aria-pressed="true"] { @apply bg-surface text-ink shadow-sm; }
     .preview-viewport { @apply min-h-0 flex-1 overflow-auto px-6 pb-8; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
-    .paper-wrap { @apply mx-auto overflow-hidden bg-white; box-shadow: 0 2px 4px #00000008, 0 12px 32px #00000010; color-scheme: light; }
-    .paper-wrap iframe { display: block; width: 794px; height: 1123px; border: 0; background: white; transform-origin: top left; color-scheme: light; }
+    .paper-wrap { @apply relative mx-auto overflow-hidden; color-scheme: light; }
+    .paper-wrap iframe { display: block; border: 0; background: transparent; transform-origin: top left; color-scheme: light; }
     .preview-tip { @apply mx-auto mt-5 text-center text-[10px] text-muted; }
     .template-option { @apply block cursor-pointer; }
     .template-card { @apply relative grid grid-cols-[100px_1fr] items-center gap-4 rounded-xl border border-line p-3 pr-7 transition-[border-color,background-color,box-shadow] duration-200 hover:border-muted/60 sm:grid-cols-[110px_1fr]; }
@@ -122,6 +122,13 @@
 @keyframes panel-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 /* Keep the notification's horizontal centring while it animates. */
 .toast.panel-enter { animation-name: toast-in; }
+#cv-print-document { display: none; }
+@media print {
+    @page { size: A4; margin: 0; }
+    body.cv-printing { margin: 0 !important; padding: 0 !important; min-width: 0 !important; background: white !important; }
+    body.cv-printing > *:not(#cv-print-document) { display: none !important; }
+    #cv-print-document { display: block; }
+}
 @keyframes toast-in { from { opacity: 0; margin-bottom: -4px; } to { opacity: 1; margin-bottom: 0; } }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }

@@ -17,9 +17,9 @@ Open the URL Vite prints (usually `http://localhost:5173`). For a production bui
 - Edit the fields under **Content**. Experience, project and qualification entries expand individually. Removing an entry offers **Undo** until you make another edit.
 - Open **Templates** to choose **Original** (the unchanged default design), **Essential** (compact, single column), or **Editorial** (single column with serif headings). Switching layouts keeps your details.
 - The sun/moon button changes the editor theme. It initially follows your device and remembers your choice. The CV itself always stays white.
-- Select **Save PDF**, then choose **Save as PDF** in the browser print window. The continuous preview shows all your content; the print window shows the final page breaks. No paid service or server is needed.
+- The preview shows separate A4 pages and the page count. **Save PDF** uses those same pages in the current tab's browser print window. Choose **Save as PDF** with A4 paper and 100% scale. No paid service or server is needed.
 - Under **File**, use **Import YAML / JSON** to open your existing `Scripts/cv-generator/data/cv.yaml` from your computer. The app starts with the example CV so personal contact details are not bundled into a public build.
-- **File → Export YAML backup** saves portable CV data compatible with the original script. **Download HTML** saves the selected template as a standalone CV page. Theme and template preferences are stored separately in this browser.
+- **File → Export YAML backup** saves portable CV data compatible with the original script. Theme and template preferences are stored separately in this browser.
 - On smaller screens, switch between **Editor** and **Preview**. Preview offers **Fit** and **100%** zoom.
 - Changes are saved to this browser's local storage and load on your next visit using the same browser and site address. Export a backup before clearing site data or switching devices.
 

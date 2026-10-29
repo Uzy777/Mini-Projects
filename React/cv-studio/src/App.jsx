@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { ArrowDownToLine, Check, ChevronDown, FileText, FolderOpen, LayoutTemplate, Moon, PanelLeft, Plus, RotateCcw, ShieldCheck, Sun, Trash2, X } from "lucide-react";
 import { exampleCv, normalizeCv, parseCv, renderCv, STORAGE_KEY, TEMPLATES, toYaml } from "./cv.js";
 import { TemplatePicker } from "./TemplatePicker.jsx";
+import { PAGE_WIDTH, paginateDocument, printPages } from "./pagination.js";
 
 const PREFERENCES_KEY = "cv-studio-preferences-v1";
 const sections = [
@@ -96,7 +97,10 @@ export default function App() {
     const [undoCv, setUndoCv] = useState(null);
     const [previewScale, setPreviewScale] = useState(1);
     const [previewHeight, setPreviewHeight] = useState(1123);
-    const previewRef = useRef(null);
+    const [pageCount, setPageCount] = useState(0);
+    const [preparingPdf, setPreparingPdf] = useState(false);
+    const pagesRef = useRef(null);
+    const pendingPrintRef = useRef(null);
     const paperRef = useRef(null);
     const fileRef = useRef(null);
     const fileMenuRef = useRef(null);
@@ -107,7 +111,7 @@ export default function App() {
     useEffect(() => {
         const paper = paperRef.current;
         const observer = new ResizeObserver(() => {
-            if (paper.clientWidth > 48) setPreviewScale(Math.min(1, (paper.clientWidth - 48) / 794));
+            if (paper.clientWidth > 48) setPreviewScale(Math.min(1, (paper.clientWidth - 48) / PAGE_WIDTH));
         });
         observer.observe(paper);
         return () => observer.disconnect();
@@ -161,13 +165,33 @@ export default function App() {
         } catch (error) { setNotice(error.message); }
     }
     function printCv() {
-        const frame = previewRef.current;
         const latest = renderCv(cv, preferences.template);
-        const print = () => { frame.contentWindow?.focus(); frame.contentWindow?.print(); };
-        if (frame.srcdoc === latest) print();
-        else {
-            frame.addEventListener("load", print, { once: true });
-            frame.srcdoc = latest;
+        if (pagesRef.current?.source !== latest) {
+            pendingPrintRef.current = latest;
+            setPreparingPdf(true);
+            setPreviewHtml(latest);
+            return;
+        }
+        printPages(pagesRef.current);
+    }
+    function preparePreview(event) {
+        try {
+            const frame = event.currentTarget;
+            const pages = paginateDocument(frame.contentDocument);
+            pagesRef.current = { ...pages, source: frame.srcdoc };
+            setPreviewHeight(pages.height);
+            setPageCount(pages.pageCount);
+            if (pendingPrintRef.current === frame.srcdoc) {
+                pendingPrintRef.current = null;
+                setPreparingPdf(false);
+                printPages(pages);
+            }
+        } catch (error) {
+            pagesRef.current = null;
+            pendingPrintRef.current = null;
+            setPreparingPdf(false);
+            setPageCount(0);
+            setNotice(error.message);
         }
     }
     function reset() {
@@ -191,12 +215,11 @@ export default function App() {
                     <div className="file-menu panel-enter">
                         <button onClick={() => fileAction(() => fileRef.current?.click())}><FolderOpen size={16} />Import YAML / JSON</button>
                         <button onClick={() => fileAction(() => download("cv.yaml", toYaml(cv), "text/yaml"))}><ArrowDownToLine size={16} />Export YAML backup</button>
-                        <button onClick={() => fileAction(() => download("cv.html", renderCv(cv, preferences.template), "text/html"))}><FileText size={16} />Download HTML</button>
                         <div className="my-1 border-t border-line" />
                         <button className="text-danger" onClick={() => fileAction(() => resetRef.current.showModal())}><RotateCcw size={16} />Reset to example</button>
                     </div>
                 </details>
-                <button className="button-primary" type="button" onClick={printCv}><ArrowDownToLine size={16} /><span>Save PDF</span></button>
+                <button className="button-primary" type="button" onClick={printCv} disabled={preparingPdf || pageCount === 0}><ArrowDownToLine size={16} /><span>{preparingPdf ? "Preparing PDF…" : "Save PDF"}</span></button>
             </div>
         </header>
         <div className="mobile-switch" role="group" aria-label="Workspace view">
@@ -270,14 +293,14 @@ export default function App() {
             </section>
             <aside className={`preview-area ${mobileView === "editor" ? "hidden lg:flex" : "flex"}`} aria-label="CV preview">
                 <div className="preview-toolbar">
-                    <div className="flex items-center gap-2 text-xs"><span className="preview-dot" /><span className="font-medium">{template.name}</span><span className="text-muted">/ A4</span></div>
+                    <div className="flex items-center gap-2 text-xs"><span className="preview-dot" /><span className="font-medium">{template.name}</span><span className="text-muted">/ A4{pageCount > 0 && ` · ${pageCount} ${pageCount === 1 ? "page" : "pages"}`}</span></div>
                     <div className="zoom-switch" role="group" aria-label="Preview zoom"><button aria-pressed={zoom === "fit"} onClick={() => setZoom("fit")}>Fit</button><button aria-pressed={zoom === "actual"} onClick={() => setZoom("actual")}>100%</button></div>
                 </div>
                 <div className="preview-viewport" ref={paperRef}>
-                    <div className="paper-wrap" style={{ width: 794 * scale, height: previewHeight * scale }}>
-                        <iframe ref={previewRef} title="CV document preview" srcDoc={previewHtml} sandbox="allow-same-origin allow-modals" onLoad={(event) => setPreviewHeight(Math.max(1123, event.currentTarget.contentDocument?.body.scrollHeight || 1123))} style={{ height: previewHeight, transform: `scale(${scale})` }} />
+                    <div className="paper-wrap" style={{ width: PAGE_WIDTH * scale, height: previewHeight * scale }}>
+                        <iframe title="CV document preview" srcDoc={previewHtml} sandbox="allow-same-origin" onLoad={preparePreview} style={{ width: PAGE_WIDTH, height: previewHeight, transform: `scale(${scale})` }} />
                     </div>
-                    <p className="preview-tip">Choose “Save as PDF” in the print window.</p>
+                    <p className="preview-tip">These A4 pages are used for your PDF. Choose “Save as PDF” at 100% scale.</p>
                 </div>
             </aside>
         </main>
