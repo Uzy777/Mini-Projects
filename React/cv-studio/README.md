@@ -1,4 +1,4 @@
-# CV Studio
+# CV editor
 
 A local React + Tailwind CSS editor for the CV layout in `Scripts/cv-generator`. The HTML/CSS template and example YAML were copied into this project; the script project is unchanged.
 
@@ -14,6 +14,7 @@ Open the URL Vite prints (usually `http://localhost:5173`). For a production bui
 
 ## Use it
 
+- Focus a field to highlight its matching text in the preview. The preview scrolls to the relevant area, and highlights are excluded from PDFs.
 - Edit the fields under **Content**. Experience, project and qualification entries expand individually. Removing an entry offers **Undo** until you make another edit.
 - Open **Templates** to choose **Original** (the unchanged default design), **Essential** (compact, single column), or **Editorial** (single column with serif headings). Switching layouts keeps your details.
 - The sun/moon button changes the editor theme. It initially follows your device and remembers your choice. The CV itself always stays white.

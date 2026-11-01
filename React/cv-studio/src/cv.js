@@ -82,37 +82,44 @@ function projectUrl(value) {
     }
 }
 
+// Stable field IDs survive pagination and let the editor point to exact text.
+const field = (key, value) => `<span data-cv-field="${escapeHtml(key)}">${escapeHtml(value)}</span>`;
+const joinedFields = (prefix, record, keys, separator) => keys.filter((key) => record[key]).map((key) => field(`${prefix}${key}`, record[key])).join(separator)
+    + keys.filter((key) => !record[key]).map((key) => field(`${prefix}${key}`, "")).join("");
+
 export function renderCv(cv, templateId = "original") {
     if (templateId === "essential" || templateId === "editorial") return renderSingleColumn(cv, templateId);
     const e = escapeHtml;
     const skills = cv.skills.filter((skill) => skill.trim()).map((skill) => `<li>${e(skill)}</li>`).join("");
-    const projects = cv.projects.map((project) => {
+    const projects = cv.projects.map((project, index) => {
+        const techKey = `projects.${index}.tech`;
         const tech = project.tech.filter(Boolean).map(e).join(" · ");
         const url = projectUrl(project.link);
         return `<div class="job">
-            <div class="job-header"><span><strong>${e(project.name)}</strong></span></div>
-            <p>${e(project.description)}</p>
-            ${tech ? `<p class="job-tech"><strong>Technologies:</strong> ${tech}</p>` : ""}
-            ${url ? `<p><a href="${e(url)}" target="_blank" rel="noopener noreferrer">${e(project.link)}</a></p>` : ""}
+            <div class="job-header"><span><strong>${field(`projects.${index}.name`, project.name)}</strong></span></div>
+            <p>${field(`projects.${index}.description`, project.description)}</p>
+            ${tech ? `<p class="job-tech" data-cv-field="${techKey}"><strong>Technologies:</strong> ${tech}</p>` : field(techKey, "")}
+            ${url ? `<p><a href="${e(url)}" target="_blank" rel="noopener noreferrer">${field(`projects.${index}.link`, project.link)}</a></p>` : field(`projects.${index}.link`, "")}
         </div>`;
     }).join("");
-    const experience = cv.experience.map((job) => {
+    const experience = cv.experience.map((job, index) => {
+        const techKey = `experience.${index}.tech`;
         const tech = job.tech.filter(Boolean).map(e).join(" · ");
-        const detail = [job.company, job.location, job.type].filter(Boolean).map(e).join(" - ");
+        const detail = joinedFields(`experience.${index}.`, job, ["company", "location", "type"], " - ");
         return `<div class="job">
-            <div class="job-top"><span class="job-role">${e(job.role)}</span><span class="job-date">${e(job.start)} - ${e(job.end)}</span></div>
+            <div class="job-top"><span class="job-role">${field(`experience.${index}.role`, job.role)}</span><span class="job-date">${field(`experience.${index}.start`, job.start)} - ${field(`experience.${index}.end`, job.end)}</span></div>
             <div class="job-sub">${detail}</div>
-            <p>${e(job.info)}</p>
-            <ul>${job.bullets.filter((bullet) => bullet.trim()).map((bullet) => `<li>${e(bullet)}</li>`).join("")}</ul>
-            ${tech ? `<p class="job-tech"><strong>Technologies:</strong> ${tech}</p>` : ""}
+            <p>${field(`experience.${index}.info`, job.info)}</p>
+            <ul data-cv-field="experience.${index}.bullets">${job.bullets.filter((bullet) => bullet.trim()).map((bullet) => `<li>${e(bullet)}</li>`).join("")}</ul>
+            ${tech ? `<p class="job-tech" data-cv-field="${techKey}"><strong>Technologies:</strong> ${tech}</p>` : field(techKey, "")}
         </div>`;
     }).join("");
-    const education = cv.education.map((item) => `<div class="job">
-        <div class="job-header"><span>${e(item.institution)}</span><span>${e(item.start)} - ${e(item.end)}</span></div>
-        <p>${e(item.course)}</p>
+    const education = cv.education.map((item, index) => `<div class="job">
+        <div class="job-header"><span>${field(`education.${index}.institution`, item.institution)}</span><span>${field(`education.${index}.start`, item.start)} - ${field(`education.${index}.end`, item.end)}</span></div>
+        <p>${field(`education.${index}.course`, item.course)}</p>
     </div>`).join("");
-    const certifications = cv.certifications.map((item) => `<span class="qual-title">${e(item.title)}</span>
-        <p class="qual-meta">${e(item.issuer)} | ${e(item.issued)}</p>`).join("");
+    const certifications = cv.certifications.map((item, index) => `<span class="qual-title">${field(`certifications.${index}.title`, item.title)}</span>
+        <p class="qual-meta">${field(`certifications.${index}.issuer`, item.issuer)} | ${field(`certifications.${index}.issued`, item.issued)}</p>`).join("");
 
     const replacements = {
         name: cv.name, title: cv.title, summary: cv.summary,
@@ -127,7 +134,8 @@ export function renderCv(cv, templateId = "original") {
             }
         </style>`).replace(/{{(\w+)}}/g, (_, key) => {
         const value = replacements[key] ?? "";
-        return ["skills", "projects", "experience", "education", "certifications"].includes(key) ? value : e(value);
+        const path = ["email", "phone", "linkedin", "github", "location"].includes(key) ? `contact.${key}` : key;
+        return ["skills", "projects", "experience", "education", "certifications"].includes(key) ? value : field(path, value);
     });
 }
 
@@ -135,23 +143,24 @@ export function renderCv(cv, templateId = "original") {
 // is ordinary text, headings and lists; the surrounding app theme never enters here.
 function renderSingleColumn(cv, templateId) {
     const e = escapeHtml;
-    const dates = (item) => [item.start, item.end].filter(Boolean).map(e).join(" - ");
+    const dates = (item, prefix) => joinedFields(prefix, item, ["start", "end"], " - ");
     const section = (heading, content) => content ? `<section><h2>${heading}</h2>${content}</section>` : "";
-    const tech = (values) => values.some((value) => value.trim()) ? `<p class="technology"><strong>Technologies:</strong> ${values.filter((value) => value.trim()).map(e).join(" · ")}</p>` : "";
-    const contact = [cv.contact.email, cv.contact.phone, cv.contact.location, cv.website, cv.contact.linkedin, cv.contact.github].filter(Boolean).map(e).join(" · ");
-    const experience = cv.experience.map((job) => `<article>
-        <h3>${e(job.role)}</h3>
-        <p class="meta">${[job.company, job.location, job.type].filter(Boolean).map(e).join(" · ")}${dates(job) ? ` - ${dates(job)}` : ""}</p>
-        ${job.info ? `<p>${e(job.info)}</p>` : ""}
-        ${job.bullets.some((value) => value.trim()) ? `<ul>${job.bullets.filter((value) => value.trim()).map((value) => `<li>${e(value)}</li>`).join("")}</ul>` : ""}
-        ${tech(job.tech)}
+    const tech = (values, key) => values.some((value) => value.trim()) ? `<p class="technology" data-cv-field="${key}"><strong>Technologies:</strong> ${values.filter((value) => value.trim()).map(e).join(" · ")}</p>` : field(key, "");
+    const contact = [["contact.email", cv.contact.email], ["contact.phone", cv.contact.phone], ["contact.location", cv.contact.location], ["website", cv.website], ["contact.linkedin", cv.contact.linkedin], ["contact.github", cv.contact.github]];
+    const contactHtml = contact.filter(([, value]) => value).map(([key, value]) => field(key, value)).join(" · ") + contact.filter(([, value]) => !value).map(([key]) => field(key, "")).join("");
+    const experience = cv.experience.map((job, index) => `<article>
+        <h3>${field(`experience.${index}.role`, job.role)}</h3>
+        <p class="meta">${joinedFields(`experience.${index}.`, job, ["company", "location", "type"], " · ")}${job.start || job.end ? " - " : ""}${dates(job, `experience.${index}.`)}</p>
+        <p>${field(`experience.${index}.info`, job.info)}</p>
+        ${job.bullets.some((value) => value.trim()) ? `<ul data-cv-field="experience.${index}.bullets">${job.bullets.filter((value) => value.trim()).map((value) => `<li>${e(value)}</li>`).join("")}</ul>` : field(`experience.${index}.bullets`, "")}
+        ${tech(job.tech, `experience.${index}.tech`)}
     </article>`).join("");
-    const projects = cv.projects.map((project) => `<article><h3>${e(project.name)}</h3>
-        <p>${e(project.description)}</p>${tech(project.tech)}
-        ${projectUrl(project.link) ? `<p class="project-link"><a href="${e(projectUrl(project.link))}" target="_blank" rel="noopener noreferrer">${e(project.link)}</a></p>` : ""}
+    const projects = cv.projects.map((project, index) => `<article><h3>${field(`projects.${index}.name`, project.name)}</h3>
+        <p>${field(`projects.${index}.description`, project.description)}</p>${tech(project.tech, `projects.${index}.tech`)}
+        ${projectUrl(project.link) ? `<p class="project-link"><a href="${e(projectUrl(project.link))}" target="_blank" rel="noopener noreferrer">${field(`projects.${index}.link`, project.link)}</a></p>` : field(`projects.${index}.link`, "")}
     </article>`).join("");
-    const education = cv.education.map((item) => `<article><h3>${e(item.institution)}</h3><p>${e(item.course)}</p><p class="meta">${dates(item)}</p></article>`).join("");
-    const certifications = cv.certifications.map((item) => `<article class="certificate"><h3>${e(item.title)}</h3><p class="meta">${[item.issuer, item.issued].filter(Boolean).map(e).join(" · ")}</p></article>`).join("");
+    const education = cv.education.map((item, index) => `<article><h3>${field(`education.${index}.institution`, item.institution)}</h3><p>${field(`education.${index}.course`, item.course)}</p><p class="meta">${dates(item, `education.${index}.`)}</p></article>`).join("");
+    const certifications = cv.certifications.map((item, index) => `<article class="certificate"><h3>${field(`certifications.${index}.title`, item.title)}</h3><p class="meta">${joinedFields(`certifications.${index}.`, item, ["issuer", "issued"], " · ")}</p></article>`).join("");
 
     return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><title>CV</title><style>
         @page { size: A4; margin: 14mm; }
@@ -193,13 +202,14 @@ function renderSingleColumn(cv, templateId) {
         `}
         @media screen { body { padding: 14mm; } }
         @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
-    </style></head><body><header><h1>${e(cv.name)}</h1><p class="title">${e(cv.title)}</p><p class="contact">${contact}</p></header><main>
-        ${section("Professional Profile", cv.summary ? `<p>${e(cv.summary)}</p>` : "")}
+    </style></head><body><header><h1>${field("name", cv.name)}</h1><p class="title">${field("title", cv.title)}</p><p class="contact">${contactHtml}</p></header><main>
+        ${section("Professional Profile", cv.summary ? `<p>${field("summary", cv.summary)}</p>` : "")}${!cv.summary ? field("summary", "") : ""}
         ${section("Professional Experience", experience)}
         ${section("Projects", projects)}
         ${section("Education", education)}
         ${section("Certifications", certifications)}
-        ${section("Skills", cv.skills.some((value) => value.trim()) ? `<p>${cv.skills.filter((value) => value.trim()).map(e).join(" · ")}</p>` : "")}
+        ${section("Skills", cv.skills.some((value) => value.trim()) ? `<p data-cv-field="skills">${cv.skills.filter((value) => value.trim()).map(e).join(" · ")}</p>` : "")}
+        ${!cv.skills.some((value) => value.trim()) ? field("skills", "") : ""}
         ${section("References", "<p>Available upon request.</p>")}
     </main></body></html>`;
 }

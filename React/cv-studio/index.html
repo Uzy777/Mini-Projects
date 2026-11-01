@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="theme-color" content="#202622" />
+        <meta name="theme-color" content="#191b20" />
         <script>
             try {
                 const saved = JSON.parse(localStorage.getItem("cv-studio-preferences-v1"));
@@ -11,7 +11,7 @@
                     ? saved.theme : (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
             } catch { document.documentElement.dataset.theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; }
         </script>
-        <title>CV Studio</title>
+        <title>CV editor</title>
     </head>
     <body>
         <div id="root"></div>

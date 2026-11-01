@@ -3,6 +3,7 @@ import { ArrowDownToLine, Check, ChevronDown, FileText, FolderOpen, LayoutTempla
 import { exampleCv, normalizeCv, parseCv, renderCv, STORAGE_KEY, TEMPLATES, toYaml } from "./cv.js";
 import { TemplatePicker } from "./TemplatePicker.jsx";
 import { PAGE_WIDTH, paginateDocument, printPages } from "./pagination.js";
+import { highlightField } from "./preview-highlight.js";
 
 const PREFERENCES_KEY = "cv-studio-preferences-v1";
 const sections = [
@@ -43,17 +44,17 @@ function download(filename, content, type) {
     link.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-function Field({ label, value, onChange, multiline = false, hint, placeholder, type = "text" }) {
+function Field({ fieldKey, label, value, onChange, multiline = false, hint, placeholder, type = "text" }) {
     const id = useId();
-    const props = { id, value, placeholder, onChange: (event) => onChange(event.target.value), "aria-describedby": hint ? `${id}-hint` : undefined };
+    const props = { id, value, placeholder, "data-preview-field": fieldKey, onChange: (event) => onChange(event.target.value), "aria-describedby": hint ? `${id}-hint` : undefined };
     return <div className="field">
         <label htmlFor={id}>{label}</label>
         {multiline ? <textarea {...props} rows={4} /> : <input {...props} type={type} />}
         {hint && <p id={`${id}-hint`} className="field-hint">{hint}</p>}
     </div>;
 }
-function ListField({ label, values, onChange, hint }) {
-    return <Field label={label} value={values.join("\n")} onChange={(value) => onChange(value ? value.split("\n") : [])} multiline hint={hint || "One item per line"} />;
+function ListField({ fieldKey, label, values, onChange, hint }) {
+    return <Field fieldKey={fieldKey} label={label} value={values.join("\n")} onChange={(value) => onChange(value ? value.split("\n") : [])} multiline hint={hint || "One item per line"} />;
 }
 function ItemCard({ title, subtitle, onRemove, children, initiallyOpen = false }) {
     const [open, setOpen] = useState(initiallyOpen);
@@ -100,6 +101,8 @@ export default function App() {
     const [pageCount, setPageCount] = useState(0);
     const [preparingPdf, setPreparingPdf] = useState(false);
     const pagesRef = useRef(null);
+    const previewFrameRef = useRef(null);
+    const activeFieldRef = useRef(null);
     const pendingPrintRef = useRef(null);
     const paperRef = useRef(null);
     const fileRef = useRef(null);
@@ -118,6 +121,7 @@ export default function App() {
     }, []);
     useEffect(() => {
         document.documentElement.dataset.theme = preferences.theme;
+        document.querySelector('meta[name="theme-color"]')?.setAttribute("content", preferences.theme === "dark" ? "#191b20" : "#ffffff");
         try { localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences)); }
         catch { setNotice("Preferences could not be saved in this browser."); }
     }, [preferences]);
@@ -139,12 +143,37 @@ export default function App() {
         return () => document.removeEventListener("pointerdown", closeMenu);
     }, []);
 
+    function showField(scroll = false) {
+        const frame = previewFrameRef.current;
+        const viewport = paperRef.current;
+        const rect = highlightField(frame?.contentDocument, activeFieldRef.current, preferences.theme);
+        if (!scroll || !rect || !viewport?.clientHeight) return;
+        const frameBounds = frame.getBoundingClientRect();
+        const bounds = viewport.getBoundingClientRect();
+        const top = frameBounds.top + rect.top * scale;
+        const left = frameBounds.left + rect.left * scale;
+        const outsideY = top < bounds.top + 20 || top + rect.height * scale > bounds.bottom - 20;
+        const outsideX = left < bounds.left + 20 || left + rect.width * scale > bounds.right - 20;
+        if (outsideY || outsideX) viewport.scrollBy({
+            top: outsideY ? top - bounds.top - 72 : 0,
+            left: outsideX ? left - bounds.left - 24 : 0,
+            behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+        });
+    }
+    useEffect(() => {
+        activeFieldRef.current = null;
+        showField();
+    }, [section, mode]);
+    useEffect(() => { showField(mobileView === "preview"); }, [scale, mobileView, preferences.theme, previewHeight]);
+
     const edit = (change) => { setUndoCv(null); setNotice(""); setCv(change); };
     const update = (key, value) => edit((current) => ({ ...current, [key]: value }));
     const updateContact = (key, value) => edit((current) => ({ ...current, contact: { ...current.contact, [key]: value } }));
     const updateItem = (group, index, key, value) => edit((current) => ({ ...current, [group]: current[group].map((item, position) => position === index ? { ...item, [key]: value } : item) }));
     const addItem = (group) => edit((current) => ({ ...current, [group]: [...current[group], { ...emptyItems[group] }] }));
     const removeItem = (group, index) => {
+        activeFieldRef.current = null;
+        showField();
         setUndoCv(cv);
         setCv((current) => ({ ...current, [group]: current[group].filter((_, position) => position !== index) }));
         setNotice("Entry removed.");
@@ -157,6 +186,7 @@ export default function App() {
         if (file.size > 1024 * 1024) { setNotice("Choose a CV file under 1 MB."); return; }
         try {
             const imported = parseCv(await file.text(), file.name);
+            activeFieldRef.current = null;
             setUndoCv(cv);
             setCv(imported);
             setSection("basics");
@@ -181,6 +211,7 @@ export default function App() {
             pagesRef.current = { ...pages, source: frame.srcdoc };
             setPreviewHeight(pages.height);
             setPageCount(pages.pageCount);
+            showField();
             if (pendingPrintRef.current === frame.srcdoc) {
                 pendingPrintRef.current = null;
                 setPreparingPdf(false);
@@ -195,6 +226,7 @@ export default function App() {
         }
     }
     function reset() {
+        activeFieldRef.current = null;
         setUndoCv(cv);
         setCv(exampleCv);
         setSection("basics");
@@ -206,9 +238,8 @@ export default function App() {
     return <div className="min-h-dvh bg-canvas text-ink transition-colors duration-200">
         <a className="skip-link" href="#editor">Skip to editor</a>
         <header className="app-header">
-            <a href="#" className="brand" aria-label="CV Studio home"><span className="brand-mark"><FileText size={21} strokeWidth={1.6} /></span><span>cv<span className="hidden font-normal text-muted min-[380px]:inline">studio</span><span className="brand-period">.</span></span></a>
+            <span className="save-status" role="status"><Check size={14} /><span>{saveMessage}</span></span>
             <div className="flex items-center gap-2 sm:gap-3">
-                <span className="hidden items-center gap-1.5 text-xs text-muted xl:flex" role="status"><Check size={14} />{saveMessage}</span>
                 <button className="icon-button" type="button" aria-label={`Switch to ${preferences.theme === "dark" ? "light" : "dark"} mode`} title={`Switch to ${preferences.theme === "dark" ? "light" : "dark"} mode`} onClick={() => setPreferences((current) => ({ ...current, theme: current.theme === "dark" ? "light" : "dark" }))}>{preferences.theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}</button>
                 <details ref={fileMenuRef} className="relative" onKeyDown={(event) => { if (event.key === "Escape") { fileMenuRef.current.open = false; fileMenuRef.current.querySelector("summary").focus(); } }}>
                     <summary className="button-secondary list-none" aria-label="File actions"><FolderOpen size={16} /><span className="hidden sm:inline">File</span><ChevronDown size={13} className="hidden sm:block" /></summary>
@@ -227,7 +258,10 @@ export default function App() {
             <button aria-pressed={mobileView === "preview"} onClick={() => setMobileView("preview")}><FileText size={15} />Preview</button>
         </div>
         <main className="workspace">
-            <section className={`editor ${mobileView === "preview" ? "hidden lg:flex" : "flex"}`} id="editor" aria-label="CV editor">
+            <section className={`editor ${mobileView === "preview" ? "hidden lg:flex" : "flex"}`} id="editor" aria-label="CV editor" onFocusCapture={(event) => {
+                const key = event.target.dataset.previewField;
+                if (key) { activeFieldRef.current = key; showField(true); }
+            }}>
                 <div className="editor-toolbar">
                     <div className="mode-switch" role="group" aria-label="Editor view">
                         <button aria-pressed={mode === "content"} onClick={() => setMode("content")}><PanelLeft size={15} />Content</button>
@@ -243,47 +277,47 @@ export default function App() {
                         {mode === "templates" ? <TemplatePicker selected={preferences.template} onSelect={(id) => setPreferences((current) => ({ ...current, template: id }))} /> : <>
                     {section === "basics" && <>
                         <div className="section-intro"><h2>Profile</h2><p>Start with the details at the top of your CV.</p></div>
-                        <div className="field-grid"><Field label="Full name" value={cv.name} onChange={(value) => update("name", value)} placeholder="Your name" /><Field label="Job title" value={cv.title} onChange={(value) => update("title", value)} placeholder="Your role" /></div>
-                        <Field label="Location" value={cv.contact.location} onChange={(value) => updateContact("location", value)} placeholder="City, country" />
-                        <Field label="Personal profile" value={cv.summary} onChange={(value) => update("summary", value)} multiline  />
+                        <div className="field-grid"><Field fieldKey="name" label="Full name" value={cv.name} onChange={(value) => update("name", value)} placeholder="Your name" /><Field fieldKey="title" label="Job title" value={cv.title} onChange={(value) => update("title", value)} placeholder="Your role" /></div>
+                        <Field fieldKey="contact.location" label="Location" value={cv.contact.location} onChange={(value) => updateContact("location", value)} placeholder="City, country" />
+                        <Field fieldKey="summary" label="Personal profile" value={cv.summary} onChange={(value) => update("summary", value)} multiline  />
                         <h3 className="form-subheading">Contact details</h3>
-                        <div className="field-grid"><Field label="Email" type="email" value={cv.contact.email} onChange={(value) => updateContact("email", value)} /><Field label="Phone" type="tel" value={cv.contact.phone} onChange={(value) => updateContact("phone", value)} /></div>
-                        <div className="field-grid"><Field label="LinkedIn" value={cv.contact.linkedin} onChange={(value) => updateContact("linkedin", value)} placeholder="linkedin.com/in/you" /><Field label="GitHub" value={cv.contact.github} onChange={(value) => updateContact("github", value)} placeholder="github.com/you" /></div>
-                        <Field label="Website" value={cv.website} onChange={(value) => update("website", value)} placeholder="your-site.com" />
+                        <div className="field-grid"><Field fieldKey="contact.email" label="Email" type="email" value={cv.contact.email} onChange={(value) => updateContact("email", value)} /><Field fieldKey="contact.phone" label="Phone" type="tel" value={cv.contact.phone} onChange={(value) => updateContact("phone", value)} /></div>
+                        <div className="field-grid"><Field fieldKey="contact.linkedin" label="LinkedIn" value={cv.contact.linkedin} onChange={(value) => updateContact("linkedin", value)} placeholder="linkedin.com/in/you" /><Field fieldKey="contact.github" label="GitHub" value={cv.contact.github} onChange={(value) => updateContact("github", value)} placeholder="github.com/you" /></div>
+                        <Field fieldKey="website" label="Website" value={cv.website} onChange={(value) => update("website", value)} placeholder="your-site.com" />
                     </>}
 
                     {section === "experience" && <Collection title="Experience" description="Your most recent role first." items={cv.experience} addLabel="Add experience" onAdd={() => addItem("experience")} renderItem={(item, index) => <ItemCard initiallyOpen={index === 0 || !item.role} title={item.role || `Role ${index + 1}`} subtitle={item.company} onRemove={() => removeItem("experience", index)}>
-                        <div className="field-grid"><Field label="Role" value={item.role} onChange={(value) => updateItem("experience", index, "role", value)} /><Field label="Company" value={item.company} onChange={(value) => updateItem("experience", index, "company", value)} /></div>
-                        <div className="field-grid"><Field label="Location" value={item.location} onChange={(value) => updateItem("experience", index, "location", value)} /><Field label="Employment type" value={item.type} onChange={(value) => updateItem("experience", index, "type", value)} /></div>
-                        <div className="field-grid"><Field label="Start" value={item.start} onChange={(value) => updateItem("experience", index, "start", value)} placeholder="Jan 2024" /><Field label="End" value={item.end} onChange={(value) => updateItem("experience", index, "end", value)} placeholder="Present" /></div>
-                        <Field label="Overview" value={item.info} onChange={(value) => updateItem("experience", index, "info", value)} multiline hint="Optional paragraph before your highlights." />
-                        <ListField label="Highlights" values={item.bullets} onChange={(value) => updateItem("experience", index, "bullets", value)} />
-                        <ListField label="Technologies" values={item.tech} onChange={(value) => updateItem("experience", index, "tech", value)} />
+                        <div className="field-grid"><Field fieldKey={`experience.${index}.role`} label="Role" value={item.role} onChange={(value) => updateItem("experience", index, "role", value)} /><Field fieldKey={`experience.${index}.company`} label="Company" value={item.company} onChange={(value) => updateItem("experience", index, "company", value)} /></div>
+                        <div className="field-grid"><Field fieldKey={`experience.${index}.location`} label="Location" value={item.location} onChange={(value) => updateItem("experience", index, "location", value)} /><Field fieldKey={`experience.${index}.type`} label="Employment type" value={item.type} onChange={(value) => updateItem("experience", index, "type", value)} /></div>
+                        <div className="field-grid"><Field fieldKey={`experience.${index}.start`} label="Start" value={item.start} onChange={(value) => updateItem("experience", index, "start", value)} placeholder="Jan 2024" /><Field fieldKey={`experience.${index}.end`} label="End" value={item.end} onChange={(value) => updateItem("experience", index, "end", value)} placeholder="Present" /></div>
+                        <Field fieldKey={`experience.${index}.info`} label="Overview" value={item.info} onChange={(value) => updateItem("experience", index, "info", value)} multiline hint="Optional paragraph before your highlights." />
+                        <ListField fieldKey={`experience.${index}.bullets`} label="Highlights" values={item.bullets} onChange={(value) => updateItem("experience", index, "bullets", value)} />
+                        <ListField fieldKey={`experience.${index}.tech`} label="Technologies" values={item.tech} onChange={(value) => updateItem("experience", index, "tech", value)} />
                     </ItemCard>} />}
 
                     {section === "projects" && <Collection title="Projects" description="Show the work you want readers to notice." items={cv.projects} addLabel="Add project" onAdd={() => addItem("projects")} renderItem={(item, index) => <ItemCard initiallyOpen={index === 0 || !item.name} title={item.name || `Project ${index + 1}`} onRemove={() => removeItem("projects", index)}>
-                        <Field label="Project name" value={item.name} onChange={(value) => updateItem("projects", index, "name", value)} />
-                        <Field label="Description" value={item.description} onChange={(value) => updateItem("projects", index, "description", value)} multiline />
-                        <ListField label="Technologies" values={item.tech} onChange={(value) => updateItem("projects", index, "tech", value)} />
-                        <Field label="Project link" value={item.link} onChange={(value) => updateItem("projects", index, "link", value)} placeholder="example.com/project" />
+                        <Field fieldKey={`projects.${index}.name`} label="Project name" value={item.name} onChange={(value) => updateItem("projects", index, "name", value)} />
+                        <Field fieldKey={`projects.${index}.description`} label="Description" value={item.description} onChange={(value) => updateItem("projects", index, "description", value)} multiline />
+                        <ListField fieldKey={`projects.${index}.tech`} label="Technologies" values={item.tech} onChange={(value) => updateItem("projects", index, "tech", value)} />
+                        <Field fieldKey={`projects.${index}.link`} label="Project link" value={item.link} onChange={(value) => updateItem("projects", index, "link", value)} placeholder="example.com/project" />
                     </ItemCard>} />}
 
                     {section === "qualifications" && <>
                         <Collection title="Education" description="Degrees, courses, and other education." items={cv.education} addLabel="Add education" onAdd={() => addItem("education")} renderItem={(item, index) => <ItemCard initiallyOpen={index === 0 || !item.institution} title={item.institution || `Education ${index + 1}`} onRemove={() => removeItem("education", index)}>
-                            <Field label="Institution" value={item.institution} onChange={(value) => updateItem("education", index, "institution", value)} />
-                            <Field label="Course or qualification" value={item.course} onChange={(value) => updateItem("education", index, "course", value)} />
-                            <div className="field-grid"><Field label="Start" value={item.start} onChange={(value) => updateItem("education", index, "start", value)} /><Field label="End" value={item.end} onChange={(value) => updateItem("education", index, "end", value)} /></div>
+                            <Field fieldKey={`education.${index}.institution`} label="Institution" value={item.institution} onChange={(value) => updateItem("education", index, "institution", value)} />
+                            <Field fieldKey={`education.${index}.course`} label="Course or qualification" value={item.course} onChange={(value) => updateItem("education", index, "course", value)} />
+                            <div className="field-grid"><Field fieldKey={`education.${index}.start`} label="Start" value={item.start} onChange={(value) => updateItem("education", index, "start", value)} /><Field fieldKey={`education.${index}.end`} label="End" value={item.end} onChange={(value) => updateItem("education", index, "end", value)} /></div>
                         </ItemCard>} />
                         <div className="collection-divider" />
                         <Collection title="Certifications" description="Professional certificates and awards." items={cv.certifications} addLabel="Add certification" onAdd={() => addItem("certifications")} renderItem={(item, index) => <ItemCard initiallyOpen={index === 0 || !item.title} title={item.title || `Certification ${index + 1}`} onRemove={() => removeItem("certifications", index)}>
-                            <Field label="Title" value={item.title} onChange={(value) => updateItem("certifications", index, "title", value)} />
-                            <div className="field-grid"><Field label="Issuer" value={item.issuer} onChange={(value) => updateItem("certifications", index, "issuer", value)} /><Field label="Issued" value={item.issued} onChange={(value) => updateItem("certifications", index, "issued", value)} /></div>
+                            <Field fieldKey={`certifications.${index}.title`} label="Title" value={item.title} onChange={(value) => updateItem("certifications", index, "title", value)} />
+                            <div className="field-grid"><Field fieldKey={`certifications.${index}.issuer`} label="Issuer" value={item.issuer} onChange={(value) => updateItem("certifications", index, "issuer", value)} /><Field fieldKey={`certifications.${index}.issued`} label="Issued" value={item.issued} onChange={(value) => updateItem("certifications", index, "issued", value)} /></div>
                         </ItemCard>} />
                     </>}
 
                     {section === "skills" && <>
                         <div className="section-intro"><h2>Skills</h2><p>A few things you do well.</p></div>
-                        <ListField label="Skills" values={cv.skills} onChange={(value) => update("skills", value)} hint="One skill per line" />
+                        <ListField fieldKey="skills" label="Skills" values={cv.skills} onChange={(value) => update("skills", value)} hint="One skill per line" />
                     </>}
 
                         </>}
@@ -298,7 +332,7 @@ export default function App() {
                 </div>
                 <div className="preview-viewport" ref={paperRef}>
                     <div className="paper-wrap" style={{ width: PAGE_WIDTH * scale, height: previewHeight * scale }}>
-                        <iframe title="CV document preview" srcDoc={previewHtml} sandbox="allow-same-origin" onLoad={preparePreview} style={{ width: PAGE_WIDTH, height: previewHeight, transform: `scale(${scale})` }} />
+                        <iframe ref={previewFrameRef} title="CV document preview" srcDoc={previewHtml} sandbox="allow-same-origin" onLoad={preparePreview} style={{ width: PAGE_WIDTH, height: previewHeight, transform: `scale(${scale})` }} />
                     </div>
                     <p className="preview-tip">These A4 pages are used for your PDF. Choose “Save as PDF” at 100% scale.</p>
                 </div>
