@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { ArrowDown, ArrowUp, BriefcaseBusiness, ExternalLink, Globe, Link, Plus, Trash2 } from "lucide-react";
+import { Eye, EyeOff, ArrowDown, ArrowUp, BriefcaseBusiness, ExternalLink, Globe, Link, Plus, Trash2 } from "lucide-react";
 import { LINK_TYPES, linkType, socialUrl } from "./social-links.js";
 
 import linkedinIcon from "./assets/brands/linkedin.svg";
@@ -21,7 +21,7 @@ function LinkCard({ link, index, count, onChange, onRemove, onMove }) {
     const type = linkType(link.platform);
     const url = socialUrl(link);
     const invalid = Boolean(link.value.trim()) && !url;
-    return <div className="social-card" data-link-id={link.id}>
+    return <div className={`social-card ${link.hidden ? "entry-hidden" : ""}`} data-link-id={link.id}>
         <div className="social-heading">
             <span className="social-icon"><PlatformIcon platform={link.platform} /></span>
             <label className="sr-only" htmlFor={`${id}-platform`}>Platform for link {index + 1}</label>
@@ -29,11 +29,13 @@ function LinkCard({ link, index, count, onChange, onRemove, onMove }) {
                 {LINK_TYPES.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
             </select>
             <div className="entry-actions">
+                <button className="entry-action" type="button" onClick={() => onChange("hidden", !link.hidden)} title={link.hidden ? "Show link" : "Hide link, keep content"} aria-label={`${link.hidden ? "Show" : "Hide"} ${type.label} link`}>{link.hidden ? <Eye size={14} /> : <EyeOff size={14} />}</button>
                 <button className="entry-action" type="button" disabled={!index} onClick={() => onMove(-1)} title="Move link up" aria-label={`Move ${type.label} link up`}><ArrowUp size={14} /></button>
                 <button className="entry-action" type="button" disabled={index === count - 1} onClick={() => onMove(1)} title="Move link down" aria-label={`Move ${type.label} link down`}><ArrowDown size={14} /></button>
                 <button className="entry-action text-danger" type="button" onClick={onRemove} title="Remove link" aria-label={`Remove ${type.label} link`}><Trash2 size={14} /></button>
             </div>
         </div>
+        {link.hidden && <p className="field-hint mb-2">Hidden from your CV</p>}
         {(link.platform === "other" || link.label) && <div className="field">
             <label htmlFor={`${id}-label`}>Label</label>
             <input id={`${id}-label`} value={link.label} placeholder="e.g. Writing or publications" data-preview-field={`links.${index}.label`} onChange={(event) => onChange("label", event.target.value)} />
@@ -65,7 +67,7 @@ export function SocialLinks({ links, onChange, onAdd, onRemove, onMove }) {
         setFocusId(null);
     }, [focusId, links.length]);
     return <section className="social-section" aria-labelledby={`${id}-heading`}>
-        <div className="form-subheading flex items-center justify-between"><h3 id={`${id}-heading`}>Social & web links</h3><span className="count-badge">{links.length}</span></div>
+        <div className="form-subheading flex items-center justify-between"><h3 id={`${id}-heading`}>Online links</h3><span className="count-badge">{links.length}</span></div>
         <div className="space-y-3" ref={listRef}>
             {links.map((link, index) => <LinkCard key={link.id} link={link} index={index} count={links.length} onChange={(key, value) => onChange(index, key, value)} onRemove={() => onRemove(index)} onMove={(direction) => onMove(index, direction)} />)}
         </div>

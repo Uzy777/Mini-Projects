@@ -24,7 +24,7 @@
     --muted: #626b7a;
     --line: #dde2e9;
     --accent: #2563eb;
-    --accent-soft: #edf3ff;
+    --accent-soft: color-mix(in srgb, var(--accent) 10%, var(--surface));
     --danger: #b42336;
 }
 :root[data-theme="dark"] {
@@ -36,7 +36,7 @@
     --muted: #a8afbc;
     --line: #353a45;
     --accent: #8bb4ff;
-    --accent-soft: #202e48;
+    --accent-soft: color-mix(in srgb, var(--accent) 15%, var(--surface));
     --danger: #ff929e;
 }
 
@@ -52,39 +52,49 @@
 
 @layer components {
     .skip-link { @apply fixed left-4 top-3 z-50 -translate-y-24 rounded-lg bg-accent px-4 py-3 text-surface focus:translate-y-0; }
-    .app-header { @apply relative z-30 flex h-16 items-center justify-between gap-2 border-b border-line bg-surface px-3 sm:px-7; }
+    .app-shell { @apply flex h-dvh min-h-0 flex-col overflow-hidden; }
+    .app-header { @apply relative z-30 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-line bg-surface px-3 sm:px-7; }
     .save-status { @apply flex items-center gap-2 text-xs text-muted; }
     .save-status span { @apply hidden min-[380px]:inline; }
-    .button-primary { @apply inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-[#2563eb] px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#1d4ed8] active:scale-[.98]; }
+    .button-primary { @apply inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3.5 py-2 text-xs font-semibold text-white shadow-sm active:scale-[.98]; background: var(--accent-filled, #2563eb); }
+    .button-primary:hover { filter: brightness(.88); }
     .button-secondary { @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-line bg-surface px-3 py-2 text-xs font-medium hover:bg-soft active:scale-[.98]; }
     .icon-button { @apply inline-flex size-10 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-soft hover:text-ink active:scale-95; }
     .button-quiet { @apply inline-flex min-h-9 items-center gap-1.5 rounded-md px-2 text-xs font-medium hover:bg-soft; }
     .file-menu { @apply absolute right-0 top-[calc(100%+10px)] z-40 w-57 rounded-xl border border-line bg-surface p-1.5 shadow-xl shadow-black/10; }
     .file-menu button { @apply flex min-h-10 w-full items-center gap-2.5 rounded-md px-3 text-left text-xs hover:bg-soft; }
-    .workspace { @apply grid min-h-[calc(100dvh-64px)] grid-cols-1 lg:h-[calc(100dvh-64px)] lg:min-h-0 lg:grid-cols-[minmax(390px,440px)_minmax(0,1fr)] xl:grid-cols-[minmax(440px,500px)_minmax(0,1fr)] 2xl:grid-cols-[minmax(480px,560px)_minmax(0,1fr)]; }
-    .editor { @apply min-h-0 min-w-0 flex-col border-r border-line bg-surface; }
-    .editor-toolbar { @apply flex min-h-19 shrink-0 items-center justify-between gap-4 px-5 sm:px-7; }
+    .workspace { @apply grid min-h-0 flex-1 grid-cols-1; }
+    .editor { @apply min-h-0 min-w-0 flex-col bg-surface lg:border-r lg:border-line; container: cv-editor / inline-size; }
+    .editor-toolbar { @apply flex min-h-16 shrink-0 items-center justify-between gap-4 px-5 sm:px-7; }
     .mode-switch { @apply flex gap-1 rounded-lg bg-soft p-1; }
     .mode-switch button { @apply flex min-h-8 items-center justify-center gap-2 rounded-md px-3 text-xs font-medium text-muted hover:text-ink; }
-    .mode-switch button[aria-pressed="true"] { @apply bg-surface text-ink shadow-sm; }
-    .section-nav { @apply flex shrink-0 flex-wrap gap-x-3 gap-y-0 border-b border-line px-5 sm:gap-x-4 sm:px-7; }
-    .section-nav button { @apply relative min-h-11 border-b-2 border-transparent px-0.5 text-[11px] font-medium text-muted hover:text-ink; }
-    .section-nav button[aria-current] { @apply border-accent text-accent; }
-    .editor-scroll { @apply min-h-0 flex-1 overflow-y-auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
-    .editor-content { @apply p-5 sm:p-7; }
+    .mode-switch button[aria-pressed="true"] { @apply bg-accent-soft text-accent shadow-sm; }
+    .section-navigation { @apply grid shrink-0 grid-cols-[auto_minmax(0,1fr)] items-end gap-3 border-b border-line px-5 pb-4 sm:px-7; }
+    .sections-overview { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-line px-3 text-xs font-medium text-muted hover:bg-soft hover:text-ink; }
+    .sections-overview[aria-current] { @apply border-accent bg-accent-soft text-accent; }
+    .sections-overview svg { @apply shrink-0; }
+    .section-select { @apply min-w-0; }
+    .section-select label { @apply mb-1.5 block text-[10px] font-medium text-muted; }
+    .section-select select { @apply block min-h-11 w-full min-w-0 rounded-lg border border-line bg-surface px-2 text-xs text-ink; }
+    .editor-scroll { @apply min-h-0 flex-1 overflow-y-auto overscroll-contain; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+    .editor-content { @apply mx-auto w-full max-w-3xl p-5 sm:p-7; }
     .section-intro { @apply mb-6; }
-    .section-intro h2 { @apply text-[23px] font-semibold tracking-[-.045em]; }
-    .section-intro p { @apply mt-1.5 text-xs leading-relaxed text-muted; }
-    .field-grid { @apply grid grid-cols-1 gap-x-4 sm:grid-cols-2; }
+    .section-intro h2 { overflow-wrap: anywhere; @apply text-2xl leading-tight font-semibold tracking-[-.04em]; }
+    .section-intro p { @apply mt-2 text-[13px] leading-relaxed text-muted; }
+    .design-subheading { @apply mb-3 text-sm font-semibold tracking-tight text-ink; }
+    .field-grid { @apply grid grid-cols-1 gap-x-4; }
     .field { @apply mb-4 min-w-0; }
     .field label { @apply mb-2 block text-[11px] font-semibold text-ink; }
     .field input, .field textarea { @apply block min-h-11 w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-[13px] leading-relaxed text-ink placeholder:text-muted/60 hover:border-muted/50 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20; }
     .field:focus-within label { @apply text-accent; }
     .field-count { @apply float-right rounded bg-soft px-1.5 text-[10px] font-normal text-muted; }
-    .nav-count { @apply ml-1 text-[9px] text-muted; }
+    .nav-count { @apply ml-1 text-[10px] tabular-nums text-muted; }
     .count-badge { @apply rounded-md bg-soft px-2 py-0.5 text-[10px] font-medium text-muted; }
     .field textarea { @apply min-h-25 resize-y; }
     .field-hint { @apply mt-1.5 text-[10px] leading-relaxed text-muted; }
+    .photo-panel { @apply mb-5 flex gap-4 rounded-xl border border-line bg-soft p-4; }
+    .photo-preview { @apply flex size-17 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-surface text-muted; }
+    .photo-preview img { @apply size-full object-cover; }
     .form-subheading { @apply mb-5 mt-6 border-t border-line pt-6 text-sm font-semibold; }
     .item-card { @apply overflow-hidden rounded-xl border border-line bg-surface; }
     .item-card-header { @apply flex items-center pr-2; }
@@ -117,13 +127,21 @@
     .preview-dot { @apply size-1.5 rounded-full bg-accent; }
     .zoom-switch { @apply flex items-center gap-0.5 rounded-lg border border-line p-0.5; }
     .zoom-switch button { @apply min-h-7 min-w-10 rounded-md px-2 text-[10px] font-medium text-muted; }
-    .zoom-switch button[aria-pressed="true"] { @apply bg-surface text-ink shadow-sm; }
+    .zoom-switch button[aria-pressed="true"] { @apply bg-accent-soft text-accent shadow-sm; }
     .preview-viewport { @apply min-h-0 flex-1 overflow-auto px-6 pb-8; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
     .paper-wrap { @apply relative mx-auto overflow-hidden; color-scheme: light; }
     .paper-wrap iframe { display: block; border: 0; background: transparent; transform-origin: top left; color-scheme: light; }
     .preview-tip { @apply mx-auto mt-5 text-center text-[10px] text-muted; }
     .template-option { @apply block cursor-pointer; }
-    .template-card { @apply relative grid grid-cols-[100px_1fr] items-center gap-4 rounded-xl border border-line p-3 pr-7 transition-[border-color,background-color,box-shadow] duration-200 hover:border-muted/60 sm:grid-cols-[110px_1fr]; }
+    .accent-panel { @apply mb-7 rounded-xl border border-line bg-soft p-4; }
+    .accent-controls { @apply mt-4 flex flex-wrap items-center gap-2; }
+    .accent-picker { @apply flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-line bg-surface p-1; }
+    .accent-picker input { @apply size-full cursor-pointer border-0 bg-transparent p-0; }
+    .accent-picker input::-webkit-color-swatch-wrapper { padding: 0; }
+    .accent-picker input::-webkit-color-swatch { border: 0; border-radius: 5px; }
+    .accent-hex-label { @apply ml-1 text-xs font-medium text-muted; }
+    .accent-hex { @apply h-10 w-26 rounded-lg border border-line bg-surface px-3 font-mono text-xs uppercase text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20; }
+    .template-card { @apply relative grid grid-cols-[100px_minmax(0,1fr)] items-center gap-4 rounded-xl border border-line p-3 pr-7 transition-[border-color,background-color,box-shadow] duration-200 hover:border-muted/60 ; }
     .template-option input:checked + .template-card { @apply border-accent bg-accent-soft shadow-[0_0_0_1px_var(--accent)]; }
     .template-option input:focus-visible + .template-card { @apply outline-2 outline-offset-4 outline-accent; }
     .thumbnail-surround { @apply flex h-39 items-start justify-center overflow-hidden rounded-md bg-canvas px-2 pt-3; }
@@ -135,7 +153,7 @@
     .confirm-dialog { @apply fixed inset-0 m-auto w-[calc(100%-32px)] max-w-md rounded-2xl border border-line bg-surface text-ink shadow-2xl; }
     .confirm-dialog::backdrop { background: #090b12b3; backdrop-filter: blur(4px); }
     .dialog-icon { @apply flex size-12 items-center justify-center rounded-xl bg-accent-soft text-accent; }
-    .mobile-switch { @apply flex justify-center gap-1 border-b border-line bg-surface p-2 lg:hidden; }
+    .mobile-switch { @apply flex shrink-0 justify-center gap-1 border-b border-line bg-surface p-2 lg:hidden; }
     .mobile-switch button { @apply flex min-h-9 items-center justify-center gap-2 rounded-md px-5 text-xs font-medium text-muted; }
     .mobile-switch button[aria-pressed="true"] { @apply bg-accent-soft text-accent; }
 }
@@ -154,4 +172,58 @@
 @keyframes toast-in { from { opacity: 0; margin-bottom: -4px; } to { opacity: 1; margin-bottom: 0; } }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+@layer components {
+    .profile-shortcut { @apply mb-7 flex w-full items-center justify-between gap-3 rounded-xl border border-line bg-soft p-4 text-left; }
+    .profile-shortcut strong, .section-choice-edit strong, .catalog-choice strong { @apply block text-xs font-semibold; }
+    .profile-shortcut span span, .section-choice-edit span, .catalog-choice span span { @apply mt-1 block text-[11px] leading-relaxed text-muted; }
+    .section-list-heading { @apply mb-2 mt-7 flex items-center justify-between text-sm font-semibold; }
+    .section-list-heading > span { @apply rounded-md bg-soft px-2 py-1 text-xs text-muted; }
+    .section-group { @apply mt-3 space-y-2; }
+    .section-column-label { @apply mb-2 mt-4 text-[11px] font-semibold uppercase tracking-wider text-muted; }
+    .section-choice { @apply flex flex-wrap items-center justify-between gap-1 rounded-xl border border-line bg-surface p-2; }
+    .section-choice-edit { @apply min-w-0 flex-1 rounded-md p-2 text-left hover:bg-soft; overflow-wrap: anywhere; }
+    .section-choice-actions { @apply flex shrink-0 items-center gap-0.5; }
+    .section-choice-actions select { @apply max-w-22 rounded-md border border-line bg-surface px-1 py-2 text-[11px] text-ink; }
+    .section-choice-actions .entry-action { @apply size-8; }
+    .section-catalog { @apply mt-3 grid grid-cols-1 gap-2; }
+    .catalog-choice { overflow-wrap: anywhere; @apply flex min-w-0 items-start gap-3 rounded-xl border border-line p-3 text-left transition-colors hover:border-accent hover:bg-soft; }
+    .catalog-choice > span { @apply min-w-0; }
+    .profile-shortcut > span { @apply min-w-0; overflow-wrap: anywhere; }
+    .profile-shortcut > svg { @apply shrink-0; }
+    .catalog-choice > svg { @apply mt-0.5 shrink-0 text-accent; }
+    .custom-choice { @apply border-dashed; }
+    .custom-suggestions { @apply mt-2 flex flex-wrap gap-2; }
+    .section-settings { @apply mb-6 border-b border-line pb-2; }
+    .section-settings > div:first-child { @apply mb-4; }
+    .preview-empty { @apply mb-4 rounded-lg border border-line bg-surface p-4 text-center text-xs text-muted; }
+    .header-options { @apply mb-6 flex flex-wrap gap-3; }
+    .header-options label, .visibility-option { @apply flex items-center gap-2 text-xs text-muted; }
+    .header-options input, .visibility-option input { accent-color: var(--accent); }
+    .entry-hidden { @apply border-dashed bg-soft; }
+}
+
+/* Respond to the actual editor width, including beside the desktop preview. */
+@media (min-width: 1024px) {
+    .workspace { grid-template-columns: minmax(0, min(46%, 680px)) minmax(0, 1fr); }
+}
+@container cv-editor (min-width: 480px) {
+    .field-grid, .section-catalog { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@container cv-editor (max-width: 479px) {
+    .section-choice { display: grid; grid-template-columns: minmax(0, 1fr); }
+    .section-choice-actions { justify-content: flex-end; border-top: 1px solid var(--line); padding-top: 6px; }
+    .section-choice-actions select { margin-right: auto; max-width: none; }
+    .item-card-header { flex-wrap: wrap; padding-right: 0; }
+    .item-card-header .item-heading { flex-basis: 100%; }
+    .item-card-header .entry-actions { width: 100%; justify-content: flex-end; border-top: 1px solid var(--line); padding: 4px 8px; }
+    .social-heading { flex-wrap: wrap; }
+    .social-heading .entry-actions { width: 100%; justify-content: flex-end; }
+    .photo-panel { flex-wrap: wrap; }
+}
+@container cv-editor (max-width: 359px) {
+    .section-navigation { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .sections-overview { justify-content: flex-start; }
+    .template-card { grid-template-columns: minmax(0, 1fr); padding-right: 12px; }
 }

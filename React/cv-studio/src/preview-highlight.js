@@ -1,6 +1,8 @@
+import { readableAccent } from "./accent.js";
+
 // This layer is added only after pagination has captured the printable pages.
 // It never changes text metrics or enters the PDF snapshot.
-export function highlightField(doc, key, theme) {
+export function highlightField(doc, key, theme, accent) {
     if (!doc?.querySelector(".cv-document")) return null;
     doc.documentElement.dataset.editorTheme = theme;
     let layer = doc.getElementById("cv-highlight-layer");
@@ -10,8 +12,8 @@ export function highlightField(doc, key, theme) {
             .cv-page-label { color: #626b7a; }
             html[data-editor-theme="dark"] .cv-page-label { color: #a1a1aa; }
             #cv-highlight-layer { position: absolute; inset: 0; pointer-events: none; }
-            .cv-field-highlight { position: absolute; border: 1.5px solid #2563eb; border-radius: 4px;
-                background: #3b82f614; box-shadow: 0 0 0 3px #3b82f614; }
+            .cv-field-highlight { position: absolute; border: 1.5px solid var(--highlight-accent); border-radius: 4px;
+                background: color-mix(in srgb, var(--highlight-accent) 9%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--highlight-accent) 9%, transparent); }
             @media print { #cv-highlight-layer { display: none !important; } }
         `;
         doc.head.append(style);
@@ -20,6 +22,7 @@ export function highlightField(doc, key, theme) {
         layer.setAttribute("aria-hidden", "true");
         doc.body.append(layer);
     }
+    doc.documentElement.style.setProperty("--highlight-accent", readableAccent(accent));
     layer.replaceChildren();
     if (!key) return null;
     const fields = [...doc.querySelectorAll("[data-cv-field]")];

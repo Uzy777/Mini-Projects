@@ -1,11 +1,26 @@
+import { useEffect, useState } from "react";
 import { Check, ArrowUpRight } from "lucide-react";
 import { exampleCv, renderCv, TEMPLATES } from "./cv.js";
 
-const thumbnails = Object.fromEntries(TEMPLATES.map((template) => [template.id, renderCv(exampleCv, template.id)]));
-
-export function TemplatePicker({ selected, onSelect }) {
+export function TemplatePicker({ selected, onSelect, accent, onAccentChange }) {
+    const [hex, setHex] = useState(accent.toUpperCase());
+    useEffect(() => setHex(accent.toUpperCase()), [accent]);
+    const editHex = (value) => {
+        setHex(value.toUpperCase());
+        if (/^#?[0-9a-f]{6}$/i.test(value)) onAccentChange(`#${value.replace(/^#/, "").toLowerCase()}`);
+    };
+    const thumbnails = Object.fromEntries(TEMPLATES.map((template) => [template.id, renderCv(exampleCv, template.id, accent)]));
     return <>
-        <div className="section-intro"><h2>Choose a template</h2><p>Your details carry across. Pick a layout to preview it.</p></div>
+        <div className="section-intro"><h2>Design</h2><p>Choose a layout and accent colour. Your content stays in place.</p></div>
+        <div className="accent-panel">
+            <div><h3 className="text-sm font-semibold">Accent colour</h3><p className="mt-1 text-xs text-muted">Used across the editor and in your CV. Light colours are adjusted for readable text.</p></div>
+            <div className="accent-controls">
+                <label className="accent-picker" title="Choose a custom accent colour"><input aria-label="Choose a custom accent colour" type="color" value={accent} onChange={(event) => onAccentChange(event.target.value)} /></label>
+                <label className="accent-hex-label" htmlFor="accent-hex">Hex</label>
+                <input id="accent-hex" className="accent-hex" aria-label="Accent hex code" value={hex} maxLength={7} spellCheck={false} onChange={(event) => editHex(event.target.value)} onBlur={() => setHex(accent.toUpperCase())} />
+            </div>
+        </div>
+        <h3 className="design-subheading">Layouts</h3>
         <fieldset className="space-y-3">
             <legend className="sr-only">Choose a CV template</legend>
             {TEMPLATES.map((template) => <label key={template.id} className="template-option">
@@ -22,7 +37,7 @@ export function TemplatePicker({ selected, onSelect }) {
                 </span>
             </label>)}
         </fieldset>
-        <p className="mt-6 text-xs leading-relaxed text-muted">Every template uses real text and clear headings. Essential and Editorial follow a single reading column.</p>
+        <p className="mt-6 text-xs leading-relaxed text-muted">Essential and Editorial keep a straightforward single reading column. The more visual layouts can suit direct sharing; check the employer's file requirements when applying. A design alone cannot guarantee an application score.</p>
         <a className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline" href="https://help.lever.co/s/article/Understanding-Resume-Parsing" target="_blank" rel="noreferrer">About CV parsing<ArrowUpRight size={12} /></a>
     </>;
 }

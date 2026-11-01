@@ -52,6 +52,6 @@ export function normalizeLinks(value, contact) {
         const retired = Object.hasOwn(retiredTypes, link.platform) ? retiredTypes[link.platform] : null;
         const raw = String(link.value ?? "");
         const value = retired && /^@?[\w-]+$/.test(raw.trim()) ? retired.base + encodeURIComponent(raw.trim().replace(/^@/, "")) : raw;
-        return { id, platform: linkType(link.platform).id, label: String(link.label || retired?.label || ""), value };
+        return { id, hidden: link.hidden === true, platform: linkType(link.platform).id, label: String(link.label || retired?.label || ""), value };
     });
 }
