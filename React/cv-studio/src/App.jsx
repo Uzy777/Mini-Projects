@@ -1,9 +1,10 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { ArrowDownToLine, Check, ChevronDown, FileText, FolderOpen, LayoutTemplate, Moon, PanelLeft, Plus, RotateCcw, ShieldCheck, Sun, Trash2, X } from "lucide-react";
+import { ArrowDownToLine, ArrowUp, ArrowDown, Copy, Check, ChevronDown, FileText, FolderOpen, LayoutTemplate, Moon, PanelLeft, Plus, RotateCcw, ShieldCheck, Sun, Trash2, X } from "lucide-react";
 import { exampleCv, normalizeCv, parseCv, renderCv, STORAGE_KEY, TEMPLATES, toYaml } from "./cv.js";
 import { TemplatePicker } from "./TemplatePicker.jsx";
 import { PAGE_WIDTH, paginateDocument, printPages } from "./pagination.js";
 import { highlightField } from "./preview-highlight.js";
+import { SocialLinks } from "./SocialLinks.jsx";
 
 const PREFERENCES_KEY = "cv-studio-preferences-v1";
 const sections = [
@@ -44,43 +45,44 @@ function download(filename, content, type) {
     link.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-function Field({ fieldKey, label, value, onChange, multiline = false, hint, placeholder, type = "text" }) {
+function Field({ fieldKey, label, value, onChange, multiline = false, hint, placeholder, type = "text", count }) {
     const id = useId();
     const props = { id, value, placeholder, "data-preview-field": fieldKey, onChange: (event) => onChange(event.target.value), "aria-describedby": hint ? `${id}-hint` : undefined };
     return <div className="field">
-        <label htmlFor={id}>{label}</label>
+        <label htmlFor={id}>{label}{count !== undefined && <span className="field-count">{count}</span>}</label>
         {multiline ? <textarea {...props} rows={4} /> : <input {...props} type={type} />}
         {hint && <p id={`${id}-hint`} className="field-hint">{hint}</p>}
     </div>;
 }
 function ListField({ fieldKey, label, values, onChange, hint }) {
-    return <Field fieldKey={fieldKey} label={label} value={values.join("\n")} onChange={(value) => onChange(value ? value.split("\n") : [])} multiline hint={hint || "One item per line"} />;
+    return <Field fieldKey={fieldKey} label={label} count={values.filter((value) => value.trim()).length} value={values.join("\n")} onChange={(value) => onChange(value ? value.split("\n") : [])} multiline hint={hint || "One item per line"} />;
 }
-function ItemCard({ title, subtitle, onRemove, children, initiallyOpen = false }) {
+function ItemCard({ title, subtitle, onRemove, onMoveUp, onMoveDown, onDuplicate, children, initiallyOpen = false }) {
     const [open, setOpen] = useState(initiallyOpen);
     const id = useId();
     return <article className="item-card">
-        <button type="button" className="item-heading" aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>
+        <div className="item-card-header"><button type="button" className="item-heading" aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>
             <span className="min-w-0"><span className="block truncate text-sm font-semibold">{title}</span>{subtitle && <span className="mt-1 block truncate text-xs text-muted">{subtitle}</span>}</span>
             <ChevronDown size={17} className={`shrink-0 text-muted transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
-        </button>
+        </button><div className="entry-actions">
+            <button className="entry-action" type="button" disabled={!onMoveUp} onClick={onMoveUp} title="Move up" aria-label={`Move ${title} up`}><ArrowUp size={14} /></button>
+            <button className="entry-action" type="button" disabled={!onMoveDown} onClick={onMoveDown} title="Move down" aria-label={`Move ${title} down`}><ArrowDown size={14} /></button>
+            <button className="entry-action" type="button" onClick={onDuplicate} title="Duplicate entry" aria-label={`Duplicate ${title}`}><Copy size={14} /></button>
+        </div></div>
         {open && <div id={id} className="item-content panel-enter">{children}<button className="button-quiet text-danger" type="button" onClick={onRemove} aria-label={`Remove ${title}`}><Trash2 size={14} />Remove entry</button></div>}
     </article>;
 }
-function Collection({ title, description, items, onAdd, renderItem, addLabel }) {
+function Collection({ title, description, items, onAdd, renderItem, addLabel, focusId }) {
     const listRef = useRef(null);
-    const previousLength = useRef(items.length);
     useEffect(() => {
-        if (items.length > previousLength.current) {
-            const input = listRef.current?.lastElementChild?.querySelector("input, textarea");
-            input?.focus({ preventScroll: true });
-            input?.scrollIntoView({ block: "nearest", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
-        }
-        previousLength.current = items.length;
-    }, [items.length]);
+        const entry = [...listRef.current.children].find((element) => element.dataset.entryId === focusId);
+        const input = entry?.querySelector("input, textarea");
+        input?.focus({ preventScroll: true });
+        input?.scrollIntoView({ block: "nearest", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+    }, [focusId]);
     return <>
         <div className="section-intro"><h2>{title}</h2><p>{description}</p></div>
-        <div className="space-y-3" ref={listRef}>{items.length ? items.map((item, index) => <div key={index}>{renderItem(item, index)}</div>) : <p className="empty-state">No entries yet.</p>}</div>
+        <div className="space-y-3" ref={listRef}>{items.length ? items.map((item, index) => <div key={item.id} data-entry-id={item.id}>{renderItem(item, index)}</div>) : <p className="empty-state">No entries yet.</p>}</div>
         <button className="add-button" type="button" onClick={onAdd}><Plus size={16} />{addLabel}</button>
     </>;
 }
@@ -96,6 +98,7 @@ export default function App() {
     const [saveMessage, setSaveMessage] = useState("Saved locally");
     const [notice, setNotice] = useState("");
     const [undoCv, setUndoCv] = useState(null);
+    const [newEntryId, setNewEntryId] = useState(null);
     const [previewScale, setPreviewScale] = useState(1);
     const [previewHeight, setPreviewHeight] = useState(1123);
     const [pageCount, setPageCount] = useState(0);
@@ -127,7 +130,7 @@ export default function App() {
     }, [preferences]);
     useEffect(() => {
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(cv));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizeCv(cv)));
             setSaveMessage("Saved locally");
         } catch { setSaveMessage("Save unavailable — export a backup"); }
     }, [cv]);
@@ -170,7 +173,37 @@ export default function App() {
     const update = (key, value) => edit((current) => ({ ...current, [key]: value }));
     const updateContact = (key, value) => edit((current) => ({ ...current, contact: { ...current.contact, [key]: value } }));
     const updateItem = (group, index, key, value) => edit((current) => ({ ...current, [group]: current[group].map((item, position) => position === index ? { ...item, [key]: value } : item) }));
-    const addItem = (group) => edit((current) => ({ ...current, [group]: [...current[group], { ...emptyItems[group] }] }));
+    function structuralEdit(group, items, message) {
+        activeFieldRef.current = null;
+        showField();
+        setUndoCv(cv);
+        setCv((current) => ({ ...current, [group]: items }));
+        setNotice(message);
+    }
+    function addItem(group) {
+        const id = crypto.randomUUID();
+        setNewEntryId(id);
+        structuralEdit(group, [...cv[group], { ...structuredClone(emptyItems[group]), id }], "Entry added.");
+    }
+    function moveItem(group, index, direction) {
+        const next = index + direction;
+        if (next < 0 || next >= cv[group].length) return;
+        const items = [...cv[group]];
+        [items[index], items[next]] = [items[next], items[index]];
+        structuralEdit(group, items, `Entry moved ${direction < 0 ? "up" : "down"}.`);
+    }
+    function duplicateItem(group, index) {
+        const id = crypto.randomUUID();
+        const items = [...cv[group]];
+        items.splice(index + 1, 0, { ...structuredClone(items[index]), id });
+        setNewEntryId(id);
+        structuralEdit(group, items, "Entry duplicated.");
+    }
+    function addLink(platform) {
+        const id = crypto.randomUUID();
+        structuralEdit("links", [...cv.links, { id, platform, label: "", value: "" }], "Link added.");
+        return id;
+    }
     const removeItem = (group, index) => {
         activeFieldRef.current = null;
         showField();
@@ -270,7 +303,7 @@ export default function App() {
                     <span className="hidden text-[11px] text-muted sm:block">Local draft</span>
                 </div>
                 {mode === "content" && <nav className="section-nav" aria-label="CV sections">
-                    {sections.map((entry) => <button key={entry.id} type="button" aria-current={section === entry.id ? "page" : undefined} onClick={() => setSection(entry.id)}>{entry.label}</button>)}
+                    {sections.map((entry) => <button key={entry.id} type="button" aria-current={section === entry.id ? "page" : undefined} onClick={() => { setNewEntryId(null); setSection(entry.id); }}>{entry.label}{entry.id !== "basics" && <span className="nav-count">{entry.id === "qualifications" ? cv.education.length + cv.certifications.length : entry.id === "skills" ? cv.skills.filter((skill) => skill.trim()).length : cv[entry.id].length}</span>}</button>)}
                 </nav>}
                 <div className="editor-scroll">
                     <div key={`${mode}-${section}`} className="editor-content panel-enter">
@@ -282,11 +315,10 @@ export default function App() {
                         <Field fieldKey="summary" label="Personal profile" value={cv.summary} onChange={(value) => update("summary", value)} multiline  />
                         <h3 className="form-subheading">Contact details</h3>
                         <div className="field-grid"><Field fieldKey="contact.email" label="Email" type="email" value={cv.contact.email} onChange={(value) => updateContact("email", value)} /><Field fieldKey="contact.phone" label="Phone" type="tel" value={cv.contact.phone} onChange={(value) => updateContact("phone", value)} /></div>
-                        <div className="field-grid"><Field fieldKey="contact.linkedin" label="LinkedIn" value={cv.contact.linkedin} onChange={(value) => updateContact("linkedin", value)} placeholder="linkedin.com/in/you" /><Field fieldKey="contact.github" label="GitHub" value={cv.contact.github} onChange={(value) => updateContact("github", value)} placeholder="github.com/you" /></div>
-                        <Field fieldKey="website" label="Website" value={cv.website} onChange={(value) => update("website", value)} placeholder="your-site.com" />
+                        <SocialLinks links={cv.links} onAdd={addLink} onChange={(index, key, value) => updateItem("links", index, key, value)} onRemove={(index) => removeItem("links", index)} onMove={(index, direction) => moveItem("links", index, direction)} />
                     </>}
 
-                    {section === "experience" && <Collection title="Experience" description="Your most recent role first." items={cv.experience} addLabel="Add experience" onAdd={() => addItem("experience")} renderItem={(item, index) => <ItemCard initiallyOpen={index === 0 || !item.role} title={item.role || `Role ${index + 1}`} subtitle={item.company} onRemove={() => removeItem("experience", index)}>
+                    {section === "experience" && <Collection focusId={newEntryId} title="Experience" description="Your most recent role first." items={cv.experience} addLabel="Add experience" onAdd={() => addItem("experience")} renderItem={(item, index) => <ItemCard onMoveUp={index > 0 ? () => moveItem("experience", index, -1) : undefined} onMoveDown={index < cv.experience.length - 1 ? () => moveItem("experience", index, 1) : undefined} onDuplicate={() => duplicateItem("experience", index)} initiallyOpen={index === 0 || !item.role || item.id === newEntryId} title={item.role || `Role ${index + 1}`} subtitle={item.company} onRemove={() => removeItem("experience", index)}>
                         <div className="field-grid"><Field fieldKey={`experience.${index}.role`} label="Role" value={item.role} onChange={(value) => updateItem("experience", index, "role", value)} /><Field fieldKey={`experience.${index}.company`} label="Company" value={item.company} onChange={(value) => updateItem("experience", index, "company", value)} /></div>
                         <div className="field-grid"><Field fieldKey={`experience.${index}.location`} label="Location" value={item.location} onChange={(value) => updateItem("experience", index, "location", value)} /><Field fieldKey={`experience.${index}.type`} label="Employment type" value={item.type} onChange={(value) => updateItem("experience", index, "type", value)} /></div>
                         <div className="field-grid"><Field fieldKey={`experience.${index}.start`} label="Start" value={item.start} onChange={(value) => updateItem("experience", index, "start", value)} placeholder="Jan 2024" /><Field fieldKey={`experience.${index}.end`} label="End" value={item.end} onChange={(value) => updateItem("experience", index, "end", value)} placeholder="Present" /></div>
@@ -295,7 +327,7 @@ export default function App() {
                         <ListField fieldKey={`experience.${index}.tech`} label="Technologies" values={item.tech} onChange={(value) => updateItem("experience", index, "tech", value)} />
                     </ItemCard>} />}
 
-                    {section === "projects" && <Collection title="Projects" description="Show the work you want readers to notice." items={cv.projects} addLabel="Add project" onAdd={() => addItem("projects")} renderItem={(item, index) => <ItemCard initiallyOpen={index === 0 || !item.name} title={item.name || `Project ${index + 1}`} onRemove={() => removeItem("projects", index)}>
+                    {section === "projects" && <Collection focusId={newEntryId} title="Projects" description="Show the work you want readers to notice." items={cv.projects} addLabel="Add project" onAdd={() => addItem("projects")} renderItem={(item, index) => <ItemCard onMoveUp={index > 0 ? () => moveItem("projects", index, -1) : undefined} onMoveDown={index < cv.projects.length - 1 ? () => moveItem("projects", index, 1) : undefined} onDuplicate={() => duplicateItem("projects", index)} initiallyOpen={index === 0 || !item.name || item.id === newEntryId} title={item.name || `Project ${index + 1}`} onRemove={() => removeItem("projects", index)}>
                         <Field fieldKey={`projects.${index}.name`} label="Project name" value={item.name} onChange={(value) => updateItem("projects", index, "name", value)} />
                         <Field fieldKey={`projects.${index}.description`} label="Description" value={item.description} onChange={(value) => updateItem("projects", index, "description", value)} multiline />
                         <ListField fieldKey={`projects.${index}.tech`} label="Technologies" values={item.tech} onChange={(value) => updateItem("projects", index, "tech", value)} />
@@ -303,13 +335,13 @@ export default function App() {
                     </ItemCard>} />}
 
                     {section === "qualifications" && <>
-                        <Collection title="Education" description="Degrees, courses, and other education." items={cv.education} addLabel="Add education" onAdd={() => addItem("education")} renderItem={(item, index) => <ItemCard initiallyOpen={index === 0 || !item.institution} title={item.institution || `Education ${index + 1}`} onRemove={() => removeItem("education", index)}>
+                        <Collection focusId={newEntryId} title="Education" description="Degrees, courses, and other education." items={cv.education} addLabel="Add education" onAdd={() => addItem("education")} renderItem={(item, index) => <ItemCard onMoveUp={index > 0 ? () => moveItem("education", index, -1) : undefined} onMoveDown={index < cv.education.length - 1 ? () => moveItem("education", index, 1) : undefined} onDuplicate={() => duplicateItem("education", index)} initiallyOpen={index === 0 || !item.institution || item.id === newEntryId} title={item.institution || `Education ${index + 1}`} onRemove={() => removeItem("education", index)}>
                             <Field fieldKey={`education.${index}.institution`} label="Institution" value={item.institution} onChange={(value) => updateItem("education", index, "institution", value)} />
                             <Field fieldKey={`education.${index}.course`} label="Course or qualification" value={item.course} onChange={(value) => updateItem("education", index, "course", value)} />
                             <div className="field-grid"><Field fieldKey={`education.${index}.start`} label="Start" value={item.start} onChange={(value) => updateItem("education", index, "start", value)} /><Field fieldKey={`education.${index}.end`} label="End" value={item.end} onChange={(value) => updateItem("education", index, "end", value)} /></div>
                         </ItemCard>} />
                         <div className="collection-divider" />
-                        <Collection title="Certifications" description="Professional certificates and awards." items={cv.certifications} addLabel="Add certification" onAdd={() => addItem("certifications")} renderItem={(item, index) => <ItemCard initiallyOpen={index === 0 || !item.title} title={item.title || `Certification ${index + 1}`} onRemove={() => removeItem("certifications", index)}>
+                        <Collection focusId={newEntryId} title="Certifications" description="Professional certificates and awards." items={cv.certifications} addLabel="Add certification" onAdd={() => addItem("certifications")} renderItem={(item, index) => <ItemCard onMoveUp={index > 0 ? () => moveItem("certifications", index, -1) : undefined} onMoveDown={index < cv.certifications.length - 1 ? () => moveItem("certifications", index, 1) : undefined} onDuplicate={() => duplicateItem("certifications", index)} initiallyOpen={index === 0 || !item.title || item.id === newEntryId} title={item.title || `Certification ${index + 1}`} onRemove={() => removeItem("certifications", index)}>
                             <Field fieldKey={`certifications.${index}.title`} label="Title" value={item.title} onChange={(value) => updateItem("certifications", index, "title", value)} />
                             <div className="field-grid"><Field fieldKey={`certifications.${index}.issuer`} label="Issuer" value={item.issuer} onChange={(value) => updateItem("certifications", index, "issuer", value)} /><Field fieldKey={`certifications.${index}.issued`} label="Issued" value={item.issued} onChange={(value) => updateItem("certifications", index, "issued", value)} /></div>
                         </ItemCard>} />

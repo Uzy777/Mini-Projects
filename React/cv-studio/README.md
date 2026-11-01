@@ -15,12 +15,14 @@ Open the URL Vite prints (usually `http://localhost:5173`). For a production bui
 ## Use it
 
 - Focus a field to highlight its matching text in the preview. The preview scrolls to the relevant area, and highlights are excluded from PDFs.
-- Edit the fields under **Content**. Experience, project and qualification entries expand individually. Removing an entry offers **Undo** until you make another edit.
+- Edit the fields under **Content**. Experience, project and qualification entries expand individually, with controls to move or duplicate entries. Adding, moving, duplicating or removing an entry offers **Undo** until you make another edit. Section and list counts help you keep track of the content.
+- Under **Profile → Social & web links**, choose a platform using the icon picker. Add URLs or supported usernames, change their order, and open valid links to check them. **Other link** supports a custom label. Existing LinkedIn, GitHub and website fields are carried over automatically; links remain clickable in the CV and PDF.
 - Open **Templates** to choose **Original** (the unchanged default design), **Essential** (compact, single column), or **Editorial** (single column with serif headings). Switching layouts keeps your details.
 - The sun/moon button changes the editor theme. It initially follows your device and remembers your choice. The CV itself always stays white.
 - The preview shows separate A4 pages and the page count. **Save PDF** uses those same pages in the current tab's browser print window. Choose **Save as PDF** with A4 paper and 100% scale. No paid service or server is needed.
 - Under **File**, use **Import YAML / JSON** to open your existing `Scripts/cv-generator/data/cv.yaml` from your computer. The app starts with the example CV so personal contact details are not bundled into a public build.
 - **File → Export YAML backup** saves portable CV data compatible with the original script. Theme and template preferences are stored separately in this browser.
+- Backups include the full `links` list. The first LinkedIn, GitHub and Website entries also populate the legacy fields for the original script; additional platforms and custom labels are rendered by this editor.
 - On smaller screens, switch between **Editor** and **Preview**. Preview offers **Fit** and **100%** zoom.
 - Changes are saved to this browser's local storage and load on your next visit using the same browser and site address. Export a backup before clearing site data or switching devices.
 

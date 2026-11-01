@@ -22,7 +22,12 @@ export function highlightField(doc, key, theme) {
     }
     layer.replaceChildren();
     if (!key) return null;
-    const matches = [...doc.querySelectorAll("[data-cv-field]")].filter((element) => element.dataset.cvField === key);
+    const fields = [...doc.querySelectorAll("[data-cv-field]")];
+    let matches = fields.filter((element) => element.dataset.cvField === key);
+    // Single-column templates show link text without a separate label.
+    if (!matches.length && key.startsWith("links.") && key.endsWith(".label")) {
+        matches = fields.filter((element) => element.dataset.cvField === key.replace(/\.label$/, ".value"));
+    }
     let first = null;
     for (const element of matches) {
         const rect = element.getBoundingClientRect();

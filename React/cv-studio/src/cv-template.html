@@ -202,6 +202,8 @@
                 word-break: break-word;
             }
 
+            .contact-item a { color: inherit; text-decoration: none; }
+
             .qual-item {
                 margin-bottom: 12px;
             }
@@ -301,20 +303,7 @@
                             <p>{{phone}}</p>
                         </div>
 
-                        <div class="contact-item">
-                            <strong>LinkedIn</strong>
-                            <p>{{linkedin}}</p>
-                        </div>
-
-                        <div class="contact-item">
-                            <strong>GitHub</strong>
-                            <p>{{github}}</p>
-                        </div>
-
-                        <div class="contact-item">
-                            <strong>Website</strong>
-                            <p>{{website}}</p>
-                        </div>
+                        {{links}}
                     </section>
 
                     <section class="section">

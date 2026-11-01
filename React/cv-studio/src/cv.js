@@ -1,4 +1,5 @@
 import yaml from "js-yaml";
+import { normalizeLinks, linkLabel, socialUrl, safeWebUrl } from "./social-links.js";
 import template from "./cv-template.html?raw";
 import exampleYaml from "./example.yaml?raw";
 
@@ -13,38 +14,55 @@ const text = (value) => (value == null ? "" : String(value));
 const list = (value) => (Array.isArray(value) ? value.map(text) : []);
 const records = (value) => (Array.isArray(value) ? value.filter((item) => item && typeof item === "object" && !Array.isArray(item)) : []);
 
+const entries = (value, group) => {
+    const ids = new Set();
+    return records(value).map((item, index) => {
+        let id = text(item.id) || `${group}-${index}`;
+        while (ids.has(id)) id += "-copy";
+        ids.add(id);
+        return { ...item, id };
+    });
+};
+
 export function normalizeCv(value) {
     if (!value || typeof value !== "object" || Array.isArray(value)) {
         throw new Error("The file must contain a CV with named fields.");
     }
 
     const contact = value.contact && typeof value.contact === "object" ? value.contact : {};
+    const links = normalizeLinks(value, contact);
+    const legacyLink = (platform) => links.find((link) => link.platform === platform)?.value || "";
     return {
         name: text(value.name),
         title: text(value.title),
-        website: text(value.website),
+        website: legacyLink("website"),
+        links,
         contact: {
             email: text(contact.email),
             phone: text(contact.phone),
-            linkedin: text(contact.linkedin),
-            github: text(contact.github),
+            linkedin: legacyLink("linkedin"),
+            github: legacyLink("github"),
             location: text(contact.location),
         },
         summary: text(value.summary),
-        experience: records(value.experience).map((item) => ({
+        experience: entries(value.experience, "experience").map((item) => ({
+            id: item.id,
             role: text(item.role), company: text(item.company), location: text(item.location),
             type: text(item.type), start: text(item.start), end: text(item.end),
             info: text(item.info), bullets: list(item.bullets), tech: list(item.tech),
         })),
-        projects: records(value.projects).map((item) => ({
+        projects: entries(value.projects, "projects").map((item) => ({
+            id: item.id,
             name: text(item.name), description: text(item.description),
             bullets: list(item.bullets), tech: list(item.tech), link: text(item.link),
         })),
-        education: records(value.education).map((item) => ({
+        education: entries(value.education, "education").map((item) => ({
+            id: item.id,
             institution: text(item.institution), course: text(item.course),
             start: text(item.start), end: text(item.end),
         })),
-        certifications: records(value.certifications).map((item) => ({
+        certifications: entries(value.certifications, "certifications").map((item) => ({
+            id: item.id,
             title: text(item.title), issuer: text(item.issuer), issued: text(item.issued),
         })),
         skills: list(value.skills),
@@ -64,28 +82,29 @@ export function parseCv(source, filename = "") {
 }
 
 export function toYaml(cv) {
-    return yaml.dump(cv, { lineWidth: 100, noRefs: true });
+    const portable = normalizeCv(cv);
+    for (const group of ["links", "experience", "projects", "education", "certifications"]) {
+        portable[group] = portable[group].map(({ id, ...item }) => item);
+    }
+    return yaml.dump(portable, { lineWidth: 100, noRefs: true });
 }
 
 const escapeHtml = (value) => text(value).replace(/[&<>"']/g, (character) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
 })[character]);
 
-function projectUrl(value) {
-    const input = text(value).trim();
-    if (!input) return "";
-    try {
-        const url = new URL(/^https?:\/\//i.test(input) ? input : `https://${input}`);
-        return ["http:", "https:"].includes(url.protocol) ? url.href : "";
-    } catch {
-        return "";
-    }
-}
+const projectUrl = safeWebUrl;
 
 // Stable field IDs survive pagination and let the editor point to exact text.
 const field = (key, value) => `<span data-cv-field="${escapeHtml(key)}">${escapeHtml(value)}</span>`;
 const joinedFields = (prefix, record, keys, separator) => keys.filter((key) => record[key]).map((key) => field(`${prefix}${key}`, record[key])).join(separator)
     + keys.filter((key) => !record[key]).map((key) => field(`${prefix}${key}`, "")).join("");
+
+function renderedLink(link, index) {
+    const content = field(`links.${index}.value`, link.value);
+    const url = socialUrl(link);
+    return url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${content}</a>` : content;
+}
 
 export function renderCv(cv, templateId = "original") {
     if (templateId === "essential" || templateId === "editorial") return renderSingleColumn(cv, templateId);
@@ -121,11 +140,12 @@ export function renderCv(cv, templateId = "original") {
     const certifications = cv.certifications.map((item, index) => `<span class="qual-title">${field(`certifications.${index}.title`, item.title)}</span>
         <p class="qual-meta">${field(`certifications.${index}.issuer`, item.issuer)} | ${field(`certifications.${index}.issued`, item.issued)}</p>`).join("");
 
+    const links = cv.links.map((link, index) => link.value.trim() ? `<div class="contact-item"><strong data-cv-field="links.${index}.label">${e(linkLabel(link))}</strong><p>${renderedLink(link, index)}</p></div>` : field(`links.${index}.value`, "")).join("");
     const replacements = {
         name: cv.name, title: cv.title, summary: cv.summary,
         email: cv.contact.email, phone: cv.contact.phone, linkedin: cv.contact.linkedin,
         github: cv.contact.github, location: cv.contact.location, website: cv.website,
-        skills, projects, experience, education, certifications,
+        skills, projects, experience, education, certifications, links,
     };
 
     return template.replace("</style>", `@media screen {
@@ -135,7 +155,7 @@ export function renderCv(cv, templateId = "original") {
         </style>`).replace(/{{(\w+)}}/g, (_, key) => {
         const value = replacements[key] ?? "";
         const path = ["email", "phone", "linkedin", "github", "location"].includes(key) ? `contact.${key}` : key;
-        return ["skills", "projects", "experience", "education", "certifications"].includes(key) ? value : field(path, value);
+        return ["skills", "projects", "experience", "education", "certifications", "links"].includes(key) ? value : field(path, value);
     });
 }
 
@@ -146,8 +166,8 @@ function renderSingleColumn(cv, templateId) {
     const dates = (item, prefix) => joinedFields(prefix, item, ["start", "end"], " - ");
     const section = (heading, content) => content ? `<section><h2>${heading}</h2>${content}</section>` : "";
     const tech = (values, key) => values.some((value) => value.trim()) ? `<p class="technology" data-cv-field="${key}"><strong>Technologies:</strong> ${values.filter((value) => value.trim()).map(e).join(" · ")}</p>` : field(key, "");
-    const contact = [["contact.email", cv.contact.email], ["contact.phone", cv.contact.phone], ["contact.location", cv.contact.location], ["website", cv.website], ["contact.linkedin", cv.contact.linkedin], ["contact.github", cv.contact.github]];
-    const contactHtml = contact.filter(([, value]) => value).map(([key, value]) => field(key, value)).join(" · ") + contact.filter(([, value]) => !value).map(([key]) => field(key, "")).join("");
+    const contact = [["contact.email", cv.contact.email], ["contact.phone", cv.contact.phone], ["contact.location", cv.contact.location]];
+    const contactHtml = [...contact.filter(([, value]) => value).map(([key, value]) => field(key, value)), ...cv.links.map((link, index) => link.value.trim() ? `${link.label.trim() ? `${field(`links.${index}.label`, link.label)}: ` : ""}${renderedLink(link, index)}` : "").filter(Boolean)].join(" · ") + cv.links.map((link, index) => !link.value.trim() ? field(`links.${index}.value`, "") : "").join("") + contact.filter(([, value]) => !value).map(([key]) => field(key, "")).join("");
     const experience = cv.experience.map((job, index) => `<article>
         <h3>${field(`experience.${index}.role`, job.role)}</h3>
         <p class="meta">${joinedFields(`experience.${index}.`, job, ["company", "location", "type"], " · ")}${job.start || job.end ? " - " : ""}${dates(job, `experience.${index}.`)}</p>
@@ -171,6 +191,7 @@ function renderSingleColumn(cv, templateId) {
         h1 { font-size: 30px; line-height: 1.12; margin: 0 0 5px; letter-spacing: -.4px; }
         .title { font-size: 15px; margin-bottom: 8px; }
         .contact { font-size: 11px; color: #444; overflow-wrap: anywhere; }
+        .contact a { color: inherit; text-decoration: none; }
         section { margin-bottom: 18px; }
         h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 10px; padding-bottom: 4px; border-bottom: 1px solid #ccc; break-after: avoid; }
         h3 { font-size: 14px; margin: 0 0 2px; }

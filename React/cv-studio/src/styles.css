@@ -44,8 +44,8 @@
     body { @apply m-0 min-w-80 bg-canvas text-ink antialiased; }
     button, summary, label.template-option { -webkit-tap-highlight-color: transparent; }
     button, summary { @apply cursor-pointer; }
-    button, a, input, textarea, summary { @apply outline-offset-4 focus-visible:outline-2 focus-visible:outline-accent; }
-    button, input, textarea, summary { @apply transition-[background-color,border-color,color,box-shadow,transform] duration-150; }
+    button, a, input, textarea, select, summary { @apply outline-offset-4 focus-visible:outline-2 focus-visible:outline-accent; }
+    button, input, textarea, select, summary { @apply transition-[background-color,border-color,color,box-shadow,transform] duration-150; }
     button:disabled { @apply cursor-not-allowed opacity-50; }
     summary::-webkit-details-marker { display: none; }
 }
@@ -80,14 +80,36 @@
     .field label { @apply mb-2 block text-[11px] font-semibold text-ink; }
     .field input, .field textarea { @apply block min-h-11 w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-[13px] leading-relaxed text-ink placeholder:text-muted/60 hover:border-muted/50 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20; }
     .field:focus-within label { @apply text-accent; }
+    .field-count { @apply float-right rounded bg-soft px-1.5 text-[10px] font-normal text-muted; }
+    .nav-count { @apply ml-1 text-[9px] text-muted; }
+    .count-badge { @apply rounded-md bg-soft px-2 py-0.5 text-[10px] font-medium text-muted; }
     .field textarea { @apply min-h-25 resize-y; }
     .field-hint { @apply mt-1.5 text-[10px] leading-relaxed text-muted; }
     .form-subheading { @apply mb-5 mt-6 border-t border-line pt-6 text-sm font-semibold; }
     .item-card { @apply overflow-hidden rounded-xl border border-line bg-surface; }
+    .item-card-header { @apply flex items-center pr-2; }
+    .item-card-header .item-heading { @apply min-w-0 flex-1; }
+    .entry-actions { @apply flex shrink-0 items-center; }
+    .entry-action { @apply inline-flex size-8 shrink-0 items-center justify-center rounded-md text-muted hover:bg-soft hover:text-ink disabled:opacity-30; }
     .item-heading { @apply flex w-full items-center justify-between gap-3 p-4 text-left hover:bg-soft; }
     .item-content { @apply border-t border-line p-4; }
     .add-button { @apply mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-muted/40 bg-transparent px-4 text-xs font-medium text-accent hover:border-accent hover:bg-accent-soft active:scale-[.99]; }
     .empty-state { @apply rounded-lg bg-soft p-6 text-center text-xs text-muted; }
+    .social-card { @apply rounded-xl border border-line bg-surface p-3; }
+    .social-heading { @apply mb-2 flex items-center gap-2; }
+    .social-icon { @apply flex size-8 shrink-0 items-center justify-center rounded-md bg-soft text-accent; }
+    .brand-icon { @apply size-[17px] shrink-0; }
+    :root[data-theme="dark"] .brand-icon { filter: invert(1); }
+    .social-heading select { @apply min-h-9 min-w-0 flex-1 rounded-md border border-line bg-surface px-2 text-xs font-medium text-ink; }
+    .social-card .field { @apply mb-2; }
+    .social-card .field:last-child { @apply mb-0; }
+    .social-value { @apply relative; }
+    .social-value input { @apply pr-10; }
+    .social-value > a { @apply absolute right-1 top-1.5; }
+    .link-picker { @apply mt-3 rounded-xl border border-line bg-soft p-3; }
+    .link-picker > p { @apply mb-2 text-[11px] font-semibold text-muted; }
+    .link-picker > div { @apply grid grid-cols-2 gap-1; }
+    .link-picker button { @apply flex min-h-10 items-center gap-2 rounded-md px-2 text-left text-xs text-ink hover:bg-surface; }
     .collection-divider { @apply my-7 border-t border-line; }
     .editor-footer { @apply mx-5 mb-6 flex items-start gap-2 border-t border-line pt-4 text-[10px] leading-relaxed text-muted sm:mx-7; }
     .preview-area { @apply min-h-0 min-w-0 flex-col bg-canvas; }
