@@ -36,6 +36,21 @@ Open the URL Vite prints (usually `http://localhost:5173`). For a production bui
 
 No account, backend, analytics, or external API is used. If this project is hosted publicly, each visitor starts with a blank CV and their draft stays in their own browser. Browser print settings can affect pagination; check the PDF preview before saving, especially for longer CVs.
 
+## Cloudflare Workers deployment
+
+From `React/cv-studio`, run `npm ci`, `npm test`, `npm run build`, then `npx wrangler deploy`. `wrangler.jsonc` publishes Vite's `dist/` as Workers Static Assets for `uzy-cv-editor` and attaches the exact custom domain `cv.uzy777.dev`. It does not define a Worker script or backend. The SPA fallback serves `index.html` for deep links.
+
+For automatic deployment, connect the existing **uzy-cv-editor** Worker to `Uzy777/Mini-Projects` in Cloudflare **Workers & Pages → uzy-cv-editor → Settings → Builds → Connect**. Authorize Cloudflare's GitHub app for that repository if prompted, then set:
+
+- Production branch: `main`
+- Root directory: `React/cv-studio`
+- Build command: `npm run build`
+- Deploy command: `npx wrangler deploy`
+- Build watch include path: `React/cv-studio/*`
+- Build watch exclude paths: none
+
+The CV editor has no shared dependencies outside its directory. Cloudflare will install this directory's dependencies using its own `package-lock.json`. A push must contain the deployment files before a Workers Build can use them. Do not attach the portfolio's apex hostname to this Worker.
+
 ## Parsing and accessibility
 
 All templates keep CV copy as real text rather than turning the page into an image. Essential and Editorial use the simplest single-column reading order. Modern and Minimal remain single-column but add more visual styling; Original and Structured use two columns. According to [Greenhouse's parsing guidance](https://support.greenhouse.io/hc/en-us/articles/200989175-Unsuccessful-resume-parse), columns and graphics can interfere with some resume parsers. A layout cannot guarantee acceptance or ranking by every applicant tracking system. Follow the employer's requested file format.

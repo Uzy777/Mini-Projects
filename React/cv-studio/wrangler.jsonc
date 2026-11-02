@@ -1,0 +1,15 @@
+{
+    "$schema": "./node_modules/wrangler/config-schema.json",
+    "name": "uzy-cv-editor",
+    "compatibility_date": "2026-11-02",
+    "assets": {
+        "directory": "./dist",
+        "not_found_handling": "single-page-application"
+    },
+    "routes": [
+        {
+            "pattern": "cv.uzy777.dev",
+            "custom_domain": true
+        }
+    ]
+}
